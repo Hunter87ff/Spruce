@@ -79,7 +79,7 @@ async def role(ctx, role: discord.Role , user: discord.Member):
     await ctx.send(f"<:vf:947194381172084767> {role.mention} has been given to {user.mention}")
 
 
-#role give
+#role remove
 @bot.command(pass_context=True)
 async def rrole(ctx, role: discord.Role , user: discord.Member):
     await user.remove_roles(role)
@@ -91,7 +91,7 @@ async def rrole(ctx, role: discord.Role , user: discord.Member):
 async def lock(ctx):
     await ctx.channel.set_permissions(ctx.guild.default_role,
                                       send_messages=False)
-    await ctx.send('Channel has been locked')
+    await ctx.send('**<:vf:947194381172084767> Channel has beenlocked'**')
 
 
 #Unlock command
