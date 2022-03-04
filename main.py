@@ -22,20 +22,6 @@ async def on_ready():
     print('bot is ready')
 
 
-#custom help
-"""class Nhelp(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        for page in self.paginator.pages:
-            embed = discord.Embed(title="Commands",description=page,color=3*679319,inline=False)
-            embed.add_field(name='Support Server', value='** [Join](https://discord.gg/aqGTGKVTfQ)**',inline=False)
-            await destination.send(embed=embed)
-            
-
-bot.help_command = Nhelp(no_category='Moderation')"""
-
-
-
 
 #prefix command
 @bot.command()
