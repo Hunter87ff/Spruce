@@ -2,15 +2,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="resources/css/main.css">
 
-  
-  
-  
 <body>
   <input id="button" type="button" value="Light" onclick="theme()"/>
+  
 <div class="div1">
 <h1>HUNTER BOT</h1></div>
 <div class="div2"></div>
 
 <script src="resources/js/index.js" type="text/javascript"></script>
+
+
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script>
+  window.OneSignal = window.OneSignal || [];
+  OneSignal.push(function() {
+    OneSignal.init({
+      appId: "fa1723d1-ebf7-4f56-92e6-e038c2252d67",
+      safari_web_id: "web.onesignal.auto.30826c80-9a56-405a-b53d-a917475ecc5b",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
 </body>
 <html>
