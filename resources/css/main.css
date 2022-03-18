@@ -10,6 +10,9 @@
   top: 1%;
   left: 1%;
   margin: 0;
+  background: red;
+  border-radius: 5px;
+  font-family: arial;
 }
 .div2{
   height: 50%;
