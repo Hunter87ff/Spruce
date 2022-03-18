@@ -1,48 +1,27 @@
+<!DOCTYPE html>
+ 
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="resources/css/main.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-<script src="resources/js/index.js"></script>
-<body>
-
-<button id="tbutton" onclick="theme()"/>Light</button>
-<div class="nav"></div>
-
-<div class="div1">
-<h1>HUNTER BOT</h1></div>
-
-<div class="div2">
-<img id="img_help_cmds" src="resources/images/cmds/help_command.jpg" title="help command" alt="help command"/>
-<a href="docs/commands.html" target="_blank">
-<button class="all_cmds" >Commands</button></a>
+  <head>
+    <title>Elastic tab animation navigation menus using HTML and CSS</title>
+    <link rel="stylesheet" href="resources/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  </head>
+  <body>
+    <div class="wrapper">
+      <nav>
+        <input type="radio" name="tab" id="home" checked>
+        <input type="radio" name="tab" id="news">
+        <input type="radio" name="tab" id="contact">
+        <input type="radio" name="tab" id="blog">
+        <input type="radio" name="tab" id="about">
+        <label for="home" class="home"><a href="#"><i class="fas fa-home"></i>Home</a></label>
+        <label for="news" class="news"><a href="#"><i class="fas fa-newspaper"></i>News</a></label>
+        <label for="contact" class="contact"><a href="#"><i class="fas fa-envelope"></i>Contact</a></label>
+        <label for="blog" class="blog"><a href="#"><i class="fas fa-blog"></i>Blog</a></label>
+        <label for="about" class="about"><a href="#"><i class="fas fa-user"></i>About</a></label>
+        <div class="tab">
 </div>
-
-
-
-
-
-
-
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-
-<script>
-  window.OneSignal = window.OneSignal || [];
-  OneSignal.push(function() {
-    OneSignal.init({
-      appId: "fa1723d1-ebf7-4f56-92e6-e038c2252d67",
-      safari_web_id: "web.onesignal.auto.30826c80-9a56-405a-b53d-a917475ecc5b",
-      notifyButton: {
-        enable: true,
-      },
-    });
-  });
-</script>
-<style>
-#tbutton{position: absolute;top: 5px;right: 10px;border-radius: 5px; border: none; font-family:arial ; text-transform: uppercase; max-width: 80px; color: black;}
-
-body{padding: 25px; background-color: black; color: cyan;font-size: 25px;}
-
-.dark-mode { background-color: white;color: black;
-}</style>
+</nav>
+    </div>
 </body>
-<html>
+</html>
