@@ -3,7 +3,15 @@
   padding: 0px;
   margin: 0px;
 }
-.2nd_div{
+.div2{
+  height: 60px;
+  width: 100%;
+  position: fixed;
+  top: 1%;
+  left: 1%;
+  margin: 0;
+}
+.div2{
   height: 50%;
   width: 100%;
   position: relative;
