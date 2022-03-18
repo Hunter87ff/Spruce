@@ -1,6 +1,6 @@
 /*hunter bot*/
 var element = document.body;
-var button = document.getElementById('button')
+var button = document.getElementById('tbutton')
 var count = 0;
 
 
