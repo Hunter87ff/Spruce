@@ -29,7 +29,7 @@
 }
 #cmds_btn{
   height: 40px;
-  width: 90px;
+  width: auto;
   border-radius: 5px;
   background: green;
   font-family: arial;
