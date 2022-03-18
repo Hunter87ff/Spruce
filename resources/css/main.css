@@ -3,7 +3,7 @@
   padding: 0px;
   margin: 0px;
 }
-.div2{
+.div1{
   height: 60px;
   width: 100%;
   position: fixed;
@@ -21,4 +21,12 @@
   width: 100%;
   position: relative;
   border-radius: 5px,black;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+#cmds_btn{
+  height: 40px;
+  width: 90px;
+  border-radius: 5px;
+  background: green;
 }
