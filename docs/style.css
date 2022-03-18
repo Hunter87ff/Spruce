@@ -9,4 +9,39 @@
   width:100%;
   background: blue;
   padding: 2px;
+  color: white;
 }
+.header{
+	font-family: arial;
+	font-size:40px;
+}
+.mod-cmds{
+	background:#bfbf;
+	height: auto;
+	width: auto;
+	position: realative;
+	font-size: 30px;
+}
+.cmdn{
+	height: 50px;
+	width: 100%;
+	font-size: 20px;
+	background: #c2c4bc;
+	margin-top:10px;
+}
+.cmd{
+	font-family:arial;
+	font-size: 15px;
+	background: #bfbfbf;
+	width:auto;
+}
+.bdr{
+	height: 10px;
+	width:100%;
+	position: relative;
+	background: black;
+	border-radius: 5px;
+	margin-top: 10px;
+
+}
+
