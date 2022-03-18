@@ -15,7 +15,7 @@ body{padding: 25px; background-color: black; color: cyan;font-size: 25px;}
 
 #header{color:red ;font-family: arial;position: absolute;top:0px; left: 0px;margin: 0; padding: 0;}
 
-#button{position: absolute;top: 5px;right: 10px;border-radius: 5px; border: none; font-family:arial ; text-transform: uppercase; max-width: 80px; color: green;}
+#tbutton{position: absolute;top: 5px;right: 10px;border-radius: 5px; border: none; font-family:arial ; text-transform: uppercase; max-width: 80px; color: green;}
 
 .dark-mode { background-color: white;color: black;
 }
