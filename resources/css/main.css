@@ -32,4 +32,7 @@
   width: 90px;
   border-radius: 5px;
   background: green;
+  font-family: arial;
+  font-size: 20px;
+  color: #fff;
 }
