@@ -3,67 +3,18 @@
   padding: 0px;
   margin: 0px;
 }
-.div1{
-  height: 60px;
-  width: 100%;
-  position: fixed;
-  top: 1%;
-  left: 1%;
-  margin: 0;
-  background: red;
-  border-radius: 5px;
-  font-family: arial;
-}
-.div2{
-  height: 50%;
-  width: 100%;
-  position: relative;
-}
-#img_help_cmds{
-  height:200px;
-  width: 100%;
-  position: relative;
-  border-radius: 5px,black;
-  padding-left: 3px;
-  padding-right: 3px;
-}
-#cmds_btn{
-  height: 40px;
-  width: auto;
-  border-radius: 5px;
-  background: green;
-  font-family: arial;
-  font-size: 20px;
-  color: #fff;
-}
-body {
-  padding: 25px;
-  background-color: black;
-  color: cyan;
-  font-size: 25px;
-}
-#header{
-  color:red ;
-  font-family: arial;
-  position: absolute;
-  top:0px;
-  left: 0px;
-  margin: 0;
-  padding: 0;
-}
-#button{
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  border-radius: 5px;
-  border: none;
-  font-family:arial ;
-  text-transform: uppercase;
-  max-width: 80px;
-  color: ;
-}
+.div1{height: 60px;width: 100%;position: fixed;top: 1%;left: 1%;margin: 0;background: red;border-radius: 5px;font-family: arial;}
 
-.dark-mode {
-  background-color: white;
-  color: black;
+.div2{height: 50%;width: 100%;position: relative;}
+
+#img_help_cmds{height:200px;width: 100%;position: relative;border-radius: 5px,black;padding-left: 3px; padding-right: 3px;
+}
+#cmds_btn{height: 40px;width: auto;border-radius: 5px;background: green; font-family: arial;  font-size: 20px; color: #fff;}
+body{padding: 25px; background-color: black; color: cyan;font-size: 25px;}
+
+#header{color:red ;font-family: arial;position: absolute;top:0px; left: 0px;margin: 0; padding: 0;}
+
+#button{position: absolute;top: 5px;right: 10px;border-radius: 5px; border: none; font-family:arial ; text-transform: uppercase; max-width: 80px; color: green;}
+
+.dark-mode { background-color: white;color: black;
 }
