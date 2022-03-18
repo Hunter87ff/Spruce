@@ -1,1 +1,16 @@
 /*hunter bot css*/
+*{
+  padding: 0px;
+  margin: 0px;
+}
+.2nd_div{
+  height: 50%;
+  width: 100%;
+  position: relative;
+}
+#img_help_cmds{
+  height:200px;
+  width: 100%;
+  position: relative;
+  border-radius: 5px,black;
+}
