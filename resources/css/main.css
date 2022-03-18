@@ -19,3 +19,14 @@ body{padding: 25px; background-color: black; color: cyan;font-size: 25px;}
 
 .dark-mode { background-color: white;color: black;
 }
+
+button{
+  height:40px ;
+  width: auto;
+  background: blue;
+  border: none;
+  font-family: arial;
+  font-size: 20px;
+  color: #fff;
+  border-radius: 5px;
+}
