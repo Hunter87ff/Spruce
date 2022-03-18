@@ -1,7 +1,7 @@
 /*hunter bot*/
 var element = document.body;
- var button = document.getElementById('button')
- var count = 0;
+var button = document.getElementById('button')
+var count = 0;
 
 
    function theme(){
