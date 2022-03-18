@@ -7,3 +7,4 @@ simple discord bot made with python
 <a href="docs/commands.html" ><img style="border-radius:5px;" src="resources/images/buttons/commands.jpg" height="20px" width="40px"/></a>
 <br>
 
+https://hunter87ff.github.io/hunter-bot/
