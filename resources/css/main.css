@@ -3,7 +3,8 @@
   padding: 0px;
   margin: 0px;
 }
-.div1{height: 60px;width: 100%;position: fixed;top: 1%;left: 1%;margin: 0;background: red;border-radius: 5px;font-family: arial;}
+
+/*.div1{height: 60px;width: 100%;position: fixed;top: 1%;left: 1%;margin: 0;background: red;border-radius: 5px;font-family: arial;}*/
 
 .div2{height: 50%;width: 100%;position: relative;}
 
