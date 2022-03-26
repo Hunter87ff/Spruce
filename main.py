@@ -37,7 +37,7 @@ from discord.ext import commands
 from keep_alive import keep_alive
 from asyncio import sleep
 import datetime , time
-import humanfriendly
+#import humanfriendly
 
 
 
