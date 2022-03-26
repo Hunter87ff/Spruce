@@ -34,7 +34,7 @@ import os
 import discord
 from discord.ext import commands
 #from discord.ui import Button, View
-from keep_alive import keep_alive
+#from keep_alive import keep_alive
 from asyncio import sleep
 import datetime , time
 #import humanfriendly
