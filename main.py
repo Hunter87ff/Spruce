@@ -575,6 +575,6 @@ async def bot_info(ctx):
 
 
 
-keep_alive()
+#keep_alive()
 #bot.add_cog(Fun())
 bot.run(os.environ['TOKEN'])
