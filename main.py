@@ -473,7 +473,7 @@ async def create_channel(ctx,category,name):
 		 
 
 @bot.command()
-async def nick(ctx, member:discord.Member=None, *, nick):
+async def nick(ctx, member:discord.Member, *, nick):
   await member.edit(nick=nick)
 		 
 ############################################################################################
