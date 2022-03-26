@@ -93,7 +93,7 @@ async def on_ready():
 async def avatar(ctx, member: discord.Member = None):
 	if member == None:
 		 member = ctx.author
-	await ctx.send(member.avatar.url)
+	await ctx.send(member.avatar)
 
 '''@bot.command(aliases=['sav'])
 async def server_avatar(ctx):
@@ -473,8 +473,8 @@ async def create_channel(ctx,category,name):
 		 
 
 @bot.command()
-async def nick(ctx, member:discord.Member, *, nick):
-  await member.edit(nick=nick)
+async def nick(ctx, member:discord.Member, *, name):
+  await member.edit(nick=name)
 		 
 ############################################################################################
 #                                       KICK / BAN / MUTE
