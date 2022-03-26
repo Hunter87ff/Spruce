@@ -93,7 +93,7 @@ async def on_ready():
 async def avatar(ctx, member: discord.Member = None):
 	if member == None:
 		 member = ctx.author
-	await ctx.send(member.avatar)
+	await ctx.send(f"https://cdn.discordapp.com/avatars/{member.id}/{member.avatar}?size=1024")
 
 '''@bot.command(aliases=['sav'])
 async def server_avatar(ctx):
