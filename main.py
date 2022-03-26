@@ -472,7 +472,11 @@ async def create_channel(ctx,category,name):
 	    await ctx.send("Done", delete_after=5)
 		 
 
-
+@bot.command()
+async def nick(ctx, member:discord.Member=None, *, nick):
+    if member == None:
+        member = ctx.author
+        await member.edit(nick=nick)
 		 
 ############################################################################################
 #                                       KICK / BAN / MUTE
