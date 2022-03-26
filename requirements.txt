@@ -30,3 +30,4 @@ ujson==4.1.0
 urllib3==1.26.6
 yarl==1.6.3
 Flask
+ujson>=5.1.0
