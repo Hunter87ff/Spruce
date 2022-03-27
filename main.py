@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2022 Hunter 87
+Copyright (c) 2022 Spruce
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,8 +44,10 @@ import datetime , time
 
 pref = '&'
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
+
+
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
-tick = "<:vf:947194381172084767>"
+#tick = "<:vf:947194381172084767>"
 
 
 '''
@@ -135,7 +137,10 @@ async def prefix(ctx):
 async def join(ctx):
     channel = ctx.author.voice.channel
     await channel.connect()
+
 	
+
+
 @bot.command()
 async def leave(ctx):
     await ctx.voice_client.disconnect()
