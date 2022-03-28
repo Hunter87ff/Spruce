@@ -334,20 +334,6 @@ async def deng(ctx):
 '''
 
 
-
-
-
-
-#create role
-@bot.command(aliases=['crole'],help="**Use this command to crate roles\nExample: &crole Family**")
-@commands.has_permissions(manage_roles=True)
-async def create_roles(ctx, *names):
-    for name in names:
-        guild = ctx.guild
-        await guild.create_role(name=name)
-        await ctx.send(f"**<:vf:947194381172084767> Role `{name}` has been created**")
-
-
 #delet role
 @bot.command(aliases=['drole'])
 @commands.has_permissions(manage_roles=True)
@@ -356,6 +342,7 @@ async def delete_roles(ctx, *roles: discord.Role):
         await ctx.send(f'**<:vf:947194381172084767> Role {role.name} has been deleted**')
         await role.delete()
         await ctx.channel.purge(limit=2)
+
 
 
 #role give
