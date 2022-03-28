@@ -1,6 +1,7 @@
 # hunter bot
 import discord
 from discord.ext import commands
+import cogs
 
 
 class Moderation(commands.Cog):
@@ -22,4 +23,4 @@ class Moderation(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(TestCog(bot))
+    bot.add_cog(Moderation(bot))
