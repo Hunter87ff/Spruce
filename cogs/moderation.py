@@ -10,20 +10,17 @@ class Moderation(commands.Cog):
 	#start commands
 
 
+
 	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def ra_role(self, ctx, role:discord.Role):
 		for m in ctx.guild.members:
-			try:
-				if m.top_role > ctx.author.top_role:
-					await ctx.send("You don't have enough permission")
-				if m.top_role < ctx.author.top_role:
-					await m.remove_roles(role)
-				if bot.top_role < m.top_role:
-					await ctx.send("I don't have enough permission")
-			except:
-				await ctx.send("Something went Wrong")
-					
+			if m.top_role > ctx.author.top_role:
+				await ctx.send("You don't have enough permission")
+			elif m.top_role < ctx.author.top_role:
+				await m.remove_roles(role)
+			elif m.top_role > bot.top_role:
+				await ctx.send("I don't have enough permission")					
 
 			
 
