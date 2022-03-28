@@ -21,5 +21,5 @@ class Moderation(commands.Cog):
 				await member.send(f"{role.name} removed in {ctx.guild.name}")
 
 
-def bot.setup(bot):
-	bot.add_cog(Moderation(bot))
+def setup(bot):
+    bot.add_cog(TestCog(bot))
