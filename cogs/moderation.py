@@ -13,9 +13,6 @@ class Moderation(commands.Cog):
 	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def ra_role(self, ctx, role:discord.Role):
-		if user.bot:
-			pass
-			
 		for member in ctx.guild.members:
 			await member.remove_roles(role)
 			await ctx.send("Done")
