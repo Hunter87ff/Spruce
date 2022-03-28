@@ -1,11 +1,9 @@
-# hunter bot
 import discord
 from discord.ext import commands
-import cogs
 
 
 class Moderation(commands.Cog):
-	def __init__(self, ctx):
+	def __init__(self, bot):
 		self.bot = bot
 		self.counter = 0
 
