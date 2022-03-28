@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 
+
 class Moderation(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -18,7 +19,10 @@ class Moderation(commands.Cog):
 			if m.top_role > ctx.author.top_role:
 				await ctx.send("You don't have enough permission")
 			elif m.top_role < ctx.author.top_role:
-				await m.remove_roles(role)					
+				await m.remove_roles(role)
+				await m.send(f"`{role.name}` role is removed in `{ctx.guild.name}`")
+				await ctx.send("Done")
+
 
 			
 
