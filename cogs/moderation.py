@@ -18,9 +18,7 @@ class Moderation(commands.Cog):
 			if m.top_role > ctx.author.top_role:
 				await ctx.send("You don't have enough permission")
 			elif m.top_role < ctx.author.top_role:
-				await m.remove_roles(role)
-			elif m.top_role > bot.top_role:
-				await ctx.send("I don't have enough permission")					
+				await m.remove_roles(role)					
 
 			
 
