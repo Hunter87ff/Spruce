@@ -46,6 +46,16 @@ pref = '&'
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
 
 
+
+# Load extensions
+
+bot.load_extension('cogs.moderation')
+
+
+
+
+
+
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
 #tick = "<:vf:947194381172084767>"
 
