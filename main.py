@@ -478,6 +478,7 @@ async def create_channel(ctx,category,name):
 		 
 
 @bot.command()
+@commands.has_permissions(change_nickname=True)
 async def nick(ctx, member:discord.Member, *, name):
   await member.edit(nick=name)
 		 
