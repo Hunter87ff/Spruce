@@ -16,7 +16,7 @@ class Moderation(commands.Cog):
 		for member in ctx.guild.members:
 			await member.remove_roles(role)
 			await ctx.send("Done")
-			await member.send(f"**A role named `{role.name}` in the server {guild.name}**")
+			await member.send(f"**A role named `{role.name}` in the server {ctx.guild.name}**")
 					
 
 			
