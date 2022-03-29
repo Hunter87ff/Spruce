@@ -25,7 +25,7 @@ class Moderation(commands.Cog):
 				return await ctx.send("Done")
 
 
-'''
+
 	@commands.command(aliases=['rolea'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
 	async def role_add(ctx, role: discord.Role, user: discord.Member):
 		if ctx.author.top_role < role:
@@ -35,7 +35,7 @@ class Moderation(commands.Cog):
 		else:
 			return await ctx.send("Something went wrong")
 
-'''
+
 			
 
 
