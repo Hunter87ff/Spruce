@@ -159,18 +159,6 @@ async def leave(ctx):
 
 
 
-'''@bot.command()
-async def move(ctx,*, user:discord.Member):
-    vc = ctx.author.voice.channel
-    await user.move_to(vc)'''
-
-
-
-
-
-
-
-
 ##########################################################################################
 #                                          TEXT COMMANDS
 ############################################################################################
@@ -185,19 +173,16 @@ class Nhelp(commands.MinimalHelpCommand):
             await destination.send(embed=emby)
 bot.help_command = Nhelp(no_category = 'Commands')
 
-'''
-@bot.command()
-async def helpp(ctx):
-  await cgs.helpp(ctx)
+
 
 
 #say command
 @bot.command()
-@commands.has_permissions(manage_channels=True)
+@commands.has_permissions(administrator=True)
 async def say(ctx, *, msg):
     await ctx.channel.purge(limit=1)
     await ctx.send(msg)
-'''
+
 
 
   
