@@ -344,8 +344,14 @@ async def delete_roles(ctx, *roles: discord.Role):
         await ctx.channel.purge(limit=2)
 
 
-
-
+#role give
+@bot.command(aliases=['role'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
+@commands.has_permissions(manage_roles=True)
+async def give_role(ctx,role: discord.Role, user: discord.Member):
+    if ctx.author.top_role < role:
+        return await ctx.send("you don't have enough permission")
+    if ctx.author.top_role > role:
+        return await user.add_roles(role)
 
 
 
