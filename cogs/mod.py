@@ -18,14 +18,13 @@ class Moderation(commands.Cog):
 		for m in ctx.guild.members:
 			if m.top_role > ctx.author.top_role:
 				return await ctx.send("You don't have enough permission")
+
 			elif m.top_role < ctx.author.top_role:
 				return await m.remove_roles(role)
 				return await m.send(f"`{role.name}` role is removed in `{ctx.guild.name}`")
 				return await ctx.send("Done")
-			else:
-				return await ctx.send("Something went wrong")
 
-				
+
 '''
 	@commands.command(aliases=['rolea'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
 	async def role_add(ctx, role: discord.Role, user: discord.Member):
