@@ -41,6 +41,18 @@ class Moderation(commands.Cog):
 			return await ctx.send("Something went wrong")
 
 
+
+
+	@commands.command()
+	async def kick(cxt, user:discord.Member,*, reason=None):
+		if reason == none:
+			reason = f"{user} kicked by {ctx.author}"
+		if ctx.author.top_role > user.top_role:
+			return await ctx.guild.kick(user, reason)
+		if ctx.author.top_role < user.top_role:
+			return await ctx.send("You don't have enough permission")
+
+
 			
 
 
