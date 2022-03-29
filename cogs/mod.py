@@ -25,8 +25,8 @@ class Moderation(commands.Cog):
 			else:
 				return await ctx.send("Something went wrong")
 
-	@commands.command(aliases=['role'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
-	async def give_role(ctx, role: discord.Role, user: discord.Member):
+	@commands.command(aliases=['rolea'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
+	async def role_add(ctx, role: discord.Role, user: discord.Member):
 		if ctx.author.top_role < role:
 			return await ctx.send("you don't have enough permission")
 		if ctx.author.top_role > role:
