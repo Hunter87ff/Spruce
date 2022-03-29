@@ -44,7 +44,7 @@ class Moderation(commands.Cog):
 
 
 	@commands.command()
-	async def kick(cxt, user:discord.Member,*, reason=None):
+	async def kick(cxt, user:discord.Member, *, reason=None):
 		if reason == none:
 			reason = f"{user} kicked by {ctx.author}"
 		if ctx.author.top_role > user.top_role:
