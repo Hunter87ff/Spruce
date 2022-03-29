@@ -15,14 +15,14 @@ class Moderation(commands.Cog):
 	@commands.command( help="Use to remove a role from everyone")
 	@commands.has_permissions(administrator=True)
 	async def ra_role(self, ctx, role:discord.Role):
-		for m in ctx.guild.members:
-			if m.top_role > ctx.author.top_role:
-				return await ctx.send("You don't have enough permission")
+		for member in ctx.guild.members:
+			if role in member.roles:
+				if member.top_role < ctx.author.top_role:
+					await member.remove_roles(role)
+					return await ctx.send("Done", delete_after=5)
 
-			elif m.top_role < ctx.author.top_role:
-				return await m.remove_roles(role)
-				return await m.send(f"`{role.name}` role is removed in `{ctx.guild.name}`")
-				return await ctx.send("Done")
+				if member.top_role > ctx.author.top_role:
+					return await ctx.send("You don't have enough permission")
 
 
 
