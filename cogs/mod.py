@@ -12,7 +12,7 @@ class Moderation(commands.Cog):
 
 
 
-	@commands.command()
+	@commands.command( help="Use to remove a role from everyone")
 	@commands.has_permissions(administrator=True)
 	async def ra_role(self, ctx, role:discord.Role):
 		for m in ctx.guild.members:
