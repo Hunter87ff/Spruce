@@ -502,16 +502,16 @@ async def timeout(ctx,member:discord.Member, time,*, reason):
   await ctx.send(f"Member Successfully Muted")'''
 
 #kick command
-@bot.command()
+'''@bot.command()
 @commands.has_permissions(kick_members=True)
 async def kick(ctx, user: discord.Member, reason=None):
-	if reason == None:
-		reason = f"{user} kicked by {ctx.author}"
-	if ctx.author.top_role < user.top_role:
-		return await ctx.send('**You can not kick him**')
-	if ctx.author.top_role > user.top_role:
-		return await ctx.guild.kick(user, reason=reason)
-
+    if reason == None:
+        reason = f"{user} kicked by {ctx.author}"
+    if ctx.author.top_role < user.top_role:
+        return await ctx.send('**You can not kick him**')
+    if ctx.author.top_role > user.top_role:
+        return await ctx.guild.kick(user, reason=reason)
+'''
 
 #ban command
 @bot.command()
