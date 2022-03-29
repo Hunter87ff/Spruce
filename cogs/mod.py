@@ -19,10 +19,14 @@ class Moderation(commands.Cog):
 			if role in member.roles:
 				if member.top_role < ctx.author.top_role:
 					await member.remove_roles(role)
+					await member.send(f"**A role named `{role.name}` removed from you in `{ctx.guild.name}`**")
 					return await ctx.send("Done", delete_after=5)
 
 				if member.top_role > ctx.author.top_role:
 					return await ctx.send("You don't have enough permission")
+
+				else:
+					return await ctx.send("Something went wrong")
 
 
 
