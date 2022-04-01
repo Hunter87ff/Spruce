@@ -47,11 +47,11 @@ class Moderation(commands.Cog):
 	@commands.has_permissions(kick_members=True)
 	async def kik(self, ctx, member: discord.Member, reason=None):
 		if reason == None:
-			reason = f"{member.user} kicked by {ctx.author.user}"
+			reason = f"{member} kicked by {ctx.author.user}"
 
 		if ctx.author.top_role > member.top_role:
-			return await ctx.guild.kick(user, reason=reason)
-			return await ctx.send(f"{member.user} kicked")
+			return await ctx.guild.kick(member, reason=reason)
+			return await ctx.send(f"{member} kicked")
 
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You don't have enough permission")
