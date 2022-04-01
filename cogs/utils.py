@@ -9,11 +9,13 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	async def ava(ctx, user:discord.Member):
+	async def ava(ctx, user:discord.Member = None):
 		if user == None:
 			user = ctx.author
-
 			return await ctx.send(user.avatar_url)
+
+		else:
+			return await ctx.send("Something went wrong")
 
 
 
