@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+cmd = commands
 
 
 class Moderation(commands.Cog):
@@ -43,7 +43,7 @@ class Moderation(commands.Cog):
 
 
 
-	@commands.commands()
+	@commands.command()
 	@commands.has_permissions(kick_members=True)
 	async def kik(ctx, member: discord.Member, reason=None):
 		if reason == None:
