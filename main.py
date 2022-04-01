@@ -129,7 +129,7 @@ async def avatar(ctx, member: discord.Member = None):
 
 @bot.command()
 async def hlo(ctx):
-    emby = discord.Embed(title="", description=f"Hello {ctx.author.mention}", color=blue)
+    emby = discord.Embed(title="", description=f"Hello {ctx.author.mention}", color=color.blue)
 
 
 @bot.command()
