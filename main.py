@@ -285,11 +285,11 @@ async def on_message(message):
         if words in message.content:
             await message.channel.purge(limit=1)
 
-    for sent in bsents:
+    for words in bsents:
         if bsent in message.content:
             await message.channel.purge(limit=1)
 
-    for link in blinks:
+    for words in blinks:
         if link in message.content:
             await message.channel.purge(limit=1)
 
