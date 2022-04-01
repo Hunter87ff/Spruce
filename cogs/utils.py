@@ -9,7 +9,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	async def ava(self, ctx : Context, user:discord.Member = None):
+	async def ava(self, ctx, user:discord.Member = None):
 		if user == None:
 			user = ctx.author
 			return await ctx.send(user.avatar_url)
