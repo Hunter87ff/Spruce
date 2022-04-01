@@ -40,12 +40,10 @@ import datetime , time
 #import humanfriendly
 
 
-
-
+#intents=discord.Intents.all()
 pref = '&'
-#intents = discord.Intents().default()
-
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
+intents = discord.Intents().default()
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref))
 intents.member = True
 
 
