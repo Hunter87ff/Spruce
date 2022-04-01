@@ -282,7 +282,7 @@ async def react(ctx,message_id,* emojis):
 @bot.event
 async def on_message(message):
     for word in bws:
-        if words in message.content:
+        if word in message.content:
             await message.channel.purge(limit=1)
 
     for word in bsents:
