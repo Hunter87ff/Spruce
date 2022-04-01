@@ -38,7 +38,7 @@ from discord.ext import commands
 from asyncio import sleep
 import datetime , time
 #import humanfriendly
-
+from data import color
 
 
 pref = '&'
