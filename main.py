@@ -308,9 +308,9 @@ async def react(ctx,message_id,* emojis):
 #                                          BLACK LIST FILTER
 ############################################################################################
 with open('./data/badwords.txt', 'r') as f:
-global badwords  # You want to be able to access this throughout the code
-words = f.read()
-badwords = words.split()
+    global badwords # You want to be able to access this throughout the code
+    words = f.read()
+    badwords = words.split()
 
 
 
