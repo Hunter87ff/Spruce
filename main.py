@@ -65,14 +65,16 @@ bot.load_extension('cogs.utils')
 
 '''
 custom_prefixes = {}
+
 #You'd need to have some sort of persistance here,
 #possibly using the json module to save and load
 #or a database
+
+
 default_prefixes = ['&']
 
 async def determine_prefix(bot, message):
     guild = message.guild
-    #Only allow custom prefixs in guild
     if guild:
         return custom_prefixes.get(guild.id, default_prefixes)
     else:
@@ -82,11 +84,8 @@ bot = commands.Bot(command_prefix = determine_prefix)
 
 @bot.command()
 @commands.has_permissions(administrator=True)
-#@commands.guild_only()
+@commands.guild_only()
 async def setprefix(ctx, *, prefixes=""):
-    #You'd obviously need to do some error checking here
-    #All I'm doing here is if prefixes is not passed then
-    #set it to default 
     custom_prefixes[ctx.guild.id] = prefixes.split() or default_prefixes
     await ctx.send(f"Prefixes set to `{prefixes}` ")
 '''
@@ -108,7 +107,7 @@ async def on_ready():
 
 @bot.command(aliases=['av'])
 async def avatar(ctx, member: discord.Member = None):
-	if member == None:
+    if member == None:
         member = ctx.author
         return await ctx.send(member.avatar_url)
 
