@@ -39,8 +39,9 @@ from asyncio import sleep
 import datetime , time
 import json
 #import humanfriendly
+from data import badwords
 from data import color
-
+from badwords import bw
 
 pref = '&'
 #intents = discord.Intents().default()
@@ -278,20 +279,17 @@ async def react(ctx,message_id,* emojis):
 ############################################################################################
 #                                          BLACK LIST FILTER
 ############################################################################################
-with open('./data/badwords.txt', 'r') as f:
-    global badwords # You want to be able to access this throughout the code
-    words = f.read()
-    badwords = words.split()
 
-
-
+@bot.event
 async def on_message(ctx, message):
     msg = message.content
-    for word in badwords:
+    for word in bw:
         if word in msg:
             await message.delete()
             await ctx.send("Dont use that word!")
     await ctx.process_message(message)
+
+
 
 ############################################################################################
 #                                          ROLE COMMANDS
