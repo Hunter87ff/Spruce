@@ -117,19 +117,6 @@ async def on_ready():
 
 
 
-
-
-@bot.command()
-async def hlo(ctx):
-    emby = discord.Embed(title="", description=f"Hello {ctx.author.mention}", color=color.blue)
-    await ctx.send(embed=emby)
-
-
-@bot.command()
-async def sav(ctx):
-  await ctx.send(ctx.guild.icon_url)
-
-
 @bot.command(aliases=['bnr'])
 async def banner(ctx, user:discord.Member = None ):
     if user == None:
@@ -543,36 +530,6 @@ async def grole(ctx):
   await ctx.send(gborder)
   await ctx.send(embed=ffemb)
 
-
-
-'''@bot.command()
-async def timeout(ctx,member:discord.Member, time,*, reason):
-	time = humanfriendly.parse_time(time)
-	await member.edit(timeout=discord.utils.utcnow()=datetime.timedelta(seconds=time))
-  await ctx.send(f"Member Successfully Muted")'''
-
-#kick command
-@bot.command()
-@commands.has_permissions(kick_members=True)
-async def kick(ctx, user: discord.Member, reason=None):
-    if reason == None:
-        reason = f"{user} kicked by {ctx.author}"
-    if ctx.author.top_role < user.top_role:
-        return await ctx.send('**You can not kick him**')
-    if ctx.author.top_role > user.top_role:
-        return await ctx.guild.kick(user, reason=reason)
-
-
-#ban command
-@bot.command()
-@commands.has_permissions(ban_members=True)
-async def ban(ctx, user: discord.Member, reason=None):
-	if reason == None:
-		reason = f"{user} banned by {ctx.author}"
-	if ctx.author.top_role < user.top_role:
-		return await ctx.send('**You can not ban him**')
-	if ctx.author.top_role > user.top_role:
-		return await ctx.guild.ban(user, reason=reason)
 
 
 

@@ -18,6 +18,11 @@ class Utility(commands.Cog):
 			return await ctx.send(user.avatar_url)
 
 
+	@cmd.command(aliases=['sav'])
+	async def server_av(self, ctx):
+		await ctx.send(ctx.guild.icon_url)
+
+
 
 
 	
