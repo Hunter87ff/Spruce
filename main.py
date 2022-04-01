@@ -44,9 +44,9 @@ import datetime , time
 
 pref = '&'
 #intents = discord.Intents().default()
-intents.member = True
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
 
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
+intents.member = True
 
 
 # Load extensions
