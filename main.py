@@ -157,8 +157,7 @@ async def leave(ctx):
     await ctx.voice_client.disconnect()
   
 
-<<<<<<< HEAD
-=======
+
 
 
 >>>>>>> e8f5181a2d3cd7bb0beff39d638fe4f7e065b34c
@@ -176,12 +175,7 @@ class Nhelp(commands.MinimalHelpCommand):
             await destination.send(embed=emby)
 bot.help_command = Nhelp(no_category = 'Commands')
 
-<<<<<<< HEAD
-'''
-=======
 
-
->>>>>>> e8f5181a2d3cd7bb0beff39d638fe4f7e065b34c
 
 #say command
 @bot.command()
