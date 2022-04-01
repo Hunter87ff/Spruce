@@ -31,6 +31,7 @@ class Moderation(commands.Cog):
 
 
 	@commands.command(aliases=['rolea'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
+	@commands.has_permissions(manage_roles=True)
 	async def role_add(ctx, role: discord.Role, user: discord.Member):
 		if ctx.author.top_role < role:
 			return await ctx.send("you don't have enough permission")
@@ -42,7 +43,7 @@ class Moderation(commands.Cog):
 
 
 
-
+"""
 	@commands.command()
 	async def kick(ctx, user: discord.Member, *, reason=None):
 		if reason == none:
@@ -51,7 +52,7 @@ class Moderation(commands.Cog):
 			return await ctx.guild.kick(user, reason)
 		if ctx.author.top_role < user.top_role:
 			return await ctx.send("You don't have enough permission")
-
+"""
 
 			
 

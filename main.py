@@ -109,9 +109,15 @@ async def on_ready():
 @bot.command(aliases=['av'])
 async def avatar(ctx, member: discord.Member = None):
 	if member == None:
+<<<<<<< HEAD
         member = ctx.author
         return await ctx.send(member.avatar_url)
 
+=======
+		 member = ctx.author
+		 await ctx.send(member.avatar_url)
+	"""await ctx.send(f"https://cdn.discordapp.com/avatars/{member.id}/{member.avatar}.gif?size=1024")"""
+>>>>>>> e8f5181a2d3cd7bb0beff39d638fe4f7e065b34c
 
 '''@bot.command(aliases=['sav'])
 async def server_avatar(ctx):
@@ -162,6 +168,11 @@ async def leave(ctx):
     await ctx.voice_client.disconnect()
   
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> e8f5181a2d3cd7bb0beff39d638fe4f7e065b34c
 ##########################################################################################
 #                                          TEXT COMMANDS
 ############################################################################################
@@ -176,15 +187,20 @@ class Nhelp(commands.MinimalHelpCommand):
             await destination.send(embed=emby)
 bot.help_command = Nhelp(no_category = 'Commands')
 
+<<<<<<< HEAD
 '''
+=======
+
+
+>>>>>>> e8f5181a2d3cd7bb0beff39d638fe4f7e065b34c
 
 #say command
 @bot.command()
-@commands.has_permissions(manage_channels=True)
+@commands.has_permissions(administrator=True)
 async def say(ctx, *, msg):
     await ctx.channel.purge(limit=1)
     await ctx.send(msg)
-'''
+
 
 
   
@@ -552,7 +568,7 @@ async def timeout(ctx,member:discord.Member, time,*, reason):
   await ctx.send(f"Member Successfully Muted")'''
 
 #kick command
-'''@bot.command()
+@bot.command()
 @commands.has_permissions(kick_members=True)
 async def kick(ctx, user: discord.Member, reason=None):
     if reason == None:
@@ -561,7 +577,7 @@ async def kick(ctx, user: discord.Member, reason=None):
         return await ctx.send('**You can not kick him**')
     if ctx.author.top_role > user.top_role:
         return await ctx.guild.kick(user, reason=reason)
-'''
+
 
 #ban command
 @bot.command()
