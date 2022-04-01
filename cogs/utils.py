@@ -8,8 +8,8 @@ class Utility(commands.Cog):
 		self.counter = 0
 
 
-	@cmd.command()
-	async def ava(self, ctx, user:discord.Member = None):
+	@cmd.command(aliases=['av'])
+	async def avatar(self, ctx, user:discord.Member = None):
 		if user == None:
 			user = ctx.author
 			return await ctx.send(user.avatar_url)

@@ -116,14 +116,6 @@ async def on_ready():
 ############################################################################################
 
 
-@bot.command(aliases=['av'])
-async def avatar(ctx, member: discord.Member = None):
-    if member == None:
-        member = ctx.author
-        return await ctx.send(member.avatar_url)
-
-    else:
-        return await ctx.send(member.avatar_url)
 
 
 
