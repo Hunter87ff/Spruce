@@ -43,6 +43,8 @@ import datetime , time
 
 
 pref = '&'
+#intents = discord.Intents().default()
+intents.member = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
 
 
@@ -102,11 +104,14 @@ async def on_ready():
 ##########################################################################################
 #                                          USER AND SERVER COMMANDS
 ############################################################################################
+
+
 @bot.command(aliases=['av'])
 async def avatar(ctx, member: discord.Member = None):
 	if member == None:
-		 member = ctx.author
-	await ctx.send(f"https://cdn.discordapp.com/avatars/{member.id}/{member.avatar}.gif?size=1024")
+        member = ctx.author
+        return await ctx.send(member.avatar_url)
+
 
 '''@bot.command(aliases=['sav'])
 async def server_avatar(ctx):
@@ -115,7 +120,7 @@ async def server_avatar(ctx):
 
 @bot.command()
 async def sav(ctx):
-  await ctx.send(ctx.guild.icon.url)
+  await ctx.send(ctx.guild.icon_url)
 
 
 @bot.command(aliases=['bnr'])
@@ -157,20 +162,6 @@ async def leave(ctx):
     await ctx.voice_client.disconnect()
   
 
-
-
-'''@bot.command()
-async def move(ctx,*, user:discord.Member):
-    vc = ctx.author.voice.channel
-    await user.move_to(vc)'''
-
-
-
-
-
-
-
-
 ##########################################################################################
 #                                          TEXT COMMANDS
 ############################################################################################
@@ -186,10 +177,6 @@ class Nhelp(commands.MinimalHelpCommand):
 bot.help_command = Nhelp(no_category = 'Commands')
 
 '''
-@bot.command()
-async def helpp(ctx):
-  await cgs.helpp(ctx)
-
 
 #say command
 @bot.command()
