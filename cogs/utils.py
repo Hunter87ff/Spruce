@@ -15,7 +15,7 @@ class Utility(commands.Cog):
 			return await ctx.send(user.avatar_url)
 
 		else:
-			return await ctx.send("Something went wrong")
+			return await ctx.send(user.avatar_url)
 
 
 
