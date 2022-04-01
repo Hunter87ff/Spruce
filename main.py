@@ -39,9 +39,8 @@ from asyncio import sleep
 import datetime , time
 import json
 #import humanfriendly
-from data import badwords
+from data.badwords import bw
 from data import color
-from badwords import bw
 
 pref = '&'
 #intents = discord.Intents().default()
@@ -281,15 +280,10 @@ async def react(ctx,message_id,* emojis):
 ############################################################################################
 
 @bot.event
-async def on_message(ctx, message):
-    msg = message.content
-    for word in bw:
-        if word in msg:
-            await message.delete()
-            await ctx.send("Dont use that word!")
-    await ctx.process_message(message)
-
-
+async def on_message(ctx, ,message):
+    for words in bw:
+        if words in message:
+            await message.channel.purge(limit=1)
 
 ############################################################################################
 #                                          ROLE COMMANDS
