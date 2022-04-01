@@ -39,7 +39,7 @@ from asyncio import sleep
 import datetime , time
 import json
 #import humanfriendly
-from data.badwords import bw
+from data.badwords import bws, bsents, blinks
 from data import color
 
 pref = '&'
@@ -281,9 +281,18 @@ async def react(ctx,message_id,* emojis):
 
 @bot.event
 async def on_message(message):
-    for words in bw:
+    for words in bws:
         if words in message.content:
             await message.channel.purge(limit=1)
+
+    for sent in bsents:
+        if bsent in message.content:
+            await message.channel.purge(limit=1)
+
+    for link in blinks:
+        if link in message.content:
+            await message.channel.purge(limit=1)
+
 
 ############################################################################################
 #                                          ROLE COMMANDS
