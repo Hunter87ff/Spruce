@@ -109,20 +109,9 @@ async def on_ready():
 @bot.command(aliases=['av'])
 async def avatar(ctx, member: discord.Member = None):
 	if member == None:
-<<<<<<< HEAD
         member = ctx.author
         return await ctx.send(member.avatar_url)
 
-=======
-		 member = ctx.author
-		 await ctx.send(member.avatar_url)
-	"""await ctx.send(f"https://cdn.discordapp.com/avatars/{member.id}/{member.avatar}.gif?size=1024")"""
->>>>>>> e8f5181a2d3cd7bb0beff39d638fe4f7e065b34c
-
-'''@bot.command(aliases=['sav'])
-async def server_avatar(ctx):
-	guild = ctx.guild
-	await ctx.send(guild.icon.url)'''
 
 @bot.command()
 async def sav(ctx):
