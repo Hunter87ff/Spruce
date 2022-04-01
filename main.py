@@ -278,12 +278,15 @@ async def react(ctx,message_id,* emojis):
 #                                          BLACK LIST FILTER
 ############################################################################################
 
+"""
 @bot.event
 async def on_message(message):
     for word in bws:
         if word in message.content:
             await message.channel.purge(limit=1)
+            
 
+"""
 
 ############################################################################################
 #                                          ROLE COMMANDS
