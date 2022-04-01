@@ -2,6 +2,10 @@ import discord
 from discord.ext import commands
 cmd = commands
 
+
+
+
+
 class Utility(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -28,7 +32,7 @@ class Utility(commands.Cog):
 	async def banner(self, ctx, user:discord.Member = None ):
 		if user == None:
 			user = ctx.author
-		req = await self.http.request(discord.http.Route("GET", "/users/{uid}", uid=user.id))
+		req = await self.bot.http.request(discord.http.Route("GET", "/users/{uid}", uid=user.id))
 		banner_id = req["banner"]
 
 		if banner_id:
