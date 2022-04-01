@@ -315,8 +315,20 @@ async def react(ctx,message_id,* emojis):
 ############################################################################################
 #                                          BLACK LIST FILTER
 ############################################################################################
+with open('./data/badwords.txt', 'r') as f:
+global badwords  # You want to be able to access this throughout the code
+words = f.read()
+badwords = words.split()
 
 
+
+async def on_message(ctx, message):
+    msg = message.content
+    for word in badwords:
+        if word in msg:
+            await message.delete()
+            await ctx.send("Dont use that word!")
+    await ctx.process_message(message)
 
 ############################################################################################
 #                                          ROLE COMMANDS
@@ -500,12 +512,6 @@ async def setup(ctx):
 
 
 
-
-
-
-
-
-
 ############################################################################################
 #                                      GAME ROLES 
 ############################################################################################
@@ -544,22 +550,6 @@ async def grole(ctx):
   await ctx.send(embed=bgmiemb)
   await ctx.send(gborder)
   await ctx.send(embed=ffemb)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
