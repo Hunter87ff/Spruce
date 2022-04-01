@@ -39,7 +39,7 @@ from asyncio import sleep
 import datetime , time
 import json
 #import humanfriendly
-from data.badwords import bws
+#from data.badwords import bws
 
 pref = '&'
 #intents = discord.Intents().default()
