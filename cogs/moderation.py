@@ -37,7 +37,7 @@ class Moderation(commands.Cog):
 			return await ctx.send("you don't have enough permission")
 		if ctx.author.top_role > role:
 			return await user.add_roles(role)
-			return await ctx.send('Done')
+			return await ctx.message.add_reaction("✅")
 		else:
 			return await ctx.send("Something went wrong")
 
