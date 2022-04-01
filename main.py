@@ -60,6 +60,8 @@ for filename in os.listdir("./cogs"):
         bot.load_extension(f"cogs.{filename[:-3]}")
 
 
+
+
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
 #tick = "<:vf:947194381172084767>"
 
@@ -119,6 +121,15 @@ async def avatar(ctx, member: discord.Member = None):
     if member == None:
         member = ctx.author
         return await ctx.send(member.avatar_url)
+
+    else:
+        return await ctx.send(member.avatar_url)
+
+
+
+@bot.command()
+async def hlo(ctx):
+    emby = discor.Embed(title="", description=f"Hello {ctx.author.mention}", color=blue)
 
 
 @bot.command()
