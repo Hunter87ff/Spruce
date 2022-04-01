@@ -54,7 +54,9 @@ bot.load_extension('cogs.utils')
 
 
 
-
+for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
+        client.load_extension(f"cogs.{filename[:-3]}")
 
 
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
@@ -93,6 +95,14 @@ async def setprefix(ctx, *, prefixes=""):
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
     print(f'{bot.user} is ready')
+    guilds = client.guilds
+    data = {}
+    for guild in guilds:
+        data[guild.id] = []
+        for channel in guild.channels:
+            data[guild.id].append(channel.id)
+    with open("./data/guilds.json", "w") as file:
+        json.dump(data, file, indent=4)
 
      
   
