@@ -39,8 +39,7 @@ from asyncio import sleep
 import datetime , time
 import json
 #import humanfriendly
-from data.badwords import bws, bsents, blinks
-from data import color
+from data.badwords import bws
 
 pref = '&'
 #intents = discord.Intents().default()
@@ -282,14 +281,6 @@ async def react(ctx,message_id,* emojis):
 @bot.event
 async def on_message(message):
     for word in bws:
-        if word in message.content:
-            await message.channel.purge(limit=1)
-
-    for word in bsents:
-        if word in message.content:
-            await message.channel.purge(limit=1)
-
-    for word in blinks:
         if word in message.content:
             await message.channel.purge(limit=1)
 
