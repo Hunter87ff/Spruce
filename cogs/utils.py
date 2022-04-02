@@ -1,9 +1,26 @@
 import discord
 from discord.ext import commands
-from data import colour
 cmd = commands
 
-
+blurple = 0x7289da
+greyple = 0x99aab5
+d_grey = 0x546e7a
+d_theme = 0x36393F
+l_grey = 0x979c9f
+d_red = 0x992d22
+red = 0xe74c3c
+d_orange = 0xa84300
+orange= 0xe67e22
+d_gold = 0xc27c0e
+gold = 0xf1c40f
+magenta = 0xe91e63
+purple = 0x9b59b6
+d_blue = 0x206694 
+blue = 0x3498db
+green = 0x2ecc71
+d_green = 0x1f8b4c
+teal = 0x1abc9c
+d_teal = 0x11806a
 
 
 
@@ -42,7 +59,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	async def emby(self, ctx,colour, *, message):
-		embed = discord.Embed(description=message, color=color.colour)
+		embed = discord.Embed(description=message, color=colour)
 		await ctx.send(embed=embed)
 
 
