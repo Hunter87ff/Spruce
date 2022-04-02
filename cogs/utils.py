@@ -43,7 +43,7 @@ class Utility(commands.Cog):
 		await ctx.send(f"{banner_url}")
 
 	@cmd.command()
-	async def emby(self, ctx,colour:disocrd.Color, *, message):
+	async def emby(self, ctx, *, message):
 		embed = discord.Embed(description=message, color=blue)
 		await ctx.send(embed=embed)
 
