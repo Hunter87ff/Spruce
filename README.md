@@ -21,6 +21,4 @@ If you decide to edit, compile or use this code in any way. Kindly respect the [
 
 
 ## How do I contribute?
-If you are looking forward to contribute to the project, we welcome you with open arms. kindly open an issue first for discussion. It's also a good option to join the <a href="https://discord.gg/vMnhpAyFZm">Support Server</a> and get into touch with anyone having @team role.
-
-There are also some easter eggs in the code, let's see if you can find some :wink:
+If you are looking forward to contribute to the project, we welcome you with open arms. kindly open an issue first for discussion. It's also a good option to join the <a href="https://discord.gg/vMnhpAyFZm">Support Server</a> and get into touch with anyone having `@Dev Team` role.
