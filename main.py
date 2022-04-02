@@ -557,12 +557,6 @@ async def bot_info(ctx):
     await ctx.send(f'{ctx.author.mention}',embed=embed)
 
 
-'''for folder in os.listdir("modules"):
-    if os.path.exists(os.path.join{"modules", folder, "cog.py"}):
-        bot.load_extension(f"modules.{folder}.cog")'''
-
-
-
 
 #keep_alive()
 #bot.add_cog(Fun())
