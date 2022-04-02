@@ -41,7 +41,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	async def emby(self, ctx,colour, *, message):
-		embed = discord.Embed(description=message, color=color.colour):
+		embed = discord.Embed(description=message, color=color.colour)
 		await ctx.send(embed=embed)
 
 
