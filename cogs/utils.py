@@ -57,8 +57,9 @@ class Utility(commands.Cog):
 		await ctx.send(f"{banner_url}")
 
 	@cmd.command(aliases=['emb'])
-	async def embed(self, ctx, clr:str, *, message):
+	async def embed(self, ctx, *, message):
 		embed = discord.Embed(description=message, color=blue)
+		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=embed)
 
 
