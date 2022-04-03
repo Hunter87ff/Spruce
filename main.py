@@ -167,14 +167,6 @@ async def say(ctx, *, msg):
 
 
 
-  
-#embed command
-@bot.command(aliases=['emb'])
-@commands.has_permissions(manage_messages=True)
-async def embed(ctx, *, msg):
-    embed = discord.Embed(description=msg, color=4 * 5555)
-    await ctx.channel.purge(limit=1)
-    await ctx.send(embed=embed)
 
 '''  
 #embed dm
