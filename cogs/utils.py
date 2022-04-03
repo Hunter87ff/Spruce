@@ -56,9 +56,9 @@ class Utility(commands.Cog):
 			banner_url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_id}.gif?size=1024"
 		await ctx.send(f"{banner_url}")
 
-	@cmd.command()
-	async def emby(self, ctx, clr:str, *, message):
-		embed = discord.Embed(description=message, color=clr)
+	@cmd.command(aliases=['emb'])
+	async def embed(self, ctx, clr:str, *, message):
+		embed = discord.Embed(description=message, color=blue)
 		await ctx.send(embed=embed)
 
 
