@@ -158,16 +158,6 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 
 
-#say command
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def say(ctx, *, msg):
-    await ctx.channel.purge(limit=1)
-    await ctx.send(msg)
-
-
-
-
 '''  
 #embed dm
 @bot.command()
