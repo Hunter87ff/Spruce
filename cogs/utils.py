@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 cmd = commands
+import random
 
 blurple = 0x7289da
 greyple = 0x99aab5
@@ -64,9 +65,22 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(administrator=True)
-	async def say(ctx, *, message):
+	async def say(self, ctx, *, message):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(message)
+
+
+
+
+whois = ["Noob","kya pata usse hi puch lo", "Bohot E-smart","Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho"]
+	
+	@cmd.command()
+	async def whois(self, cxt, user:discord.Member=None):
+		if user == None:
+			user = ctx.author
+			msg = random.choice(whois)
+			await ctx.send(msg)
+
 
 
 
