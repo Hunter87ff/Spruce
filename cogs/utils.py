@@ -23,7 +23,8 @@ d_green = 0x1f8b4c
 teal = 0x1abc9c
 d_teal = 0x11806a
 
-whois = ["Noob","kya pata usse hi puch lo", "Bohot E-smart","Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho"]
+whoiss = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
+"Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho","Nalla"]
 
 
 
@@ -81,11 +82,11 @@ class Utility(commands.Cog):
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
-			await ctx.send(msg)
+			return await ctx.send(msg)
 
 		else:
 			msg = random.choice(whois)
-			ctx.send(msg)
+			return await ctx.send(msg)
 
 
 
