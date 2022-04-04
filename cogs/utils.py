@@ -82,12 +82,12 @@ class Utility(commands.Cog):
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
-			emb = discord.Embed(description=f"{user} is {msg}", color=blurple)
+			emb = discord.Embed(description=f"{user.mention} is {msg}", color=blurple)
 			return await ctx.send(embed=emb)
 
 		else:
 			msg = random.choice(whois)
-			emb = discord.Embed(description=f"{user} is {msg}", color=blurple)
+			emb = discord.Embed(description=f"{user.mention} is {msg}", color=blurple)
 			return await ctx.send(embed=emb)
 
 
