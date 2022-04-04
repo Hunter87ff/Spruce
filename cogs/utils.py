@@ -23,7 +23,6 @@ d_green = 0x1f8b4c
 teal = 0x1abc9c
 d_teal = 0x11806a
 
-
 whois = ["Noob","kya pata usse hi puch lo", "Bohot E-smart","Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho"]
 
 
@@ -78,7 +77,7 @@ class Utility(commands.Cog):
 
 	
 	@cmd.command()
-	async def whois(self, cxt, user:discord.Member=None):
+	async def whois(self, ctx, user:discord.Member=None):
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
