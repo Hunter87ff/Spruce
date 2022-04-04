@@ -24,7 +24,8 @@ teal = 0x1abc9c
 d_teal = 0x11806a
 
 whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
-"Good boy/girl : mujhe gender pata nehi ","Nalla"]
+"Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
+ "1 number ka noob","Nehi bolunga kya kar loge"]
 
 
 
@@ -84,6 +85,10 @@ class Utility(commands.Cog):
 			msg = random.choice(whois)
 			emb = discord.Embed(description=f"{user.mention} is {msg}", color=blurple)
 			return await ctx.send(embed=emb)
+
+		elif user == 885193210455011369:
+			owner = discord.Embed(description="My Owner", color=blue)
+			await ctx.send(owner)
 
 		else:
 			msg = random.choice(whois)
