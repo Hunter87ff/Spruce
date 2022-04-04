@@ -83,7 +83,7 @@ class Utility(commands.Cog):
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
-			emb = discord.Embed(description=f"{user.mention} is {msg}", color=blurple)
+			emb = discord.Embed(description=f"{user.mention} {msg}", color=blurple)
 			return await ctx.send(embed=emb)
 
 		elif user == 885193210455011369:
@@ -92,7 +92,7 @@ class Utility(commands.Cog):
 
 		else:
 			msg = random.choice(whois)
-			emb = discord.Embed(description=f"{user.mention} is {msg}", color=blurple)
+			emb = discord.Embed(description=f"{user.mention}  {msg}", color=blurple)
 			return await ctx.send(embed=emb)
 
 
