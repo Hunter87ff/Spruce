@@ -24,7 +24,7 @@ teal = 0x1abc9c
 d_teal = 0x11806a
 
 whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
-"Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho","Nalla"]
+"Good boy/girl : mujhe gender pata nehi ","Nalla"]
 
 
 
