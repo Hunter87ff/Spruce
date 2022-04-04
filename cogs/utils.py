@@ -83,6 +83,10 @@ class Utility(commands.Cog):
 			msg = random.choice(whois)
 			await ctx.send(msg)
 
+		else:
+			msg = random.choice(whois)
+			ctx.send(msg)
+
 
 
 
