@@ -24,6 +24,11 @@ teal = 0x1abc9c
 d_teal = 0x11806a
 
 
+whois = ["Noob","kya pata usse hi puch lo", "Bohot E-smart","Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho"]
+
+
+
+
 class Utility(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -71,8 +76,6 @@ class Utility(commands.Cog):
 
 
 
-
-whois = ["Noob","kya pata usse hi puch lo", "Bohot E-smart","Good boy/girl : mujhe pat nehi uska gender baki tum khud samajhdar ho"]
 	
 	@cmd.command()
 	async def whois(self, cxt, user:discord.Member=None):
