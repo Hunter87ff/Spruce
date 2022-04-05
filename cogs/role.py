@@ -35,10 +35,8 @@ class Roles(commands.Cog):
 
 
 
-
-
 	@cmd.command(aliases=['Croles'])
-	@commands.has_permissions(manage_roles)
+	@commands.has_permissions(manage_roles=True)
 	async def create_roles(self, ctx, *Names):
 		for role in roles:
 			await ctx.guild.create_roles(role, reason=f"Created by {ctx.author}")
@@ -49,7 +47,7 @@ class Roles(commands.Cog):
 
 
 	@cmd.command()
-	@commands.has_permissions(manage_roles)
+	@commands.has_permissions(manage_roles=True)
 	async def del_roles(self, ctx, role : discord.Role):
 		await ctx.guild.delete_roles(role, reason=f"Role {role.name} has been deleted by {ctx.author}")
 		await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
@@ -92,7 +90,7 @@ class Roles(commands.Cog):
 
 
 	@cmd.command()
-	@commands.has_permissions(manage_roles)
+	@commands.has_permissions(manage_roles=True)
 	async def remove_role(ctx, role:discord.Role, user: discord.Member):
 		if ctx.author.top_role < user.top_role:
 			return await ctx.channel.purge(limit=1)
