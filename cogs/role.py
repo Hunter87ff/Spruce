@@ -71,9 +71,9 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command( help="Use to remove a role from everyone", aliases=['ra_role'])
+	@commands.command( help="Use to remove a role from everyone")
 	@commands.has_permissions(administrator=True)
-	async def remove_a_role(self, ctx, role:discord.Role):
+	async def ra_role(self, ctx, role:discord.Role):
 		for member in ctx.guild.members:
 			if role in member.roles:
 				if member.top_role < ctx.author.top_role:
