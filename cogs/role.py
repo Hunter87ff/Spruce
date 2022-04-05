@@ -56,7 +56,7 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(aliases=['rolea'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
+	@commands.command(aliases=['role'], help="Use this command to give role to someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
 	async def role_give(self, ctx, role: discord.Role, user: discord.Member):
 		if ctx.author.top_role < role:
