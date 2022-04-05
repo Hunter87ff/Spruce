@@ -53,7 +53,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['bnr'])
-	async def banner(self, ctx, user:discord.Member = None ):
+	async def banner(self, ctx, user:discord.User = None ):
 		if user == None:
 			user = ctx.author
 		req = await self.bot.http.request(discord.http.Route("GET", "/users/{uid}", uid=user.id))
