@@ -15,9 +15,9 @@ class Moderation(commands.Cog):
 	async def setup(self, ctx):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		for channel in ctx.guild.channels:
-			await channel.set_permissions(muted, send_messages=False, add_reactions=False)
-			await ctx.channel.purge(limit=1)
-			await ctx.send("Done", delete_after=5)
+			return await channel.set_permissions(muted, send_messages=False, add_reactions=False)
+			return await ctx.channel.purge(limit=1)
+			return await ctx.send("Done", delete_after=5)
 
 
 
