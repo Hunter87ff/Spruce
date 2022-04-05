@@ -37,7 +37,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['av'])
-	async def avatar(self, ctx, user:discord.Member = None):
+	async def avatar(self, ctx, user:discord.User = None):
 		if user == None:
 			user = ctx.author
 			return await ctx.send(user.avatar_url)
