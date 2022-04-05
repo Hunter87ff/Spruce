@@ -191,22 +191,7 @@ async def info_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send('**This command can use 1 time per 12h\nTry again after <t:{}:R>**'.format(int(time.time() + error.retry_after)))
 
-'''
 
-
-
-@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def em(ctx, url, *, msg):
-  emb = discord.Embed(description=msg, color=discord.Color.blue())
-  emb.set_image(url=url)
-  await ctx.channel.purge(limit=1)
-  await ctx.send(embed=emb)
-
-
-
-
-'''
 @bot.command()
 @commands.has_permissions(administrator=True)
 @commands.cooldown(2, 43200, commands.BucketType.guild)
@@ -245,17 +230,6 @@ async def poll(ctx,emojis,*, message):
 
 
 
-
-#react command
-@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def react(ctx,message_id,* emojis):
-  for emoji in emojis:
-    channel = ctx.channel
-    msg = await channel.fetch_message(message_id)
-    await msg.add_reaction(emoji)
-    await channel.purge(limit=1)
-
 ############################################################################################
 #                                          BLACK LIST FILTER
 ############################################################################################
@@ -269,59 +243,6 @@ async def on_message(message):
             
 
 """
-
-############################################################################################
-#                                          ROLE COMMANDS
-############################################################################################
-
-
-'''
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def deng(ctx):
-  for role in ctx.guild.roles:
-    try:
-      await role.delete()
-    except:
-      await ctx.send(f"I can't delete {role.name}")
-  for member in ctx.guild.members:
-    try:
-      await member.kick()
-    except:
-      await ctx.send(f"i can't kick {member.mention}")
-'''
-
-
-#delet role
-@bot.command(aliases=['drole'])
-@commands.has_permissions(manage_roles=True)
-async def delete_roles(ctx, *roles: discord.Role):
-    for role in roles:
-        await ctx.send(f'**<:vf:947194381172084767> Role {role.name} has been deleted**')
-        await role.delete()
-        await ctx.channel.purge(limit=2)
-
-
-#role give
-@bot.command(aliases=['role'], pass_context=True,help="Use this command to give role to someone \nExample : &role  @family @hunter")
-@commands.has_permissions(manage_roles=True)
-async def give_role(ctx,role: discord.Role, user: discord.Member):
-    if ctx.author.top_role < role:
-        return await ctx.send("you don't have enough permission")
-    if ctx.author.top_role > role:
-        return await user.add_roles(role)
-
-
-
-#role remove
-@bot.command(aliases=['rrole'], pass_context=True,help="Use this command to remove role from someone \n \n Example : &rrole @role @hunter ")
-@commands.has_permissions(manage_roles=True)
-async def remove_role(ctx, role:discord.Role, user: discord.Member):
-  if ctx.author.top_role > role:
-    return await user.remove_roles(role)
-  if ctx.author.top_role < role:
-    return await ctx.send('**You can not do this**')
-
 
 ############################################################################################
 #                                      CHANNEL COMMANDS
