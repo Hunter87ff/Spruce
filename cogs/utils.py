@@ -97,6 +97,23 @@ class Utility(commands.Cog):
 
 
 
+	@cmd.command()
+	async def em(self, ctx, image, *, message):
+		emb = discord.Embed(desctiption=message, color=blue)
+		emb.set_image(url=image)
+		await ctx.channel.purge(limit=1)
+		await ctx.snd(embed=emb)
+
+
+	@cmd.command()
+	async def react(self, ctx, msg_id, *emojis):
+		for emoji in emojis:
+			msg = await ctx.channel.fetch_message(msg_id)
+			await ctx.channel.purge(limit=1)
+			await msg.add_reaction(emoji)
+
+
+
 
 
 
