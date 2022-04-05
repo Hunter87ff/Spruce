@@ -54,14 +54,14 @@ class Moderation(commands.Cog):
 			reason = f"{member} Unmuted By {ctx.author}"
 
 		if ctx.author.top_role < member.top_role:
-			return await ctx.send("You can't Mute Him" delete_after=5)
+			return await ctx.send("You can't Mute Him", delete_after=5)
 
 		if self.bot.top_role < member.top_role:
-			return await ctx.send("I can't Mute Him" delete_after=5)
+			return await ctx.send("I can't Mute Him", delete_after=5)
 
 		else:
 			return await member.remove_roles(muted, reason=reason)
-			return await ctx.send(f"{member} Unmuted" delete_after=5)
+			return await ctx.send(f"{member} Unmuted", delete_after=5)
 
 
 	
