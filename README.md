@@ -7,7 +7,7 @@
 
 
 <p align="center">
-<img src="https://images-ext-2.discordapp.net/external/kxRLI2ViR7HALDLb61FesFCqTC30WlsIhqFXnAc1HoA/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/931202912888164474/bef33062985192522319b855cbad42c4.png?width=435&height=435" height="50px" width="50px"/>
+<img src="https://cdn.discordapp.com/avatars/931202912888164474/46f9c17b5e0b57609e6fae0108ae2089.webp?size=1024" height="50px" width="50px"/>
 </p>
 <h3 align="center">Spruce</h>
 <p align="center" > 
