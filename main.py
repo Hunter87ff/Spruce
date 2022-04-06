@@ -237,7 +237,7 @@ async def ping(ctx):
 
 @bot.command()
 async def bot_info(ctx):
-    description = f"**My name is {bot.user.name}, \nMy developer is `Hunter87#8787` \nAnd i wanna do something for you\n\n:heart: Thanks for using this command**"
+    description = f"**My name is {bot.user.name}, \nMy developer is `hunter#6967` \nAnd i wanna do something for you\n\n:heart: Thanks for using this command**"
     embed = discord.Embed(title='ABOUT ME', description=description, color = discord.Color.blue())
     await ctx.send(f'{ctx.author.mention}',embed=embed)
 
