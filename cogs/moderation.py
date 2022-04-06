@@ -108,14 +108,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10")
 	@commands.has_permissions(manage_messages=True)
 	async def clear(self, ctx, amount:int):
-		if amount == "all":
-			await ctx.channel.purge()
-
-		if amount == None:
-			return await ctx.send("Please Enter amount")
-
-		else:
-			await ctx.channel.purge(limit=amount)
+		await ctx.channel.purge(limit=amount)
 			return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
 
 

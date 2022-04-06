@@ -87,8 +87,8 @@ class Utility(commands.Cog):
 			return await ctx.send(embed=emb)
 
 		elif user.id == 885193210455011369:
-			owner = discord.Embed(description="My Owner", color=blue)
-			await ctx.send(owner)
+			owneremb = discord.Embed(description=f"{user.mention} is My Owner", color=blue)
+			await ctx.send(embed=owneremb)
 
 		else:
 			msg = random.choice(whois)
@@ -111,6 +111,14 @@ class Utility(commands.Cog):
 			msg = await ctx.channel.fetch_message(msg_id)
 			await ctx.channel.purge(limit=1)
 			await msg.add_reaction(emoji)
+
+
+
+
+	@bot.command()
+	async def join(self, ctx):
+		channel = ctx.author.voice.channel
+		await channel.connect()
 
 
 

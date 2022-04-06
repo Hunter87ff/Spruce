@@ -126,10 +126,10 @@ async def prefix(ctx):
 ############################################################################################
 
 
-@bot.command()
-async def join(ctx):
-    channel = ctx.author.voice.channel
-    await channel.connect()
+
+
+    
+    
 
 	
 
