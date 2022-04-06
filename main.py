@@ -114,7 +114,7 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 
 
-
+'''  
 #embed dm
 @bot.command()
 @commands.is_owner()
@@ -127,7 +127,7 @@ async def edm(ctx, users: commands.Greedy[discord.User], *, message):
       await ctx.send('Sent' ,delete_after=5)
 
 
-'''  
+
 #dm command
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -167,7 +167,20 @@ async def info_error(ctx, error):
         await ctx.send('**This command can use 1 time per 12h\nTry again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
    
 '''
-      
+
+
+@commands.error
+async def info_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('**Please enter required Arguments **')
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send('**This command can use 1 time per 12h\nTry again after <t:{}:R>**'.format(int(time.time() + error.retry_after)))
+
+
+
+
+
+
 
 ############################################################################################
 #                                          BLACK LIST FILTER
