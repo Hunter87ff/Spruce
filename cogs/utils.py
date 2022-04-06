@@ -115,7 +115,7 @@ class Utility(commands.Cog):
 
 
 
-	@bot.command()
+	@cmd.command()
 	async def join(self, ctx):
 		channel = ctx.author.voice.channel
 		await channel.connect()
