@@ -125,51 +125,10 @@ async def edm(ctx, users: commands.Greedy[discord.User], *, message):
       await user.send(embed=embed)
       await channel.purge(limit=1)
       await ctx.send('Sent' ,delete_after=5)
-
-
-
-#dm command
-@bot.command()
-@commands.has_permissions(administrator=True)
-@commands.cooldown(2, 43200, commands.BucketType.guild)
-async def dm(ctx, users: commands.Greedy[discord.User], *, message):
-    for user in users:
-        channel = ctx.channel
-        await user.send(message)
-        await channel.purge(limit=1)
-        await ctx.send('Sent', delete_after=5)
-
-      
-@dm.error
-async def info_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('**Please enter  Arguments \nExample :  `&dm @hunter hello bro` **')
-    if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send('**This command can use 1 time per 12h\nTry again after <t:{}:R>**'.format(int(time.time() + error.retry_after)))
-
-
-@bot.command()
-@commands.has_permissions(administrator=True)
-@commands.cooldown(2, 43200, commands.BucketType.guild)
-async def rdm(ctx, role: discord.Role,*, msg):
-  for member in ctx.guild.members:
-    if role in member.roles:
-      await ctx.channel.purge(limit=1)
-      await member.send(msg)
-      await ctx.send('**Sent**')
-
-
-@rdm.error
-async def info_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('**Please enter  Arguments \nExample :  `&dm @hunter hello bro` **')
-    if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send('**This command can use 1 time per 12h\nTry again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
-   
 '''
 
 
-@client.event() #Replace 'client' with whatever neccesary
+@bot.event() #Replace 'client' with whatever neccesary
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')
