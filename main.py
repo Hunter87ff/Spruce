@@ -169,8 +169,8 @@ async def info_error(ctx, error):
 '''
 
 
-@commands.error
-async def info_error(ctx, error):
+@client.event() #Replace 'client' with whatever neccesary
+async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')
     if isinstance(error, commands.CommandOnCooldown):
