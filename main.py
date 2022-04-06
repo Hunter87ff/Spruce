@@ -36,6 +36,7 @@ from discord.ext import commands
 from asyncio import sleep
 import datetime , time
 import json
+from data import color
 
 #import humanfriendly
 #from data.badwords import bws
@@ -107,39 +108,6 @@ async def on_ready():
         json.dump(data, file, indent=4)
 
      
-  
-
-
-##########################################################################################
-#                                          USER AND SERVER COMMANDS
-############################################################################################
-
-
-
-
-@bot.command()
-async def prefix(ctx):
-	await ctx.channel.purge(limit=1)
-	await ctx.send(f"** My prefix is `{pref}`**")
-##########################################################################################
-#                                          VOICE COMMANDS
-############################################################################################
-
-
-
-
-    
-    
-
-	
-
-
-@bot.command()
-async def leave(ctx):
-    await ctx.voice_client.disconnect()
-  
-
-
 
 
 ##########################################################################################

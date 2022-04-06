@@ -23,6 +23,8 @@ d_green = 0x1f8b4c
 teal = 0x1abc9c
 d_teal = 0x11806a
 
+pref = "&"
+
 whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
 "Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
  "1 number ka noob","Nehi bolunga kya kar loge"]
@@ -116,6 +118,14 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
+	async def prefix(self, ctx):
+		await ctx.channel.purge(limit=1)
+		await ctx.send(pref)
+
+
+
+
+	@cmd.command()
 	async def join(self, ctx):
 		channel = ctx.author.voice.channel
 		await channel.connect()
@@ -123,7 +133,9 @@ class Utility(commands.Cog):
 
 
 
-
+	@cmd.command()
+	async def leave(self, ctx):
+		await ctx.voice_client.disconnect()
 
 	
 
