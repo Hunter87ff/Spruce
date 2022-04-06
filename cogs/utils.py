@@ -137,9 +137,13 @@ class Utility(commands.Cog):
 	async def leave(self, ctx):
 		await ctx.voice_client.disconnect()
 
-	
 
 
+	@cmd.command()
+	async def member_count(self, ctx):
+		emb = discord.Embed(description=f"{ctx.guild.member_count}", color=0xffff00)
+		await ctx.channel.purge(limit=1)
+		await ctx.send(embed=emb)
 
 
 

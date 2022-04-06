@@ -17,3 +17,4 @@ green = 0x2ecc71
 d_green = 0x1f8b4c
 teal = 0x1abc9c
 d_teal = 0x11806a
+yellow = 0xffff00
