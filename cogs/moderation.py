@@ -64,7 +64,7 @@ class Moderation(commands.Cog):
 	async def lock_category(self, ctx,category: discord.CategoryChannel):
 		channels = category.channels
 		for channel in channels:
-			await channel.set_permissions(ctx.guild.default_role,send_messages=False)
+			await channel.set_permissions(ctx.guild.default_role,send_messages=False,add_reactions=False)
 			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked**', delete_after=5)
 
 
@@ -73,7 +73,7 @@ class Moderation(commands.Cog):
 	async def unlock_category(self, ctx,category: discord.CategoryChannel):
 		channels = category.channels
 		for channel in channels:
-			await channel.set_permissions(ctx.guild.default_role,send_messages=True)
+			await channel.set_permissions(ctx.guild.default_role,send_messages=True,add_reactions=True)
 			await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked**', delete_after=5)
 
 
