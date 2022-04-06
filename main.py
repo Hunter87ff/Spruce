@@ -212,23 +212,6 @@ async def info_error(ctx, error):
    
 '''
       
-#clear command
-@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def clear(ctx, amount: int):
-    await ctx.channel.purge(limit=amount)
-    await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
-
-
-'''@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def poll(ctx,emojis,*, message):
-  for emoji in emojis:
-    emb = discord.Embed(description=message, color= 4*5565)
-    msg = await ctx.channel.send(embed=emb)
-    await msg.add_reaction(emoji)'''
-
-
 
 ############################################################################################
 #                                          BLACK LIST FILTER
@@ -248,66 +231,6 @@ async def on_message(message):
 #                                      CHANNEL COMMANDS
 ############################################################################################
 
-
-#lock command
-@bot.command(help=" Use this command to lock a channel")
-@commands.has_permissions(manage_channels=True)
-async def lock(ctx):
-    await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=False)
-    await ctx.channel.purge(limit=1)
-    await ctx.send('**<:vf:947194381172084767> Channel has been locked**', delete_after=5)
-    
-
-
-#unlock command
-@bot.command(help=" Use this command to lock a channel")
-@commands.has_permissions(manage_channels=True)
-async def unlock(ctx):
-    await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=True)
-    await ctx.channel.purge(limit=1)
-    await ctx.send('**<:vf:947194381172084767> Channel has been unlocked**', delete_after=5)
-
-
-
-#hide channel
-@bot.command(help=" Use this command to hide a channel")
-@commands.has_permissions(manage_channels=True)
-async def hide(ctx):
-    await ctx.channel.set_permissions(ctx.guild.default_role,view_channel=False)
-    await ctx.channel.purge(limit=1)
-    await ctx.send('**<:vf:947194381172084767>This channel is hidden from everyone**',delete_after=5)
-
-
-#unhide channel
-@bot.command(help=" Use this command to unhide a channel")
-@commands.has_permissions(manage_channels=True)
-async def unhide(ctx):
-    await ctx.channel.set_permissions(ctx.guild.default_role,view_channel=True)
-    await ctx.channel.purge(limit=1)
-    await ctx.send('**<:vf:947194381172084767>This channel is visible to everyone**', delete_after=5)
-
-
-#channel create
-@bot.command(aliases=['chm'])
-@commands.has_permissions(manage_channels=True)
-async def channel_make(ctx, *names):
-    for name in names:
-        await ctx.guild.create_text_channel(name)
-        await ctx.send(f'**<:vf:947194381172084767>`{name}` has been created**',delete_after=5)
-        await sleep(1)
-
-
-#channel delete
-@bot.command(aliases=['chd'])
-@commands.has_permissions(manage_channels=True)
-async def channel_del(ctx, *channels: discord.TextChannel):
-    for ch in channels:
-        await ch.delete()
-        await ctx.send(f'**<:vf:947194381172084767>`{ch.name}` has been deleted**',delete_after=5)
-        await sleep(1)
-
-
-
 #tournament setup (category and channels)
 @bot.command(aliases=['ts','tsetup'])
 @commands.has_permissions(manage_channels=True)
@@ -326,31 +249,7 @@ async def tourney_setup(ctx,front,*,category=None):
     await ctx.send(f'**<:vf:947194381172084767>Successfully Created**',delete_after=5)
 
 
-#delete category
-@bot.command(aliases=['dc'])
-@commands.has_permissions(administrator=True)
-async def delete_category(ctx,category: discord.CategoryChannel):
-	channels = category.channels
-	for channel in channels:
-		await channel.delete(reason=f'Deleted by {ctx.author.name}')
-		await ctx.send(f'**<:vf:947194381172084767>Successfully deleted  by {ctx.author.name}**', delete_after=5)
 
-@bot.command(aliases=['lc'])
-@commands.has_permissions(administrator=True)
-async def lock_category(ctx,category: discord.CategoryChannel):
-	channels = category.channels
-	for channel in channels:
-		await channel.set_permissions(ctx.guild.default_role,send_messages=False)
-		await ctx.send(f'**<:vf:947194381172084767>Successfully Locked**', delete_after=5)
-    
-#create channel by category id
-@bot.command(aliases=['cch'])
-@commands.has_permissions(manage_channels=True)
-async def create_channel(ctx,category,name):
-	    category = await bot.fetch_channel(category)
-	    await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-	    await ctx.send("Done", delete_after=5)
-		 
 
 @bot.command()
 @commands.has_permissions(change_nickname=True)

@@ -20,9 +20,108 @@ class Moderation(commands.Cog):
 			return await ctx.send("Done", delete_after=5)
 
 
+	@cmd.command(help=" Use this command to lock a channel")
+	@commands.has_permissions(manage_channels=True)
+	async def lock(self, ctx):
+		await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=False, add_reactions=False)
+		await ctx.channel.purge(limit=1)
+		await ctx.send('**<:vf:947194381172084767> Channel has been locked**', delete_after=5)
+
+
+	@cmd.command(help=" Use this command to unlock a channel")
+	@commands.has_permissions(manage_channels=True)
+	async def unlock(self, ctx):
+		await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=True, add_reactions=True)
+		await ctx.channel.purge(limit=1)
+		await ctx.send('**<:vf:947194381172084767> Channel has been unlocked**', delete_after=5)
 
 
 
+	@cmd.command(help=" Use this command to hide a channel")
+	@commands.has_permissions(manage_channels=True)
+	async def hide(self, ctx):
+		await ctx.channel.set_permissions(ctx.guild.default_role,view_channel=False)
+		await ctx.channel.purge(limit=1)
+		await ctx.send('**<:vf:947194381172084767>This channel is hidden from everyone**',delete_after=5)
+
+
+
+
+
+	@cmd.command(help=" Use this command to unhide a channel")
+	@commands.has_permissions(manage_channels=True)
+	async def unhide(self, ctx):
+		await ctx.channel.set_permissions(ctx.guild.default_role,view_channel=False)
+		await ctx.channel.purge(limit=1)
+		await ctx.send('**<:vf:947194381172084767>This channel is visible to everyone**',delete_after=5)
+
+
+	@cmd.command(aliases=['chm'])
+	@commands.has_permissions(manage_channels=True)
+	async def channel_make(self, ctx, *names):
+		for name in names:
+			await ctx.guild.create_text_channel(name)
+			await ctx.send(f'**<:vf:947194381172084767>`{name}` has been created**',delete_after=5)
+			await sleep(1)
+
+
+	@cmd.command(aliases=['chd'])
+	@commands.has_permissions(manage_channels=True)
+	async def channel_del(self, ctx, *channels: discord.TextChannel):
+		for ch in channels:
+			await ch.delete()
+			await ctx.send(f'**<:vf:947194381172084767>`{ch.name}` has been deleted**',delete_after=5)
+			await sleep(1)
+
+
+
+	@cmd.command(aliases=['dc'])
+	@commands.has_permissions(administrator=True)
+	async def delete_category(self, ctx,category: discord.CategoryChannel):
+		channels = category.channels
+		for channel in channels:
+			await channel.delete(reason=f'Deleted by {ctx.author.name}')
+			await ctx.send(f'**<:vf:947194381172084767>Successfully deleted  by {ctx.author.name}**', delete_after=5)
+
+
+
+	@cmd.command(aliases=['lc'])
+	@commands.has_permissions(administrator=True)
+	async def lock_category(self, ctx,category: discord.CategoryChannel):
+		channels = category.channels
+		for channel in channels:
+			await channel.set_permissions(ctx.guild.default_role,send_messages=False)
+			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked**', delete_after=5)
+
+
+	@cmd.command(aliases=['cch'])
+	@commands.has_permissions(manage_channels=True)
+	async def create_channel(ctx,category,name):
+		category = await bot.fetch_channel(category)
+		await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
+		await ctx.send("Done", delete_after=5)
+
+
+
+
+	#clear command
+	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10")
+	@commands.has_permissions(manage_messages=True)
+	async def clear(self, ctx, amount:int):
+		if amount == all:
+			await ctx.channel.purge()
+
+		if amount == None:
+			return await ctx.send("Please Enter amount")
+
+		else:
+			await ctx.channel.purge(limit=amount, reason=f"Purged by {ctx.author}")
+			return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
+
+
+
+
+	#Mute Command
 	@cmd.command(help="Make sure you've created a role named 'Muted' and then run the command '&setup' ")
 	@commands.has_permissions(administrator=True)
 	async def mute(self, ctx, member: discord.Member,*,reason=None):
@@ -100,19 +199,6 @@ class Moderation(commands.Cog):
 
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You don't have enough permission", delete_after=5)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
