@@ -90,7 +90,7 @@ class Utility(commands.Cog):
 
 		elif user.id == 885193210455011369:
 			owneremb = discord.Embed(description=f"{user.mention} is My Owner", color=blue)
-			await ctx.send(embed=owneremb)
+			return await ctx.send(embed=owneremb)
 
 		else:
 			msg = random.choice(whois)

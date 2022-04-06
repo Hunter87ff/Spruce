@@ -35,8 +35,10 @@ from data import color
 #from discord.ui import Button, View
 
 pref = '&'
-#intents = discord.Intents().default()
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=discord.Intents.all())
+intents= discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref))
 
 
 
