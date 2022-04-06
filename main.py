@@ -128,7 +128,7 @@ async def edm(ctx, users: commands.Greedy[discord.User], *, message):
 '''
 
 
-@bot.event() #Replace 'client' with whatever neccesary
+@bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')

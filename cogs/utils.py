@@ -149,7 +149,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 43200, commands.BucketType.user)
+	@commands.cooldown(2, 120, commands.BucketType.user)
 	async def dm(self, ctx, user : discord.User, *, message):
 		if ctx.author.id == 885193210455011369:
 			return await user.send(message)
