@@ -68,6 +68,33 @@ class Moderation(commands.Cog):
 			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked**', delete_after=5)
 
 
+	@cmd.command(aliases=['ulc'])
+	@commands.has_permissions(administrator=True)
+	async def unlock_category(self, ctx,category: discord.CategoryChannel):
+		channels = category.channels
+		for channel in channels:
+			await channel.set_permissions(ctx.guild.default_role,send_messages=True)
+			await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked**', delete_after=5)
+
+
+	@cmd.command(aliases=['hc'])
+	@commands.has_permissions(administrator=True)
+	async def hide_category(self, ctx,category: discord.CategoryChannel):
+		channels = category.channels
+		for channel in channels:
+			await channel.set_permissions(ctx.guild.default_role,view_channel=False)
+			await ctx.send(f'**<:vf:947194381172084767> {channel.name} is Hidden from everyone**', delete_after=5)
+
+
+	@cmd.command(aliases=['uhc'])
+	@commands.has_permissions(administrator=True)
+	async def unhide_category(self, ctx,category: discord.CategoryChannel):
+		channels = category.channels
+		for channel in channels:
+			await channel.set_permissions(ctx.guild.default_role,view_channel=True)
+			await ctx.send(f'**<:vf:947194381172084767> {channel.name} is Visible to everyone**', delete_after=5)
+
+
 	@cmd.command(aliases=['cch'])
 	@commands.has_permissions(manage_channels=True)
 	async def create_channel(ctx,category,name):
@@ -130,15 +157,6 @@ class Moderation(commands.Cog):
 			return await ctx.send(f"{member} Unmuted", delete_after=5)
 
 
-	
-
-
-
-
-
-
-
-
 
 	@commands.command()
 	@commands.has_permissions(kick_members=True)
@@ -166,6 +184,7 @@ class Moderation(commands.Cog):
 
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You don't have enough permission", delete_after=5)
+
 
 
 
