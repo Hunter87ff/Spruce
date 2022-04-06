@@ -115,7 +115,7 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 #embed dm
 @bot.command()
-@commands.is_owner
+@commands.is_owner()
 async def edm(ctx, users: commands.Greedy[discord.User], *, message):
     for user in users:
       embed =  discord.Embed(description=message, color = 4*5555 )
