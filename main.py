@@ -22,14 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
-
-
-
-
-
-
-
 import os
 import discord
 from discord.ext import commands
@@ -49,18 +41,12 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref),intents=disco
 
 
 # Load extensions
-
 #bot.load_extension('cogs.mod')
 #bot.load_extension('cogs.utils')
-
-
 
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
         bot.load_extension(f"cogs.{filename[:-3]}")
-
-
-
 
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
 #tick = "<:vf:947194381172084767>"
@@ -126,10 +112,10 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 
 
-'''  
+
 #embed dm
 @bot.command()
-@commands.has_permissions(administrator=True)
+@commands.is_owner
 async def edm(ctx, users: commands.Greedy[discord.User], *, message):
     for user in users:
       embed =  discord.Embed(description=message, color = 4*5555 )
@@ -139,7 +125,7 @@ async def edm(ctx, users: commands.Greedy[discord.User], *, message):
       await ctx.send('Sent' ,delete_after=5)
 
 
-
+'''  
 #dm command
 @bot.command()
 @commands.has_permissions(administrator=True)

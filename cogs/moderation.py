@@ -83,7 +83,7 @@ class Moderation(commands.Cog):
 		channels = category.channels
 		for channel in channels:
 			await channel.set_permissions(ctx.guild.default_role,view_channel=False)
-			await ctx.send(f'**<:vf:947194381172084767> {channel.name} is Hidden from everyone**', delete_after=5)
+			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Hidden from everyone**', delete_after=5)
 
 
 	@cmd.command(aliases=['uhc'])
@@ -92,7 +92,7 @@ class Moderation(commands.Cog):
 		channels = category.channels
 		for channel in channels:
 			await channel.set_permissions(ctx.guild.default_role,view_channel=True)
-			await ctx.send(f'**<:vf:947194381172084767> {channel.name} is Visible to everyone**', delete_after=5)
+			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Visible to everyone**', delete_after=5)
 
 
 	@cmd.command(aliases=['cch'])
