@@ -86,7 +86,7 @@ class Utility(commands.Cog):
 			emb = discord.Embed(description=f"{user.mention} {msg}", color=blurple)
 			return await ctx.send(embed=emb)
 
-		elif user == 885193210455011369:
+		elif user.id == 885193210455011369:
 			owner = discord.Embed(description="My Owner", color=blue)
 			await ctx.send(owner)
 
