@@ -115,7 +115,7 @@ class Moderation(commands.Cog):
 			return await ctx.send("Please Enter amount")
 
 		else:
-			await ctx.channel.purge(limit=amount, reason=f"Purged by {ctx.author}")
+			await ctx.channel.purge(limit=amount)
 			return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
 
 
