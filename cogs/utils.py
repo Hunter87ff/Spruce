@@ -154,6 +154,8 @@ class Utility(commands.Cog):
 		sfrom = f"{message}\nFrom {ctx.author}"
 		if ctx.author.id == 885193210455011369:
 			return await user.send(sform)
+			await ctx.channel.purge(limit=1)
+			return await ctx.send("Sent", delete_after=6)
 
 		else:
 			return await ctx.send("Premium Needed")
