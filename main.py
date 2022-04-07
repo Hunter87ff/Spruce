@@ -138,7 +138,13 @@ async def on_command_error(ctx, error):
 
 
 
-
+@bot.command()
+@commands.dm_only()
+async def cdm(ctx):
+  dmchannel = await ctx.author.create_dm()
+  async for message in dmchannel.history(limit=100):
+    if message.author == bot.user:
+      await message.delete()
 
 
 ############################################################################################
