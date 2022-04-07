@@ -152,11 +152,12 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 180, commands.BucketType.user)
 	async def dm(self, ctx, user : discord.User, *, message):
 		if ctx.author.id == 885193210455011369:
-			emb = f"{message}\nFrom {ctx.author}"
+			emb = discord.Embed(description=f"{message}\nFrom {ctx.author}", color=blue)
 			return await ctx.channel.send(embed=emb)
 			await ctx.channel.purge(limit=1)
 
 		else:
+			return await ctx.chanel.purge(limit=1)
 			return await ctx.send("You aren't a  premium user", delete_after=5)
 
 
