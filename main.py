@@ -133,12 +133,18 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')
     if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send('**Try again after <t:{}:R>**'.format(int(time.time() + error.retry_after)))
+        await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
 
 
 
 
-
+@bot.command()
+@commands.dm_only()
+async def cdm(ctx):
+  dmchannel = await ctx.author.create_dm()
+  async for message in dmchannel.history(limit=100):
+    if message.author == bot.user:
+      await message.delete()
 
 
 ############################################################################################
