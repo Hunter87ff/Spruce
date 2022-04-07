@@ -133,7 +133,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')
     if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send('**Try again after <t:{}:R>**'.format(int(time.time() + error.retry_after)))
+        await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
 
 
 
