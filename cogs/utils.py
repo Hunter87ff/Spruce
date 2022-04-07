@@ -153,7 +153,7 @@ class Utility(commands.Cog):
 	async def dm(self, ctx, user : discord.User, *, message):
 		sform = f"{message}\nFrom {ctx.author}"
 		if ctx.author.id == 885193210455011369:
-			return await user.send(sform)
+			return await user.send(embed=sform)
 			await ctx.channel.purge(limit=1)
 			return await ctx.send("Sent", delete_after=6)
 
