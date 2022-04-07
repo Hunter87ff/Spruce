@@ -151,7 +151,7 @@ class Utility(commands.Cog):
 	@cmd.command()
 	@commands.cooldown(2, 120, commands.BucketType.user)
 	async def dm(self, ctx, user : discord.User, *, message):
-		sfrom = f"{message}\nFrom {ctx.author}"
+		sform = f"{message}\nFrom {ctx.author}"
 		if ctx.author.id == 885193210455011369:
 			return await user.send(sform)
 			await ctx.channel.purge(limit=1)
