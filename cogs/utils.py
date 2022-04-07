@@ -160,6 +160,19 @@ class Utility(commands.Cog):
 			return await ctx.send("You aren't a  premium user", delete_after=5)
 
 
+	@cmd.command()
+	async def nick(self, ctx, user:discord.Member,  *, Nick):
+		if ctx.author.top_role < user.top_role:
+			return await ctx.send("You don't have enough permission")
+
+		if self.bot.top_role < user.top_role:
+			return await ctx.send("I don't have enough permission")
+
+		else:
+			return await user.edit(nick=Nick)
+
+
+
 
 
 
