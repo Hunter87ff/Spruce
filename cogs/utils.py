@@ -153,7 +153,7 @@ class Utility(commands.Cog):
 	async def dm(self, ctx, user : discord.User, *, message):
 		if ctx.author.id == 885193210455011369:
 			emb = discord.Embed(description=f"{message}\nFrom {ctx.author}", color=blue)
-			return await ctx.channel.send(embed=emb)
+			return await user.send(embed=emb)
 			await ctx.channel.purge(limit=1)
 
 		else:
