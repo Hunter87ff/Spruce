@@ -152,7 +152,7 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 180, commands.BucketType.user)
 	async def dm(self, ctx, user : discord.User, *, message):
 		if ctx.author.id == 885193210455011369:
-			emb = discord.Embed(description=f"{message}\nFrom {ctx.author}", color=blue)
+			emb = discord.Embed(description=message, color=blue)
 			emb.set_footer(text=f'{ctx.author}',icon_url=ctx.author.avatar_url)
 			return await user.send(embed=emb)
 			await ctx.channel.purge(limit=1)
