@@ -111,7 +111,7 @@ async def cdm(ctx,amount:int):
 async def on_message(msg):
     if ":" == msg.content[0] and ":" == msg.content[-1]:
         emoji_name = msg.content[1:-1]
-        for emoji in message.guild.emojis:
+        for emoji in msg.guild.emojis:
             if emoji_name == emoji.name:
                 await msg.channel.send(str(emoji))
                 await msg.delete()
