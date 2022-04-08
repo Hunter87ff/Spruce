@@ -28,7 +28,7 @@ from discord.ext import commands
 from asyncio import sleep
 import datetime , time
 import json
-from data import color
+from data import *
 
 #import humanfriendly
 #from data.badwords import bws
@@ -53,33 +53,6 @@ for filename in os.listdir("./cogs"):
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
 #tick = "<:vf:947194381172084767>"
 
-
-'''
-custom_prefixes = {}
-
-#You'd need to have some sort of persistance here,
-#possibly using the json module to save and load
-#or a database
-
-
-default_prefixes = ['&']
-
-async def determine_prefix(bot, message):
-    guild = message.guild
-    if guild:
-        return custom_prefixes.get(guild.id, default_prefixes)
-    else:
-        return default_prefixes
-
-bot = commands.Bot(command_prefix = determine_prefix)
-
-@bot.command()
-@commands.has_permissions(administrator=True)
-@commands.guild_only()
-async def setprefix(ctx, *, prefixes=""):
-    custom_prefixes[ctx.guild.id] = prefixes.split() or default_prefixes
-    await ctx.send(f"Prefixes set to `{prefixes}` ")
-'''
 
 
 @bot.event
@@ -114,19 +87,6 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 
 
-'''  
-#embed dm
-@bot.command()
-@commands.is_owner()
-async def edm(ctx, users: commands.Greedy[discord.User], *, message):
-    for user in users:
-      embed =  discord.Embed(description=message, color = 4*5555 )
-      channel = ctx.channel
-      await user.send(embed=embed)
-      await channel.purge(limit=1)
-      await ctx.send('Sent' ,delete_after=5)
-'''
-
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -140,11 +100,23 @@ async def on_command_error(ctx, error):
 
 @bot.command()
 @commands.dm_only()
-async def cdm(ctx):
+async def cdm(ctx,amount:int):
   dmchannel = await ctx.author.create_dm()
-  async for message in dmchannel.history(limit=100):
+  async for message in dmchannel.history(limit=amount):
     if message.author == bot.user:
       await message.delete()
+
+
+@bot.event
+async def on_message(msg):
+    if ":" == msg.content[0] and ":" == msg.content[-1]:
+        emoji_name = msg.content[1:-1]
+        for emoji in message.guild.emojis:
+            if emoji_name == emoji.name:
+                await msg.channel.send(str(emoji))
+                await msg.delete()
+                break
+    await bot.process_commands(msg)
 
 
 ############################################################################################
@@ -243,6 +215,5 @@ async def bot_info(ctx):
 
 
 
-#keep_alive()
-#bot.add_cog(Fun())
+
 bot.run(os.environ['TOKEN'])

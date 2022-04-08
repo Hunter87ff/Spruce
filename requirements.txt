@@ -31,3 +31,4 @@ urllib3==1.26.6
 yarl==1.6.3
 pycord
 PyNaCl
+discord-ui
