@@ -106,7 +106,7 @@ async def cdm(ctx,amount:int):
     if message.author == bot.user:
       await message.delete()
 
-
+"""
 @bot.event
 async def on_message(msg):
     if ":" == msg.content[0] and ":" == msg.content[-1]:
@@ -117,7 +117,7 @@ async def on_message(msg):
                 await msg.delete()
                 break
     await bot.process_commands(msg)
-
+"""
 
 ############################################################################################
 #                                          BLACK LIST FILTER
