@@ -149,11 +149,14 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} Muted By {ctx.author}"
 
+		if member == ctx.author:
+			return await ctx.send("**You cant mute your self**", delete_after=5)
+
 		if ctx.author.top_role < member.top_role:
-			return await ctx.send("You can't Mute Him", delete_after=5)
+			return await ctx.send("**You can't Mute Him**", delete_after=5)
 
 		if self.bot.top_role < member.top_role:
-			return await ctx.send(f"I can't Mute Him", delete_after=5)
+			return await ctx.send("**I can't Mute Him**", delete_after=5)
 
 		else:
 			return await member.add_roles(muted, reason=reason)
@@ -190,12 +193,18 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} kicked by {ctx.author}"
 
-		if ctx.author.top_role > member.top_role:
-			return await ctx.guild.kick(member, reason=reason)
-			return await ctx.send(f"{member} kicked", delete_after=5)
-
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You don't have enough permission", delete_after=5)
+
+		elif member == ctx.author:
+			return await ctx.send("**You can't kick your self**", delete_after=5)
+
+		elif ctx.guild.me.top_role < member.top_role:
+			return await ctx.send("**I can't kick him**", delete_after=5)
+
+		else:
+			return await ctx.guild.kick(member, reason=reason)
+			return await ctx.send(f"{member} kicked", delete_after=5)
 
 
 	@commands.command()
@@ -204,12 +213,18 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} banned by {ctx.author}"
 
-		if ctx.author.top_role > member.top_role:
-			return await ctx.guild.ban(member, reason=reason)
-			return await ctx.send(f"{member} banned")
-
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You don't have enough permission", delete_after=5)
+
+		elif member == ctx.author:
+			return await ctx.send("**You can't ban your self**", delete_after=5)
+
+		elif ctx.guild.me.top_role < member.top_role:
+			return await ctx.send("**I can't ban him**", delete_after=5)
+
+		else:
+			return await ctx.guild.ban(member, reason=reason)
+			return await ctx.send(f"{member} banned", delete_after=5)
 
 
 
