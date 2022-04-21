@@ -1,4 +1,4 @@
-"""
+-"""
 MIT License
 
 Copyright (c) 2022 Spruce
@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
+
+
 import os
 import discord
 from discord.ext import commands
@@ -59,14 +61,7 @@ for filename in os.listdir("./cogs"):
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
     print(f'{bot.user} is ready')
-    guilds = bot.guilds
-    data = {}
-    for guild in guilds:
-        data[guild.id] = []
-        for channel in guild.channels:
-            data[guild.id].append(channel.id)
-    with open("./data/guilds.json", "w") as file:
-        json.dump(data, file, indent=4)
+    
 
      
 
@@ -92,8 +87,23 @@ bot.help_command = Nhelp(no_category = 'Commands')
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')
-    if isinstance(error, commands.CommandOnCooldown):
+    elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
+      
+    elif isinstance(error, commands.MissingPermissions):
+      return await ctx.send("You don't have permission to use this command")
+
+    elif isinstance(error, commands.DisabledCommand):
+      await ctx.send("This command is currenlty disabled. Please try again later")
+
+    elif isinstance(error, commands.CommandNotFound):
+      await ctx.send("*Command not found! please check the spelling carefully")
+
+    elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
+      await ctx.send("You dont have the exact role to use this command")
+
+    else:
+        return await ctx.send("Something went wrong!")
 
 
 
