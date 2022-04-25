@@ -105,6 +105,7 @@ async def on_command_error(ctx, error):
 
     else:
         return await ctx.send("Something went wrong!")
+        print(error)
 
 
 
@@ -151,7 +152,7 @@ async def on_message_delete(message):
      del snipe_message_author[message.channel.id]
      del snipe_message_content[message.channel.id]
 
-@bot.command(name = 'snipe')
+@bot.command()
 async def snipe(ctx):
     channel = ctx.channel
     try:
