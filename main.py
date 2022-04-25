@@ -143,13 +143,11 @@ async def on_message(message):
             await message.channel.purge(limit=1)
             
 
-<<<<<<< HEAD
 """
 
 snipe_message_author = {}
 snipe_message_content = {}
-=======
->>>>>>> 3337673cb79a3a73f24aa68fe0f18e799facbb58
+
 
 @bot.event
 async def on_message_delete(message):
