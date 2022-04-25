@@ -143,6 +143,10 @@ async def on_message(message):
             
 
 """
+
+snipe_message_author = {}
+snipe_message_content = {}
+
 @bot.event
 async def on_message_delete(message):
      snipe_message_author[message.channel.id] = message.author
