@@ -244,11 +244,14 @@ async def ping(ctx):
     await ctx.send(f'**Current ping is {round(bot.latency*1000)} ms**')
 
 @bot.command()
-async def bot_info(ctx):
-    description = f"**My name is {bot.user.name}, \nMy developer is `hunter#6967` \nAnd i wanna do something for you\n\n:heart: Thanks for using this command**"
-    embed = discord.Embed(title='ABOUT ME', description=description, color = discord.Color.blue())
-    await ctx.send(f'{ctx.author.mention}',embed=embed)
-
+async def info(ctx):
+  emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
+  emb.add_field(name="__Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 11537")
+  emb.add_field(name="__Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)")
+  emb.add_field(name="__Current Ping__", value=f"{round(bot.latency*1000)} ms")
+  emb.add_field(name="__Language__", value="Python 3.9")
+  emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
+  await ctx.send(embed=emb)
 
 
 
