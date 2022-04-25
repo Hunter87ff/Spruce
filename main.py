@@ -97,7 +97,7 @@ async def on_command_error(ctx, error):
       await ctx.send("This command is currenlty disabled. Please try again later")
 
     elif isinstance(error, commands.CommandNotFound):
-      await ctx.send("**Command not found! please check the spelling carefully*")
+      await ctx.send("**Command not found! please check the spelling carefully**")
       print(ctx.message.content)
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
@@ -157,7 +157,7 @@ async def snipe(ctx):
     channel = ctx.channel
     try:
         em = discord.Embed(color=discord.Color.blue(), description = snipe_message_content[channel.id])
-        em.set_footer(text=f'{snipe_message_author[channel.id]}', icon_url=snipe_message_author[channel.id].avatar_url)
+        em.set_footer(text={snipe_message_author[channel.id]}, icon_url=snipe_message_author[channel.id].avatar_url)
         await ctx.send(embed=em)
     except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
