@@ -143,6 +143,28 @@ async def on_message(message):
             
 
 """
+@bot.event
+async def on_message_delete(message):
+     snipe_message_author[message.channel.id] = message.author
+     snipe_message_content[message.channel.id] = message.content
+     await sleep(60)
+     del snipe_message_author[message.channel.id]
+     del snipe_message_content[message.channel.id]
+
+@bot.command(name = 'snipe')
+async def snipe(ctx):
+    channel = ctx.channel
+    try:
+        em = discord.Embed(color=discord.Color.blue(), description = snipe_message_content[channel.id])
+        em.set_footer(text=f'{snipe_message_author[channel.id]}', icon_url=snipe_message_author[channel.id].avatar_url)
+        await ctx.send(embed=em)
+    except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
+        await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
+
+
+
+
+
 
 ############################################################################################
 #                                      CHANNEL COMMANDS
