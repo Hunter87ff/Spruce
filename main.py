@@ -143,7 +143,7 @@ async def on_message(message):
             await message.channel.purge(limit=1)
             
 
-"""
+
 @bot.event
 async def on_message_delete(message):
      snipe_message_author[message.channel.id] = message.author
@@ -162,7 +162,7 @@ async def snipe(ctx):
     except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
 
-
+"""
 
 
 
