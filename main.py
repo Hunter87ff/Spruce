@@ -97,7 +97,7 @@ async def on_command_error(ctx, error):
       await ctx.send("This command is currenlty disabled. Please try again later")
 
     elif isinstance(error, commands.CommandNotFound):
-      await ctx.send("**Command not found! please check the spelling carefully*")
+      await ctx.send("**Command not found! please check the spelling carefully**")
       print(ctx.message.content)
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
@@ -105,6 +105,7 @@ async def on_command_error(ctx, error):
 
     else:
         return await ctx.send("Something went wrong!")
+        print(error)
 
 
 
@@ -142,10 +143,13 @@ async def on_message(message):
             await message.channel.purge(limit=1)
             
 
+<<<<<<< HEAD
 """
 
 snipe_message_author = {}
 snipe_message_content = {}
+=======
+>>>>>>> 3337673cb79a3a73f24aa68fe0f18e799facbb58
 
 @bot.event
 async def on_message_delete(message):
@@ -155,17 +159,17 @@ async def on_message_delete(message):
      del snipe_message_author[message.channel.id]
      del snipe_message_content[message.channel.id]
 
-@bot.command(name = 'snipe')
+@bot.command()
 async def snipe(ctx):
     channel = ctx.channel
     try:
         em = discord.Embed(color=discord.Color.blue(), description = snipe_message_content[channel.id])
-        em.set_footer(text=f'{snipe_message_author[channel.id]}', icon_url=snipe_message_author[channel.id].avatar_url)
+        em.set_footer(text=snipe_message_author[channel.id])
         await ctx.send(embed=em)
     except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
 
-
+"""
 
 
 
