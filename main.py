@@ -157,7 +157,7 @@ async def snipe(ctx):
     channel = ctx.channel
     try:
         em = discord.Embed(color=discord.Color.blue(), description = snipe_message_content[channel.id])
-        em.set_footer(text={snipe_message_author[channel.id]}, icon_url=snipe_message_author[channel.id].avatar_url)
+        em.set_footer(text=snipe_message_author[channel.id])
         await ctx.send(embed=em)
     except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
