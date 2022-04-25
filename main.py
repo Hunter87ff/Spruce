@@ -1,4 +1,4 @@
--"""
+"""
 MIT License
 
 Copyright (c) 2022 Spruce
@@ -97,7 +97,8 @@ async def on_command_error(ctx, error):
       await ctx.send("This command is currenlty disabled. Please try again later")
 
     elif isinstance(error, commands.CommandNotFound):
-      await ctx.send("*Command not found! please check the spelling carefully")
+      await ctx.send("**Command not found! please check the spelling carefully*")
+      print(ctx.message.content)
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
       await ctx.send("You dont have the exact role to use this command")

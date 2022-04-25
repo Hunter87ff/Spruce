@@ -167,7 +167,7 @@ class Utility(commands.Cog):
 
 	@cmd.command(aliases=['mc'])
 	async def member_count(self, ctx):
-		emb = discord.Embed(description=f"{ctx.guild.member_count}", color=0xffff00)
+		emb = discord.Embed(titl="Members", description=f"{ctx.guild.member_count}", color=0xffff00)
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb)
 
