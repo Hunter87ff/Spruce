@@ -167,9 +167,6 @@ async def snipe(ctx):
     except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
 
-"""
-
-
 
 
 ############################################################################################
