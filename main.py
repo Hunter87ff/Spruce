@@ -75,7 +75,7 @@ class Nhelp(commands.MinimalHelpCommand):
         destination = self.get_destination()
         for page in self.paginator.pages:
             emby = discord.Embed(description=page, color = discord.Color.blurple())
-            emby.add_field(name="Links", value="[Support Server](https://discord.gg/vMnhpAyFZm)")
+            emby.add_field(name="Links", value="[Support Server](https://discord.gg/vMnhpAyFZm) | [Invite Link](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=139992746070&scope=bot)")
 #           emby.add_field(name='Support Server', value='[join](https://discord.gg/FXbRZHz3cG)', inline = False)
             await destination.send(embed=emby)
 bot.help_command = Nhelp(no_category = 'Commands')
