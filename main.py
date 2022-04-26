@@ -249,6 +249,7 @@ async def info(ctx):
   emb.add_field(name="__Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 11537")
   emb.add_field(name="__Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)")
   emb.add_field(name="__Current Ping__", value=f"{round(bot.latency*1000)} ms")
+  emb.add_field(name="__Prefix__", value="&, &help")
   emb.add_field(name="__Language__", value="Python 3.9")
   emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
   await ctx.send(embed=emb)
