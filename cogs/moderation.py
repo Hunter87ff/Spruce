@@ -121,13 +121,6 @@ class Moderation(commands.Cog):
 			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Visible to everyone**', delete_after=5)
 
 
-	@cmd.command(aliases=['cch'])
-	@commands.has_permissions(manage_channels=True)
-	async def create_channel(ctx,category,name):
-		category = await bot.fetch_channel(category)
-		await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-		await ctx.send("Done", delete_after=5)
-
 
 
 
