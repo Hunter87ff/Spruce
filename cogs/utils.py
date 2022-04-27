@@ -99,7 +99,6 @@ class Utility(commands.Cog):
 		await ctx.send(embed=embed)
 
 	@cmd.command()
-	@commands.has_permissions(administrator=True)
 	async def say(self, ctx, *, message):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(message)

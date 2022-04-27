@@ -40,7 +40,7 @@ pref = '&'
 intents= discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref))
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref), allowed_mentions = discord.AllowedMentions(roles=False, users=True, everyone=False))
 
 
 
