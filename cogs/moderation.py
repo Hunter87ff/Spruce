@@ -221,7 +221,7 @@ class Moderation(commands.Cog):
 
 
 
-
+'''
 
   
     @commands.command(name="toggle", description="Enable or disable a command!")
@@ -245,7 +245,7 @@ class Moderation(commands.Cog):
 
 
 
-
+'''
 
 
 
