@@ -219,13 +219,8 @@ class Moderation(commands.Cog):
 			return await ctx.guild.ban(member, reason=reason)
 			return await ctx.send(f"{member} banned", delete_after=5)
 
-
-
-'''
-
   
     @commands.command(name="toggle", description="Enable or disable a command!")
-    @commands.is_owner()
     async def toggle(self, ctx, *, command):
         command = self.bot.get_command(command)
 
@@ -237,15 +232,14 @@ class Moderation(commands.Cog):
             embed = discord.Embed(title="ERROR", description="You cannot disable this command.", color=0xff0000)
             await ctx.send(embed=embed)
 
-        else:
+        elif ctx.author.id == 885193210455011369:
             command.enabled = not command.enabled
             ternary = "enabled" if command.enabled else "disabled"
             embed = discord.Embed(title="Toggle", description=f"I have {ternary} {command.qualified_name} for you!", color=0xff00c8)
             await ctx.send(embed=embed)
 
-
-
-'''
+        else:
+            return await ctx.send("**Developer Only**")
 
 
 
