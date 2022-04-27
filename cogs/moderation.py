@@ -220,7 +220,7 @@ class Moderation(commands.Cog):
 			return await ctx.send(f"{member} banned", delete_after=5)
 
   
-    @commands.command(name="toggle", description="Enable or disable a command!")
+    @commands.command()
     async def toggle(self, ctx, *, command):
         command = self.bot.get_command(command)
 
