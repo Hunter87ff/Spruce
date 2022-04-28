@@ -201,6 +201,24 @@ class Utility(commands.Cog):
 			return await user.edit(nick=Nick)
 
 
+    @cmd.command()
+    async def invites(self, ctx, user:discord.Member=None):
+        totalInvites = 0
+        
+        if user == None:
+            user = ctx.author
+            
+        for i in await ctx.guild.invites():
+            if i.inviter == user:
+                totalInvites += i.uses
+                
+                emb = discord.Embed(description=f"** <:invites:968901936327848016> Currently has {totalInvites} invites **", color=discord.Color.blurple())
+                emb.set_author(name=f"{user}", icon_url=user.avatar_url)
+                
+                return await ctx.send(embed=emb)
+
+
+
 
 
 
