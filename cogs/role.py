@@ -19,8 +19,8 @@ d_blue = 0x206694
 blue = 0x3498db
 green = 0x2ecc71
 d_green = 0x1f8b4c
-teal = 0x1abc9c
-d_teal = 0x11806a
+cyan = 0x1abc9c
+d_dcyan = 0x11806a
 
 class Roles(commands.Cog):
 	def __init__(self, bot):

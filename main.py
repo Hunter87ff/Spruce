@@ -98,7 +98,7 @@ async def on_command_error(ctx, error):
 
     elif isinstance(error, commands.CommandNotFound):
         return await ctx.send("**Command not found! please check the spelling carefully**")
-      print(ctx.message.content)
+        print(ctx.message.content)
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
         return await ctx.send("You dont have the exact role to use this command")
