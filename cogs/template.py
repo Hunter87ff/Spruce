@@ -26,13 +26,16 @@ class Templates(commands.Cog):
 			valoemb = discord.Embed(title="VALORANT", description="**Valorant is a multiplayer online battle royal game made for pc, developed and published by Riot Games. react on the emoji to access this game**", color=discord.Color.blurple())
 			valoemb.set_thumbnail(url="https://raw.githubusercontent.com/Hunter87ff/atomic-8/main/Game_roles/valorant.png")
 
-			return await ctx.send(embed=ffemb)
-			return await ctx.send(gbr)
-			return await ctx.send(embed=bgmiemb)
-			return await ctx.send(bgr)
-			return await ctx.send(embed=codemb)
-			return await ctx.send(gbr)
-			return await ctx.send(embed=valoemb)
+
+			await ctx.send(gbr)
+			await ctx.send(embed=ffemb)
+			await ctx.send(gbr)
+			await ctx.send(embed=bgmiemb)
+			await ctx.send(bgr)
+			await ctx.send(embed=codemb)
+			await ctx.send(gbr)
+			await ctx.send(embed=valoemb)
+			await ctx.send(gbr)
 
 
 
