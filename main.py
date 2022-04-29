@@ -88,20 +88,25 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **')
     elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
+        return await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
       
     elif isinstance(error, commands.MissingPermissions):
-      return await ctx.send("You don't have permission to use this command")
+        return await ctx.send("You don't have permission to use this command")
 
     elif isinstance(error, commands.DisabledCommand):
-      await ctx.send("This command is currenlty disabled. Please try again later")
+        return await ctx.send("This command is currenlty disabled. Please try again later")
 
     elif isinstance(error, commands.CommandNotFound):
-      await ctx.send("**Command not found! please check the spelling carefully**")
+        return await ctx.send("**Command not found! please check the spelling carefully**")
       print(ctx.message.content)
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
-      await ctx.send("You dont have the exact role to use this command")
+        return await ctx.send("You dont have the exact role to use this command")
+
+    if isinstance(error, commands.UserInputError):
+        return await ctx.send("Invalid input.")
+        return await self.send_command_help(ctx)
+
 
     else:
         return await ctx.send("Something went wrong!")

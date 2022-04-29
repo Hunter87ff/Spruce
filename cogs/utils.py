@@ -201,7 +201,8 @@ class Utility(commands.Cog):
 			return await user.edit(nick=Nick)
 
 
-    @cmd.command()
+
+	@cmd.command()
     async def invites(self, ctx, user:discord.Member=None):
         totalInvites = 0
         
