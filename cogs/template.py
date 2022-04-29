@@ -27,15 +27,15 @@ class Templates(commands.Cog):
 			valoemb.set_thumbnail(url="https://raw.githubusercontent.com/Hunter87ff/atomic-8/main/Game_roles/valorant.png")
 
 
-			await channel.send(gbr)
-			await channel.send(embed=ffemb)
-			await channel.send(gbr)
-			await channel.send(embed=bgmiemb)
-			await channel.send(bgr)
-			await channel.send(embed=codemb)
-			await channel.send(gbr)
-			await channel.send(embed=valoemb)
-			await channel.send(gbr)
+			return await channel.send(gbr)
+			return await channel.send(embed=ffemb)
+			return await channel.send(gbr)
+			return await channel.send(embed=bgmiemb)
+			return await channel.send(bgr)
+			return await channel.send(embed=codemb)
+			return await channel.send(gbr)
+			return await channel.send(embed=valoemb)
+			return await channel.send(gbr)
 
 
 
