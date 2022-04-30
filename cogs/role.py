@@ -69,24 +69,24 @@ class Roles(commands.Cog):
 			return await ctx.send("Something went wrong", delete_after=5)
 
 
-
-
-
-	@commands.command( help="Use to remove a role from everyone")
+	@cmd.command()
 	@commands.has_permissions(administrator=True)
-	async def ra_role(self, ctx, role:discord.Role):
+	async def ra_role(self, ctx, role: discord.Role, reason=None):
+		if reason == None:
+			reason = f"{role} removed by {ctx.author}"
 		for member in ctx.guild.members:
+			if ctx.author.top_role < member.top_role:
+				return await ctx.send("**You don't have enough permission**", delete_after=5)
 			if role in member.roles:
-				if member.top_role < ctx.author.top_role:
-					return await member.remove_roles(role)
-					return await member.send(f"**A role named `{role.name}` removed from you in `{ctx.guild.name}`**")
-					return await ctx.send("Done", delete_after=5)
+				await member.remove_roles(role, reason=reason)
+				return await ctx.send("**:white_checck_mark: Role Removed from everyone**")
 
-				if member.top_role > ctx.author.top_role:
-					return await ctx.send("You don't have enough permission", delete_after=5)
 
-				else:
-					return await ctx.send("Something went wrong", delete_after=5)
+
+
+
+
+
 
 
 
@@ -100,7 +100,7 @@ class Roles(commands.Cog):
 
 		if self.bot.top_role < user.top_role:
 			return await ctx.channel.purge(limit=1)
-			return await ctx.send("**You don't have enough permission**", delete_after=5)
+			return await ctx.send("**I don't have enough permission**", delete_after=5)
 
 
 		else:
