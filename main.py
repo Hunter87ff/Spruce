@@ -47,7 +47,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref), allowed_ment
 # Load extensions
 #bot.load_extension('cogs.mod')
 #bot.load_extension('cogs.utils')
-bot.load_extension("template.py")
+bot.load_extension('template')
 
 
 
