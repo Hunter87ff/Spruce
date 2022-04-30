@@ -74,6 +74,7 @@ class Roles(commands.Cog):
 	async def ra_role(self, ctx, role: discord.Role, reason=None):
 		if reason == None:
 			reason = f"{role} removed by {ctx.author}"
+			
 		for member in ctx.guild.members:
 			if ctx.author.top_role < member.top_role:
 				return await ctx.send("**You don't have enough permission**", delete_after=5)
