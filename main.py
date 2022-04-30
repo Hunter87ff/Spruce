@@ -163,6 +163,7 @@ async def on_message_delete(message):
      del snipe_message_content[message.channel.id]
 
 @bot.command()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def snipe(ctx):
     channel = ctx.channel
     try:
@@ -180,6 +181,7 @@ async def snipe(ctx):
 
 #tournament setup (category and channels)
 @bot.command(aliases=['ts','tsetup'])
+@commands.cooldown(2, 20, commands.BucketType.user)
 @commands.has_permissions(manage_channels=True)
 async def tourney_setup(ctx,front,*,category=None):
     reason= f'Created by {ctx.author.name}'
@@ -202,6 +204,7 @@ async def tourney_setup(ctx,front,*,category=None):
   
 #check latency
 @bot.command()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def ping(ctx):
     await ctx.send(f'**Current ping is {round(bot.latency*1000)} ms**')
 

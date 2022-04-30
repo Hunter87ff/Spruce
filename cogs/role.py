@@ -47,6 +47,7 @@ class Roles(commands.Cog):
 
 
 	@cmd.command()
+	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	async def del_roles(self, ctx, role : discord.Role):
 		await ctx.guild.delete_roles(role, reason=f"Role {role.name} has been deleted by {ctx.author}")

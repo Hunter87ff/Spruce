@@ -23,6 +23,7 @@ class Templates(commands.Cog):
 		self.counter = 0
 
 	@hg.command(aliases=["grole"])
+	@commands.cooldown(1, 10, commands.BucketType.user)
 	@commands.has_permissions(manage_messages=True)
 	async def game_role(self, ctx, channel:discord.TextChannel=None):
 		if channel == None:
