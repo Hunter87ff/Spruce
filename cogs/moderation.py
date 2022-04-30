@@ -37,6 +37,7 @@ class Moderation(commands.Cog):
 	#start commands
 
 	@cmd.command(help="to setup muted role perms")
+	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(administrator=True)
 	async def setup(self, ctx):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -50,6 +51,7 @@ class Moderation(commands.Cog):
 
 
 	@cmd.command(help=" Use this command to lock a channel")
+	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_channels=True)
 	async def lock(self, ctx):
 		await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=False, add_reactions=False)
@@ -58,6 +60,7 @@ class Moderation(commands.Cog):
 
 
 	@cmd.command(help=" Use this command to unlock a channel")
+	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_channels=True)
 	async def unlock(self, ctx):
 		await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=True, add_reactions=True)
@@ -127,6 +130,7 @@ class Moderation(commands.Cog):
 	#clear command
 	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10")
 	@commands.has_permissions(manage_messages=True)
+	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def clear(self, ctx, amount:int):
 		await ctx.channel.purge(limit=amount)
 		return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
