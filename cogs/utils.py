@@ -228,6 +228,7 @@ class Utility(commands.Cog):
 
 					emb = discord.Embed(description=f"** <:invites:968901936327848016> Currently has {totalInvites} invites **", color=discord.Color.blurple())
 					emb.set_author(name=f"{user}", icon_url=user.avatar_url)
+					emb.set_footer(text="Spruce", icon_url="resources/images/pfps/Spruce.png")
 
 					return await ctx.send(embed=emb)
 
