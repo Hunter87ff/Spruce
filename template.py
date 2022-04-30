@@ -32,7 +32,7 @@ class Templates(commands.Cog):
 			await channel.send(embed=ffemb)
 			await channel.send(gbr)
 			await channel.send(embed=bgmiemb)
-			await channel.send(bgr)
+			await channel.send(gbr)
 			await channel.send(embed=codemb)
 			await channel.send(gbr)
 			await channel.send(embed=valoemb)
