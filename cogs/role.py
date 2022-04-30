@@ -88,8 +88,6 @@ class Roles(commands.Cog):
 
 
 
-
-
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	async def remove_role(ctx, role:discord.Role, user: discord.Member):
