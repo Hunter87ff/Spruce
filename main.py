@@ -224,9 +224,15 @@ async def info(ctx):
 
 
 
+
+
+
+bot.run(os.environ['TOKEN'])
+'''
 try:
     bot.run(os.environ['TOKEN'])
 except discord.errors.HTTPException:
     print("\n\n\nBLOCKED BY RATE LIMITS\nRESTARTING...\n\n\n")
     system("python restarter.py")
     system('kill 1')
+'''
