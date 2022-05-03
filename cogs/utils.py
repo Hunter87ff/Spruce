@@ -129,7 +129,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def em(self, ctx, image, *, message):
 		emb = discord.Embed(desctiption=message, color=blue)
 		emb.set_image(url=image)
@@ -157,7 +157,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def join(self, ctx):
 		channel = ctx.author.voice.channel
 		await channel.connect()
@@ -172,7 +172,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['mc'])
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
 	  
 		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=teal)
@@ -185,7 +185,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 30, commands.BucketType.user)
+	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def dm(self, ctx, user : discord.User, *, message):
 		if ctx.author.id == 885193210455011369:
 			emb = discord.Embed(description=message, color=blue)
@@ -199,7 +199,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def nick(self, ctx, user:discord.Member,  *, Nick):
 		if ctx.author.top_role < user.top_role:
 			return await ctx.send("You don't have enough permission")
@@ -215,7 +215,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def invites(self, ctx, user:discord.Member=None):
 		totalInvites = 0
 
