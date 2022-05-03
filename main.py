@@ -24,7 +24,7 @@ SOFTWARE.
 """
 
 
-import os
+import os 
 import discord
 from discord.ext import commands
 from asyncio import sleep
@@ -91,12 +91,15 @@ async def on_command_error(ctx, error):
         await ctx.send('**Please enter required Arguments **')
     elif isinstance(error, commands.CommandOnCooldown):
         return await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
+        print(ctx.message.content)
       
     elif isinstance(error, commands.MissingPermissions):
         return await ctx.send("You don't have permission to use this command")
+        print(ctx.message.content)
 
     elif isinstance(error, commands.DisabledCommand):
         return await ctx.send("This command is currenlty disabled. Please try again later")
+        print(ctx.message.content)
 
     elif isinstance(error, commands.CommandNotFound):
         return await ctx.send("**Command not found! please check the spelling carefully**")
@@ -104,17 +107,18 @@ async def on_command_error(ctx, error):
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
         return await ctx.send("You dont have the exact role to use this command")
+        print(ctx.message.content)
 
-    if isinstance(error, commands.UserInputError):
+    elif isinstance(error, commands.UserInputError):
         return await ctx.send("Invalid input.")
-        return await self.send_command_help(ctx)
+        print(ctx.message.content)
 
-
+'''
     else:
         return await ctx.send("Something went wrong!")
         print(ctx.message.content)
 
-
+'''
 
 
 @bot.command()
