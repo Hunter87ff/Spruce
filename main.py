@@ -110,8 +110,12 @@ async def on_command_error(ctx, error):
         print(ctx.message.content)
 
     elif isinstance(error, commands.UserInputError):
-        return await ctx.send("Invalid input.")
+        return await ctx.send("**Invalid input**")
         print(ctx.message.content)
+
+    else:
+        e = str(error)
+        await ctx.send(f"```py\n{e}```")
 
 '''
     else:
