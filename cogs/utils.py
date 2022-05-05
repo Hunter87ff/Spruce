@@ -134,7 +134,7 @@ class Utility(commands.Cog):
 		emb = discord.Embed(desctiption=message, color=blue)
 		emb.set_image(url=image)
 		await ctx.channel.purge(limit=1)
-		await ctx.snd(embed=emb)
+		await ctx.send(embed=emb)
 
 
 	@cmd.command()

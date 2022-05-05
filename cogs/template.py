@@ -29,7 +29,6 @@ class Templates(commands.Cog):
 		if channel == None:
 			channel = ctx.channel
 
-			await channel.send(gbr)
 			await channel.send(embed=ffemb)
 			await channel.send(gbr)
 			await channel.send(embed=bgmiemb)
@@ -37,7 +36,7 @@ class Templates(commands.Cog):
 			await channel.send(embed=codemb)
 			await channel.send(gbr)
 			await channel.send(embed=valoemb)
-			await channel.send(gbr)
+
 
 
 
