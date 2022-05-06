@@ -89,7 +89,7 @@ class Utility(commands.Cog):
 		banner_id = req["banner"]
 
 		if banner_id:
-			banner_url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_id}?size=1024"
+			banner_url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_id}.gif?size=1024"
 		await ctx.send(f"{banner_url}")
 
 	@cmd.command(aliases=['emb'])
