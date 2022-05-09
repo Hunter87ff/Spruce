@@ -66,6 +66,7 @@ class Utility(commands.Cog):
 		self.counter = 0
 
 
+
 	@cmd.command(aliases=['av'])
 	async def avatar(self, ctx, user: discord.User = None):
 
