@@ -28,6 +28,7 @@ import discord
 from discord.ext import commands
 cmd = commands
 import random
+import datetime
 
 blurple = 0x7289da
 greyple = 0x99aab5
@@ -67,15 +68,15 @@ class Utility(commands.Cog):
 
 	@cmd.command(aliases=['av'])
 	async def avatar(self, ctx, user: discord.User = None):
-		av = user.avatar
 
+		av = user.avatar
 		if user == None:
 			user = ctx.author
-
 			emb = discord.Embed(title=ctx.author, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{av}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{av}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{av}.gif?size=1024)", color=blurple)
 			emb.timestamp = datetime.datetime.utcnow()
 			emb.set_image(url=user.avatar_url)
 			return await ctx.send(embed=emb)
+			
 		else:
 			eemb = discord.Embed(title=ctx.author, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{av}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{av}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{av}.gif?size=1024)", color=blurple)
 			eemb.timestamp = datetime.datetime.utcnow()
