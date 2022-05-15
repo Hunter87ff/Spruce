@@ -173,7 +173,7 @@ async def on_message_delete(message):
      del snipe_message_content[message.channel.id]
 
 @bot.command()
-@commands.cooldown(2, 20, commands.BucketType.user)
+@commands.cooldown(2, 10, commands.BucketType.user)
 async def snipe(ctx):
     channel = ctx.channel
     try:
