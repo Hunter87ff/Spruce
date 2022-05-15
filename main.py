@@ -88,7 +88,7 @@ bot.help_command = Nhelp(no_category = 'Commands')
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('**Please enter required Arguments **')
+        await ctx.send('**Please enter required Arguments **') 
   '''      
           elif isinstance(error, commands.CommandOnCooldown):
               return await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
