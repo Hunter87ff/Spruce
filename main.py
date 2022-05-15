@@ -89,11 +89,7 @@ bot.help_command = Nhelp(no_category = 'Commands')
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **') 
-  '''      
-          elif isinstance(error, commands.CommandOnCooldown):
-              return await ctx.send('**Try again <t:{}:R>**'.format(int(time.time() + error.retry_after)))
-              print(ctx.message.content)'''
-      
+        
     elif isinstance(error, commands.MissingPermissions):
         return await ctx.send("You don't have permission to use this command")
         print(ctx.message.content)
