@@ -16,3 +16,8 @@ If you decide to edit, compile or use this code in any way. Kindly respect the [
 
 ## How do I contribute?
 If you are looking forward to contribute to the project, we welcome you with open arms. kindly open an issue first for discussion. It's also a good option to join the <a href="https://discord.gg/vMnhpAyFZm">Support Server</a> and get `@Dev Team` role.
+
+
+## 💌 Support Server
+[![DiscordBanner](https://invidget.switchblade.xyz/vMnhpAyFZm)](https://discord.gg/vMnhpAyFZm)
+
