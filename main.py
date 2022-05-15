@@ -58,7 +58,7 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(prefix)(bot, message)
 
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref), allowed_mentions = discord.AllowedMentions(roles=False, users=True, everyone=False))
+bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.AllowedMentions(roles=False, users=True, everyone=False))
 
 
 
