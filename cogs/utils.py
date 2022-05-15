@@ -55,7 +55,7 @@ pref = "&"
 
 whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
 "Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
- "1 number ka noob","Nehi bolunga kya kar loge"]
+ "1 number ka noob","Nehi bolunga kya kar loge", "insan"]
 
 
 
@@ -125,11 +125,13 @@ class Utility(commands.Cog):
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
-			emb = discord.Embed(description=f"{user.mention} {msg}", color=blurple)
-			return await ctx.send(embed=emb)
+
+		if user.bot == True:
+			return await ctx.send("**Dude it's bot. And bot is always awesome**")
+
 
 		elif user.id == 885193210455011369:
-			owneremb = discord.Embed(description=f"{user.mention} is My Owner", color=blue)
+			owneremb = discord.Embed(description=f"{user.mention} is My Owner :heart: ", color=blue)
 			return await ctx.send(embed=owneremb)
 
 		else:
