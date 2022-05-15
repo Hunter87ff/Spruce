@@ -169,7 +169,8 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.cooldown(2, 360, commands.BucketType.user)
+	@commands.has_permissions(administrator=True)
+	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def prefix(self, ctx, prefix):
 		with open(r"data/prefixes.json" , "r") as f:
 		    prefixes = json.load(f)
