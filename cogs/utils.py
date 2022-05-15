@@ -167,11 +167,17 @@ class Utility(commands.Cog):
 
 
 
-
 	@cmd.command()
-	async def prefix(self, ctx):
-		await ctx.channel.purge(limit=1)
-		await ctx.send(pref)
+	async def prefix(self, ctx, prefix):
+		with open(r"data/prefixes.json" , "r") as f:
+		    prefixes = json.load(f)
+         
+		prefixes[int(ctx.guild.id)] = prefix
+		
+		with open(r"data/prefixes.json", "w") as f:
+		    json.dump(prefixes, f, indent=4)
+		    await ctx.send(f"Prefix set to `{prefix}`")
+
 
 
 

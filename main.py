@@ -36,9 +36,27 @@ from data import *
 #from data.badwords import bws
 #from discord.ui import Button, View
 
+
+
+
 pref = '&'
 intents= discord.Intents.default()
 intents.members = True
+
+
+def get_prefix(bot, message):
+    if not message.guild:
+        return commands.when_mentioned_or(",")(bot, message)
+
+    with open("data/prefixes.json", "r") as f:
+        prefixes = json.load(f)
+
+    if str(message.guild.id) not in prefixes:
+        return commands.when_mentioned_or(",")(bot, message)
+
+    prefix = prefixes[str(message.guild.id)]
+    return commands.when_mentioned_or(prefix)(bot, message)
+
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(pref), allowed_mentions = discord.AllowedMentions(roles=False, users=True, everyone=False))
 
@@ -89,7 +107,7 @@ bot.help_command = Nhelp(no_category = 'Commands')
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('**Please enter required Arguments **') 
-        
+
     elif isinstance(error, commands.MissingPermissions):
         return await ctx.send("You don't have permission to use this command")
         print(ctx.message.content)
