@@ -57,7 +57,7 @@ whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
 "Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
  "1 number ka noob","Nehi bolunga kya kar loge", "insan"]
 
-
+coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
 
 
 class Utility(commands.Cog):
@@ -138,6 +138,13 @@ class Utility(commands.Cog):
 			msg = random.choice(whois)
 			emb = discord.Embed(description=f"{user.mention}  {msg}", color=blurple)
 			return await ctx.send(embed=emb)
+
+	@cmd.command()
+	@commands.cooldown(2, 8, commands.BucketType.user)
+	async def toss(self, ctx):
+		msg = random.choice(coin)
+		emb = discord.Embed(title=msg, color=yellow)
+		await ctx.send(embed=emb)
 
 
 
