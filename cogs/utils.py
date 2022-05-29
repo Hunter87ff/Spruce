@@ -80,7 +80,7 @@ class Utility(commands.Cog):
 			return await ctx.send(embed=emb)
 			
 		else:
-			eemb = discord.Embed(title=ctx.author, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.gif?size=1024)", color=blurple)
+			eemb = discord.Embed(title=user, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.gif?size=1024)", color=blurple)
 			eemb.timestamp = datetime.datetime.utcnow()
 			eemb.set_image(url=user.avatar_url)
 			return await ctx.send(embed=eemb)
@@ -293,7 +293,7 @@ class Utility(commands.Cog):
 
 					emb = discord.Embed(description=f"** <:invites:968901936327848016> Currently has {totalInvites} invites **", color=discord.Color.blurple())
 					emb.set_author(name=f"{user}", icon_url=user.avatar_url)
-					emb.set_footer(text="Spruce", icon_url="resources/images/pfps/Spruce.png")
+					emb.set_footer(text="Spruce", icon_url="https://sprucebot.ml/resources/manifest/icon-310x310.png")
 
 					return await ctx.send(embed=emb)
 
