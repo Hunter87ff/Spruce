@@ -211,6 +211,41 @@ class Utility(commands.Cog):
 		await ctx.send(embed=emb)
 
 
+	@cnd.command()
+	async def say(self, ctx, *message):
+		for w in await ctx.channel.webhooks():
+			wurl = w.url 
+
+
+		data = {
+	    "content" : "",
+	    "avatar_url" : f"{ctx.author.avatar_url}",
+	    "username" : f"{ctx.author.name}"
+	    }
+
+	    data["embeds"] = [
+	    {
+	        "description" : f"{message}",
+	        "title" : "",
+	        "color" : 0xffff00
+	    }]
+
+	    try:
+	    	await ctx.channel.purge(limit=1)
+	    	requests.post(wurl, json = data)
+
+
+	    except:
+	    	await ctx.reply("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
+	    	await ctx.channel.create_webhooks(name=bot.name)
+
+
+
+
+
+
+
+
 
 
 	@cmd.command()
@@ -226,7 +261,6 @@ class Utility(commands.Cog):
 		else:
 			return await ctx.send("You aren't a  pime member", delete_after=5)
 			return await ctx.channel.purge(limit=1)
-			
 
 
 	@cmd.command()
