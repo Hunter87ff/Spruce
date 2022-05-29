@@ -213,7 +213,7 @@ class Utility(commands.Cog):
 
 
 	@cnd.command()
-	async def say(self, ctx, *message):
+	async def say(self, ctx, *, message):
 		for w in await ctx.channel.webhooks():
 			wurl = w.url 
 
