@@ -26,7 +26,7 @@ seaborn==0.11.2
 six==1.16.0
 soupsieve==2.2.1
 typing-extensions==3.10.0.2
-ujson==5.2.0
+ujson==5.1.0
 urllib3==1.26.6
 yarl==1.6.3
 pycord
