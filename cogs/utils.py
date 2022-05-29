@@ -215,12 +215,22 @@ class Utility(commands.Cog):
 	@cmd.command()
 	async def say(self, ctx, *, message):
 		for w in await ctx.channel.webhooks():
-			wurl = w.url 
+		  wurl = w.url 
 
 
-		data = {"content" : "", "avatar_url" : f"{ctx.author.avatar_url}", "username" : f"{ctx.author.name}" }
+		data = {
+		  "content" : "", 
+		  "avatar_url" : f"{ctx.author.avatar_url}",
+		  "username" : f"{ctx.author.name}" }
 
-		data["embeds"] = [ { "description" : f"{message}", "title" : "", "color" : 0xffff00 }]
+		data["embeds"] = [ 
+		  { 
+		    "description" : f"{message}", 
+		    "title" : "", 
+		    "color" : 0xffff00 
+		    
+		  }
+		]
 
 		try:
 			await ctx.channel.purge(limit=1)
