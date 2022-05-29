@@ -211,6 +211,7 @@ class Utility(commands.Cog):
 		await ctx.send(embed=emb)
 
 
+
 	@cnd.command()
 	async def say(self, ctx, *message):
 		for w in await ctx.channel.webhooks():
