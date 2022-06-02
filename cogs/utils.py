@@ -240,7 +240,7 @@ class Utility(commands.Cog):
 
 		except:
 			await ctx.channel.send("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
-			await ctx.channel.create_webhook(name=self.bot.name)
+			await ctx.channel.create_webhook(name="Spruce")
 
 
 
