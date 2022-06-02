@@ -210,7 +210,7 @@ class Utility(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb)
 
-
+'''
 
 	@cmd.command()
 	async def say(self, ctx, *, message):
@@ -242,7 +242,7 @@ class Utility(commands.Cog):
 			await ctx.channel.create_webhook(name="Spruce")
 			await ctx.channel.send("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
 			
-
+'''
 
 
 
