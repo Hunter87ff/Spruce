@@ -233,9 +233,9 @@ class Utility(commands.Cog):
 		]
 
 		try:
-			
-			requests.post(wurl, json = data)
 			await ctx.channel.purge(limit=1)
+			requests.post(wurl, json = data)
+			
 
 
 		except:
