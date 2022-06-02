@@ -111,7 +111,6 @@ class Utility(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=embed)
 
-
 	
 	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
