@@ -110,14 +110,7 @@ class Utility(commands.Cog):
 		embed = discord.Embed(description=message, color=blue)
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=embed)
-"""
-	@cmd.command()
-	@commands.cooldown(2, 12, commands.BucketType.user)
-	async def say(self, ctx, *, message):
-		await ctx.channel.purge(limit=1)
-		await ctx.send(message)
 
-"""
 
 	
 	@cmd.command()
