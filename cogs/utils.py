@@ -210,47 +210,6 @@ class Utility(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb)
 
-'''
-
-	@cmd.command()
-	async def say(self, ctx, *, message):
-		for w in await ctx.channel.webhooks():
-		  wurl = w.url 
-
-
-		data = {
-		  "content" : "", 
-		  "avatar_url" : f"{ctx.author.avatar_url}",
-		  "username" : f"{ctx.author.name}" }
-
-		data["embeds"] = [ 
-		  { 
-		    "description" : f"{message}", 
-		    "title" : "", 
-		    "color" : 0xffff00 
-		    
-		  }
-		]
-
-		try:
-			await ctx.channel.purge(limit=1)
-			requests.post(wurl, json = data)
-			
-
-
-		except:
-			await ctx.channel.create_webhook(name="Spruce")
-			await ctx.channel.send("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
-			
-'''
-
-
-
-
-
-
-
-
 
 	@cmd.command()
 	@commands.has_permissions(manage_messages=True)
