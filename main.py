@@ -235,12 +235,13 @@ async def ping(ctx):
 
 @bot.command()
 async def botinfo(ctx):
+  uptime_seconds = round((datetime.now() - self.start_time).total_seconds())
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 13693")
-  emb.add_field(name="<:owner:968371297744744448> __Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)")
-  emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms")
-  emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help")
-  emb.add_field(name="<:python:968372024537931786> __Language__", value="Python 3.9")
+  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 13693", inline=False)
+  emb.add_field(name="<:owner:968371297744744448> __Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
+  emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
+  emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
+  emb.add_field(name="<:python:968372024537931786> __Uptime__", value=f"Current Uptime: {util.format_seconds(uptime_seconds)}", inline=False)
   emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
   return await ctx.send(embed=emb)
 
@@ -273,10 +274,9 @@ async def say(ctx, *, message):
 
 
 @bot.command()
-    async def uptime(ctx):
-        uptime_seconds = round(
-            (datetime.now() - self.start_time).total_seconds())
-        await ctx.send(f"Current Uptime: {util.format_seconds(uptime_seconds)}"
+async def uptime(ctx):
+    uptime_seconds = round((datetime.now() - self.start_time).total_seconds())
+    await ctx.send(f"Current Uptime: {util.format_seconds(uptime_seconds)}"
 
 
 bot.run(os.environ['TOKEN'])
