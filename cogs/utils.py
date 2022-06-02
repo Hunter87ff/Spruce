@@ -239,7 +239,7 @@ class Utility(commands.Cog):
 
 		except:
 			await ctx.reply("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
-			await ctx.channel.create_webhooks(name=bot.name)
+			await ctx.channel.create_webhook(name=bot.name)
 
 
 
