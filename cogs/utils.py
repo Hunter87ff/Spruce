@@ -233,12 +233,13 @@ class Utility(commands.Cog):
 		]
 
 		try:
-			await ctx.channel.purge(limit=1)
+			
 			requests.post(wurl, json = data)
+			await ctx.channel.purge(limit=1)
 
 
 		except:
-			await ctx.reply("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
+			await ctx.channel.send("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
 			await ctx.channel.create_webhook(name=bot.name)
 
 
