@@ -272,7 +272,11 @@ async def say(ctx, *, message):
 
 
 
-
+@bot.command()
+    async def uptime(ctx):
+        uptime_seconds = round(
+            (datetime.now() - self.start_time).total_seconds())
+        await ctx.send(f"Current Uptime: {util.format_seconds(uptime_seconds)}"
 
 
 bot.run(os.environ['TOKEN'])
