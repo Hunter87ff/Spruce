@@ -263,7 +263,7 @@ async def say(ctx, *, message):
         "color" : 0xffff00
     }]    
     try:
-        await ctx.channel.purge(limit=1)
+        #await ctx.channel.purge(limit=1)
         requests.post(wurl, json = data)
 
         
@@ -275,11 +275,3 @@ async def say(ctx, *, message):
 
 
 bot.run(os.environ['TOKEN'])
-'''
-try:
-    bot.run(os.environ['TOKEN'])
-except discord.errors.HTTPException:
-    print("\n\n\nBLOCKED BY RATE LIMITS\nRESTARTING...\n\n\n")
-    system("python restarter.py")
-    system('kill 1')
-'''
