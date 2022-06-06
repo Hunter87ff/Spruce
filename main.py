@@ -31,6 +31,7 @@ from asyncio import sleep
 import datetime , time
 import json
 from data import *
+import requests
 
 #import humanfriendly
 #from data.badwords import bws
