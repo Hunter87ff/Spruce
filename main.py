@@ -28,7 +28,7 @@ import os
 import discord
 from discord.ext import commands
 from asyncio import sleep
-import datetime , date 
+import datetime
 from datetime import datetime, timedelta
 import json
 from data import *
