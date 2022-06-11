@@ -237,7 +237,6 @@ async def ping(ctx):
 
 @bot.command()
 async def botinfo(ctx):
-  uptime_seconds = round((datetime.now() - self.start_time).total_seconds())
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
   emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 13693", inline=False)
   emb.add_field(name="<:owner:968371297744744448> __Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
