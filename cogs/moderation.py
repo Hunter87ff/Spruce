@@ -119,7 +119,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['uhc'])
 	@commands.has_permissions(administrator=True)
-	async def hide_category(self, ctx,category: discord.CategoryChannel, role :discord.Role = None):
+	async def unhide_category(self, ctx,category: discord.CategoryChannel, role :discord.Role = None):
 		if role == None:
 			role = ctx.guild.default_role
 		channels = category.channels
