@@ -74,7 +74,7 @@ class Moderation(commands.Cog):
 	async def hide(self, ctx):
 		role = ctx.guild.default_role
 		overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
-		overwrite.update(view_channel=False)
+		overwrite.update(view_channel=False) 
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
 		await ctx.channel.purge(limit=1)
 		await ctx.send('**<:vf:947194381172084767>This channel is hidden from everyone**',delete_after=5)
