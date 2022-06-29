@@ -111,20 +111,24 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['hc'])
 	@commands.has_permissions(administrator=True)
-	async def hide_category(self, ctx,category: discord.CategoryChannel):
+	async def hide_category(self, ctx,category: discord.CategoryChannel, role :discord.Role = None):
+		if role == None:
+			role = ctx.guild.default_role
 		channels = category.channels
 		for channel in channels:
-			await channel.set_permissions(ctx.guild.default_role,view_channel=False)
-			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Hidden from everyone**', delete_after=5)
+			await channel.set_permissions(role, view_channel=False)
+			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Hidden from {role.name}**', delete_after=5)
 
 
 	@cmd.command(aliases=['uhc'])
 	@commands.has_permissions(administrator=True)
-	async def unhide_category(self, ctx,category: discord.CategoryChannel):
+	async def unhide_category(self, ctx,category: discord.CategoryChannel, role :discord.Role = None):
+		if role == None:
+			role = ctx.guild.default_role
 		channels = category.channels
 		for channel in channels:
-			await channel.set_permissions(ctx.guild.default_role,view_channel=True)
-			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Visible to everyone**', delete_after=5)
+			await channel.set_permissions(role, view_channel=True)
+			await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Visible to {role.name}**', delete_after=5)
 
 
 

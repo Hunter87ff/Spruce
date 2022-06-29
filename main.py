@@ -28,9 +28,11 @@ import os
 import discord
 from discord.ext import commands
 from asyncio import sleep
-import datetime , time
+import datetime
+from datetime import datetime, timedelta
 import json
 from data import *
+import requests
 
 #import humanfriendly
 #from data.badwords import bws
@@ -235,9 +237,8 @@ async def ping(ctx):
 
 @bot.command()
 async def botinfo(ctx):
-  uptime_seconds = round((datetime.now() - self.start_time).total_seconds())
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 13693", inline=False)
+  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 17593", inline=False)
   emb.add_field(name="<:owner:968371297744744448> __Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
@@ -262,7 +263,7 @@ async def say(ctx, *, message):
         "color" : 0xffff00
     }]    
     try:
-        await ctx.channel.purge(limit=1)
+        #await ctx.channel.purge(limit=1)
         requests.post(wurl, json = data)
 
         
@@ -274,11 +275,3 @@ async def say(ctx, *, message):
 
 
 bot.run(os.environ['TOKEN'])
-'''
-try:
-    bot.run(os.environ['TOKEN'])
-except discord.errors.HTTPException:
-    print("\n\n\nBLOCKED BY RATE LIMITS\nRESTARTING...\n\n\n")
-    system("python restarter.py")
-    system('kill 1')
-'''

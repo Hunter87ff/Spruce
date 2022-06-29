@@ -56,7 +56,7 @@ pref = "&"
 
 whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
 "Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
- "1 number ka noob","Nehi bolunga kya kar loge", "insan"]
+ "1 number ka noob","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 
 coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
 
@@ -202,6 +202,29 @@ class Utility(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb)
 
+		
+	@cmd.command()
+	async def userinfo(self, ctx, member : discord.Member = None):
+		if member == None:
+			member = ctx.author
+		else:
+			member = member
+			
+		roles = list(sorted(member.roles, key=lambda role: role.position))
+		embed = discord.Embed(colour=member.colour.purple(), timestamp=ctx.message.created_at)
+		embed.set_author(name=f"{member}")
+		embed.set_thumbnail(url=member.avatar_url)
+		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url)
+		embed.add_field(name="User Name:", value=f"{member.name}")
+		embed.add_field(name="ID:", value=member.id)
+		embed.add_field(name="Server name:", value=member.display_name)
+		embed.add_field(name="Created at:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %p"))
+		embed.add_field(name="Joined at:", value=member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p"))
+		embed.add_field(name=f"Roles ({len(roles)})", value=" ".join([role.mention for role in roles][1:]))
+		embed.add_field(name="Top role:", value=member.top_role.mention)
+		embed.add_field(name="Bot?", value=member.bot)
+		await ctx.send(embed=embed)
+		
 
 	@cmd.command()
 	@commands.has_permissions(manage_messages=True)
@@ -232,7 +255,7 @@ class Utility(commands.Cog):
 
 
 
-
+"""
 
 	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
@@ -252,7 +275,7 @@ class Utility(commands.Cog):
 
 					return await ctx.send(embed=emb)
 
-
+"""
 
 
 def setup(bot):
