@@ -227,21 +227,6 @@ class Utility(commands.Cog):
 		
 
 	@cmd.command()
-	@commands.has_permissions(manage_messages=True)
-	@commands.cooldown(2, 15, commands.BucketType.user)
-	async def dm(self, ctx, user : discord.User, *, message):
-		if ctx.author.id == 885193210455011369:
-			emb = discord.Embed(description=message, color=blue)
-			return await user.send(embed=emb)
-			await ctx.channel.purge(limit=1)
-			return await ctx.send("Sent", delete_after=10)
-
-		else:
-			return await ctx.send("You aren't a  pime member", delete_after=5)
-			return await ctx.channel.purge(limit=1)
-
-
-	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def nick(self, ctx, user:discord.Member,  *, Nick):
 		if ctx.author.top_role < user.top_role:
