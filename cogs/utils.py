@@ -69,6 +69,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['av'])
+	@commands.bot_has_permissions(embed_links=True)
 	async def avatar(self, ctx, user: discord.User = None):
 
 
@@ -88,12 +89,14 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['sav'])
+	@commands.bot_has_permissions(embed_links=True)
 	async def server_av(self, ctx):
 		await ctx.send(ctx.guild.icon_url)
 
 
 
 	@cmd.command(aliases=['bnr'])
+	@commands.bot_has_permissions(manage_messages=True)
 	async def banner(self, ctx, user:discord.User = None ):
 		if user == None:
 			user = ctx.author
@@ -105,6 +108,7 @@ class Utility(commands.Cog):
 		await ctx.send(f"{banner_url}")
 
 	@cmd.command(aliases=['emb'])
+	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def embed(self, ctx, *, message):
 		embed = discord.Embed(description=message, color=blue)
@@ -142,6 +146,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
+	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def em(self, ctx, image, *, message):
 		emb = discord.Embed(desctiption=message, color=blue)
@@ -193,6 +198,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['mc'])
+	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
 	  
@@ -204,6 +210,7 @@ class Utility(commands.Cog):
 
 		
 	@cmd.command()
+	@commands.bot_has_permissions(manage_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
 		if member == None:
 			member = ctx.author
