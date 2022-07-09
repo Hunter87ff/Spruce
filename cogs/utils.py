@@ -69,7 +69,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['av'])
-	@commands.bot_has_permissions(embed_links=True)
+	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def avatar(self, ctx, user: discord.User = None):
 
 
@@ -89,14 +89,14 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['sav'])
-	@commands.bot_has_permissions(embed_links=True)
+	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def server_av(self, ctx):
 		await ctx.send(ctx.guild.icon_url)
 
 
 
 	@cmd.command(aliases=['bnr'])
-	@commands.bot_has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	async def banner(self, ctx, user:discord.User = None ):
 		if user == None:
 			user = ctx.author
@@ -108,7 +108,7 @@ class Utility(commands.Cog):
 		await ctx.send(f"{banner_url}")
 
 	@cmd.command(aliases=['emb'])
-	@commands.bot_has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def embed(self, ctx, *, message):
 		embed = discord.Embed(description=message, color=blue)
@@ -118,6 +118,7 @@ class Utility(commands.Cog):
 	
 	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	async def whoiss(self, ctx, user:discord.Member=None):
 		if user == None:
 			user = ctx.author
@@ -137,6 +138,7 @@ class Utility(commands.Cog):
 			return await ctx.send(embed=emb)
 
 	@cmd.command()
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
 	async def toss(self, ctx):
 		msg = random.choice(coin)
@@ -146,7 +148,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
-	@commands.bot_has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def em(self, ctx, image, *, message):
 		emb = discord.Embed(desctiption=message, color=blue)
@@ -157,6 +159,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.cooldown(2, 360, commands.BucketType.user)
+	@commands.bot_has_permissions(add_reactions=True)
 	async def react(self, ctx, msg_id, *emojis):
 		for emoji in emojis:
 			msg = await ctx.channel.fetch_message(msg_id)
@@ -167,6 +170,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def prefix(self, ctx, prefix):
 		with open(r"data/prefixes.json" , "r") as f:
@@ -184,6 +188,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
+	@commands.bot_has_permissions(send_messages=True, manage_messages=True, connect=True)
 	async def join(self, ctx):
 		channel = ctx.author.voice.channel
 		await channel.connect()
@@ -198,7 +203,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['mc'])
-	@commands.bot_has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
 	  
@@ -210,7 +215,7 @@ class Utility(commands.Cog):
 
 		
 	@cmd.command()
-	@commands.bot_has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
 		if member == None:
 			member = ctx.author
@@ -235,6 +240,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
+	@commands.bot_has_permissions(manage_messages=True, send_messages=True, manage_nicknames=True)
 	async def nick(self, ctx, user:discord.Member,  *, Nick):
 		if ctx.author.top_role < user.top_role:
 			return await ctx.send("You don't have enough permission")
