@@ -60,7 +60,7 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(prefix)(bot, message)
 
 
-bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.AllowedMentions(roles=False, users=True, everyone=False))
+bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True))
 
 
 
@@ -209,6 +209,7 @@ async def snipe(ctx):
 #tournament setup (category and channels)
 @bot.command(aliases=['ts','tsetup'])
 @commands.cooldown(2, 20, commands.BucketType.user)
+@commands.bot_has_permissions(manage_channels=True, manage_messages=True, send_messages=True)
 @commands.has_permissions(manage_channels=True)
 async def tourney_setup(ctx,front,*,category=None):
     reason= f'Created by {ctx.author.name}'
@@ -232,10 +233,12 @@ async def tourney_setup(ctx,front,*,category=None):
 #check latency
 @bot.command()
 @commands.cooldown(2, 20, commands.BucketType.user)
+@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 async def ping(ctx):
     await ctx.send(f'**Current ping is {round(bot.latency*1000)} ms**')
 
 @bot.command()
+@commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
 async def botinfo(ctx):
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
   emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 17593", inline=False)
@@ -247,7 +250,9 @@ async def botinfo(ctx):
 
 
 @bot.command()
-async def say(ctx, *, message):       
+@commands.guild_only()
+@commands.bot_has_permissions(manage_webhooks=True)
+async def say(ctx, *, message):      
     for w in await ctx.channel.webhooks():
         wurl = w.url
        
