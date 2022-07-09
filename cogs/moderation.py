@@ -39,6 +39,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help="to setup muted role perms")
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(administrator=True)
 	async def setup(self, ctx):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		for channel in ctx.guild.channels:
@@ -53,6 +54,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help=" Use this command to lock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def lock(self, ctx):
 		await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=False, add_reactions=False)
 		await ctx.channel.purge(limit=1)
@@ -62,6 +64,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help=" Use this command to unlock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def unlock(self, ctx):
 		await ctx.channel.set_permissions(ctx.guild.default_role,send_messages=True, add_reactions=True)
 		await ctx.channel.purge(limit=1)
@@ -71,6 +74,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(help=" Use this command to hide a channel")
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def hide(self, ctx):
 		role = ctx.guild.default_role
 		overwrite = ctx.channel.overwrites_for(ctx.guild.default_role)
@@ -85,6 +89,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(help=" Use this command to unhide a channel")
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def unhide(self, ctx):
 		await ctx.channel.set_permissions(ctx.guild.default_role,view_channel=False)
 		await ctx.channel.purge(limit=1)
@@ -93,6 +98,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['lc'])
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def lock_category(self, ctx,category: discord.CategoryChannel):
 		channels = category.channels
 		for channel in channels:
@@ -102,6 +108,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['ulc'])
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def unlock_category(self, ctx,category: discord.CategoryChannel):
 		channels = category.channels
 		for channel in channels:
@@ -111,6 +118,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['hc'])
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def hide_category(self, ctx,category: discord.CategoryChannel, role :discord.Role = None):
 		if role == None:
 			role = ctx.guild.default_role
@@ -122,6 +130,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['uhc'])
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def unhide_category(self, ctx,category: discord.CategoryChannel, role :discord.Role = None):
 		if role == None:
 			role = ctx.guild.default_role
@@ -137,6 +146,7 @@ class Moderation(commands.Cog):
 	#clear command
 	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10")
 	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def clear(self, ctx, amount:int):
 		await ctx.channel.purge(limit=amount)
@@ -148,6 +158,7 @@ class Moderation(commands.Cog):
 	#Mute Command
 	@cmd.command(help="Make sure you've created a role named 'Muted' and then run the command '&setup' ")
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(administrator=True)
 	async def mute(self, ctx, member: discord.Member,*,reason=None):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		if reason == None:
@@ -174,6 +185,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def unmute(self, ctx, member: discord.Member,*,reason=None):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		if reason == None:
@@ -193,6 +205,7 @@ class Moderation(commands.Cog):
 
 	@commands.command()
 	@commands.has_permissions(kick_members=True)
+	@commands.bot_has_permissions(kick_members=True)
 	async def kick(self, ctx, member: discord.Member, reason=None):
 		if reason == None:
 			reason = f"{member} kicked by {ctx.author}"
@@ -212,6 +225,7 @@ class Moderation(commands.Cog):
 
 
 	@commands.command()
+	@commands.bot_has_permissions(ban_members=True)
 	@commands.has_permissions(ban_members=True)
 	async def ban(self, ctx, member: discord.Member, reason=None):
 		if reason == None:
