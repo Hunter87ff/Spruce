@@ -17,6 +17,7 @@ class Channel(commands.Cog):
 
 	@cmd.command(aliases=['chm'])
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
 	async def channel_make(self, ctx, *names):
 		for name in names:
 			await ctx.guild.create_text_channel(name)
@@ -25,7 +26,8 @@ class Channel(commands.Cog):
 
 
 	@cmd.command(aliases=['chd'])
-	@commands.has_permissions(manage_channels=True)
+	@commands.has_permissions(manage_channels=True, send_messages=True)
+	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
 	async def channel_del(self, ctx, *channels: discord.TextChannel):
 		for ch in channels:
 			await ch.delete()
@@ -36,6 +38,7 @@ class Channel(commands.Cog):
 
 	@cmd.command(aliases=['dc'])
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
 	async def delete_category(self, ctx,category: discord.CategoryChannel):
 		channels = category.channels
 		for channel in channels:
@@ -47,6 +50,7 @@ class Channel(commands.Cog):
 
 	@cmd.command(aliases=['cch'])
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True, send_messages=True)
 	async def create_channel(ctx,category,name):
 		category = await bot.fetch_channel(category)
 		await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
