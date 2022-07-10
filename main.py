@@ -90,7 +90,7 @@ mydb = mysql.connector.connect(
     passwd="NwIMGwa79AHCxbYXf5fW",
     database="railway"
 )
-cursor = mydb.cursor(dictionary=True)
+cursor = mydb.cursor()
 print("database Connected")
 
      
