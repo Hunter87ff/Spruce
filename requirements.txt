@@ -4,5 +4,4 @@ pycord
 requests
 PyNaCl
 discord-ui
-mysql
-mysql-connector-python
+db-sqlite3
