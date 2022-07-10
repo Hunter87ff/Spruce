@@ -33,7 +33,8 @@ from datetime import datetime, timedelta
 import json
 from data import *
 import requests
-import mysql.connector
+import sqlite3
+#import mysql.connector
 #import humanfriendly
 #from data.badwords import bws
 #from discord.ui import Button, View
@@ -83,16 +84,14 @@ for filename in os.listdir("./cogs"):
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
     print(f'{bot.user} is ready')
-    
-mydb = mysql.connector.connect(
-    host="containers-us-west-85.railway.app",
-    user="root",
-    passwd="NwIMGwa79AHCxbYXf5fW",
-    database="railway"
-)
-cursor = mydb.cursor()
-print("database Connected")
-
+	
+	
+	
+conn = sqlite3.connect('mydata.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE tourney(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)''')
+conn.commit()
+conn.close()    
      
 ##########################################################################################
 #                                          TEXT COMMANDS
