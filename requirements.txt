@@ -5,3 +5,4 @@ requests
 PyNaCl
 discord-ui
 mysql
+mysql-connector-python
