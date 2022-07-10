@@ -61,7 +61,7 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(prefix)(bot, message)
 
 
-bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True))
+bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True), intents=intents )
 
 
 
@@ -89,8 +89,12 @@ async def on_ready():
 	
 conn = sqlite3.connect('mydata.db')
 c = conn.cursor()
-c.execute('''CREATE TABLE tourney(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)''')
+c.execute("""CREATE TABLE IF NOT EXISTS tag_list (
+             tag_name string NOT NULL,
+             tag_content
+             )""")
 conn.commit()
+print("Comited")
 conn.close()    
      
 ##########################################################################################
