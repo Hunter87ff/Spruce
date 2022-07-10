@@ -39,7 +39,7 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def create_roles(self, ctx, *Names):
-		for role in roles:
+		for role in Names:
 			await ctx.guild.create_roles(role, reason=f"Created by {ctx.author}")
 			await ctx.channel.purge(limit=1)
 			await ctx.send(f'**<:vf:947194381172084767> {role} Created by {ctx.author}**', delete_after=5)
