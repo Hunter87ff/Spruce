@@ -148,6 +148,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command()
+	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def em(self, ctx, image, *, message):
@@ -159,6 +160,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.cooldown(2, 360, commands.BucketType.user)
+	@commands.has_permissions(add_reactions=True)
 	@commands.bot_has_permissions(add_reactions=True)
 	async def react(self, ctx, msg_id, *emojis):
 		for emoji in emojis:
