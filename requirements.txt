@@ -5,4 +5,3 @@ requests
 PyNaCl
 discord-ui
 db-sqlite3
-asyncio
