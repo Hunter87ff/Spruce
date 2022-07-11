@@ -188,7 +188,7 @@ class Utility(commands.Cog):
 
 
 """
-	@cmd.command()
+@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True, connect=True)
 	async def join(self, ctx):
@@ -200,9 +200,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	async def leave(self, ctx):
-		await ctx.voice_client.disconnect()
-
-"""
+		await ctx.voice_client.disconnect()"""
 
 	@cmd.command(aliases=['mc'])
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
