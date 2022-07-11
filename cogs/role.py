@@ -50,11 +50,16 @@ class Roles(commands.Cog):
 	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def del_roles(self, ctx, *roles : discord.Role):
 	  for role in roles:
-	    await ctx.guild.delete_role(role, reason=f"Role {role.name} has been deleted by {ctx.author}")
-	    await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
+		if ctx.author.top_role < role:
+			return await ctx.send("This Role Is Higher Than Your Top Role", delete_after=5)
+		elif self.bot.top_role < role:
+			return await ctx.send("This Role Is Higher Than My Top Role", delete_after=5)
+		else:
+			await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
+			await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
 
 
 
@@ -62,7 +67,7 @@ class Roles(commands.Cog):
 
 	@commands.command(aliases=['role'], help="Use this command to give role to someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True)
+	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
 	async def role_give(self, ctx, role: discord.Role, user: discord.Member):
 		if ctx.author.top_role < role:
 			return await ctx.send("you don't have enough permission", delete_after=5)
@@ -75,7 +80,7 @@ class Roles(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True)
+	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
 	async def ra_role(self, ctx, role: discord.Role, reason=None):
 		if reason == None:
 			reason = f"{role} removed by {ctx.author}"
@@ -96,7 +101,7 @@ class Roles(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True)
+	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
 	async def remove_role(ctx, role:discord.Role, user: discord.Member):
 		if ctx.author.top_role < user.top_role:
 			return await ctx.channel.purge(limit=1)
@@ -116,7 +121,7 @@ class Roles(commands.Cog):
 
 	@commands.command(aliases=['roles'], help="Use this command to give role to multiple \nExample : &role  @Male @hunter @alex ")
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def give_roles(self, ctx, role: discord.Role, *users: discord.Member):
 		for user in users:
 
