@@ -198,7 +198,7 @@ class Utility(commands.Cog):
 		await ctx.send(embed=emb)
 
 		
-	@cmd.command()
+	@cmd.command(aliases=['ui'])
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
 		if member == None:
@@ -234,6 +234,22 @@ class Utility(commands.Cog):
 
 		else:
 			return await user.edit(nick=Nick)
+		
+		
+		
+	@cmd.command(aliases=['si'])
+	@commands.cooldown(2, 10, commands.BucketType.user)
+	@commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
+	async def serverinfo(self, ctx, user: discord.Member=None):
+		if user == None:
+			user = ctx.author
+			
+		guild = ctx.guild
+		emb = discord.Embed(title=f"{ctx.guild.name}'s Information",
+                        description=f"**__About__**\n**Name** : {ctx.guild.name}\n**Id** : {ctx.guild.id}\n**Owner** : {ctx.guild.owner.mention}\n**Members** : {len(guild.members)}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}",
+                       color=0xf1c40f)
+		await ctx.channel.purge(limit=1)
+		await ctx.send(embed=emb)
 
 
 
