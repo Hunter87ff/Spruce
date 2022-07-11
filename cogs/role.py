@@ -40,7 +40,7 @@ class Roles(commands.Cog):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def create_roles(self, ctx, *Names):
 		for role in Names:
-			await ctx.guild.create_roles(role, reason=f"Created by {ctx.author}")
+			await ctx.guild.create_role(role, reason=f"Created by {ctx.author}")
 			await ctx.channel.purge(limit=1)
 			await ctx.send(f'**<:vf:947194381172084767> {role} Created by {ctx.author}**', delete_after=5)
 
@@ -51,9 +51,10 @@ class Roles(commands.Cog):
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def del_roles(self, ctx, role : discord.Role):
-		await ctx.guild.delete_roles(role, reason=f"Role {role.name} has been deleted by {ctx.author}")
-		await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
+	async def del_roles(self, ctx, *roles : discord.Role):
+	  for role in roles:
+	    await ctx.guild.delete_role(role, reason=f"Role {role.name} has been deleted by {ctx.author}")
+	    await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
 
 
 
