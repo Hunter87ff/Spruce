@@ -52,14 +52,14 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def del_roles(self, ctx, *roles : discord.Role):
-	  for role in roles:
-		if ctx.author.top_role < role:
-			return await ctx.send("This Role Is Higher Than Your Top Role", delete_after=5)
-		elif self.bot.top_role < role:
-			return await ctx.send("This Role Is Higher Than My Top Role", delete_after=5)
-		else:
-			await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
-			await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
+		for role in roles:
+			if ctx.author.top_role < role:
+				return await ctx.send("This Role Is Higher Than Your Top Role", delete_after=5)
+			elif self.bot.top_role < role:
+				return await ctx.send("This Role Is Higher Than My Top Role", delete_after=5)
+			else:
+				await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
+				await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
 
 
 
