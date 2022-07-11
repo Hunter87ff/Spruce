@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import asyncio.sleep
+from asyncio import sleep
 
 pref = "&"
 cmd = commands
