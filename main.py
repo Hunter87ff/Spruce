@@ -213,14 +213,7 @@ async def snipe(ctx):
 async def store(ctx):
     crd = ctx.author.created_at.strftime("%a, %#d %B %Y, %I:%M %p")
     data = {"id" : int(ctx.author.id), "name" : ctx.author.name,"created_at" : crd}
-    usrd = userdbc.find_one({"id" : ctx.author.id})
-    usrid = usrd["id"]
-    if usrid == ctx.author.id:
-        return await ctx.send("already stored")
-
-    elif usrid != ctx.author.id:
-        userdbc.insert_one(data)
-        return await ctx.send("Your data stored")
+    userdbc.insert_one(data)
 
 
 ############################################################################################
