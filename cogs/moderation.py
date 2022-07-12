@@ -57,7 +57,7 @@ class Moderation(commands.Cog):
 	async def lock(self, ctx, role: discord.Role=None):
 		if role == None:
 			role = ctx.guild.default_role
-			overwrite = ctx.guild.overwrites_for(role)
+			overwrite = ctx.channel.overwrites_for(role)
 			overwrite.update(send_messages=False, add_reactions=False)
 			await ctx.channel.set_permissions(role, overwrite=overwrite)
 			await ctx.channel.purge(limit=1)
