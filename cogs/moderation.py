@@ -82,7 +82,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help=" Use this command to hide a channel")
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
-	async def hide(self, ctx, role=discord.Role=None):
+	async def hide(self, ctx, role: discord.Role=None):
 		if role == None:
 			role = ctx.guild.default_role
 			overwrite = ctx.channel.overwrites_for(role)
@@ -98,7 +98,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help=" Use this command to unhide a channel")
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
-	async def unhide(self, ctx, role=discord.Role=None):
+	async def unhide(self, ctx, role:discord.Role=None):
 		if role == None:
 			role = ctx.guild.default_role
 			overwrite = ctx.channel.overwrites_for(role)
