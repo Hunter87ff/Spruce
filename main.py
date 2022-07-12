@@ -33,7 +33,8 @@ from datetime import datetime, timedelta
 import json
 from data import *
 import requests
-import sqlite3
+import pymongo
+from pymongo import MongoClient
 #import mysql.connector
 #import humanfriendly
 #from data.badwords import bws
@@ -45,6 +46,12 @@ import sqlite3
 pref = '&'
 intents= discord.Intents.default()
 intents.members = True
+
+#Configuring db
+dburl = os.environ["monog_url"]
+maindb = MongoClient(dburl)
+userdb = maindb["userdb"]
+userdbc = userdb["userdbc"]
 
 
 def get_prefix(bot, message):
@@ -87,15 +94,19 @@ async def on_ready():
 	
 	
 	
-conn = sqlite3.connect('mydata.db')
-c = conn.cursor()
-c.execute("""CREATE TABLE IF NOT EXISTS tag_list (
-             tag_name string NOT NULL,
-             tag_content
-             )""")
-conn.commit()
-print("Comited")
-conn.close()    
+@bot.command()
+async def store(ctx):
+    crd = ctx.author.created_at.strftime("%a, %#d %B %Y, %I:%M %p")
+    data = {"id" : int(ctx.author.id),"name" : ctx.author.name,"created_at" : crd}
+    usrd = userdbc.find_one({"id" : ctx.author.id})
+    usrid = usrd["id"]
+    if usrid == ctx.author.id:
+        return await ctx.send("already stored")
+
+    elif usrid != ctx.author.id:
+        userdbc.insert_one(data)
+        return await ctx.send("Your data stored")
+   
      
 ##########################################################################################
 #                                          TEXT COMMANDS
