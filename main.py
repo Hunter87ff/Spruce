@@ -212,7 +212,7 @@ async def snipe(ctx):
 @bot.command()
 async def store(ctx):
     crd = ctx.author.created_at.strftime("%a, %#d %B %Y, %I:%M %p")
-    data = {"id" : int(ctx.author.id),"name" : ctx.author.name,"created_at" : crd}
+    data = {"id" : int(ctx.author.id), "name" : ctx.author.name,"created_at" : crd}
     usrd = userdbc.find_one({"id" : ctx.author.id})
     usrid = usrd["id"]
     if usrid == ctx.author.id:
@@ -221,9 +221,7 @@ async def store(ctx):
     elif usrid != ctx.author.id:
         userdbc.insert_one(data)
         return await ctx.send("Your data stored")
-    else:
-        userdbc.insert_one(data)
-        return await ctx.send("Your data stored")
+
 
 ############################################################################################
 #                                      CHANNEL COMMANDS
