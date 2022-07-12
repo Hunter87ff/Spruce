@@ -48,7 +48,7 @@ intents= discord.Intents.default()
 intents.members = True
 
 #Configuring db
-dburl = os.environ["monog_url"]
+dburl = os.environ["mongo_url"]
 maindb = MongoClient(dburl)
 userdb = maindb["userdb"]
 userdbc = userdb["userdbc"]
@@ -92,20 +92,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
     print(f'{bot.user} is ready')
 	
-	
-	
-@bot.command()
-async def store(ctx):
-    crd = ctx.author.created_at.strftime("%a, %#d %B %Y, %I:%M %p")
-    data = {"id" : int(ctx.author.id),"name" : ctx.author.name,"created_at" : crd}
-    usrd = userdbc.find_one({"id" : ctx.author.id})
-    usrid = usrd["id"]
-    if usrid == ctx.author.id:
-        return await ctx.send("already stored")
 
-    elif usrid != ctx.author.id:
-        userdbc.insert_one(data)
-        return await ctx.send("Your data stored")
    
      
 ##########################################################################################
@@ -221,7 +208,19 @@ async def snipe(ctx):
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
 
 
+	
+@bot.command()
+async def store(ctx):
+    crd = ctx.author.created_at.strftime("%a, %#d %B %Y, %I:%M %p")
+    data = {"id" : int(ctx.author.id),"name" : ctx.author.name,"created_at" : crd}
+    usrd = userdbc.find_one({"id" : ctx.author.id})
+    usrid = usrd["id"]
+    if usrid == ctx.author.id:
+        return await ctx.send("already stored")
 
+    elif usrid != ctx.author.id:
+        userdbc.insert_one(data)
+        return await ctx.send("Your data stored")
 ############################################################################################
 #                                      CHANNEL COMMANDS
 ############################################################################################
