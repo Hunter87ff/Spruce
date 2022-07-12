@@ -221,6 +221,10 @@ async def store(ctx):
     elif usrid != ctx.author.id:
         userdbc.insert_one(data)
         return await ctx.send("Your data stored")
+    else:
+        userdbc.insert_one(data)
+        return await ctx.send("Your data stored")
+
 ############################################################################################
 #                                      CHANNEL COMMANDS
 ############################################################################################
