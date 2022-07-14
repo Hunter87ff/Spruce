@@ -10,7 +10,7 @@ import os
 #onm = message_handel
 
 
-maindb = MongoClient(os.envirole["mongo_url"])    
+maindb = MongoClient(os.environ['mongo_url"])    
 db = maindb["tourneydb"]
 dbc = db["tourneydbc"]
 tourneydbc=dbc
