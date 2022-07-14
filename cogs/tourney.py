@@ -25,6 +25,7 @@ class Esports(commands.Cog):
 
 
     @commands.command(aliases=['tsetup'])
+    @commands.dm_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     @commands.bot_has_permissions(manage_channels=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
