@@ -30,12 +30,13 @@ from discord.ext import commands
 from asyncio import sleep
 import datetime
 from datetime import datetime, timedelta
-import json
 from data import *
 import requests
 import pymongo
 from pymongo import MongoClient
-#import mysql.connector
+
+from modules import message_handel
+onm = message_handel
 #import humanfriendly
 #from data.badwords import bws
 #from discord.ui import Button, View
@@ -43,7 +44,7 @@ from pymongo import MongoClient
 
 
 
-pref = '&'
+
 intents= discord.Intents.default()
 intents.members = True
 
@@ -93,6 +94,10 @@ async def on_ready():
     print(f'{bot.user} is ready')
 	
 
+@bot.event
+async def on_message(message):
+    await onm.tourney(message)
+    await bot.process_commands(message)
    
      
 ##########################################################################################
