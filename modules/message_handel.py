@@ -6,12 +6,13 @@ import pymongo
 from pymongo import MongoClient
 import re
 import os
+from modules import config
 import datetime
 
 
 
 
-maindb = MongoClient(os.environ["mongo_url"])    
+maindb = config.maindb  
 db = maindb["tourneydb"]
 dbc = db["tourneydbc"]
 tourneydbc=dbc
