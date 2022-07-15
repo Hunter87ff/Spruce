@@ -36,8 +36,9 @@ import pymongo
 import json
 from pymongo import MongoClient
 
-from modules import message_handel
+from modules import message_handel, channel_handel
 onm = message_handel
+ochd = channel_handel
 #import humanfriendly
 #from data.badwords import bws
 #from discord.ui import Button, View
@@ -99,7 +100,14 @@ async def on_message(message):
     await onm.tourney(message)
     await bot.process_commands(message)
    
-     
+   
+	
+@bot.event
+async def on_guild_channel_delete(channel):
+    await ochd.ch_handel(channel)
+	
+	
+	
 ##########################################################################################
 #                                          TEXT COMMANDS
 ############################################################################################
