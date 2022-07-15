@@ -1,26 +1,29 @@
+
 import discord
 from discord.ext import commands
 #from asyncio import sleep
-import os
 import pymongo
 from pymongo import MongoClient
 import re
+import datetime
 
 
 
-maindb = MongoClient(os.environ["mongo_url"])    
+
+maindb = MongoClient("mongodb://mongo:8EpDl7HdT4GhJm25ou5g@containers-us-west-81.railway.app:7826")    
 db = maindb["tourneydb"]
 dbc = db["tourneydbc"]
 tourneydbc=dbc
+gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
+gtadbc = gtamountdbc
+
+
+
+
+
 
 
 bot = commands.Bot(command_prefix=",")
-
-
-async def gali_dia(message):
-    if "fuck" in message.content:
-        await message.channel.purge(limit=1)
-        return await message.channel.send("gali mat de , warna yeli photo khich ke mala chadha dunga!")
 
 
 def find_team(message):
@@ -35,21 +38,21 @@ def find_team(message):
     return teamname
 
 
+def reg_update(message):
+    df = dbc.find_one({"tid" : message.channel.id%1000000000000})
+    rgd = df["reged"] 
+    dbc.update_one({"tid" : message.channel.id%1000000000000}, {"$set":{"reged": rgd + 1}})
+
+
+
 async def tourney(message):
-    await gali_dia(message)
-    #await bot.process_commands(message)
-
-
     if message.author.bot:
         return
-
     guild = message.guild
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000}) #onluy fixed value needed
     if td is None:
         return
 
-
-    
     if message.channel.id  == int(td["rch"]):
 
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
@@ -75,8 +78,11 @@ async def tourney(message):
         elif len(message.mentions) == ments or len(message.mentions) > ments:
             await message.author.add_roles(crole)
             await message.add_reaction("✅")
+            reg_update(message)
             team_name = find_team(message)
-            emb = discord.Embed(color=0x1abc9c, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+            emb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+            emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+            emb.timestamp = datetime.datetime.utcnow()
             return await cch.send(message.author.mention, embed=emb)
 
         elif len(message.mentions) < ments:
@@ -86,6 +92,6 @@ async def tourney(message):
 
     if message.channel.id  != int(td["rch"]):
         #await bot.process_commands(message)
-        print("fucked")
+        print("Not Tournament")
 
     await bot.process_commands(message)
