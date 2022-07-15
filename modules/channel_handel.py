@@ -6,7 +6,7 @@ import pymongo
 from pymongo import MongoClient
 import re
 import os
-import config
+from modules import config
 import datetime
 
 
