@@ -73,7 +73,7 @@ class Esports(commands.Cog):
                
              
             gtadbcdf = gtadbc.find_one({"guild" : gid})
-            if gtadbcdsf["gta"] > 3:
+            if gtadbcdf["gta"] > 3:
                 return await ctx.send("Tournament Limit Reached, You can buy premium to increase limit with more features")
 
              
