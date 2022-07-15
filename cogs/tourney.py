@@ -68,12 +68,15 @@ class Esports(commands.Cog):
             
             if gtadbcds == None:
                 gtadbc.insert_one({"guild" : gid, "gta" : 1})
-                await sleep(5)
-                
-
-            if gtadbcds["gta"] > 3:
+                await sleep(8)
+               
+               
+             
+            gtadbcdf = gtadbc.find_one({"guild" : gid})
+            if gtadbcdsf["gta"] > 3:
                 return await ctx.send("Tournament Limit Reached, You can buy premium to increase limit with more features")
 
+             
             gtadbcd = gtadbc.find_one({"guild" : gid})
             if gtadbcd != None:
                 gta = gtadbcd["gta"]
