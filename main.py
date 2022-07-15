@@ -30,12 +30,14 @@ from discord.ext import commands
 from asyncio import sleep
 import datetime
 from datetime import datetime, timedelta
-import json
 from data import *
 import requests
 import pymongo
+import json
 from pymongo import MongoClient
-#import mysql.connector
+
+from modules import message_handel
+onm = message_handel
 #import humanfriendly
 #from data.badwords import bws
 #from discord.ui import Button, View
@@ -43,15 +45,14 @@ from pymongo import MongoClient
 
 
 
-pref = '&'
+
 intents= discord.Intents.default()
 intents.members = True
 
 #Configuring db
 dburl = os.environ["mongo_url"]
 maindb = MongoClient(dburl)
-userdb = maindb["userdb"]
-userdbc = userdb["userdbc"]
+
 
 
 def get_prefix(bot, message):
@@ -72,7 +73,7 @@ bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.Allowe
 
 
 
-# Load extensions
+#Load extensions
 #bot.load_extension('cogs.mod')
 #bot.load_extension('cogs.utils')
 
@@ -91,8 +92,12 @@ for filename in os.listdir("./cogs"):
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
     print(f'{bot.user} is ready')
-	
+    
 
+@bot.event
+async def on_message(message):
+    await onm.tourney(message)
+    await bot.process_commands(message)
    
      
 ##########################################################################################
@@ -207,39 +212,7 @@ async def snipe(ctx):
     except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
 
-
-	
-@bot.command()
-async def store(ctx):
-    crd = ctx.author.created_at.strftime("%a, %#d %B %Y, %I:%M %p")
-    data = {"id" : int(ctx.author.id), "name" : ctx.author.name,"created_at" : crd}
-    userdbc.insert_one(data)
-
-
-############################################################################################
-#                                      CHANNEL COMMANDS
-############################################################################################
-
-#tournament setup (category and channels)
-@bot.command(aliases=['ts','tsetup'])
-@commands.cooldown(2, 20, commands.BucketType.user)
-@commands.bot_has_permissions(manage_channels=True, manage_messages=True, send_messages=True)
-@commands.has_permissions(manage_channels=True)
-async def tourney_setup(ctx,front,*,category=None):
-    reason= f'Created by {ctx.author.name}'
-    category = await ctx.guild.create_category(category, reason=f"{ctx.author.name} created")
-    await category.set_permissions(ctx.guild.default_role, send_messages=False)
-    await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
-    await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
-    await ctx.send(f'**<:vf:947194381172084767>Successfully Created**',delete_after=5)
-
-		
+        
 ############################################################################################
 #                                       INFO
 ############################################################################################
@@ -255,7 +228,7 @@ async def ping(ctx):
 @commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
 async def botinfo(ctx):
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 17593", inline=False)
+  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 25787", inline=False)
   emb.add_field(name="<:owner:968371297744744448> __Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
