@@ -5,12 +5,13 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
+from modules import config
 import os
 #import message_handel
 #onm = message_handel
 
 
-maindb = MongoClient(os.environ["mongo_url"])    
+maindb = config.maindb 
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
