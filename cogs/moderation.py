@@ -25,6 +25,7 @@ SOFTWARE.
 
 
 import discord
+from asyncio import sleep
 from discord.ext import commands
 cmd = commands
 
