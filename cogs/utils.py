@@ -152,7 +152,7 @@ class Utility(commands.Cog):
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def em(self, ctx, image, *, message):
-		emb = discord.Embed(desctiption=message, color=blue)
+		emb = discord.Embed(description=message, color=blue)
 		emb.set_image(url=image)
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb) 
