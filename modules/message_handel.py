@@ -52,8 +52,14 @@ async def tourney(message):
         return
     guild = message.guild
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000}) #onluy fixed value needed
+    
     if td is None:
         return
+    
+    if td is not None:
+        elif td["status"] == "paused":
+            return await message.author.send("Registration Paused Buddy")
+    
 
     if message.channel.id  == int(td["rch"]):
 
