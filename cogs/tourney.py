@@ -9,11 +9,12 @@ from modules import config
 import os
 #import message_handel
 #onm = message_handel
-
+cmd = commands
 
 maindb = config.maindb 
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
+
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
 
@@ -89,13 +90,32 @@ class Esports(commands.Cog):
             return await ctx.send('**<:vf:947194381172084767>Successfully Created**',delete_after=5)
 
 
-    
 
+    @cmd.command()
+    async def start_tourney(self, ctx, registration_channel : discord.TextChannel):
+        dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
+        t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
+        if t_mod not in ctx.author.roles:
+            return ctx.send(f"You don't have {t_mod.name} role")
 
+        if t_mod in ctx.author.roles:
+            dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"status" : "started"}})
+            await registration_channel.send("Registration Started")
+            await ctx.send("Started", delete_after=10)
 
+    @cmd.command()
+    async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
+        dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
+        t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+        
+        if t_mod not in ctx.author.roles:
+            return ctx.send(f"You don't have {t_mod.name} role")
 
-
+        if t_mod in ctx.author.roles:
+            dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"status" : "paused"}})
+            await registration_channel.send("Registration Paused")
+            await ctx.send("Started", delete_after=10)
 
 def setup(bot):
     bot.add_cog(Esports(bot))
