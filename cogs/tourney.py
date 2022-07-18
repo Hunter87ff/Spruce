@@ -115,7 +115,7 @@ class Esports(commands.Cog):
         if t_mod in ctx.author.roles:
             dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"status" : "paused"}})
             await registration_channel.send("Registration Paused")
-            await ctx.send("Started", delete_after=10)
+            await ctx.send("Paused", delete_after=10)
 
 def setup(bot):
     bot.add_cog(Esports(bot))
