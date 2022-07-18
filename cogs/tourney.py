@@ -97,7 +97,7 @@ class Esports(commands.Cog):
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
         if t_mod not in ctx.author.roles:
-            return ctx.send(f"You don't have `tourney-mod` role")
+            return await ctx.send(f"You don't have `tourney-mod` role")
 
         if t_mod in ctx.author.roles:
             dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"status" : "started"}})
@@ -110,7 +110,7 @@ class Esports(commands.Cog):
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         
         if t_mod not in ctx.author.roles:
-            return ctx.send(f"You don't have `tourney-mod` role")
+            return await ctx.send(f"You don't have `tourney-mod` role")
 
         if t_mod in ctx.author.roles:
             dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"status" : "paused"}})
