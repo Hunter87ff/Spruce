@@ -117,5 +117,46 @@ class Esports(commands.Cog):
             await registration_channel.send("Registration Paused")
             await ctx.send("Paused", delete_after=10)
 
+            
+
+    @cmd.command()
+    async def cancel_slot(self, ctx, channel : discord.TextChannel, member : discord.Member, reason=None):
+        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+        if tmrole not in ctx.author.roles:
+            return await ctx.send("You don't have `tourney-mod` role")
+        if ctx.author.guild_permissions.manage_channels and tmrole in ctx.author.roles:
+            if reason == None:
+                reason = "Not Provided"
+            dbcd = dbc.find_one({"tid" : channel.id%1000000000000})
+            crole = discord.utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
+            reged = dbcd["reged"]
+            tslot = dbcd["reged"] + 10
+            cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
+            if crole in member.roles:
+                await member.remove_roles(crole)
+                dbc.update_one({"tid" : channel.id%1000000000000}, {"$set" : {"reged" : reged - 1}})
+                messages = await cch.history(limit=tslot).flatten()
+                print(cch.name)
+                if ctx.channel == cch:
+                    await ctx.message.delete()
+
+                for message in messages:
+                    if member.mention or member.id in message.content:
+                        if message.author.id == self.bot.id:
+                            emb = discord.Embed(color=0xffff00, description=f"**SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
+                            emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                            emb.timestamp = datetime.datetime.utcnow()
+                            await message.edit(embed=emb)
+
+        
+            
+            
+            
+            
+            
+            
+            
+            
+            
 def setup(bot):
     bot.add_cog(Esports(bot))
