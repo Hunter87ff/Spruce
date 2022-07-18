@@ -144,7 +144,7 @@ class Esports(commands.Cog):
                 for message in messages:
                     if member.mention or member.id in message.content:
                         if message.author.id == 931202912888164474:
-                            emb = discord.Embed(color=0xffff00, description=f"**SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
+                            emb = discord.Embed(color=0xffff00, description=f"**{reged} SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
