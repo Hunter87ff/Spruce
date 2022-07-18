@@ -55,7 +55,11 @@ async def tourney(message):
     
     if td is None:
         return
-    
+
+    if td is not None:
+        if td["status"] == "paused":
+        return await message.author.send("Registration Paused Buddy")
+     
 
     if message.channel.id  == int(td["rch"]):
 
