@@ -60,9 +60,10 @@ async def tourney(message):
     
     elif td["status"] == "paused":
         await message.author.send("Registration Paused")
-
+        
+        
+    messages = await message.channel.history(limit= td["tslot"]).flatten()
     if message.channel.id  == int(td["rch"]) and td["status"] == "started":
-
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
@@ -70,7 +71,7 @@ async def tourney(message):
         rgs = td["reged"]
         tslot = td["tslot"]
         
-        messages = await message.channel.history(limit=rgs + 10).flatten()
+        
         for fmsg in messages:
             if td["faketag"] == "no":
                 if message.mentions == fmsg.mentions:
