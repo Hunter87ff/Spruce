@@ -103,7 +103,8 @@ async def tourney(message):
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
             await ctx.channel.purge(limit=1)
-            return await message.reply(f"Minimum {ments} Required For Successfull Registration")
+            emb = discord.Embed(description=f"{message.author.mention}\nMinimum {ments} Mentions Required For Successfull Registration", color=0xffff00)
+            return await message.channel.send()
 
 
     if message.channel.id  != int(td["rch"]):
