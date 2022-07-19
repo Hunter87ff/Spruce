@@ -5,7 +5,6 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
-import os
 from modules import config
 import datetime
 
@@ -13,9 +12,9 @@ import datetime
 
 
 maindb = config.maindb  
-db = maindb["tourneydb"]
-dbc = db["tourneydbc"]
+dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
+
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
 
@@ -48,35 +47,36 @@ def reg_update(message):
 
 
 async def tourney(message):
+    ctx = message
     if message.author.bot:
         return
     guild = message.guild
-    ctx = message
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
     
-    
+    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000}) #onluy fixed value needed
+    messages = await ctx.channel.history(limit=td["tslot"]).flatten()
+
     if td is None:
         return
     
     elif td["status"] == "paused":
         await message.author.send("Registration Paused")
-        
-        
-    messages = await message.channel.history(limit= td["tslot"]).flatten()
+
     if message.channel.id  == int(td["rch"]) and td["status"] == "started":
+
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
         ments = td["mentions"]
         rgs = td["reged"]
         tslot = td["tslot"]
-        
-        
+
         for fmsg in messages:
             if td["faketag"] == "no":
                 if message.mentions == fmsg.mentions:
-                    await message.channel.purge(limit=1)
+                    await ctx.channel.purge(limit=1)
                     return await ctx.channel.send("Dont use tags of registered players")
+
+
 
 
         if crole in message.author.roles:
@@ -103,9 +103,7 @@ async def tourney(message):
 
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
-            await ctx.channel.purge(limit=1)
-            lmemb = discord.Embed(description=f"{message.author.mention}\nMinimum {ments} Mentions Required For Successfull Registration", color=0xffff00)
-            return await message.channel.send(embed=lmemb, delete_after=5)
+            return await message.reply(f"Minimum {ments} Required For Successfull Registration")
 
 
     if message.channel.id  != int(td["rch"]):
