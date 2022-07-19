@@ -5,7 +5,7 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
-from modules import config
+import modules config
 import datetime
 
 
@@ -20,7 +20,8 @@ gtadbc = gtamountdbc
 
 
 
-
+td = tourneydbc.find_one({"tslot" : 1234})
+print(td["tslot"])
 
 
 
@@ -46,13 +47,20 @@ def reg_update(message):
 
 
 
+
+
+
 async def tourney(message):
     ctx = message
+    guild = message.guild
+
+
+
     if message.author.bot:
         return
-    guild = message.guild
     
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000}) #onluy fixed value needed
+    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
+
 
     if td is None:
         return
@@ -60,22 +68,20 @@ async def tourney(message):
     elif td["status"] == "paused":
         await message.author.send("Registration Paused")
 
-    if message.channel.id  == int(td["rch"]) and td["status"] == "started":
-        messages = await ctx.channel.history(limit=td["tslot"]).flatten()
+    if td is not None and message.channel.id  == int(td["rch"]) and td["status"] == "started":
+        messages = await message.channel.history(limit=td["tslot"]).flatten()
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
         ments = td["mentions"]
         rgs = td["reged"]
         tslot = td["tslot"]
-
         for fmsg in messages:
-            if td["faketag"] == "no":
+            if fmsg.author != ctx.author:
                 if message.mentions == fmsg.mentions:
-                    await ctx.channel.purge(limit=1)
-                    return await ctx.channel.send("Dont use tags of registered players")
-
-
+                    ftemb = discord.embed(color=0xffff00, description=f"{message.author.mention} Don't Mention Registered Players"})
+                    await message.channel.purge(limit=1)
+                    return await ctx.channel.send(embed=ftemb, delete_after=20)
 
 
         if crole in message.author.roles:
@@ -102,7 +108,9 @@ async def tourney(message):
 
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
-            return await message.reply(f"Minimum {ments} Required For Successfull Registration")
+            memb = discord.embed(color=0xffff00, description=f"Minimum {ments} Required For Successfull Registration")
+            await message.channel.purge(limit=1)
+            return await message.channel.send(embed=memb, delete_after=5)
 
 
     if message.channel.id  != int(td["rch"]):
