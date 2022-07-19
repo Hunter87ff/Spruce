@@ -53,7 +53,7 @@ async def tourney(message):
     guild = message.guild
     ctx = message
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
-    messages = await message.channel.history(limit=td["tslot"]).flatten()
+    
     
     if td is None:
         return
@@ -70,7 +70,7 @@ async def tourney(message):
         rgs = td["reged"]
         tslot = td["tslot"]
         
-        
+        messages = await message.channel.history(limit=rgs + 10).flatten()
         for fmsg in messages:
             if td["faketag"] == "no":
                 if message.mentions == fmsg.mentions:
