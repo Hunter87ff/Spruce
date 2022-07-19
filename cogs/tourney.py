@@ -37,10 +37,15 @@ class Esports(commands.Cog):
 
     @commands.command(aliases=['ts'])
     @commands.cooldown(2, 20, commands.BucketType.user)
-    @commands.bot_has_permissions(manage_channels=True, manage_messages=True, send_messages=True)
+    @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
     async def tourney_setup(self, ctx, front, total_slot, mentions, *, name):
+        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         gid = ctx.guild.id%1000000000000
+       
+
+        if tmrole == None:
+            tmrole = await ctx.guild.create_role("tourney-mod")
 
         if int(total_slot) > 20000:
             return await ctx.send("Total Slot should be below 20000")
