@@ -52,7 +52,7 @@ class Channel(commands.Cog):
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True)
 	async def create_channel(self, ctx, category, *names):
 	  for name in names:
-	    category = await self.bot.fetch_channel(category)
+	    category = await discord.utils.get(guild.category_channels, category)
 	    await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
 	    await ctx.send("Done", delete_after=5)
 
