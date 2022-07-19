@@ -51,7 +51,8 @@ async def tourney(message):
     if message.author.bot:
         return
     guild = message.guild
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000}) #onluy fixed value needed
+    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
+    messages = await ctx.channel.history(limit=td["tslot"]).flatten()
     
     if td is None:
         return
@@ -67,6 +68,13 @@ async def tourney(message):
         ments = td["mentions"]
         rgs = td["reged"]
         tslot = td["tslot"]
+        
+        
+        for fmsg in messages:
+            if td["faketag"] == "no":
+                if message.mentions == fmsg.mentions:
+                    await ctx.channel.purge(limit=1)
+                    return await ctx.channel.send("Dont use tags of registered players")
 
 
         if crole in message.author.roles:
