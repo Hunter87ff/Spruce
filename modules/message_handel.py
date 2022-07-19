@@ -51,6 +51,7 @@ async def tourney(message):
     if message.author.bot:
         return
     guild = message.guild
+    ctx = message
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
     messages = await ctx.channel.history(limit=td["tslot"]).flatten()
     
@@ -101,6 +102,7 @@ async def tourney(message):
 
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
+            await ctx.channel.purge(limit=1)
             return await message.reply(f"Minimum {ments} Required For Successfull Registration")
 
 
