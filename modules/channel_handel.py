@@ -34,5 +34,5 @@ async def ch_handel(channel):
 		gta = gtad["gta"]
 		gtadbc.update_one({"guild" : channel.guild.id%1000000000000}, {"$set" : {"gta" : gta - 1}})
 		print("A Tournament Deleted")
-
-
+		dbc.delete_one({"tid" : channel.id%1000000000000 })
+		print("dbc document deleted")
