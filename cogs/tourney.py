@@ -35,11 +35,11 @@ class Esports(commands.Cog):
 
 
 
-    @commands.command(aliases=['tsetup'])
+    @commands.command(aliases=['ts'])
     @commands.cooldown(2, 20, commands.BucketType.user)
     @commands.bot_has_permissions(manage_channels=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
-    async def ts(self, ctx, front, total_slot, mentions, *, name):
+    async def tourney_setup(self, ctx, front, total_slot, mentions, *, name):
         gid = ctx.guild.id%1000000000000
 
         if int(total_slot) > 20000:
