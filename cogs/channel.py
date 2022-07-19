@@ -53,8 +53,8 @@ class Channel(commands.Cog):
 	async def create_channel(ctx, category, *names):
 	  for name in names:
 	    category = await self.bot.fetch_channel(category)
-  		await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created") 
-  		await ctx.send("Done", delete_after=5)
+	    await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
+	    await ctx.send("Done", delete_after=5)
 
 
 
