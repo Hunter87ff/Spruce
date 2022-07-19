@@ -5,7 +5,6 @@ from asyncio import sleep
 pref = "&"
 cmd = commands
 
-
 class Channel(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -51,10 +50,11 @@ class Channel(commands.Cog):
 	@cmd.command(aliases=['cch'])
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True)
-	async def create_channel(ctx,category,name):
-		category = await bot.fetch_channel(category)
-		await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-		await ctx.send("Done", delete_after=5)
+	async def create_channel(ctx, category, *names):
+	  for name in names:
+	    category = await self.bot.fetch_channel(category)
+  		await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created") 
+  		await ctx.send("Done", delete_after=5)
 
 
 
