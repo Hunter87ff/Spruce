@@ -53,7 +53,7 @@ async def tourney(message):
     guild = message.guild
     ctx = message
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
-    messages = await ctx.channel.history(limit=td["tslot"]).flatten()
+    messages = await message.channel.history(limit=td["tslot"]).flatten()
     
     if td is None:
         return
@@ -74,7 +74,7 @@ async def tourney(message):
         for fmsg in messages:
             if td["faketag"] == "no":
                 if message.mentions == fmsg.mentions:
-                    await ctx.channel.purge(limit=1)
+                    await message.channel.purge(limit=1)
                     return await ctx.channel.send("Dont use tags of registered players")
 
 
