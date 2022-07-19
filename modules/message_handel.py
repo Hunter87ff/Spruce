@@ -79,7 +79,7 @@ async def tourney(message):
         for fmsg in messages:
             if fmsg.author != ctx.author:
                 if message.mentions == fmsg.mentions:
-                    ftemb = discord.embed(color=0xffff00, description=f"{message.author.mention} Don't Mention Registered Players"})
+                    ftemb = discord.embed(color=0xffff00, description=f"{message.author.mention} Don't Mention Registered Players")
                     await message.channel.purge(limit=1)
                     return await ctx.channel.send(embed=ftemb, delete_after=20)
 
