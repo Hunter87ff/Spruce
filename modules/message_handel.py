@@ -77,11 +77,12 @@ async def tourney(message):
         rgs = td["reged"]
         tslot = td["tslot"]
         for fmsg in messages:
-            if fmsg.author != ctx.author:
-                if message.mentions == fmsg.mentions:
-                    ftemb = discord.embed(color=0xffff00, description=f"{message.author.mention} Don't Mention Registered Players")
-                    await message.channel.purge(limit=1)
-                    return await ctx.channel.send(embed=ftemb, delete_after=20)
+            if td["faketag"] == "no":
+                if fmsg.author != ctx.author:
+                    if message.mentions == fmsg.mentions:
+                        ftemb = discord.Embed(color=0xffff00, description=f"{message.author.mention} Don't Mention Registered Players")
+                        await message.channel.purge(limit=1)
+                        return await ctx.channel.send(embed=ftemb, delete_after=20)
 
 
         if crole in message.author.roles:
@@ -108,7 +109,7 @@ async def tourney(message):
 
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
-            memb = discord.embed(color=0xffff00, description=f"Minimum {ments} Required For Successfull Registration")
+            memb = discord.Embed(color=0xffff00, description=f"Minimum {ments} Required For Successfull Registration")
             await message.channel.purge(limit=1)
             return await message.channel.send(embed=memb, delete_after=5)
 
