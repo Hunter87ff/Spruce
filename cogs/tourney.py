@@ -124,6 +124,10 @@ class Esports(commands.Cog):
                 reason = "Not Provided"
        
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+        
+        if tmrole == None:
+            tmrole = await ctx.guild.create_role("tourney-mod")
+        
         if tmrole not in ctx.author.roles:
             return await ctx.send("You don't have `tourney-mod` role")
         
@@ -151,7 +155,32 @@ class Esports(commands.Cog):
 
         
             
-            
+    @cmd.command()
+    async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, Team_Name):
+        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+
+        if tmrole == None:
+            tmrole = await ctx.guild.create_role("tourney-mod")
+
+        if tmrole not in ctx.author.roles:
+            return await ctx.send("You don't have `tourney-mod` role")
+
+        if ctx.author.guild_permissions.manage_channels and tmrole in ctx.author.roles:
+            dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
+            crole = discord.utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
+            reged = dbcd["reged"]
+            tslot = dbcd["reged"] + 10
+            cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
+            if crole in member.roles:
+                return await ctx.send("**Already Registered**", delete_after=5)
+
+            if crole not in member.roles:
+                await member.add_roles(crole)
+                dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"reged" : reged + 1}})
+                emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {Team_Name.upper()}**\n**Added By** : {ctx.author.mention} ")
+                emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+                emb.timestamp = datetime.datetime.utcnow()
+                return await cch.send(member.mention, embed=emb)     
             
             
             
