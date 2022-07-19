@@ -53,7 +53,6 @@ async def tourney(message):
     guild = message.guild
     
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000}) #onluy fixed value needed
-    messages = await ctx.channel.history(limit=td["tslot"]).flatten()
 
     if td is None:
         return
@@ -62,7 +61,7 @@ async def tourney(message):
         await message.author.send("Registration Paused")
 
     if message.channel.id  == int(td["rch"]) and td["status"] == "started":
-
+        messages = await ctx.channel.history(limit=td["tslot"]).flatten()
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
