@@ -68,7 +68,16 @@ class Esports(commands.Cog):
             c_role = await ctx.guild.create_role(name=role_name, reason=f"Created by {ctx.author}") #role
             await r_ch.set_permissions(c_role, send_messages=False)
             
-            tour = {"tid" : int(r_ch.id%1000000000000), "guild" : gid, "rch" : int(r_ch.id),"cch" : int(c_ch.id),"crole" : int(c_role.id),"tslot" : int(total_slot),"reged" : 1,"mentions" : int(mentions),"slotpg" : 12,"status" : "started" }
+            tour = {"tid" : int(r_ch.id%1000000000000), 
+                    "guild" : gid, "rch" : int(r_ch.id),
+                    "cch" : int(c_ch.id),
+                    "crole" : int(c_role.id),
+                    "tslot" : int(total_slot),
+                    "reged" : 1,
+                    "mentions" : int(mentions),
+                    "slotpg" : 12,
+                    "status" : "started",
+                    "faketag": "no"}
             
             gtadbcds = gtadbc.find_one({"guild" : gid})
             
