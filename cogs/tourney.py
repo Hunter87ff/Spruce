@@ -160,12 +160,13 @@ class Esports(commands.Cog):
                     await ctx.message.delete()
 
                 for message in messages:
-                    if member.mention or member.id in message.content:
+                    if member.mention in message.content:
                         if message.author.id == 931202912888164474:
                             emb = discord.Embed(color=0xffff00, description=f"**{reged} SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
+                            await ctx.send(f"{memeber.mention}'s Slot Canceled with reason of {reason}")
 
         
             
