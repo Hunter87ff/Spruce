@@ -45,7 +45,7 @@ class Esports(commands.Cog):
        
 
         if tmrole == None:
-            tmrole = await ctx.guild.create_role("tourney-mod")
+            tmrole = await ctx.guild.create_role(name="tourney-mod")
 
         if int(total_slot) > 20000:
             return await ctx.send("Total Slot should be below 20000")
