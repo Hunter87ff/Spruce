@@ -110,10 +110,3 @@ async def tourney(message):
             memb = discord.Embed(color=0xffff00, description=f"Minimum {ments} Required For Successfull Registration")
             await message.channel.purge(limit=1)
             return await message.channel.send(embed=memb, delete_after=5)
-
-
-    if message.channel.id  != int(td["rch"]):
-        #await bot.process_commands(message)
-        print("Not Tournament")
-
-    await bot.process_commands(message)
