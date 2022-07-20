@@ -20,8 +20,6 @@ gtadbc = gtamountdbc
 
 
 
-td = tourneydbc.find_one({"tslot" : 1234})
-print(td["tslot"])
 
 
 
