@@ -5,7 +5,7 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
-from modules import  config
+import config
 import datetime
 
 
@@ -23,11 +23,11 @@ gtadbc = gtamountdbc
 
 
 
+
 bot = commands.Bot(command_prefix=",")
 
 
 def find_team(message):
-    """Finds team name from a message"""
     content = message.content.lower()
     teamname = re.search(r"team.*", content)
     if teamname is None:
@@ -36,6 +36,8 @@ def find_team(message):
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
     teamname = f"Team {teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
+
+
 
 
 def reg_update(message):
@@ -51,14 +53,11 @@ def reg_update(message):
 async def tourney(message):
     ctx = message
     guild = message.guild
-
-
+    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
 
     if message.author.bot:
         return
     
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
-
 
     if td is None:
         return
@@ -74,17 +73,10 @@ async def tourney(message):
         ments = td["mentions"]
         rgs = td["reged"]
         tslot = td["tslot"]
-        for fmsg in messages:
-            if td["faketag"] == "no":
-                if fmsg.author != ctx.author:
-                    if message.mentions == fmsg.mentions:
-                        ftemb = discord.Embed(color=0xffff00, description=f"{message.author.mention} Don't Mention Registered Players")
-                        await message.channel.purge(limit=1)
-                        return await ctx.channel.send(embed=ftemb, delete_after=20)
 
-
+            
         if crole in message.author.roles:
-            return await message.reply("Already Registered")
+            return await message.channel.send("Already Registered", delete_after=5)
             
 
         if rgs > tslot:
@@ -96,17 +88,48 @@ async def tourney(message):
             
         
         elif len(message.mentions) == ments or len(message.mentions) > ments:
-            await message.author.add_roles(crole)
-            await message.add_reaction("✅")
-            reg_update(message)
-            team_name = find_team(message)
-            emb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-            emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
-            emb.timestamp = datetime.datetime.utcnow()
-            return await cch.send(message.author.mention, embed=emb)
+            for fmsg in messages:
+                if td["faketag"] == "no":
+                    #print("Fake Tag No")
+
+                    if fmsg.author != ctx.author:
+                        print("Test 1 Passed")
+                        for mentio in fmsg.mentions:
+                            if mentio in message.mentions:
+                                print("Test 2 Passed")
+                                fakeemb = discord.Embed(title=f"The Member You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
+                                fakeemb.add_field(name="Team", value=f"[Registration Link](https://discordapp.com/channels/{guild.id}/{message.channel.id}/{fmsg.id})")
+                                fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+                                await message.delete()
+                                return await ctx.channel.send(embed=fakeemb, delete_after=60)
+
+                            if mentio not in message.mentions:
+                                #print("Mention Unique")
+                                await message.author.add_roles(crole)
+                                print("Role given")
+                                await message.add_reaction("✅")
+                                #print("Reaction de dia")
+                                reg_update(message)
+                                #print("db Updated")
+                                team_name = find_team(message)
+                                femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                                femb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                                femb.timestamp = datetime.datetime.utcnow()
+                                return await cch.send(message.author.mention, embed=femb)
+
+                if td["faketag"] == "yes":
+                    #print("Fake Tag Yes")
+                    await message.author.add_roles(crole)
+                    await message.add_reaction("✅")
+                    reg_update(message)
+                    team_name = find_team(message)
+                    nfemb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                    nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                    nfemb.timestamp = datetime.datetime.utcnow()
+                    return await cch.send(message.author.mention, embed=nfemb)
+
 
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
-            memb = discord.Embed(color=0xffff00, description=f"Minimum {ments} Required For Successfull Registration")
-            await message.channel.purge(limit=1)
-            return await message.channel.send(embed=memb, delete_after=5)
+            return await message.reply(f"Minimum {ments} Required For Successfull Registration")
+
