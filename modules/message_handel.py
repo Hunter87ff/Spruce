@@ -5,7 +5,7 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
-import config
+from modules import  config
 import datetime
 
 
