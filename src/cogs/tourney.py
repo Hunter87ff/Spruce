@@ -152,12 +152,21 @@ class Esports(commands.Cog):
             tslot = dbcd["reged"] + 10
             cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
             
+            
+        if ctx.channel == cch:
+            await ctx.message.delete()
+               
+               
+            if crole not in member.roles:
+                nrg = dsicord.Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=0xffff00)
+                await ctx.send(embed=nrg, delete_after=60)
+              
+              
             if crole in member.roles:
                 await member.remove_roles(crole)
                 dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"reged" : reged - 1}})
                 messages = await cch.history(limit=tslot).flatten()
-                if ctx.channel == cch:
-                    await ctx.message.delete()
+
 
                 for message in messages:
                     if member.mention in message.content:
@@ -166,7 +175,8 @@ class Esports(commands.Cog):
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
-                            await ctx.send(f"{member.mention}'s Slot Canceled with reason of {reason}")
+                            canemb = dsicord.Embed(title=f"{member.mention}'s Slot Canceled with reason of {reason}", color=0xffff00)
+                            await ctx.send(embed=canemb, delete_after=60)
 
         
             
@@ -178,7 +188,7 @@ class Esports(commands.Cog):
             tmrole = await ctx.guild.create_role("tourney-mod")
 
         if tmrole not in ctx.author.roles:
-            return await ctx.send("You don't have `tourney-mod` role")
+            return await ctx.send("You don't have `tourney-mod` role", delete_after=10)
 
         if ctx.author.guild_permissions.manage_channels and tmrole in ctx.author.roles:
             dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
@@ -187,7 +197,7 @@ class Esports(commands.Cog):
             tslot = dbcd["reged"] + 10
             cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
             if crole in member.roles:
-                return await ctx.send("**Already Registered**", delete_after=5)
+                return await ctx.send("**Already Registered**", delete_after=50)
 
             if crole not in member.roles:
                 await member.add_roles(crole)
