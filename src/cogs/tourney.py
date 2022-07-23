@@ -166,7 +166,7 @@ class Esports(commands.Cog):
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
-                            await ctx.send(f"{memeber.mention}'s Slot Canceled with reason of {reason}")
+                            await ctx.send(f"{member.mention}'s Slot Canceled with reason of {reason}")
 
         
             
