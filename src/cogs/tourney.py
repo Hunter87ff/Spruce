@@ -158,7 +158,7 @@ class Esports(commands.Cog):
                
                
             if crole not in member.roles:
-                nrg = dsicord.Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=0xffff00)
+                nrg = discord.Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=0xffff00)
                 await ctx.send(embed=nrg, delete_after=60)
               
               
@@ -175,7 +175,7 @@ class Esports(commands.Cog):
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
-                            canemb = dsicord.Embed(title=f"{member.mention}'s Slot Canceled with reason of {reason}", color=0xffff00)
+                            canemb = discord.Embed(title=f"{member.mention}'s Slot Canceled with reason of {reason}", color=0xffff00)
                             await ctx.send(embed=canemb, delete_after=60)
 
         
