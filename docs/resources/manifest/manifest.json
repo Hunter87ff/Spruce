@@ -1,0 +1,16 @@
+{
+  "background_color": "#000",
+   "theme_color": "#000",
+  "description": "Spruce. Everything You Need",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icon-310x310.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "name": "Spruce",
+  "short_name": "Spruce",
+  "start_url": "https://sprucebot.ml"
+}
