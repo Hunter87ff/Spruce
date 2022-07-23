@@ -153,8 +153,8 @@ class Esports(commands.Cog):
             cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
             
             
-        if ctx.channel == cch:
-            await ctx.message.delete()
+            if ctx.channel == cch:
+                await ctx.message.delete()
                
                
             if crole not in member.roles:
