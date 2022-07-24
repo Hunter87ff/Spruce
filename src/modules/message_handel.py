@@ -91,6 +91,7 @@ async def tourney(message):
             for fmsg in messages:
                 if td["faketag"] == "no":
                     #print("Fake Tag No")
+
                     
                     if fmsg.author.id == ctx.author.id and len(messages) == 1:
                         print("Same Author")
