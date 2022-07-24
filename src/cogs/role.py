@@ -68,14 +68,14 @@ class Roles(commands.Cog):
 	@commands.command(aliases=['role'], help="Use this command to give role to someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def role_give(self, ctx, role: discord.Role, user: discord.Member):
-		if ctx.author.top_role < role:
-			return await ctx.send("you don't have enough permission", delete_after=5)
-		if ctx.author.top_role > role:
-			return await user.add_roles(role)
-			await ctx.message.add_reaction("✅")
-		else:
-			return await ctx.send("Something went wrong", delete_after=5)
+	async def role_give(self, ctx, role: discord.Role, *users: discord.Member):
+		for user in users:
+			if ctx.author.top_role < role:
+				return await ctx.send("you don't have enough permission", delete_after=5)
+			if ctx.author.top_role > role:
+				return await user.add_roles(role)
+				await ctx.message.add_reaction("✅")
+
 
 
 	@cmd.command()
