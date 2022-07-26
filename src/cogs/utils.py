@@ -1,5 +1,3 @@
-
-
 import discord
 from discord.ext import commands
 cmd = commands
@@ -53,13 +51,13 @@ class Utility(commands.Cog):
 			user = ctx.author
 			emb = discord.Embed(title=ctx.author, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.gif?size=1024)", color=blurple)
 			emb.timestamp = datetime.datetime.utcnow()
-			emb.set_image(url=user.avatar_url)
+			emb.set_image(url=user.avatar)
 			return await ctx.send(embed=emb)
 			
 		else:
 			eemb = discord.Embed(title=user, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.gif?size=1024)", color=blurple)
 			eemb.timestamp = datetime.datetime.utcnow()
-			eemb.set_image(url=user.avatar_url)
+			eemb.set_image(url=user.avatar)
 			return await ctx.send(embed=eemb)
 
 
@@ -67,7 +65,7 @@ class Utility(commands.Cog):
 	@cmd.command(aliases=['sav'])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def server_av(self, ctx):
-		await ctx.send(ctx.guild.icon_url)
+		await ctx.send(ctx.guild.avatar)
 
 
 
@@ -168,7 +166,7 @@ class Utility(commands.Cog):
 	async def member_count(self, ctx):
 	  
 		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=teal)
-		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
+		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
 		
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb)
@@ -185,8 +183,8 @@ class Utility(commands.Cog):
 		roles = list(sorted(member.roles, key=lambda role: role.position))
 		embed = discord.Embed(colour=member.colour.purple(), timestamp=ctx.message.created_at)
 		embed.set_author(name=f"{member}")
-		embed.set_thumbnail(url=member.avatar_url)
-		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url)
+		embed.set_thumbnail(url=member.avatar)
+		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		embed.add_field(name="User Name:", value=f"{member.name}")
 		embed.add_field(name="ID:", value=member.id)
 		embed.add_field(name="Server name:", value=member.display_name)
@@ -244,7 +242,7 @@ class Utility(commands.Cog):
 					totalInvites += i.uses
 
 					emb = discord.Embed(description=f"** <:invites:968901936327848016> Currently has {totalInvites} invites **", color=discord.Color.blurple())
-					emb.set_author(name=f"{user}", icon_url=user.avatar_url)
+					emb.set_author(name=f"{user}", icon_url=user.avatar)
 					emb.set_footer(text="Spruce", icon_url="https://sprucebot.ml/resources/manifest/icon-310x310.png")
 
 					return await ctx.send(embed=emb)

@@ -123,7 +123,7 @@ async def tourney(message):
                             reg_update(message)
                             team_name = find_team(message)
                             femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                            femb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                            femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             femb.timestamp = datetime.datetime.utcnow()
                             return await cch.send(message.author.mention, embed=femb)
 
@@ -133,7 +133,7 @@ async def tourney(message):
                         if ftch == True:
                             fakeemb = discord.Embed(title=f"The Member You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
                             fakeemb.add_field(name="Team", value=f"[Registration Link](https://discordapp.com/channels/{guild.id}/{message.channel.id}/{fmsg.id})")
-                            fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+                            fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar)
                             await message.delete()
                             return await ctx.channel.send(embed=fakeemb, delete_after=60)
 
@@ -146,7 +146,7 @@ async def tourney(message):
                             reg_update(message)
                             team_name = find_team(message)
                             femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                            femb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                            femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             femb.timestamp = datetime.datetime.utcnow()
                             return await cch.send(message.author.mention, embed=femb)
                         
@@ -161,7 +161,7 @@ async def tourney(message):
                     reg_update(message)
                     team_name = find_team(message)
                     nfemb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                    nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                    nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                     nfemb.timestamp = datetime.datetime.utcnow()
                     return await cch.send(message.author.mention, embed=nfemb)
 
