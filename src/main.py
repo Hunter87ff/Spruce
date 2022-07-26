@@ -46,9 +46,8 @@ ochd = channel_handel
 
 
 
-
-intents= discord.Intents.default()
-intents.members = True
+intents = discord.Intents.default()
+intents.message_content = True
 
 #Configuring db
 dburl = os.environ["mongo_url"]
@@ -70,7 +69,7 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(prefix)(bot, message)
 
 
-bot = commands.Bot(command_prefix= get_prefix, allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True), intents=intents )
+bot = commands.Bot(command_prefix= get_prefix, intents=intents ) #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 
 
 
@@ -116,7 +115,7 @@ class Nhelp(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
         for page in self.paginator.pages:
-            emby = discord.Embed(description=page, color = discord.Color.blurple())
+            emby = discord.Embed(description="**You're Seeing only those commands which you can use**" + page, color = discord.Color.blurple())
             emby.add_field(name="Links", value="[Support Server](https://discord.gg/vMnhpAyFZm) | [Invite Link](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=139992746070&scope=bot)")
 #           emby.add_field(name='Support Server', value='[join](https://discord.gg/FXbRZHz3cG)', inline = False)
             await destination.send(embed=emby)
