@@ -17,7 +17,7 @@ tourneydbc=dbc
 
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
-bot = commands.Bot(command_prefix=",")
+
 
 
 
