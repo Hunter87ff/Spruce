@@ -73,7 +73,7 @@ class Roles(commands.Cog):
 			if ctx.author.top_role < role:
 				return await ctx.send("you don't have enough permission", delete_after=5)
 			if ctx.author.top_role > role:
-				return await user.add_roles(role)
+				await user.add_roles(role)
 				await ctx.message.add_reaction("✅")
 
 
