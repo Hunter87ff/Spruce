@@ -209,6 +209,47 @@ class Esports(commands.Cog):
             
             
             
+    @cmd.command()
+    async def faketag(self, ctx, registration_channel: discord.TextChannel):
+        t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+        if t_mod == None:
+            t_mod = await ctx.guild.create_role("tourney-mod")
+
+        if t_mod not in ctx.author.roles:
+            return await ctx.reply(f"Tou Don't have `tourney-mod` role")
+
+        if t_mod in ctx.author.roles:
+
+            dbcd = dbc.find_one({"tid": registration_channel.id%1000000000000})
+
+
+            btn = Button(label="Enable", style = discord.ButtonStyle.green)
+            btn1 = Button(label="Disable", style = discord.ButtonStyle.green)
+
+            view1 = View()
+            view2 = View()
+
+            view1.add_item(btn)
+            view2.add_item(btn1)
+
+            if dbcd["faketag"] == "no":
+                await ctx.send("Disable Fake Tag Filter", view=view2)
+
+            if dbcd["faketag"] == "yes":
+                await ctx.send("Enaable Fake Tag Filter", view=view1)
+
+            async def enable_ftf(interaction):
+                dbc.update_one({"tid": registration_channel.id%1000000000000, "faketag" : "yes"}, {"$set":{"faketag" : "no"}})
+                await interaction.response.send_message("Enabled")
+
+            async def disable_ftf(interaction):
+                dbc.update_one({"tid": registration_channel.id%1000000000000, "faketag" : "no"}, {"$set":{"faketag" : "yes"}})
+                await interaction.response.send_message("Disabled")
+
+            btn.callback = enable_ftf
+            btn1.callback = disable_ftf
+
+
             
             
             
