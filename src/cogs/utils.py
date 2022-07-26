@@ -65,7 +65,11 @@ class Utility(commands.Cog):
 	@cmd.command(aliases=['sav'])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def server_av(self, ctx):
-		await ctx.send(ctx.guild.avatar)
+		if ctx.guild.icon != None:
+			await ctx.send(ctx.guild.icon)
+
+		if ctx.guild.icon == None:
+			return await ctx.reply("Server Doesn't Have Logo XD")
 
 
 
@@ -80,6 +84,7 @@ class Utility(commands.Cog):
 		if banner_id:
 			banner_url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_id}.gif?size=1024"
 		await ctx.send(f"{banner_url}")
+
 
 	@cmd.command(aliases=['emb'])
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
