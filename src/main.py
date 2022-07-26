@@ -71,13 +71,13 @@ def get_prefix(bot, message):
 
 bot = commands.Bot(command_prefix= get_prefix, intents=intents ) #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 
-
+#await bot.load_extension()
 
 async def load_extensions():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             # cut off the .py from the file name
-            await client.load_extension(f"cogs.{filename[:-3]}")
+            await bot.load_extension(f"cogs.{filename[:-3]}")
 
 """
 for filename in os.listdir("./cogs"):
@@ -92,6 +92,7 @@ for filename in os.listdir("./cogs"):
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
+    await load_extensions()
     print(f'{bot.user} is ready')
     
 

@@ -213,5 +213,5 @@ class Esports(commands.Cog):
             
             
             
-def setup(bot):
-    bot.add_cog(Esports(bot))
+async def setup(bot):
+    await bot.add_cog(Esports(bot))
