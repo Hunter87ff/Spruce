@@ -52,7 +52,7 @@ def reg_update(message):
 async def ft_ch(message):
     ctx = message
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
-    messages = await message.channel.history(limit=td["tslot"]).flatten()
+    messages = [message async for message in ctx.channel.history(limit=123)]  #messages = await message.channel.history(limit=td["tslot"]).flatten()
 
 
     for fmsg in messages:
@@ -88,7 +88,7 @@ async def tourney(message):
         await message.author.send("Registration Paused")
 
     if td is not None and message.channel.id  == int(td["rch"]) and td["status"] == "started":
-        messages = await message.channel.history(limit=td["tslot"]).flatten()
+        messages = [message async for message in ctx.channel.history(limit=123)]     #messages = await message.channel.history(limit=td["tslot"]).flatten()
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
