@@ -165,7 +165,7 @@ class Esports(commands.Cog):
             if crole in member.roles:
                 await member.remove_roles(crole)
                 dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"reged" : reged - 1}})
-                messages = await cch.history(limit=tslot).flatten()
+                messages = [message async for message in cch.history(limit=123)]   #messages = await cch.history(limit=tslot).flatten()
 
 
                 for message in messages:
