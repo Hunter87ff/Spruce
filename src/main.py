@@ -73,16 +73,17 @@ bot = commands.Bot(command_prefix= get_prefix, intents=intents ) #allowed_mentio
 
 
 
-#Load extensions
-#bot.load_extension('cogs.mod')
-#bot.load_extension('cogs.utils')
+async def load_extensions():
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            # cut off the .py from the file name
+            await client.load_extension(f"cogs.{filename[:-3]}")
 
-
-
+"""
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
         bot.load_extension(f"cogs.{filename[:-3]}")
-
+"""
 #help_command = commands.DefaultHelpCommand(no_category = "Commands")
 #tick = "<:vf:947194381172084767>"
 
