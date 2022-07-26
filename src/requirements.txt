@@ -1,7 +1,6 @@
-discord.py
-discord
+discord-ext-menus==1.1; python_full_version >= "3.5.3"
+discord.py @ git+https://github.com/Rapptz/discord.py.git@master ; python_full_version >= "3.8.0"
 pycord
 requests
 PyNaCl
-discord-ui
 pymongo
