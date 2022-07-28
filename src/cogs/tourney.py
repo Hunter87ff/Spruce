@@ -237,7 +237,7 @@ class Esports(commands.Cog):
                 await ctx.send("Disable Fake Tag Filter", view=view2)
 
             if dbcd["faketag"] == "yes":
-                await ctx.send("Enaable Fake Tag Filter", view=view1)
+                await ctx.send("Enable Fake Tag Filter", view=view1)
 
             async def enable_ftf(interaction):
                 dbc.update_one({"tid": registration_channel.id%1000000000000, "faketag" : "yes"}, {"$set":{"faketag" : "no"}})
