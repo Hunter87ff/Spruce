@@ -251,8 +251,118 @@ class Esports(commands.Cog):
             btn1.callback = disable_ftf
 
 
-            
-            
+    @cmd.command()
+    @commands.has_any_role("tourney-mod")
+    async def tourney(self, ctx, rch: discord.TextChannel):
+        tdb = dbc.find_one({"tid": rch.id%1000000000000})
+
+        if tdb == None:
+            await ctx.send("Kindly Mention Registration Channel I'm Managing..", delete_after=30)
+
+        if tdb != None:
+            bt1 = Button(label="Fake Tag", style=discord.ButtonStyle.green)
+            bt2 = Button(label="Total Slot", style=discord.ButtonStyle.green) 
+            bt3 = Button(label="Mentions", style=discord.ButtonStyle.green)
+            bt4 = Button(label="Save & Delete", style=discord.ButtonStyle.danger)
+            bt5 = Button(label="Registration Channel")
+            bt6 = Button(label="Confirmation Channel")
+            bt7 = Button(label="Add Slots")
+            bt8 = Button(label="Cancle Slots")
+            buttons = [bt1, bt2, bt3, bt4, bt5, bt6]
+            view = View()
+            ftf = None
+            if tdb["faketag"] == "yes":
+                ftf = "Disabled"
+            if tdb["faketag"] == "no":
+                ftf = "Enabled"
+
+            cch = get(ctx.guild.channels, id=int(tdb["cch"]))
+            tcat = cch.category
+            if tcat != None:
+                tname = tcat.name
+            if tcat == None:
+                tname = ctx.guild.name
+            crole = get(ctx.guild.roles, id=int(tdb["crole"]))
+            emb = discord.Embed(title=tname, description=f'Registration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]}\nFake Tag Filter : {ftf}', 
+                color=0x00ff00)
+
+            for button in buttons:
+                view.add_item(button)
+
+            msg1 = await ctx.send(embed=emb, view=view)
+
+            async def save_delete(interaction):
+                await msg1.delete()
+
+
+            async def r_ch(interaction):
+                await interaction.response.send_message("Mention Registration Channel")
+                channel = await checker.channel_input(ctx)
+                if channel.id%1000000000000 == tdb["tid"]:
+                    return await ctx.send("A Tournament Already Running In This channel")
+                elif channel.id%1000000000000 != tdb["tid"]:
+                    dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tid": channel.id%1000000000000}})
+                    await ctx.send("Registration Channel Updated")
+
+
+            async def c_ch(interaction):
+                await interaction.response.send_message("Mention Confiration Channel")
+                cchannel = await checker.channel_input(ctx)
+                if cchannel.id == cch.id:
+                    return await ctx.send("A Tournament Already Running In This channel")
+                elif cchannel.id != cch.id:
+                    dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"cch": cchannel.id}})
+                    await ctx.send("Confirm Channel Updated")
+
+
+
+
+            async def ft(interaction):
+                if tdb["faketag"] == "yes":
+                    dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "no"}})
+                    await interaction.response.send_message("Enabled")
+
+                if tdb["faketag"] == "no":
+                    dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "yes"}})
+                    await interaction.response.send_message("Disabled")
+
+            async def ttl_slot(interaction):
+                await interaction.response.send_message("Enter Number Between 2 and 20000")
+                tsl = await checker.ttl_slots(ctx)
+                
+                try:
+                    if int(tsl) > 20000:
+                        return await ctx.send("Only Number Between 1 and 20000")
+                    if int(tsl) == 20000 or int(tsl) < 20000:
+                        dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tslot" : int(tsl)}})
+                        await ctx.send("Total Slots Updated")
+
+                except ValueError:
+                    return await ctx.send("Numbers Only")
+
+            async def mnts(interaction):
+                await interaction.response.send_message("Enter Number Between 1 and 20")
+                mns = await checker.ttl_slots(ctx)
+
+                try:
+                    if int(mns) > 20:
+                        return await ctx.send("Only Number upto 20")
+
+                    if int(mns) == 20 or int(mns) < 20:
+                        dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"mentions" : int(mns)}})
+                        await ctx.send("Mentions Updated")
+
+                except ValueError:
+                    return await ctx.send("Numbers Only")
+
+
+            bt5.callback = r_ch
+            bt6.callback = c_ch
+            bt4.callback = save_delete
+            bt1.callback = ft
+            bt2.callback = ttl_slot
+            bt3.callback = mnts
+      
             
             
 async def setup(bot):
