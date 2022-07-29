@@ -10,12 +10,10 @@ import requests
 import pymongo
 import json
 from pymongo import MongoClient
-from modules import message_handel, channel_handel
+from modules import message_handel, channel_handel, checker
 onm = message_handel
 ochd = channel_handel
-#import humanfriendly
-#from data.badwords import bws
-#from discord.ui import Button, View
+from discord.ui import Button, View
 
 
 
