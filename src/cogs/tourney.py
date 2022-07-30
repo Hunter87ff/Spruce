@@ -6,7 +6,7 @@ import pymongo
 from pymongo import MongoClient
 import re
 import datetime
-from modules import config
+from modules import config, checker
 import os
 from discord.utils import get
 from discord.ui import Button, View
@@ -284,7 +284,7 @@ class Esports(commands.Cog):
             if tcat == None:
                 tname = ctx.guild.name
             crole = get(ctx.guild.roles, id=int(tdb["crole"]))
-            emb = discord.Embed(title=tname, description=f'Registration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]}\nFake Tag Filter : {ftf}', 
+            emb = discord.Embed(title=tname, description=f'Registration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]-1}\nFake Tag Filter : {ftf}', 
                 color=0x00ff00)
 
             for button in buttons:
