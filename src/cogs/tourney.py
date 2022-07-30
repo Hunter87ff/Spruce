@@ -299,7 +299,9 @@ class Esports(commands.Cog):
             async def r_ch(interaction):
                 await interaction.response.send_message("Mention Registration Channel")
                 channel = await checker.channel_input(ctx)
-                if channel.id%1000000000000 == tdb["tid"]:
+                ach = dbc.find_one({"tid" : channel.id%1000000000000})
+
+                if channel.id%1000000000000 == tdb["tid"] or ach != None:
                     return await ctx.send("A Tournament Already Running In This channel")
                 elif channel.id%1000000000000 != tdb["tid"]:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tid": channel.id%1000000000000}})
@@ -309,8 +311,11 @@ class Esports(commands.Cog):
             async def c_ch(interaction):
                 await interaction.response.send_message("Mention Confiration Channel")
                 cchannel = await checker.channel_input(ctx)
-                if cchannel.id == cch.id:
+                acch = dbc.find_one({"cch" : str(cchannel.id)})
+
+                if cchannel.id == cch.id or acch != None:
                     return await ctx.send("A Tournament Already Running In This channel")
+                    
                 elif cchannel.id != cch.id:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"cch": cchannel.id}})
                     await ctx.send("Confirm Channel Updated")
