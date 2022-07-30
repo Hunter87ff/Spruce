@@ -284,7 +284,7 @@ class Esports(commands.Cog):
             if tcat == None:
                 tname = ctx.guild.name
             crole = get(ctx.guild.roles, id=int(tdb["crole"]))
-            emb = discord.Embed(title=tname, description=f'Registration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]}\nFake Tag Filter : {ftf}', 
+            emb = discord.Embed(title=tname, description=f'Registration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]-1}\nRegistered : {tdb["reged"]}\nFake Tag Filter : {ftf}', 
                 color=0x00ff00)
 
             for button in buttons:
