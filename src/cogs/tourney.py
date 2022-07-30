@@ -337,13 +337,13 @@ class Esports(commands.Cog):
             async def ft(interaction):
                 if tdb["faketag"] == "yes":
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "no"}})
-                    bt0.disabled = True
+                    bt1.disabled = True
                     await interaction.response.edit_message(view=view)
                     await ctx.send("Enabled", delete_after=10)
 
                 if tdb["faketag"] == "no":
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "yes"}})
-                    bt0.disabled = True
+                    bt1.disabled = True
                     await interaction.response.edit_message(view=view)
                     await ctx.send("Disabled", delete_after=10)
 
