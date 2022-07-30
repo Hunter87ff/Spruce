@@ -261,15 +261,17 @@ class Esports(commands.Cog):
             await ctx.send("Kindly Mention Registration Channel I'm Managing..", delete_after=30)
 
         if tdb != None:
+            bt0 = Button(label="Start/Pause", style=discord.ButtonStyle.green)
             bt1 = Button(label="Fake Tag", style=discord.ButtonStyle.green)
             bt2 = Button(label="Total Slot", style=discord.ButtonStyle.green) 
             bt3 = Button(label="Mentions", style=discord.ButtonStyle.green)
-            bt4 = Button(label="Save & Delete", style=discord.ButtonStyle.danger)
+            bt4 = Button(label="Save Changes")
             bt5 = Button(label="Registration Channel")
             bt6 = Button(label="Confirmation Channel")
             bt7 = Button(label="Add Slots")
             bt8 = Button(label="Cancle Slots")
-            buttons = [bt1, bt2, bt3, bt4, bt5, bt6]
+            bt9 = Button(label="Confirm Role")
+            buttons = [bt0, bt1, bt2, bt3, bt5, bt6, bt9, bt4]
             view = View()
             ftf = None
             if tdb["faketag"] == "yes":
@@ -284,7 +286,7 @@ class Esports(commands.Cog):
             if tcat == None:
                 tname = ctx.guild.name
             crole = get(ctx.guild.roles, id=int(tdb["crole"]))
-            emb = discord.Embed(title=tname, description=f'Registration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]-1}\nFake Tag Filter : {ftf}', 
+            emb = discord.Embed(title=tname, description=f'Status : {tdb["status"].upper()}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]-1}\nFake Tag Filter : {ftf}\nRegistration Channel : {rch.mention}\nConfirmation Channel : {cch.mention}\nConfirm Role : {crole.mention}', 
                 color=0x00ff00)
 
             for button in buttons:
@@ -333,6 +335,9 @@ class Esports(commands.Cog):
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "yes"}})
                     await interaction.response.send_message("Disabled")
 
+
+
+
             async def ttl_slot(interaction):
                 await interaction.response.send_message("Enter Number Between 2 and 20000")
                 tsl = await checker.ttl_slots(ctx)
@@ -346,6 +351,9 @@ class Esports(commands.Cog):
 
                 except ValueError:
                     return await ctx.send("Numbers Only")
+
+
+
 
             async def mnts(interaction):
                 await interaction.response.send_message("Enter Number Between 1 and 20")
@@ -363,12 +371,46 @@ class Esports(commands.Cog):
                     return await ctx.send("Numbers Only")
 
 
+
+            async def strtps(interaction):
+                if interaction.user == ctx.author:
+                    if tdb["status"] == "started":
+                        dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"status" : "paused"}})
+                        await rch.send("**Tournament Paused**")
+                        bt0.disabled = True
+                        await interaction.response.edit_message(view=view)
+                        await ctx.send("Tournament Paused", delete_after=10)
+
+                    if tdb["status"] == "paused":
+                        dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"status" : "started"}})
+                        await rch.send("**Tournament Statred**")
+                        bt0.disabled = True
+                        await interaction.response.edit_message(view=view)
+                        await ctx.send("Tournament Started", delete_after=10)
+
+
+
+
+            async def conro(interaction):
+                if interaction.user == ctx.author:
+                    await interaction.response.send_message("Mention The Confirm Role")
+                    con_role = await checker.check_role(ctx)
+                    cndb = dbc.find_one({"crole" : str(con_role.id)})
+
+                    if cndb == None:
+                        dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"crole" : con_role.id}})
+                    if cndb != None:
+                        return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
+
+
             bt5.callback = r_ch
             bt6.callback = c_ch
             bt4.callback = save_delete
             bt1.callback = ft
             bt2.callback = ttl_slot
             bt3.callback = mnts
+            bt0.callback = strtps
+            bt9.callback = conro
       
             
             
