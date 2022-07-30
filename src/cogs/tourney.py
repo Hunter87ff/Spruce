@@ -6,7 +6,7 @@ import pymongo
 from pymongo import MongoClient
 import re
 import datetime
-from modules import config
+from modules import config, checker
 import os
 from discord.utils import get
 from discord.ui import Button, View
