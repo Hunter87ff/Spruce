@@ -300,7 +300,7 @@ class Esports(commands.Cog):
                 await interaction.response.send_message("Mention Registration Channel")
                 channel = await checker.channel_input(ctx)
                 ach = dbc.find_one({"tid" : channel.id%1000000000000})
-
+                 
                 if channel.id%1000000000000 == tdb["tid"] or ach != None:
                     return await ctx.send("A Tournament Already Running In This channel")
                 elif channel.id%1000000000000 != tdb["tid"]:
