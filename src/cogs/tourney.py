@@ -281,6 +281,8 @@ class Esports(commands.Cog):
 
             cch = get(ctx.guild.channels, id=int(tdb["cch"]))
             tcat = cch.category
+
+
             if tcat != None:
                 tname = tcat.name
             if tcat == None:
@@ -291,11 +293,15 @@ class Esports(commands.Cog):
 
             for button in buttons:
                 view.add_item(button)
-
             msg1 = await ctx.send(embed=emb, view=view)
+
+
+
 
             async def save_delete(interaction):
                 await msg1.delete()
+
+
 
 
             async def r_ch(interaction):
@@ -309,6 +315,8 @@ class Esports(commands.Cog):
                 else:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tid": channel.id%1000000000000}})
                     await ctx.send("Registration Channel Updated")
+
+
 
 
             async def c_ch(interaction):
@@ -329,11 +337,15 @@ class Esports(commands.Cog):
             async def ft(interaction):
                 if tdb["faketag"] == "yes":
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "no"}})
-                    await interaction.response.send_message("Enabled")
+                    bt0.disabled = True
+                    await interaction.response.edit_message(view=view)
+                    await ctx.send("Enabled", delete_after=10)
 
                 if tdb["faketag"] == "no":
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "yes"}})
-                    await interaction.response.send_message("Disabled")
+                    bt0.disabled = True
+                    await interaction.response.edit_message(view=view)
+                    await ctx.send("Disabled", delete_after=10)
 
 
 
@@ -369,6 +381,8 @@ class Esports(commands.Cog):
 
                 except ValueError:
                     return await ctx.send("Numbers Only")
+
+
 
 
 
