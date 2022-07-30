@@ -21,7 +21,17 @@ async def channel_input(ctx, check=None, timeout=20, delete_after=False, check_p
         return channel
 
 
+async def check_role(ctx, check=None, timeout=20, delete_after=False, check_perms=True):
+    check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
+    try:
+        message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
+        
+    except asyncio.TimeoutError:
+        return await ctx.send("Time Out! Try Again")
 
+    else:
+        role = await RoleConverter().convert(ctx, message.content)
+        return role
 
 
 
