@@ -29,7 +29,7 @@ maindb = MongoClient(dburl)
 
 def get_prefix(bot, message):
     if not message.guild:
-        return commands.when_mentioned_or("&")(bot, message)
+        return commands.when_mentioned_or(os.environ["prefix"])(bot, message)
 
     with open("data/prefixes.json", "r") as f:
         prefixes = json.load(f)
