@@ -37,7 +37,7 @@ def get_prefix(bot, message):
         prefixes = json.load(f)
 
     if str(message.guild.id) not in prefixes:
-        return commands.when_mentioned_or("&")(bot, message)
+        return commands.when_mentioned_or(pref)(bot, message)
 
     prefix = prefixes[str(message.guild.id)]
     return commands.when_mentioned_or(prefix)(bot, message)
@@ -45,7 +45,6 @@ def get_prefix(bot, message):
 
 bot = commands.Bot(command_prefix= get_prefix, intents=intents ) #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 
-#await bot.load_extension()
 
 async def load_extensions():
     for filename in os.listdir("./cogs"):
@@ -53,19 +52,12 @@ async def load_extensions():
             # cut off the .py from the file name
             await bot.load_extension(f"cogs.{filename[:-3]}")
 
-"""
-for filename in os.listdir("./cogs"):
-    if filename.endswith(".py"):
-        bot.load_extension(f"cogs.{filename[:-3]}")
-"""
-#help_command = commands.DefaultHelpCommand(no_category = "Commands")
-#tick = "<:vf:947194381172084767>"
 
 
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='&help'))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'{pref}help'))
     await load_extensions()
     print(f'{bot.user} is ready')
     
@@ -129,12 +121,6 @@ async def on_command_error(ctx, error):
         e = str(error)
         await ctx.send(f"```py\n{e}```")
 
-'''
-    else:
-        return await ctx.send("Something went wrong!")
-        print(ctx.message.content)
-
-'''
 
 
 @bot.command()
@@ -161,6 +147,8 @@ async def on_message(msg):
 ############################################################################################
 #                                          BLACK LIST FILTER
 ############################################################################################
+
+
 
 """
 @bot.event
@@ -196,16 +184,23 @@ async def snipe(ctx):
         await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
 
 """	
+
+
+
 ############################################################################################
 #                                       INFO
 ############################################################################################
   
-#check latency
+
 @bot.command()
 @commands.cooldown(2, 20, commands.BucketType.user)
 @commands.bot_has_permissions(manage_messages=True, send_messages=True)
 async def ping(ctx):
     await ctx.send(f'**Current ping is {round(bot.latency*1000)} ms**')
+
+
+
+
 
 @bot.command()
 @commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
@@ -217,6 +212,10 @@ async def botinfo(ctx):
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
   emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
   return await ctx.send(embed=emb)
+
+
+
+
 
 
 @bot.command()
@@ -232,6 +231,16 @@ async def addemoji(ctx, emoji: discord.PartialEmoji):
                 await ctx.guild.create_custom_emoji( name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
     else:
         return await ctx.send("You Should Check Your Permission")
+
+
+
+
+@bot.command(hidden=True)
+async def sdm(ctx, member: discord.User, *, message):
+    if ctx.author.id == 885193210455011369:
+        await member.send(message)
+    if ctx.author.id != 885193210455011369:
+        return await ctx.send("Command not found! please check the spelling carefully")
 
 
 
