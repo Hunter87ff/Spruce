@@ -20,6 +20,8 @@ from discord.ui import Button, View
 
 intents = discord.Intents.default()
 intents.message_content = True
+pref = os.environ["prefix"]
+
 
 #Configuring db
 dburl = os.environ["mongo_url"]
@@ -29,7 +31,7 @@ maindb = MongoClient(dburl)
 
 def get_prefix(bot, message):
     if not message.guild:
-        return commands.when_mentioned_or(os.environ["prefix"])(bot, message)
+        return commands.when_mentioned_or(pref)(bot, message)
 
     with open("data/prefixes.json", "r") as f:
         prefixes = json.load(f)
