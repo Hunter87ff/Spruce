@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://cdn.discordapp.com/avatars/931202912888164474/46f9c17b5e0b57609e6fae0108ae2089.webp?size=1024" height="50px" width="50px"/>
+<img src="https://cdn.discordapp.com/icons/947443790053015623/3d3d8cb1823a4a69cc5cd2014c6f6a95.png?size=1024" height="50px" width="50px"/>
 </p>
 <h3 align="center">Spruce</h3>
 <p align="center" > 
