@@ -108,6 +108,8 @@ class Esports(commands.Cog):
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
     async def girls_lobby(self, ctx, vc_amount : int):
+        male_rs = ["male", "boys", "boy", "men", "MALE", "BOY", "BOYS"]
+        female_rs = ["female", "girls", "girl", "women", "FEMALE", "GIRL", "GIRLS", "WOMEN"]
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
         cat = await ctx.guild.create_category(name="GIRLS LOBBY")
         crl = await ctx.guild.create_role(name=f"GIRLS LOBBY", color=0xD02090)
@@ -121,8 +123,19 @@ class Esports(commands.Cog):
             if len(cat.channels) == vc_amount:
                 await ctx.message.delete()
                 await snd.delete()
-                #await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
-                await ctx.send(f"**{ctx.author.mention}\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**")
+                for male_r in male_rs:
+                    mrole = get(ctx.guild.roles, name=male_r)
+                for female_r in female_rs:
+                    frole = get(ctx.guild.roles, name=female_r)
+
+                if mrole in ctx.author.roles:
+                    msg = f"**{ctx.author.mention} Sir,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+                if frole in ctx.author.roles:
+                    msg = f"**{ctx.author.mention} Mam,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+                else:
+                    msg = f"**{ctx.author.mention}\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+                
+                await ctx.send(msg)
 
 
 
