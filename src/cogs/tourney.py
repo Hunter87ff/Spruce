@@ -125,6 +125,7 @@ class Esports(commands.Cog):
                 await ctx.send(f"**{ctx.author.mention} Sir, I've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**")
 
 
+
     @cmd.command()
     async def start_tourney(self, ctx, registration_channel : discord.TextChannel):
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
