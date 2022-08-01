@@ -107,9 +107,9 @@ class Esports(commands.Cog):
     @cmd.command()
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
-    async def girls_lobby(ctx):
+    async def girls_lobby(self, ctx, *, Tournament_name):
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
-        cat = await ctx.guild.create_category(name="GIRLS LOBBY")
+        cat = await ctx.guild.create_category(name=Tournament_name)
         crl = await ctx.guild.create_role(name=f"Girls Lobby")
         await cat.set_permissions(ctx.guild.default_role, connect=False, send_messages=False, add_reactions=False)
         overwrite = cat.overwrites_for(crl)
