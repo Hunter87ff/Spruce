@@ -107,10 +107,10 @@ class Esports(commands.Cog):
     @cmd.command()
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
-    async def girls_lobby(self, ctx, *, Tournament_name):
+    async def girls_lobby(self, ctx):
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
-        cat = await ctx.guild.create_category(name=Tournament_name)
-        crl = await ctx.guild.create_role(name=f"Girls Lobby", color=0xD02090)
+        cat = await ctx.guild.create_category(name="GIRLS LOBBY")
+        crl = await ctx.guild.create_role(name=f"GIRLS LOBBY", color=0xD02090)
         await cat.set_permissions(ctx.guild.default_role, connect=False, send_messages=False, add_reactions=False)
         overwrite = cat.overwrites_for(crl)
         overwrite.update(send_messages=True, connect=True, speak=True, stream=True, use_voice_activation=True)
@@ -121,6 +121,7 @@ class Esports(commands.Cog):
                 await ctx.message.delete()
                 await snd.delete()
                 await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
+                await ctx.send(f"**{ctx.author.mention} Sir, I've Created Essential Things\nlittle request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!]nThanks :heart:**", delete_after=30)
  
 
 
