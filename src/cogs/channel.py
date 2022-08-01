@@ -45,7 +45,7 @@ class Channel(commands.Cog):
 
 			if len(category.channels) == 0:
 				await category.delete()
-				await snd.edit(f'**<:vf:947194381172084767>Successfully Deleted**')
+				await snd.edit(content=f'**<:vf:947194381172084767>Successfully Deleted**')
 
 
 
