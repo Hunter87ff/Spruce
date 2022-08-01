@@ -121,7 +121,7 @@ class Esports(commands.Cog):
                 await ctx.message.delete()
                 await snd.delete()
                 await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
-
+ 
 
 
     @cmd.command()
