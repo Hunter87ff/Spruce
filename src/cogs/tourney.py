@@ -110,7 +110,7 @@ class Esports(commands.Cog):
     async def girls_lobby(ctx, *, Tournament_name):
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
         cat = await ctx.guild.create_category(name=Tournament_name)
-        crl = await ctx.guild.create_role(name=f"Girls Lobby")
+        crl = await ctx.guild.create_role(name=f"Girls Lobby", color=0xD02090)
         await cat.set_permissions(ctx.guild.default_role, connect=False, send_messages=False, add_reactions=False)
         overwrite = cat.overwrites_for(crl)
         overwrite.update(send_messages=True, connect=True, speak=True, stream=True, use_voice_activation=True)
