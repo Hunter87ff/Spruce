@@ -121,7 +121,7 @@ class Esports(commands.Cog):
                 await ctx.message.delete()
                 await snd.delete()
                 await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
-                await ctx.send(f"**{ctx.author.mention} Sir, I've Created All Essential Things.\nA little request to you to give the {rl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**", delete_after=30)
+                await ctx.send(f"**{ctx.author.mention} Sir, I've Created All Essential Things.\nA little request to you to give the {rl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**")
 
 
     @cmd.command()
