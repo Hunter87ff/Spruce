@@ -104,6 +104,24 @@ class Esports(commands.Cog):
             dbc.insert_one(tour)
             return await ctx.send('**<:vf:947194381172084767>Successfully Created**',delete_after=5)
 
+    @cmd.command()
+    @commands.has_permissions(manage_channels=True, manage_roles=True)
+    @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
+    async def girls_lobby(ctx, *, Tournament_name):
+        snd = await ctx.send("<a:loading:969894982024568856>Processing...")
+        cat = await ctx.guild.create_category(name=Tournament_name)
+        crl = await ctx.guild.create_role(name=f"Girls Lobby")
+        await cat.set_permissions(ctx.guild.default_role, connect=False, send_messages=False, add_reactions=False)
+        overwrite = cat.overwrites_for(crl)
+        overwrite.update(send_messages=True, connect=True, speak=True, stream=True, use_voice_activation=True)
+        await cat.set_permissions(crl, overwrite=overwrite)
+        for i in range(1, 13):
+            await cat.create_voice_channel(name=f"SLOT {i}")
+            if len(cat.channels) == 12:
+                await ctx.message.dlete()
+                await snd.delete()
+                await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
+
 
 
     @cmd.command()

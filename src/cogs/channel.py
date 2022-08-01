@@ -39,10 +39,15 @@ class Channel(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
 	async def delete_category(self, ctx,category: discord.CategoryChannel):
+		snd = await ctx.send("<a:loading:969894982024568856>Deleting Channels...")
 		channels = category.channels
 		for channel in channels:
 			await channel.delete(reason=f'Deleted by {ctx.author.name}')
-			await ctx.send(f'**<:vf:947194381172084767>Successfully deleted  by {ctx.author.name}**', delete_after=5)
+
+			if len(channels) == 0:
+				await category.delete()
+				await snd.delete()
+				await ctx.send(f'**<:vf:947194381172084767>Successfully deleted  by {ctx.author}**', delete_after=5)
 
 
 
