@@ -104,10 +104,14 @@ class Esports(commands.Cog):
             dbc.insert_one(tour)
             return await ctx.send('**<:vf:947194381172084767>Successfully Created**',delete_after=5)
 
+
+
     @cmd.command()
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
-    async def girls_lobby(self, ctx):
+    async def girls_lobby(self, ctx, vc_amount : int):
+        male_rs = ["male", "boys", "boy", "men", "MALE", "BOY", "BOYS"]
+        female_rs = ["female", "girls", "girl", "women", "FEMALE", "GIRL", "GIRLS", "WOMEN"]
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
         cat = await ctx.guild.create_category(name="GIRLS LOBBY")
         crl = await ctx.guild.create_role(name=f"GIRLS LOBBY", color=0xD02090)
@@ -115,13 +119,21 @@ class Esports(commands.Cog):
         overwrite = cat.overwrites_for(crl)
         overwrite.update(send_messages=True, connect=True, speak=True, stream=True, use_voice_activation=True)
         await cat.set_permissions(crl, overwrite=overwrite)
-        for i in range(1, 13):
+        amt = vc_amount + 1
+        for i in range(1, amt):
             await cat.create_voice_channel(name=f"SLOT {i}")
-            if len(cat.channels) == 12:
+            if len(cat.channels) == vc_amount:
                 await ctx.message.delete()
                 await snd.delete()
-                await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
-                await ctx.send(f"**{ctx.author.mention} Sir, I've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**")
+                for author_role in ctx.author.roles:
+                    if author_role.name in male_rs:
+                        msg = f"**{ctx.author.mention} Sir,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+
+                    if author_role.name in female_rs:
+                        msg = f"**{ctx.author.mention} Mam,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+
+                await ctx.send(msg)
+
 
 
     @cmd.command()

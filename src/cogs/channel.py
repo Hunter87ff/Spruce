@@ -1,8 +1,6 @@
 import discord
 from discord.ext import commands
 from asyncio import sleep
-
-pref = "&"
 cmd = commands
 
 class Channel(commands.Cog):
@@ -38,16 +36,14 @@ class Channel(commands.Cog):
 	@cmd.command(aliases=['dc'])
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
-	async def delete_category(self, ctx,category: discord.CategoryChannel):
-		snd = await ctx.send("<a:loading:969894982024568856>Deleting Channels...")
-		channels = category.channels
-		for channel in channels:
+	async def delete_category(self, ctx, category: discord.CategoryChannel):
+		snd = await ctx.send("<a:loading:969894982024568856>**Processing...**")
+		for channel in category.channels:
 			await channel.delete(reason=f'Deleted by {ctx.author.name}')
 
-			if len(channels) == 0:
+			if len(category.channels) == 0:
 				await category.delete()
-				await snd.delete()
-				await ctx.send(f'**<:vf:947194381172084767>Successfully deleted  by {ctx.author}**', delete_after=5)
+				await snd.edit(content=f'**<:vf:947194381172084767>Successfully Deleted**')
 
 
 
