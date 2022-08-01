@@ -118,7 +118,7 @@ class Esports(commands.Cog):
         for i in range(1, 13):
             await cat.create_voice_channel(name=f"SLOT {i}")
             if len(cat.channels) == 12:
-                await ctx.message.dlete()
+                await ctx.message.delete()
                 await snd.delete()
                 await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
 
