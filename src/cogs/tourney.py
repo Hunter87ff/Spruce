@@ -107,7 +107,7 @@ class Esports(commands.Cog):
     @cmd.command()
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
-    async def girls_lobby(ctx, *, Tournament_name):
+    async def girls_lobby(self, ctx, *, Tournament_name):
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
         cat = await ctx.guild.create_category(name=Tournament_name)
         crl = await ctx.guild.create_role(name=f"Girls Lobby", color=0xD02090)
@@ -118,7 +118,7 @@ class Esports(commands.Cog):
         for i in range(1, 13):
             await cat.create_voice_channel(name=f"SLOT {i}")
             if len(cat.channels) == 12:
-                await ctx.message.dlete()
+                await ctx.message.delete()
                 await snd.delete()
                 await ctx.send('**<:vf:947194381172084767>Successfully Created**', delete_after=30)
 
