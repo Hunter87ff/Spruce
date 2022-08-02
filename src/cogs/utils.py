@@ -164,7 +164,7 @@ class Utility(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
-	async def prefix(self, ctx, prefix):
+	async def prefix(self, ctx, prefix=None):
 		with open(r"data/prefixes.json" , "r") as f:
 		    prefixes = json.load(f)
          
@@ -226,6 +226,8 @@ class Utility(commands.Cog):
 			return await user.edit(nick=Nick)
 
 	@cmd.command()
+	@commands.has_permissions(manage_webhooks=True)
+	@commands.bot_has_permissions(manage_webhooks=True)
 	async def nitro(ctx):
 		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
 	    if gnitro == None:
