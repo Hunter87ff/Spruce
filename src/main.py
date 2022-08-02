@@ -10,7 +10,7 @@ import requests
 import pymongo
 import json
 from pymongo import MongoClient
-from modules import message_handel, channel_handel, checker, config, color, nitrof
+from modules import message_handel, channel_handel, checker, config, color, nitro
 onm = message_handel
 ochd = channel_handel
 from discord.ui import Button, View
@@ -65,7 +65,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     await onm.tourney(message)
-    await nitrof(message)
+    await nitro.nitrof(message)
     await bot.process_commands(message)
    
    
