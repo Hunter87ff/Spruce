@@ -29,6 +29,7 @@ maindb = MongoClient(dburl)
 
 
 
+
 def get_prefix(bot, message):
     if not message.guild:
         return commands.when_mentioned_or(pref)(bot, message)
