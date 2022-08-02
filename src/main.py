@@ -10,7 +10,7 @@ import requests
 import pymongo
 import json
 from pymongo import MongoClient
-from modules import message_handel, channel_handel, checker, config, color
+from modules import message_handel, channel_handel, checker, config, color, nitrof
 onm = message_handel
 ochd = channel_handel
 from discord.ui import Button, View
