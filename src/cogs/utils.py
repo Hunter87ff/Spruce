@@ -228,7 +228,7 @@ class Utility(commands.Cog):
 	@cmd.command()
 	@commands.has_permissions(manage_webhooks=True)
 	@commands.bot_has_permissions(manage_webhooks=True)
-	async def nitro(ctx):
+	async def nitro(self, ctx):
 		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
 		if gnitro == None:
 			nitrodbc.insert_one({"guild":ctx.guild.id, "nitro" : "enabled"})
