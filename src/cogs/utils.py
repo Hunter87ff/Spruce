@@ -230,15 +230,14 @@ class Utility(commands.Cog):
 	@commands.bot_has_permissions(manage_webhooks=True)
 	async def nitro(ctx):
 		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
-	    if gnitro == None:
-	        nitrodbc.insert_one({"guild":ctx.guild.id, "nitro" : "enabled"})
-	        return await ctx.send("Enabled")
-	    if gnitro != None and gnitro["nitro"] == "enabled":
-	        nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "disabled"}})
-	        return await ctx.send("Disabled")
-	    if gnitro != None and gnitro["nitro"] == "disabled":
-	        nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
-	        return await ctx.send("Enabled")
+		if gnitro == None:
+			nitrodbc.insert_one({"guild":ctx.guild.id, "nitro" : "enabled"})
+		if gnitro != None and gnitro["nitro"] == "enabled":
+			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "disabled"}})
+			return await ctx.send("Disabled")
+		if gnitro != None and gnitro["nitro"] == "disabled":
+			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
+			return await ctx.send("Enabled")
 		
 		
 		
