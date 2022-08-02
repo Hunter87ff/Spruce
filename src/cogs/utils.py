@@ -4,6 +4,9 @@ cmd = commands
 import random
 import datetime
 import json
+import os
+import pymongo
+from pymongo import MongoClient
 
 blurple = 0x7289da
 greyple = 0x99aab5
@@ -33,6 +36,14 @@ whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
  "1 number ka noob","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 
 coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
+
+dburl = os.environ["mongo_url"]
+maindb = MongoClient(dburl)
+nitrodbc = maindb["nitrodb"]["nitrodbc"]
+
+
+
+
 
 
 class Utility(commands.Cog):
@@ -213,6 +224,19 @@ class Utility(commands.Cog):
 
 		else:
 			return await user.edit(nick=Nick)
+
+	@cmd.command()
+	async def nitro(ctx):
+		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
+	    if gnitro == None:
+	        nitrodbc.insert_one({"guild":ctx.guild.id, "nitro" : "enabled"})
+	        return await ctx.send("Enabled")
+	    if gnitro != None and gnitro["nitro"] == "enabled":
+	        nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "disabled"}})
+	        return await ctx.send("Disabled")
+	    if gnitro != None and gnitro["nitro"] == "disabled":
+	        nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
+	        return await ctx.send("Enabled")
 		
 		
 		

@@ -10,7 +10,7 @@ import requests
 import pymongo
 import json
 from pymongo import MongoClient
-from modules import message_handel, channel_handel, checker
+from modules import message_handel, channel_handel, checker, config, color
 onm = message_handel
 ochd = channel_handel
 from discord.ui import Button, View
@@ -43,13 +43,13 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(prefix)(bot, message)
 
 
-bot = commands.Bot(command_prefix= get_prefix, intents=intents ) #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
+bot = commands.Bot(command_prefix= get_prefix, intents=intents ) 
+#allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 
 
 async def load_extensions():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
-            # cut off the .py from the file name
             await bot.load_extension(f"cogs.{filename[:-3]}")
 
 
@@ -65,6 +65,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     await onm.tourney(message)
+    await nitrof(message)
     await bot.process_commands(message)
    
    
