@@ -66,9 +66,6 @@ async def chdb(ctx):
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
 async def nitrof(message):
     gnitro = nitrodbc.find_one({"guild" : message.guild.id})
-    if gnitro == None:
-        return
-
     if gnitro != None and gnitro["nitro"] == "enabled":
         try:
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
@@ -77,7 +74,6 @@ async def nitrof(message):
             message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
 
         if webhook == None:
-
             try:
                 webhook = await message.channel.create_webhook(name="Spruce")
 
@@ -94,12 +90,10 @@ async def nitrof(message):
                     if emoji.name in message.content:
                         msg = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
                         allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
-                        try:
-                            #await message.delete()
-                            await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
+                        #await message.delete()
+                        await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
                         
-                        except:
-                            await message.reply("Missing Permissions/Something went wrong")
+
 
 
 @bot.event
