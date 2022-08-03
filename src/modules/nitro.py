@@ -42,5 +42,8 @@ async def nitrof(message):
                     return
                 if gnitro != None and gnitro["nitro"] == "enabled":
                     allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
-                    await message.delete()
-                    await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
+                    try:
+                        await message.delete()
+                        await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
+                    except Forbidden:
+                        await ctx.send("Missing Permissions/Something went wrong")
