@@ -126,11 +126,16 @@ class Esports(commands.Cog):
                 await ctx.message.delete()
                 await snd.delete()
                 for author_role in ctx.author.roles:
+
                     if author_role.name in male_rs:
                         msg = f"**{ctx.author.mention} Sir,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
 
                     if author_role.name in female_rs:
                         msg = f"**{ctx.author.mention} Mam,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+
+                    else:
+                        msg = f"**{ctx.author.mention}\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
+
 
                 await ctx.send(msg)
 

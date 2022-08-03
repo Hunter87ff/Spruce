@@ -4,6 +4,9 @@ cmd = commands
 import random
 import datetime
 import json
+import os
+import pymongo
+from pymongo import MongoClient
 
 blurple = 0x7289da
 greyple = 0x99aab5
@@ -33,6 +36,14 @@ whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
  "1 number ka noob","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 
 coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
+
+dburl = os.environ["mongo_url"]
+maindb = MongoClient(dburl)
+nitrodbc = maindb["nitrodb"]["nitrodbc"]
+
+
+
+
 
 
 class Utility(commands.Cog):
@@ -153,7 +164,7 @@ class Utility(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
-	async def prefix(self, ctx, prefix):
+	async def prefix(self, ctx, prefix=None):
 		with open(r"data/prefixes.json" , "r") as f:
 		    prefixes = json.load(f)
          
@@ -213,6 +224,20 @@ class Utility(commands.Cog):
 
 		else:
 			return await user.edit(nick=Nick)
+
+	@cmd.command()
+	@commands.has_permissions(manage_webhooks=True)
+	@commands.bot_has_permissions(manage_webhooks=True)
+	async def nitro(self, ctx):
+		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
+		if gnitro == None:
+			nitrodbc.insert_one({"guild":ctx.guild.id, "nitro" : "enabled"})
+		if gnitro != None and gnitro["nitro"] == "enabled":
+			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "disabled"}})
+			return await ctx.send("Disabled")
+		if gnitro != None and gnitro["nitro"] == "disabled":
+			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
+			return await ctx.send("Enabled")
 		
 		
 		
