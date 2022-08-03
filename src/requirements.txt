@@ -4,3 +4,4 @@ pycord
 requests
 PyNaCl
 pymongo
+pymongo[srv]
