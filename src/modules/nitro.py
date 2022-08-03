@@ -23,10 +23,19 @@ nitrodbc = maindb["nitrodb"]["nitrodbc"]
 
 
 async def nitrof(message):
-    webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
+    ctx = message
+    try:
+        webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
+    except:
+        await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+
     if webhook == None:
-        webhook = await message.channel.create_webhook(name="Spruce")
-    wurl = webhook.url
+        try:
+            webhook = await message.channel.create_webhook(name="Spruce")
+        except:
+            await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+
+
    
             
     words = message.content.split()
@@ -46,4 +55,4 @@ async def nitrof(message):
                         await message.delete()
                         await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
                     except:
-                        await ctx.send("Missing Permissions/Something went wrong")
+                        await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")

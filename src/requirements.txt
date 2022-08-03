@@ -3,5 +3,4 @@ discord.py @ git+https://github.com/Rapptz/discord.py.git@master ; python_full_v
 pycord
 requests
 PyNaCl
-pymongo
-pymongo[srv]
+pymongo==4.2.0
