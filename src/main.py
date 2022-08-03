@@ -57,7 +57,7 @@ async def load_extensions():
 mdb = MongoClient(os.environ["mdb"])
 @bot.command(hidden=True)
 async def chdb(ctx):
-    await ctx.send(mdb["nitrodb"]["nitrodbc"].find_one({"guild": ctx.guild.id}["nitro"]))
+    await ctx.send(mdb["nitrodb"]["nitrodbc"].find_one({"guild": ctx.guild.id})["nitro"])
 
 
 
@@ -92,7 +92,7 @@ async def nitrof(message):
                         msg = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
                         allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
                         try:
-                            await message.delete()
+                            #await message.delete()
                             await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
                         
                         except Forbidden:
