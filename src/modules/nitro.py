@@ -45,5 +45,5 @@ async def nitrof(message):
                     try:
                         await message.delete()
                         await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
-                    except Forbidden:
+                    except:
                         await ctx.send("Missing Permissions/Something went wrong")

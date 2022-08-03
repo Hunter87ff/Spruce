@@ -227,7 +227,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(manage_webhooks=True)
-	@commands.bot_has_permissions(manage_webhooks=True)
+	@commands.bot_has_permissions(manage_webhooks=True, manage_messages=True)
 	async def nitro(self, ctx):
 		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
 		if gnitro == None:
