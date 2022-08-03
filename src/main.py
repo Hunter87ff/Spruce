@@ -54,8 +54,10 @@ async def load_extensions():
             await bot.load_extension(f"cogs.{filename[:-3]}")
 
 
-
-
+mdb = MongoClient(os.environ["mdb"])
+@bot.command(hidden=True)
+async def chdb(ctx):
+    await ctx.send(mdb["nitrodb"]["nitrodbc"].find_one({"guild": ctx.guild.id}["nitro"]))
 
 
 
@@ -68,9 +70,16 @@ async def nitrof(message):
         return
 
     if gnitro != None and gnitro["nitro"] == "enabled":
-        webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
+        try:
+            webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
+        except:
+            message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+
         if webhook == None:
-            webhook = await message.channel.create_webhook(name="Spruce")
+            try:
+                webhook = await message.channel.create_webhook(name="Spruce")
+            except:
+                await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
        
                 
         words = message.content.split()
