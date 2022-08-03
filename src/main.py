@@ -72,12 +72,15 @@ async def nitrof(message):
     if gnitro != None and gnitro["nitro"] == "enabled":
         try:
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
+
         except:
             message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
 
         if webhook == None:
+
             try:
                 webhook = await message.channel.create_webhook(name="Spruce")
+
             except:
                 await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
        
@@ -95,8 +98,8 @@ async def nitrof(message):
                             #await message.delete()
                             await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
                         
-                        except Forbidden:
-                            await print("Missing Permissions/Something went wrong")
+                        except:
+                            await message.reply("Missing Permissions/Something went wrong")
 
 
 @bot.event
