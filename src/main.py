@@ -60,12 +60,14 @@ async def load_extensions():
 
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
 async def nitrof(message):
+    if message.author.bot:
+        return
     try:
         gnitro = nitrodbc.find_one({"guild" : message.guild.id})
     except:
         return
 
-    if gnitro != None and gnitro["nitro"] == "enabled":
+    elif gnitro != None and gnitro["nitro"] == "enabled":
         try:
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
 
@@ -90,7 +92,7 @@ async def nitrof(message):
                         msg = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
                         allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
                         await message.delete()
-                        await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
+                        return await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
                         
 
 
