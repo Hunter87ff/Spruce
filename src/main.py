@@ -54,11 +54,6 @@ async def load_extensions():
             await bot.load_extension(f"cogs.{filename[:-3]}")
 
 
-mdb = MongoClient(os.environ["main_db"])
-@bot.command(hidden=True)
-async def chdb(ctx):
-    await ctx.send(mdb["nitrodb"]["nitrodbc"].find_one({"guild": ctx.guild.id})["nitro"])
-
 
 
 
