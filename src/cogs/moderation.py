@@ -238,9 +238,6 @@ class Moderation(commands.Cog):
 			return await ctx.send("**I can't Mute Him**", delete_after=5)
 
 		else:
-			for urole in member.roles:
-				await member.remove_roles(urole)
-
 			await member.add_roles(muted, reason=reason)
 			await ctx.message.delete()
 			return await ctx.send(f"{member} Muted", delete_after=5)
