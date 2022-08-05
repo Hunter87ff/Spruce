@@ -41,7 +41,11 @@ async def load_extensions():
             await bot.load_extension(f"cogs.{filename[:-3]}")
 
 
-
+@bot.event
+async def on_ready():
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'{pref}help'))
+    await load_extensions()
+    print(f'{bot.user} is ready')
 
 
 
@@ -87,11 +91,7 @@ async def nitrof(message):
 
 
 
-@bot.event
-async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'{pref}help'))
-    await load_extensions()
-    print(f'{bot.user} is ready')
+
     
 
 @bot.event
@@ -183,6 +183,8 @@ async def on_command_error(ctx, error):
 
 
 
+
+
 @bot.command()
 @commands.dm_only()
 async def cdm(ctx,amount:int):
@@ -191,59 +193,8 @@ async def cdm(ctx,amount:int):
     if message.author == bot.user:
       await message.delete()
 
-"""
-@bot.event
-async def on_message(msg):
-    if ":" == msg.content[0] and ":" == msg.content[-1]:
-        emoji_name = msg.content[1:-1]
-        for emoji in msg.guild.emojis:
-            if emoji_name == emoji.name:
-                await msg.channel.send(str(emoji))
-                await msg.delete()
-                break
-    await bot.process_commands(msg)
-"""
-
-############################################################################################
-#                                          BLACK LIST FILTER
-############################################################################################
 
 
-
-"""
-@bot.event
-async def on_message(message):
-    for word in bws:
-        if word in message.content:
-            await message.channel.purge(limit=1)
-            
-
-
-
-snipe_message_author = {}
-snipe_message_content = {}
-
-
-@bot.event
-async def on_message_delete(message):
-     snipe_message_author[message.channel.id] = message.author
-     snipe_message_content[message.channel.id] = message.content
-     await sleep(60)
-     del snipe_message_author[message.channel.id]
-     del snipe_message_content[message.channel.id]
-
-@bot.command()
-@commands.cooldown(2, 10, commands.BucketType.user)
-async def snipe(ctx):
-    channel = ctx.channel
-    try:
-        em = discord.Embed(color=discord.Color.blue(), description = snipe_message_content[channel.id])
-        em.set_footer(text=snipe_message_author[channel.id], icon_url=snipe_message_author[channel.id].avatar_url)
-        await ctx.send(embed=em)
-    except KeyError: #This piece of code is run if the bot doesn't find anything in the dictionary
-        await ctx.send(f"No recently deleted messages in {channel.mention}", delete_after=10)
-
-"""	
 
 
 
