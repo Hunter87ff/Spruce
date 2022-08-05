@@ -168,7 +168,7 @@ class Moderation(commands.Cog):
 			overwrite.update(view_channel=False)
 			await ctx.channel.set_permissions(role, overwrite=overwrite)
 		await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Hidden from {role.name}**', delete_after=5)
-			await sleep(1)
+			#await sleep(1)
 
 
 	@cmd.command(aliases=['uhc'])
