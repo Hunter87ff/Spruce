@@ -210,7 +210,7 @@ class Moderation(commands.Cog):
 
 	#Mute Command
 	@cmd.command(help="Make sure you've created a role named 'Muted' and then run the command '&setup' ")
-	@commands.has_permissions(manage_roles=True, manage_messages=True, mute_members=True)
+	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_messages=True)
 	async def mute(self, ctx, member: discord.Member,*,reason=None):
 		if ctx.author.bot:
@@ -246,8 +246,8 @@ class Moderation(commands.Cog):
 
 
 	@cmd.command()
-	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, manage_messages=True, send_messages=True)
 	async def unmute(self, ctx, member: discord.Member,*,reason=None):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		if ctx.author.bot:

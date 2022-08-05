@@ -129,27 +129,54 @@ bot.help_command = Nhelp(no_category = 'Commands')
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('**Please enter required Arguments **') 
+        err = discord.Embed(color=0xff0000, description="Missing Required Arguments")
+        return await ctx.send(embed=err)
 
     elif isinstance(error, commands.MissingPermissions):
-        return await ctx.send("You don't have permission to use this command")
-        print(ctx.message.content)
+        err = discord.Embed(color=0xff0000, description="You don't have Permissions To Use This Command")
+        return await ctx.send(embed=err)
 
     elif isinstance(error, commands.DisabledCommand):
-        return await ctx.send("This command is currenlty disabled. Please try again later")
-        print(ctx.message.content)
+        err = discord.Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later")
+        return await ctx.send(embed=err)
 
     elif isinstance(error, commands.CommandNotFound):
-        return await ctx.send("**Command not found! please check the spelling carefully**")
-        print(ctx.message.content)
+        err = discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully.")
+        return await ctx.send(embed=err)
+
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
-        return await ctx.send("You dont have the exact role to use this command")
-        print(ctx.message.content)
+        err = discord.Embed(color=0xff0000, description="You Do Not Have The Exact Role To Use This Command")
+        return await ctx.send(embed=err)
 
     elif isinstance(error, commands.UserInputError):
-        return await ctx.send("**Invalid input**")
-        print(ctx.message.content)
+        err = discord.Embed(color=0xff0000, description="Please Enter Valid Arguments")
+        return await ctx.send(embed=err)
+
+    elif isinstance(error, commands.EmojiNotFound):
+        err = discord.Embed(color=0xff0000, description="Emoji Not Found")
+        return await ctx.send(embed=err)
+
+    elif isinstance(error, commands.NotOwner):
+        err = discord.Embed(color=0xff0000, description="This Is A Owner Only Command You Cant Use It")
+        return await ctx.send(embed=err)
+
+    elif isinstance(error, commands.MessageNotFound):
+        err = discord.Embed(color=0xff0000, description="Message Not Found Or Deleted")
+        return await ctx.send(embed=err)
+
+    elif isinstance(error, commands.MemberNotFound):
+        err = discord.Embed(color=0xff0000, description="Member Not Found")
+        return await ctx.send(embed=err)
+
+    elif isinstance(error, commands.ChannelNotFound):
+        err = discord.Embed(color=0xff0000, description="Channel Not Found")
+        return await ctx.send(embed=err)
+
+    elif isinstance(error, commands.ChannelNotReadable):
+        err = discord.Embed(color=0xff0000, description="Can Not Read Messages Of The Channel")
+        return await ctx.send(embed=err)
+
 
     else:
         e = str(error)
