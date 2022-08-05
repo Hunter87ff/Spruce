@@ -60,7 +60,11 @@ async def load_extensions():
 
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
 async def nitrof(message):
-    gnitro = nitrodbc.find_one({"guild" : message.guild.id})
+    try:
+        gnitro = nitrodbc.find_one({"guild" : message.guild.id})
+    except:
+        return
+        
     if gnitro != None and gnitro["nitro"] == "enabled":
         try:
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
