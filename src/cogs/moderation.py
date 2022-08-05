@@ -167,7 +167,8 @@ class Moderation(commands.Cog):
 			overwrite = channel.overwrites_for(role)
 			overwrite.update(view_channel=False)
 			await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Hidden from {role.name}**', delete_after=5)
+		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
+		await ctx.send(embed=em, delete_after=5)
 			#await sleep(1)
 
 
@@ -186,7 +187,8 @@ class Moderation(commands.Cog):
 			overwrite = channel.overwrites_for(role)
 			overwrite.update(view_channel=True)
 			await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.send(f'**<:vf:947194381172084767> {channel.mention} is Visible to {role.name}**', delete_after=5)
+		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
+		await ctx.send(embed=em, delete_after=5)
 
 
 
