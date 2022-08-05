@@ -30,21 +30,9 @@ maindb = MongoClient(dburl)
 
 
 
-def get_prefix(bot, message):
-    if not message.guild:
-        return commands.when_mentioned_or(pref)(bot, message)
-
-    with open("data/prefixes.json", "r") as f:
-        prefixes = json.load(f)
-
-    if str(message.guild.id) not in prefixes:
-        return commands.when_mentioned_or(pref)(bot, message)
-
-    prefix = prefixes[str(message.guild.id)]
-    return commands.when_mentioned_or(prefix)(bot, message)
 
 
-bot = commands.Bot(command_prefix= get_prefix, intents=intents ) 
+bot = commands.Bot(command_prefix= commands.when_mentioned_or("&"), intents=intents ) 
 #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 
 

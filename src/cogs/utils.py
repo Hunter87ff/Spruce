@@ -29,14 +29,11 @@ teal = 0x1abc9c
 d_teal = 0x11806a
 yellow = 0xffff00
 
-pref = "&"
 
 whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
 "Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
  "1 number ka noob","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
-
 coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
-
 dburl = os.environ["mongo_url"]
 maindb = MongoClient(dburl)
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
@@ -164,15 +161,8 @@ class Utility(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
-	async def prefix(self, ctx, prefix=None):
-		with open(r"data/prefixes.json" , "r") as f:
-		    prefixes = json.load(f)
-         
-		prefixes[int(ctx.guild.id)] = prefix
-		
-		with open(r"data/prefixes.json", "w") as f:
-		    json.dump(prefixes, f, indent=4)
-		    await ctx.send(f"Prefix set to `{prefix}`")
+	async def prefix(self, ctx):
+		await ctx.send(os.environ["prefix"])
 
 
 
