@@ -21,11 +21,11 @@ class Moderation(commands.Cog):
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		overwrite = ctx.channel.overwrites_for(muted)
 		overwrite.update(send_messages=False, add_reactions=False)
+		snd = await ctx.send("<a:loading:969894982024568856>**Processing...**")
 		for channel in ctx.guild.channels:
 			await channel.set_permissions(muted, overwrite=overwrite)
-			await ctx.channel.purge(limit=1)
 			
-		return await ctx.send("Done", delete_after=5)
+		await snd.edit(content=f'**<:vf:947194381172084767>Successfully Deleted**')
 
 
 
