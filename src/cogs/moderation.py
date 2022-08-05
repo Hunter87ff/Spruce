@@ -25,7 +25,7 @@ class Moderation(commands.Cog):
 		for channel in ctx.guild.channels:
 			await channel.set_permissions(muted, overwrite=overwrite)
 			
-		await snd.edit(content=f'**<:vf:947194381172084767>Successfully Deleted**')
+		await snd.edit(content=f'**<:vf:947194381172084767>Setuped Successfully**')
 
 
 
