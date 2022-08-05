@@ -238,9 +238,12 @@ class Moderation(commands.Cog):
 			return await ctx.send("**I can't Mute Him**", delete_after=5)
 
 		else:
-			await member.edit(roles=[muted])
-			await ctx.message.delete()
-			return await ctx.send(f"{member} Muted", delete_after=5)
+			try:
+				await member.edit(roles=[muted])
+				await ctx.message.delete()
+				return await ctx.send(f"{member} Muted", delete_after=5)
+			except:
+				return await ctx.send("Missing Permissions")
 
 
 
