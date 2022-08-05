@@ -79,7 +79,10 @@ async def nitrof(message):
                     if emoji.name in message.content:
                         msg = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
                         allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
-                        await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=message.author.name, allowed_mentions= allowed_mentions)
+                        nick = message.author.nick
+                        if message.author.nick == None:
+                            nick = message.author.name
+                        await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=nick, allowed_mentions= allowed_mentions)
                         await message.delete()
                         
 
