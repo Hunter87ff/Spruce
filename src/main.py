@@ -67,7 +67,7 @@ async def nitrof(message):
     except:
         return
 
-    elif gnitro != None and gnitro["nitro"] == "enabled":
+    if gnitro != None and gnitro["nitro"] == "enabled":
         try:
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
 
