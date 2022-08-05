@@ -246,7 +246,6 @@ class Moderation(commands.Cog):
 
 
 
-
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_messages=True, send_messages=True)
