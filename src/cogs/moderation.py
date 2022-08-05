@@ -32,7 +32,7 @@ class Moderation(commands.Cog):
 			return await snd.edit("`Muted` role is higher than  my top role, I can't manage it")
 
 		overwrite = ctx.channel.overwrites_for(muted)
-		overwrite.update(send_messages=False, add_reactions=False)
+		overwrite.update(send_messages=False, add_reactions=False, connect=False, speak=False)
 		
 
 		for channel in ctx.guild.channels:
@@ -211,7 +211,7 @@ class Moderation(commands.Cog):
 	#Mute Command
 	@cmd.command(help="Make sure you've created a role named 'Muted' and then run the command '&setup' ")
 	@commands.has_permissions(manage_roles=True, manage_messages=True, mute_members=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_messages=True, mute_members=True)
+	@commands.bot_has_permissions(manage_roles=True, manage_messages=True)
 	async def mute(self, ctx, member: discord.Member,*,reason=None):
 		if ctx.author.bot:
 			return
