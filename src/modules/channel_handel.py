@@ -12,7 +12,7 @@ import datetime
 
 
 
-maindb = MongoClient(os.environ["main_db"])
+maindb = MongoClient(os.environ["mongo_db"])
 db = maindb["tourneydb"]
 
 dbc = maindb["tourneydb"]["tourneydbc"]
