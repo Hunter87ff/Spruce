@@ -12,7 +12,10 @@ from discord.utils import get
 from discord.ui import Button, View
 cmd = commands
 
-maindb = config.maindb 
+
+
+
+maindb = MongoClient(os.environ["mongo_db"]) 
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
 
@@ -37,7 +40,7 @@ class Esports(commands.Cog):
 
 
 
-    @commands.command(hidden=True, aliases=['ts'])
+    @commands.command(aliases=['ts'])
     @commands.cooldown(2, 20, commands.BucketType.user)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
@@ -154,7 +157,7 @@ class Esports(commands.Cog):
             await registration_channel.send("Registration Started")
             await ctx.send("Started", delete_after=10)
 
-    @cmd.command()
+    @cmd.command(aliases=['pt'])
     async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
