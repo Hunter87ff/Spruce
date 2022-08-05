@@ -225,7 +225,7 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} Muted By {ctx.author}"
 
-		if muted.position > self.bot.user.top_role:
+		if muted.position > bt.top_role:
 			return await ctx.reply("`Muted` role is higher than  my top role, I can't manage it")
 
 		if member == ctx.author:
@@ -250,7 +250,8 @@ class Moderation(commands.Cog):
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_messages=True, send_messages=True)
-	async def unmute(self, ctx, member: discord.Member,*,reason=None):
+	async def unmute(self, ctx, member: discord.Member, *,reason=None):
+		bt = ctx.guild.get_member(self.bot.user.id)
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		if ctx.author.bot:
 			return 
@@ -261,7 +262,7 @@ class Moderation(commands.Cog):
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You can't Mute Him", delete_after=5)
 
-		if self.bot.user.top_role < member.top_role:
+		if bt.top_role < member.top_role:
 			return await ctx.send("I can't Mute Him", delete_after=5)
 
 		else:
