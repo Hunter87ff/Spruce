@@ -28,7 +28,7 @@ class Moderation(commands.Cog):
 			muted = await ctx.guild.create_role(name="Muted", color=0xff0000)
 
 
-		if muted.position > self.bot.top_role:
+		if muted.position > self.bot.user.top_role:
 			return await snd.edit("`Muted` role is higher than  my top role, I can't manage it")
 
 		overwrite = ctx.channel.overwrites_for(muted)
@@ -223,7 +223,7 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} Muted By {ctx.author}"
 
-		if muted.position > self.bot.top_role:
+		if muted.position > self.bot.user.top_role:
 			return await ctx.reply("`Muted` role is higher than  my top role, I can't manage it")
 
 		if member == ctx.author:
@@ -259,7 +259,7 @@ class Moderation(commands.Cog):
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("You can't Mute Him", delete_after=5)
 
-		if self.bot.top_role < member.top_role:
+		if self.bot.user.top_role < member.top_role:
 			return await ctx.send("I can't Mute Him", delete_after=5)
 
 		else:
