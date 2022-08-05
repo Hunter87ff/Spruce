@@ -29,7 +29,7 @@ class Moderation(commands.Cog):
 			muted = await ctx.guild.create_role(name="Muted", color=0xff0000)
 
 
-		if muted.position > bt.top_role:
+		if muted.position > bt.top_role.position:
 			return await snd.edit("`Muted` role is higher than  my top role, I can't manage it")
 
 		overwrite = ctx.channel.overwrites_for(muted)
@@ -225,16 +225,16 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} Muted By {ctx.author}"
 
-		if muted.position > bt.top_role:
+		if muted.position > bt.top_role.position:
 			return await ctx.reply("`Muted` role is higher than  my top role, I can't manage it")
 
 		if member == ctx.author:
 			return await ctx.send("**You cant mute your self**", delete_after=5)
 
-		if ctx.author.top_role < member.top_role:
+		if ctx.author.top_role.position < member.top_role.position:
 			return await ctx.send("**You can't Mute Him**", delete_after=5)
 
-		if bt.top_role < member.top_role:
+		if bt.top_role.position < member.top_role.position:
 			return await ctx.send("**I can't Mute Him**", delete_after=5)
 
 		else:
@@ -259,10 +259,10 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} Unmuted By {ctx.author}"
 
-		if ctx.author.top_role < member.top_role:
+		if ctx.author.top_role.position < member.top_role.position:
 			return await ctx.send("You can't Mute Him", delete_after=5)
 
-		if bt.top_role < member.top_role:
+		if bt.top_role.position < member.top_role.position:
 			return await ctx.send("I can't Mute Him", delete_after=5)
 
 		else:
@@ -281,13 +281,13 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} kicked by {ctx.author}"
 
-		if ctx.author.top_role < member.top_role:
+		if ctx.author.top_role.position < member.top_role.position:
 			return await ctx.send("You don't have enough permission", delete_after=5)
 
 		elif member == ctx.author:
 			return await ctx.send("**You can't kick your self**", delete_after=5)
 
-		elif ctx.guild.me.top_role < member.top_role:
+		elif ctx.guild.me.top_role.position < member.top_role.position:
 			return await ctx.send("**I can't kick him**", delete_after=5)
 
 		else:
@@ -305,13 +305,13 @@ class Moderation(commands.Cog):
 		if reason == None:
 			reason = f"{member} banned by {ctx.author}"
 
-		if ctx.author.top_role < member.top_role:
+		if ctx.author.top_role.position < member.top_role.position:
 			return await ctx.send("You don't have enough permission", delete_after=5)
 
 		elif member == ctx.author:
 			return await ctx.send("**You can't ban your self**", delete_after=5)
 
-		elif ctx.guild.me.top_role < member.top_role:
+		elif ctx.guild.me.top_role.position < member.top_role.position:
 			return await ctx.send("**I can't ban him**", delete_after=5)
 
 		else:
