@@ -12,7 +12,10 @@ from discord.utils import get
 from discord.ui import Button, View
 cmd = commands
 
-maindb = config.maindb 
+
+
+
+maindb = MongoClient(os.environ["mongo_db"]) 
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
 
