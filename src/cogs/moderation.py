@@ -238,6 +238,9 @@ class Moderation(commands.Cog):
 			return await ctx.send("**I can't Mute Him**", delete_after=5)
 
 		else:
+			for urole in member.roles:
+				await member.remove_roles(urole)
+
 			await member.add_roles(muted, reason=reason)
 			await ctx.message.delete()
 			return await ctx.send(f"{member} Muted", delete_after=5)
@@ -260,13 +263,13 @@ class Moderation(commands.Cog):
 			reason = f"{member} Unmuted By {ctx.author}"
 
 		if ctx.author.top_role.position < member.top_role.position:
-			return await ctx.send("You can't Mute Him", delete_after=5)
+			return await ctx.send("You can't Unmute Him", delete_after=5)
 
 		if bt.top_role.position < member.top_role.position:
 			return await ctx.send("I can't Mute Him", delete_after=5)
 
 		else:
-			return await member.remove_roles(muted, reason=reason)
+			await member.remove_roles(muted, reason=reason)
 			return await ctx.send(f"{member} Unmuted", delete_after=5)
 
 
@@ -315,7 +318,7 @@ class Moderation(commands.Cog):
 			return await ctx.send("**I can't ban him**", delete_after=5)
 
 		else:
-			return await ctx.guild.ban(member, reason=reason)
+			await ctx.guild.ban(member, reason=reason)
 			return await ctx.send(f"{member} banned", delete_after=5)
 
 
