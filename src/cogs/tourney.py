@@ -37,7 +37,7 @@ class Esports(commands.Cog):
 
 
 
-    @commands.command(hidden=True, aliases=['ts'])
+    @commands.command(aliases=['ts'])
     @commands.cooldown(2, 20, commands.BucketType.user)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
@@ -106,7 +106,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command()
+    @cmd.command(aliases=['gl'])
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
     async def girls_lobby(self, ctx, vc_amount : int):
@@ -141,7 +141,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command()
+    @cmd.command(aliases=['st'])
     async def start_tourney(self, ctx, registration_channel : discord.TextChannel):
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
@@ -154,7 +154,7 @@ class Esports(commands.Cog):
             await registration_channel.send("Registration Started")
             await ctx.send("Started", delete_after=10)
 
-    @cmd.command()
+    @cmd.command(aliases=['pt'])
     async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
@@ -169,7 +169,7 @@ class Esports(commands.Cog):
 
             
 
-    @cmd.command()
+    @cmd.command(aliases=['cs'])
     async def cancel_slot(self, ctx, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
         if reason == None:
                 reason = "Not Provided"
@@ -217,7 +217,7 @@ class Esports(commands.Cog):
 
         
             
-    @cmd.command()
+    @cmd.command(aliases=['as'])
     async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name):
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
@@ -246,7 +246,7 @@ class Esports(commands.Cog):
             
             
             
-    @cmd.command()
+    @cmd.command(aliases=['ft'])
     async def faketag(self, ctx, registration_channel: discord.TextChannel):
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         if t_mod == None:
@@ -287,7 +287,7 @@ class Esports(commands.Cog):
             btn1.callback = disable_ftf
 
 
-    @cmd.command()
+    @cmd.command(aliases=['t'])
     @commands.has_any_role("tourney-mod")
     async def tourney(self, ctx, rch: discord.TextChannel):
         tdb = dbc.find_one({"tid": rch.id%1000000000000})
