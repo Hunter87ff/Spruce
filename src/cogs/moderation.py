@@ -18,6 +18,7 @@ class Moderation(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
 	async def setup(self, ctx):
+		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
 			return
 
@@ -28,7 +29,7 @@ class Moderation(commands.Cog):
 			muted = await ctx.guild.create_role(name="Muted", color=0xff0000)
 
 
-		if muted.position > self.bot.user.top_role:
+		if muted.position > bt.top_role:
 			return await snd.edit("`Muted` role is higher than  my top role, I can't manage it")
 
 		overwrite = ctx.channel.overwrites_for(muted)
@@ -213,6 +214,7 @@ class Moderation(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_messages=True)
 	async def mute(self, ctx, member: discord.Member,*,reason=None):
+		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
 			return
 
@@ -232,7 +234,7 @@ class Moderation(commands.Cog):
 		if ctx.author.top_role < member.top_role:
 			return await ctx.send("**You can't Mute Him**", delete_after=5)
 
-		if self.bot.user.top_role < member.top_role:
+		if bt.top_role < member.top_role:
 			return await ctx.send("**I can't Mute Him**", delete_after=5)
 
 		else:
