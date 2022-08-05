@@ -24,7 +24,7 @@ pref = os.environ["prefix"]
 
 
 #Configuring db
-dburl = os.environ["mongo_url"]
+dburl = os.environ["mongo_db"]
 maindb = MongoClient(dburl)
 
 
