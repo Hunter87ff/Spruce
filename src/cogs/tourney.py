@@ -464,22 +464,7 @@ class Esports(commands.Cog):
             bt0.callback = strtps
             bt9.callback = conro
 
-    @cmd.command(aliases=['gsetup'], help="group_setup FFMC 12 ")
-    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def group_setup(self, ctx, front, amount : int):
-        ms = await ctx.send("Processing...")
-        category = await ctx.guild.create_category(name=f"{front} GROUPS")
-        await category.set_permissions(ctx.guild.default_role, view_channel=False)
-        for i in range(1, amount+1):
-            gch = await ctx.guild.create_text_channel(category=category, name=f"{front}-group-{i}")
-            grl = await ctx.guild.create_role(name=f"{front.lower()}-group-{i}", color=0x89d99e)
-            overwrite = ctx.channel.overwrites_for(grl)
-            overwrite.update(send_messages=True, view_channel=True, add_reactions=False)
-            if gch.name == grl.name:
-                await gch.set_permissions(grl, overwrite=overwrite)
-                await ms.edit(content="Successfully Created")
-      
-            
+
             
 async def setup(bot):
     await bot.add_cog(Esports(bot))
