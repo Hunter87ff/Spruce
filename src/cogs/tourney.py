@@ -468,7 +468,7 @@ class Esports(commands.Cog):
 
     @cmd.command(aliases=['gsetup'], help="group_setup FFMC 12 ")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
+    @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def group_setup(self, ctx, front, amount : int):
         ms = await ctx.send("Processing...")
         category = await ctx.guild.create_category(name=f"{front} GROUPS")
