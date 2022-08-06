@@ -163,10 +163,10 @@ class Moderation(commands.Cog):
 			role = ctx.guild.default_role
 
 		
-		for channel in category.channels:
+		for hchannel in category.channels:
 		  overwrite = channel.overwrites_for(role)
 		  overwrite.update(view_channel=False)
-		  await channel.set_permissions(role, overwrite=overwrite)
+		  await hchannel.set_permissions(role, overwrite=overwrite)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
 		await ctx.send(embed=em, delete_after=5)
 			#await sleep(1)
@@ -184,10 +184,10 @@ class Moderation(commands.Cog):
 			
 
 		
-		for channel in category.channels:
+		for uhchannel in category.channels:
 		  overwrite = channel.overwrites_for(role)
 		  overwrite.update(view_channel=True)
-		  await ctx.channel.set_permissions(role, overwrite=overwrite)
+		  await uhchannel.set_permissions(role, overwrite=overwrite)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
 		await ctx.send(embed=em, delete_after=5)
 
