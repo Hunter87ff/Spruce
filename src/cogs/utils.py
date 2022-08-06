@@ -116,7 +116,7 @@ class Utility(commands.Cog):
 
 
 		elif user.id == 885193210455011369:
-			owneremb = discord.Embed(description=f"{user.mention} is My Owner :heart: ", color=blue)
+			owneremb = discord.Embed(description=f"{user.mention} Is my Best Friend! Without Him, I'm Nothing :heart: ", color=blue)
 			return await ctx.send(embed=owneremb)
 
 		else:
