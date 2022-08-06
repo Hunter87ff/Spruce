@@ -164,7 +164,7 @@ class Moderation(commands.Cog):
 
 		
 		for hchannel in category.channels:
-		  overwrite = channel.overwrites_for(role)
+		  overwrite = hchannel.overwrites_for(role)
 		  overwrite.update(view_channel=False)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
@@ -185,7 +185,7 @@ class Moderation(commands.Cog):
 
 		
 		for uhchannel in category.channels:
-		  overwrite = channel.overwrites_for(role)
+		  overwrite = uhchannel.overwrites_for(role)
 		  overwrite.update(view_channel=True)
 		  await uhchannel.set_permissions(role, overwrite=overwrite)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to {role.name}**', color=0x00ff00)
