@@ -66,7 +66,7 @@ class Esports(commands.Cog):
             await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
             r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    #registration Channel
             c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)    #confirmation_channel
-            await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
+            g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
             await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
 
             role_name = front + "Confirmed"
@@ -74,13 +74,15 @@ class Esports(commands.Cog):
             await r_ch.set_permissions(c_role, send_messages=False)
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
-                    "guild" : gid, "rch" : int(r_ch.id),
+                    "guild" : int(message.guild.id), 
+                    "rch" : int(r_ch.id),
                     "cch" : int(c_ch.id),
                     "crole" : int(c_role.id),
                     "tslot" : int(total_slot),
                     "reged" : 1,
                     "mentions" : int(mentions),
                     "slotpg" : 12,
+                    "gch" : int(g_ch.id),
                     "status" : "started",
                     "faketag": "no"}
             
@@ -292,6 +294,7 @@ class Esports(commands.Cog):
 
     @cmd.command()
     @commands.has_any_role("tourney-mod")
+    @commands.bot_has_permissions(send_messages=True)
     async def tourney(self, ctx, rch: discord.TextChannel):
         tdb = dbc.find_one({"tid": rch.id%1000000000000})
 

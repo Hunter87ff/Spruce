@@ -87,7 +87,7 @@ async def tourney(message):
         await message.author.send("Registration Paused")
 
     if td is not None and message.channel.id  == int(td["rch"]) and td["status"] == "started":
-        messages = [message async for message in ctx.channel.history(limit=123)]     #messages = await message.channel.history(limit=td["tslot"]).flatten()
+        messages = [message async for message in ctx.channel.history(limit=2000)]     #messages = await message.channel.history(limit=td["tslot"]).flatten()
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
@@ -97,6 +97,7 @@ async def tourney(message):
 
             
         if crole in message.author.roles:
+            await message.delete()
             return await message.channel.send("Already Registered", delete_after=5)
             
 
@@ -104,6 +105,7 @@ async def tourney(message):
             overwrite = rch.overwrites_for(message.guild.default_role)
             overwrite.update(send_messages=False)
             await rch.set_permissions(guild.default_role, overwrite=overwrite)
+            await message.delete()
             return await rch.send("**Registration Closed**")
             
         
@@ -167,6 +169,8 @@ async def tourney(message):
 
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
-            return await message.reply(f"Minimum {ments} Required For Successfull Registration")
+            meb = discord.Embed(description=f"Minimum {ments} Mentions Required For Successfull Registration", color=0xff0000)
+            await message.delete()
+            return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
 
