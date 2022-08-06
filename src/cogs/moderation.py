@@ -162,9 +162,10 @@ class Moderation(commands.Cog):
 		if role == None:
 			role = ctx.guild.default_role
 
-		overwrite = channel.overwrites_for(role)
-		overwrite.update(view_channel=False)
+		
 		for channel in category.channels:
+		  overwrite = channel.overwrites_for(role)
+		  overwrite.update(view_channel=False)
 		  await channel.set_permissions(role, overwrite=overwrite)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
 		await ctx.send(embed=em, delete_after=5)
@@ -182,10 +183,10 @@ class Moderation(commands.Cog):
 			role = ctx.guild.default_role
 			
 
-		channels = category.channels
-		overwrite = channel.overwrites_for(role)
-		overwrite.update(view_channel=True)
-		for channel in channels:
+		
+		for channel in category.channels:
+		  overwrite = channel.overwrites_for(role)
+		  overwrite.update(view_channel=True)
 		  await ctx.channel.set_permissions(role, overwrite=overwrite)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
 		await ctx.send(embed=em, delete_after=5)
