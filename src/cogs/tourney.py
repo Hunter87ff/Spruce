@@ -74,7 +74,7 @@ class Esports(commands.Cog):
             await r_ch.set_permissions(c_role, send_messages=False)
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
-                    "guild" : int(message.guild.id), 
+                    "guild" : int(ctx.guild.id), 
                     "rch" : int(r_ch.id),
                     "cch" : int(c_ch.id),
                     "crole" : int(c_role.id),
