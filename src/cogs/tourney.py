@@ -320,7 +320,7 @@ class Esports(commands.Cog):
             if tdb["faketag"] == "no":
                 ftf = "Enabled"
 
-            
+            cch = get(ctx.guild.channels, id=int(tdb["cch"]))
             tcat = rch.category
 
             if tcat != None:
