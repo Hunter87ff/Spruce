@@ -82,7 +82,6 @@ class Esports(commands.Cog):
                     "reged" : 1,
                     "mentions" : int(mentions),
                     "slotpg" : 12,
-                    "gch" : int(g_ch.id),
                     "status" : "started",
                     "faketag": "no"}
             
