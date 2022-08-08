@@ -82,7 +82,6 @@ class Esports(commands.Cog):
                     "reged" : 1,
                     "mentions" : int(mentions),
                     "slotpg" : 12,
-                    "gch" : int(g_ch.id),
                     "status" : "started",
                     "faketag": "no"}
             
@@ -296,7 +295,8 @@ class Esports(commands.Cog):
     @cmd.command()
     @commands.has_any_role("tourney-mod")
     @commands.bot_has_permissions(send_messages=True)
-    async def tourney(self, ctx, rch: discord.TextChannel):
+    async def tourney(self, ctx, registration_channel: discord.TextChannel):
+        rch = registration_channel
         tdb = dbc.find_one({"tid": rch.id%1000000000000})
 
         if tdb == None:
@@ -322,8 +322,7 @@ class Esports(commands.Cog):
                 ftf = "Enabled"
 
             cch = get(ctx.guild.channels, id=int(tdb["cch"]))
-            tcat = cch.category
-
+            tcat = rch.category
 
             if tcat != None:
                 tname = tcat.name
