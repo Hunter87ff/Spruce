@@ -85,8 +85,8 @@ async def nitrof(message):
                         nick = message.author.nick
                         if message.author.nick == None:
                             nick = message.author.name
-                        await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=nick, allowed_mentions= allowed_mentions)
-                        await message.delete()
+            await webhook.send(avatar_url=message.author.display_avatar, content=msg, username=nick, allowed_mentions= allowed_mentions)
+            await message.delete()
                         
 
 
