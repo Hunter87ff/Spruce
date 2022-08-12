@@ -69,11 +69,7 @@ async def ft_ch(message):
 
 
 
-
-
-
-
-async def tourney(message):
+"""
     try:
         tmrl = discord.utils.get(message.guild.roles, name="tourney-mod")
     except:
@@ -86,7 +82,11 @@ async def tourney(message):
             
     if tmrl in message.author.roles:
         return
-    
+"""
+
+
+
+async def tourney(message):
     ctx = message
     guild = message.guild
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
