@@ -231,7 +231,7 @@ class Utility(commands.Cog):
 			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
 			return await ctx.send("Enabled")
 
-
+"""
 	@cmd.command()
 	@commands.has_permissions(manage_webhooks=True)
 	@commands.bot_has_permissions(manage_webhooks=True, manage_messages=True)
@@ -253,7 +253,7 @@ class Utility(commands.Cog):
 	  emb = discord.Embed(description=msg, color=0xff0000)
 	  await ctx.message.delete()
 	  await webhook.send(avatar_url=ctx.guild.icon, embed=emb, username=ctx.guild.name) #allowed_mentions= allowed_mentio
-
+"""
 
 
 		
