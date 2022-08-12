@@ -5,12 +5,13 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
+import config
 import datetime
 
 
 
 
-maindb = MongoClient(os.environ["mongo_url"])
+maindb = config.maindb #MongoClient(os.environ["mongo_url"])
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
 
