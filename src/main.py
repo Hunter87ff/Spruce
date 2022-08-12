@@ -286,5 +286,4 @@ async def say(ctx, *, message):
 
 
 
-if os.environ["status"] == "on":
-	bot.run(os.environ['TOKEN'])
+bot.run(os.environ['TOKEN'])
