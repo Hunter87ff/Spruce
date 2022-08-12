@@ -74,6 +74,19 @@ async def ft_ch(message):
 
 
 async def tourney(message):
+    try:
+        tmrl = discord.utils.get(message.guild.roles, name="tourney-mod")
+    except:
+        pass
+    if tmrl == None:
+        try:
+            tmrl = await message.guild.create_role(name="tourney-mod", color=0xfff000)
+        except:
+            await ctx.send("Missing Permission- `Manage_roles`")
+            
+    if tmrl in message.author.roles:
+        return
+    
     ctx = message
     guild = message.guild
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
