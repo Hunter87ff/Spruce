@@ -236,18 +236,18 @@ class Utility(commands.Cog):
 	@commands.has_permissions(manage_webhooks=True)
 	@commands.bot_has_permissions(manage_webhooks=True, manage_messages=True)
 	async def ofc(self, ctx, msg):
-		if ctx.author.bot:
-			return
-
-		try:
-			webhook = discord.utils.get(await ctx.channel.webhooks(), name="Spruce")
-			if webhook == None:
-			try:
-				webhook = await ctx.channel.create_webhook(name="Spruce")
-			except:
-				ctx.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
-		except:
-			pass
+	  if ctx.author.bot:
+	  return
+	  
+	  try:
+	    webhook = discord.utils.get(await ctx.channel.webhooks(), name="Spruce")
+	    if webhook == None:
+	      try:
+	        webhook = await ctx.channel.create_webhook(name="Spruce")
+	      except:
+	        ctx.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+	  except:
+	  pass
 
 		emb = discord.Embed(description=msg, color=0xff0000)
 		await ctx.message.delete()
