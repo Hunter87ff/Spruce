@@ -82,7 +82,7 @@ async def tourney(message):
         try:
             tmrl = await message.guild.create_role(name="tourney-mod", color=0xfff000)
         except:
-            await ctx.send("Missing Permission- `Manage_roles`")
+            await message.channel.send("Missing Permission- `Manage_roles`")
             
     if tmrl in message.author.roles:
         return
