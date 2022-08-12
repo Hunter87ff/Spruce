@@ -5,14 +5,14 @@ from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
 import re
-import os
-#from modules import config
 import datetime
+from modules import config
 
 
 
 
-maindb = MongoClient(os.environ["mongo_url"])
+maindb = config.maindb
+#maindb = MongoClient(os.environ["mongo_url"])
 db = maindb["tourneydb"]
 
 dbc = maindb["tourneydb"]["tourneydbc"]
