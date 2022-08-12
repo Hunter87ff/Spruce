@@ -248,10 +248,11 @@ class Utility(commands.Cog):
 	        ctx.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
 	  except:
 	    pass
-
-		emb = discord.Embed(description=msg, color=0xff0000)
-		await ctx.message.delete()
-		await webhook.send(avatar_url=ctx.guild.icon, embed=emb, username=ctx.guild.name) #allowed_mentions= allowed_mentio
+	    
+	    
+	  emb = discord.Embed(description=msg, color=0xff0000)
+	  await ctx.message.delete()
+	  await webhook.send(avatar_url=ctx.guild.icon, embed=emb, username=ctx.guild.name) #allowed_mentions= allowed_mentio
 
 
 
