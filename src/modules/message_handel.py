@@ -5,12 +5,13 @@ from asyncio import sleep
 import pymongo
 from pymongo import MongoClient
 import re
+from modules import config
 import datetime
 
 
 
 
-maindb = MongoClient(os.environ["mongo_url"])
+maindb = config.maindb #MongoClient(os.environ["mongo_url"])
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
 
@@ -68,7 +69,20 @@ async def ft_ch(message):
 
 
 
-
+"""
+    try:
+        tmrl = discord.utils.get(message.guild.roles, name="tourney-mod")
+    except:
+        pass
+    if tmrl == None:
+        try:
+            tmrl = await message.guild.create_role(name="tourney-mod", color=0xfff000)
+        except:
+            await message.channel.send("Missing Permission- `Manage_roles`")
+            
+    if tmrl in message.author.roles:
+        return
+"""
 
 
 

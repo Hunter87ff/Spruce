@@ -74,7 +74,7 @@ class Esports(commands.Cog):
             await r_ch.set_permissions(c_role, send_messages=False)
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
-                    "guild" : int(message.guild.id), 
+                    "guild" : int(ctx.guild.id), 
                     "rch" : int(r_ch.id),
                     "cch" : int(c_ch.id),
                     "crole" : int(c_role.id),
@@ -82,7 +82,6 @@ class Esports(commands.Cog):
                     "reged" : 1,
                     "mentions" : int(mentions),
                     "slotpg" : 12,
-                    "gch" : int(g_ch.id),
                     "status" : "started",
                     "faketag": "no"}
             
@@ -159,6 +158,7 @@ class Esports(commands.Cog):
             await registration_channel.send("Registration Started")
             await ctx.send("Started", delete_after=10)
 
+            
     @cmd.command(aliases=['pt'])
     async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
@@ -214,7 +214,7 @@ class Esports(commands.Cog):
                     if member.mention in message.content:
                         if message.author.id == 931202912888164474:
                             emb = discord.Embed(color=0xffff00, description=f"**{reged} SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
-                            emb.set_author(name=message.guild.name, icon_url=message.guild.icon_url)
+                            emb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
                             canemb = discord.Embed(title=f"{member.mention}'s Slot Canceled with reason of {reason}", color=0xffff00)
@@ -245,7 +245,7 @@ class Esports(commands.Cog):
                 await member.add_roles(crole)
                 dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"reged" : reged + 1}})
                 emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {Team_Name.upper()}**\n**Added By** : {ctx.author.mention} ")
-                emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+                emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
                 emb.timestamp = datetime.datetime.utcnow()
                 return await cch.send(member.mention, embed=emb)     
             
@@ -295,7 +295,8 @@ class Esports(commands.Cog):
     @cmd.command()
     @commands.has_any_role("tourney-mod")
     @commands.bot_has_permissions(send_messages=True)
-    async def tourney(self, ctx, rch: discord.TextChannel):
+    async def tourney(self, ctx, registration_channel: discord.TextChannel):
+        rch = registration_channel
         tdb = dbc.find_one({"tid": rch.id%1000000000000})
 
         if tdb == None:
@@ -321,8 +322,7 @@ class Esports(commands.Cog):
                 ftf = "Enabled"
 
             cch = get(ctx.guild.channels, id=int(tdb["cch"]))
-            tcat = cch.category
-
+            tcat = rch.category
 
             if tcat != None:
                 tname = tcat.name
