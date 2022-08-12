@@ -206,10 +206,12 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True, manage_nicknames=True)
 	async def nick(self, ctx, user:discord.Member,  *, Nick):
+		bt = ctx.guild.get_member(self.bot.user.id)
+
 		if ctx.author.top_role < user.top_role:
 			return await ctx.send("You don't have enough permission")
 
-		if self.bot.top_role < user.top_role:
+		if bt.top_role < user.top_role:
 			return await ctx.send("I don't have enough permission")
 
 		else:
@@ -228,6 +230,18 @@ class Utility(commands.Cog):
 		if gnitro != None and gnitro["nitro"] == "disabled":
 			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
 			return await ctx.send("Enabled")
+
+	@cmd.command()
+	@commands.has_permissions(manage_webhooks=True)
+	@commands.bot_has_permissions(manage_webhooks=True, manage_messages=True)
+	async def ofc(self, ctx, msg):
+		if ctx.author.bot:
+			return
+
+		try:
+			webhook = discord.utils.get(await ctx.channel.webhooks(), name="Spruce")
+
+
 		
 		
 		
