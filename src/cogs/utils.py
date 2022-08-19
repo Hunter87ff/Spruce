@@ -57,27 +57,37 @@ class Utility(commands.Cog):
 
 		if user == None:
 			user = ctx.author
-			emb = discord.Embed(title=ctx.author, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.gif?size=1024)", color=blurple)
-			emb.timestamp = datetime.datetime.utcnow()
-			emb.set_image(url=user.avatar)
-			return await ctx.send(embed=emb)
+			
+		if "a_" in str(user.avatar):
+			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", color=0xfff00f)			#eemb.timestamp = datetime.datetime.utcnow()
+			eemb.set_image(url=user.avatar)
+			eemb.set_footer(text="Requested By {ctx.author}")
+			return await ctx.send(embed=eemb)
+
 			
 		else:
-			eemb = discord.Embed(title=user, description=f"[JPG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.jpg?size=1024) | [PNG](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.png?size=1024) | [GIF](https://cdn.discordapp.com/avatars/{user.id}/{user.avatar}.gif?size=1024)", color=blurple)
-			eemb.timestamp = datetime.datetime.utcnow()
-			eemb.set_image(url=user.avatar)
+			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')})", color=0x00fff0)
+			#eemb.timestamp = datetime.datetime.utcnow()
+			eemb.set_image(url=user.display_avatar)
+			eemb.set_footer(text="Requested By {ctx.author}")
 			return await ctx.send(embed=eemb)
+			
 
 
 
 	@cmd.command(aliases=['sav'])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
-	async def server_av(self, ctx):
-		if ctx.guild.icon != None:
-			await ctx.send(ctx.guild.icon)
+	async def server_av(self, ctx, guild:discord.Guild=None):
+		if guild == None:
+			guild = ctx.guild
 
-		if ctx.guild.icon == None:
-			return await ctx.reply("Server Doesn't Have Logo XD")
+		if guild.icon != None:
+			enm = discord.Embed(title=guild.name, url=guild.icon, color=0xff0000)
+			enm.set_image(url=guild.icon)
+			await ctx.send(embed=enm)
+
+		if guild.icon == None:
+			return await ctx.reply("**Server Don't Have A Logo XD**", delete_after=10)
 
 
 
@@ -112,11 +122,11 @@ class Utility(commands.Cog):
 			msg = random.choice(whois)
 
 		if user.bot == True:
-			return await ctx.send("**Dude it's bot. And bot is always awesome**")
+			return await ctx.send("**Bot is always awesome**")
 
 
 		elif user.id == 885193210455011369:
-			owneremb = discord.Embed(description=f"{user.mention} Is my Best Friend! Without Him, I'm Nothing :heart: ", color=blue)
+			owneremb = discord.Embed(description=f"{user.mention} **Best Friend :heart:**", color=blue)
 			return await ctx.send(embed=owneremb)
 
 		else:
@@ -134,11 +144,11 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases=['em'])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
-	async def em(self, ctx, image, *, message):
+	async def embed_img(self, ctx, image, *, message):
 		emb = discord.Embed(description=message, color=blue)
 		emb.set_image(url=image)
 		await ctx.channel.purge(limit=1)
