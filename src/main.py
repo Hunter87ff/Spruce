@@ -172,6 +172,8 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.ChannelNotFound):
         err = discord.Embed(color=0xff0000, description="Channel Not Found")
         return await ctx.send(embed=err)
+    elif isinstance(error, commands.GuildNotFound):
+	return await ctx.send("**I'm Not In The Server! which You Want To See**", delete_after=19)
 
     elif isinstance(error, commands.ChannelNotReadable):
         err = discord.Embed(color=0xff0000, description="Can Not Read Messages Of The Channel")
