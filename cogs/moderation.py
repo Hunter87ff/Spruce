@@ -144,6 +144,7 @@ class Moderation(commands.Cog):
 		return await ctx.send('**<:vf:947194381172084767>This channel is visible to everyone**',delete_after=5)
 
 
+
 	@cmd.command(aliases=['lc'])
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
