@@ -98,6 +98,36 @@ class Moderation(commands.Cog):
 
 
 
+
+
+	@cmd.command(help=" Use this command to remove all permissions permission from all roles")
+	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	async def clear_perms(self, ctx, role: discord.Role=None):
+		bt = ctx.guild.get_member(self.bot.user.id)
+
+		if ctx.author.bot:
+			return
+
+		if role == None:
+			for role in ctx.guild.roles:
+				if role.position < bt.top_role.position:
+					await role.edit(permissions=discord.Permissions(permissions=0))
+
+		if role != None:
+			if role.position < bt.top_role.position:
+				await role.edit(permissions=discord.Permissions(permissions=0))
+
+
+		return await ctx.send('**<:vf:947194381172084767>This channel is hidden from everyone**',delete_after=5)
+
+
+
+
+
+
+
+
 	@cmd.command(help=" Use this command to unhide a channel")
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
@@ -196,13 +226,15 @@ class Moderation(commands.Cog):
 
 
 	#clear command
-	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10")
+	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10", aliases=['purge'])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
-	async def clear(self, ctx, amount:int):
+	async def clear(self, ctx, amount:int=None):
+
 		if ctx.author.bot:
 			return
+
 		if amount == None:
 			amount = 10
 
