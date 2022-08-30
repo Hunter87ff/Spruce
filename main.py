@@ -13,7 +13,7 @@ from modules import (message_handel, channel_handel, checker, config, color)
 onm = message_handel
 ochd = channel_handel
 from discord.ui import Button, View
-
+import wavelink
 
 
 
@@ -45,7 +45,18 @@ async def load_extensions():
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'{pref}help'))
     await load_extensions()
+    await node_connect()
     print(f'{bot.user} is ready')
+
+
+
+@bot.event
+async def on_wavelink_node_ready(node: wavelink.Node):
+    print(f"Node {node.identifier} is ready")
+
+async def node_connect():
+    await bot.wait_until_ready()
+    await wavelink.NodePool.create_node(bot = bot, host='jp-lava.islantay.tk', port=443, password="AmeliaWatsonisTheBest**!", https=True)
 
 
 

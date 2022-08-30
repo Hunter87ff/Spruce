@@ -5,3 +5,6 @@ requests
 PyNaCl
 pymongo==4.2.0
 pymongo[srv]
+wavelink
+lavalink
+youtube-dl
