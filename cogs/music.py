@@ -61,13 +61,14 @@ class Music(commands.Cog):
 
 	@cmd.command()
 	async def resume(self, ctx):
-	    if ctx.guild.voice_client.is_playing():
+	    if ctx.guild.voice_client.is_paused():
 	        try:
-	            await ctx.guild.voice_client.pause()
-	            await ctx.send("Paused", delete_after=10)
+	            await ctx.guild.voice_client.resume()
+	            await ctx.send("Resumed", delete_after=10)
 
-	        except:
-	            return await ctx.send("No Music Playing..")
+	    else:
+	        return await ctx.send("No music paused! to resume")
+	      
 
 
 
