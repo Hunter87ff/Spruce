@@ -65,6 +65,8 @@ class Music(commands.Cog):
 	        try:
 	            await ctx.guild.voice_client.resume()
 	            await ctx.send("Resumed", delete_after=10)
+	        except:
+	          return
 
 	    else:
 	        return await ctx.send("No music paused! to resume")
