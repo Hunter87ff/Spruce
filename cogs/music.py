@@ -16,7 +16,7 @@ class Music(commands.Cog):
 
 	@cmd.command(aliases=["p", "P"])
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
-		if ctx.author.voice.channel != None and ctx.voice_client.channel != ctx.author.voice.channel:
+		if ctx.author.voice.channel != None and ctx.voice_client !=None  and ctx.voice_client.channel != ctx.author.voice.channel:
 			try:
 				vc: wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)   #(cls=wavelink.Player)
 			except:
