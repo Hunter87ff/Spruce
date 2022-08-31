@@ -16,10 +16,14 @@ class Music(commands.Cog):
 
 	@cmd.command(aliases=["p", "P"])
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
+<<<<<<< HEAD
 		if ctx.voice_client is not None and ctx.author.voice.channel is not None:
 			if ctx.voice_client.channel != ctx.author.voice.channel:
 				vc : wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)
 
+=======
+				
+>>>>>>> 2b4b33963cfb6406638b9e02c4831335fad61fb6
 		if not ctx.voice_client:
 			try:
 				vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
@@ -81,13 +85,16 @@ class Music(commands.Cog):
 
 	@cmd.command()
 	async def resume(self, ctx):
-	    if ctx.guild.voice_client.is_playing():
+	    if ctx.guild.voice_client.is_paused():
 	        try:
-	            await ctx.guild.voice_client.pause()
-	            await ctx.send("Paused", delete_after=10)
-
+	            await ctx.guild.voice_client.resume()
+	            await ctx.send("Resumed", delete_after=10)
 	        except:
-	            return await ctx.send("No Music Playing..")
+	          return
+
+	    else:
+	        return await ctx.send("No music paused! to resume")
+	      
 
 
 

@@ -56,7 +56,7 @@ async def on_wavelink_node_ready(node: wavelink.Node):
 
 async def node_connect():
     await bot.wait_until_ready()
-    await wavelink.NodePool.create_node(bot = bot, host='jp-lava.islantay.tk', port=443, password="AmeliaWatsonisTheBest**!", https=True)
+    await wavelink.NodePool.create_node(bot = bot, host='lavalink.oops.wtf', port=443, password="www.freelavalink.ga", https=True)
 
 
 
