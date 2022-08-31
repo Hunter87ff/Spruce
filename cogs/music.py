@@ -16,11 +16,10 @@ class Music(commands.Cog):
 
 	@cmd.command(aliases=["p", "P"])
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
-		if not ctx.author.voice.channel != None and ctx.voice_client.channel != ctx.author.voice.channel:
-			try:
-				vc: wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)   #(cls=wavelink.Player)
-			except:
-				return await ctx.send("Please Join a vc")
+		if ctx.voice_client is not None and ctx.author.voice.channel is not None:
+			if ctx.voice_client.channel != ctx.author.voice.channel:
+				vc : wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)
+
 		if not ctx.voice_client:
 			try:
 				vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
@@ -35,8 +34,14 @@ class Music(commands.Cog):
 
 
 		await vc.play(Song)
-	    #tracks = await wavelink.get_tracks(f'ytsearch:{Song}')
-	    #await ctx.channel.send(embed=discord.Embed(description=f'Now playing {tracks[0]} .', color=0xfd2121))
+		thumb = Song.thumbnail
+		if "maxresdefault" in thumb:
+			thumb1 = thumb.replace("maxresdefault", "mqdefault")
+
+		emb = discord.Embed(description=f"**[{str(Song)}](https://sprucebot.ml/invite)**", color=0xff0000)
+		emb.set_image(url=thumb1)
+		await ctx.send(embed=emb)
+
 
 
 
@@ -46,6 +51,17 @@ class Music(commands.Cog):
 	        try:
 	            await ctx.guild.voice_client.pause()
 	            await ctx.send("Paused", delete_after=10)
+
+	        except:
+	            return await ctx.send("No Music Playing..")
+
+
+	@cmd.command()
+	async def stop(self, ctx):
+	    if  ctx.guild.voice_client is not None and ctx.guild.voice_client.is_playing():
+	        try:
+	            await ctx.guild.voice_client.stop()
+	            await ctx.send("Stopped", delete_after=10)
 
 	        except:
 	            return await ctx.send("No Music Playing..")
