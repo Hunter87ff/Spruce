@@ -230,8 +230,12 @@ async def ping(ctx):
 @bot.command()
 @commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
 async def botinfo(ctx):
+  mrs = 0
+  for guild in bot.guilds:
+    n = mrs + guild.member_count
+
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 33628", inline=False)
+  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {n}", inline=False)
   emb.add_field(name="<:owner:968371297744744448> __Owner__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
