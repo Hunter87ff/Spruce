@@ -16,6 +16,7 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["p", "P"])
+	@commands.bot_has_permissions(connect=True, speak=True)
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
@@ -128,8 +129,10 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["vol"])
-	async def volume(self, ctx):
-		await ctx.send("Under Maintanance, will come back in few days", delete_after=5)
+	async def volume(self, ctx, volume:int):
+		player = wavelink.NodePool.get_node().get_player(ctx.guild)
+		await player.set_volume(volume)
+		return await ctx.send(f"volume set to {volume}", delete_after=30)
 
 
 
