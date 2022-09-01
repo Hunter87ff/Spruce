@@ -17,6 +17,11 @@ class Music(commands.Cog):
 
 	@cmd.command(aliases=["p", "P"])
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
+		bt = ctx.guild.get_member(self.bot.user.id)
+		if ctx.author.bot:
+			return
+
+
 		if ctx.voice_client is not None:
 			if ctx.author.voice is not None:
 				if ctx.voice_client.channel != ctx.author.voice.channel:
@@ -39,6 +44,7 @@ class Music(commands.Cog):
 
 		if vc != None:
 			try:
+				await bt.edit(deafen=True, mute=False)
 				await vc.play(Song)
 			except:
 				return
@@ -49,6 +55,7 @@ class Music(commands.Cog):
 
 		emb = discord.Embed(description=f"**[{str(Song)}](https://sprucebot.ml/invite)**", color=0xff0000)
 		emb.set_image(url=thumb1)
+		emb.set_footer(text=f"Requested by - {ctx.author}", icon_url=ctx.author.display_avatar)
 		await ctx.send(embed=emb)
 
 
