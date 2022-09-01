@@ -55,7 +55,7 @@ class Music(commands.Cog):
 			thumb1 = thumb.replace("maxresdefault", "mqdefault")
 
 		bt1 = Button(label="Invite", url="https://sprucebot.ml/invite")
-		bt2 = Button(label="Vote", url="https://diuscord.ly/spruce/vote")
+		bt2 = Button(label="Vote", url="https://discord.ly/spruce/vote")
 		btns = [bt1, bt2]
 		view = View()
 		for btn in btns:
