@@ -54,10 +54,17 @@ class Music(commands.Cog):
 		if "maxresdefault" in thumb:
 			thumb1 = thumb.replace("maxresdefault", "mqdefault")
 
+		bt1 = Button(label="Invite", url="https://sprucebot.ml/invite")
+		bt2 = Button(label="Vote", url="https://diuscord.ly/spruce/vote")
+		btns = [bt1, bt2]
+		view = View()
+		for btn in btns:
+			view.add_item(btn)
+
 		emb = discord.Embed(description=f"**[{str(Song)}](https://sprucebot.ml/invite)**", color=0xff0000)
 		emb.set_image(url=thumb1)
 		emb.set_footer(text=f"Requested by - {ctx.author}", icon_url=ctx.author.display_avatar)
-		await ctx.send(embed=emb)
+		await ctx.send(embed=emb, view=view)
 
 
 
