@@ -15,10 +15,22 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["p", "P"])
+	@commands.bot_has_permissions(connect=True, speak=True, use_voice_activation=True, send_messages=True)
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
-		if ctx.voice_client is not None and ctx.author.voice.channel is not None:
+		if ctx.voice_client != None and ctx.author.voice.channel != None:
+
 			if ctx.voice_client.channel != ctx.author.voice.channel:
-				vc : wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)
+				if ctx.voice_client.is_playing():
+					try:
+						await ctx.send(discord.Embed(color=0xff0000, description="Already Playing A Song! You Can Join"))
+
+					except:
+						return
+				else:
+					try:
+						vc : wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)
+					except:
+						await ctx.send("**Please join a vc**")
 
 		if not ctx.voice_client:
 			try:
