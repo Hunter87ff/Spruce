@@ -16,7 +16,7 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["p", "P"])
-	@commands.bot_has_permissions(connect=True, speak=True)
+	#@commands.bot_has_permissions(connect=True, speak=True)
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
