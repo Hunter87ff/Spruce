@@ -128,8 +128,8 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command(aliases=["vol"])
-	async def volume(self, ctx, volume:int):
+	@cmd.command(hidden=True)
+	async def vll(self, ctx, volume:int):
 		player = wavelink.NodePool.get_node().get_player(ctx.guild)
 		await player.set_volume(volume)
 		return await ctx.send(f"volume set to `{volume}`", delete_after=30)
