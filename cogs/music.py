@@ -15,7 +15,7 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["p", "P"])
-	@commands.bot_has_permissions(connect=True, speak=True, use_voice_activation=True, send_messages=True)
+	#@commands.bot_has_permissions(connect=True, speak=True, use_voice_activation=True, send_messages=True)
 	async def play(self, ctx, *, Song:wavelink.YouTubeTrack):
 		if ctx.voice_client != None and ctx.author.voice.channel != None:
 
