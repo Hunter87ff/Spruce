@@ -132,7 +132,7 @@ class Music(commands.Cog):
 	async def volume(self, ctx, volume:int):
 		player = wavelink.NodePool.get_node().get_player(ctx.guild)
 		await player.set_volume(volume)
-		return await ctx.send(f"volume set to {volume}", delete_after=30)
+		return await ctx.send(f"volume set to `{volume}`", delete_after=30)
 
 
 
