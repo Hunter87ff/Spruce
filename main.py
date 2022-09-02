@@ -190,6 +190,10 @@ async def on_command_error(ctx, error):
         err = discord.Embed(color=0xff0000, description="Can Not Read Messages Of The Channel")
         return await ctx.send(embed=err)
 
+    elif isinstance(error, commands.CommandOnCooldown):
+        e = str(error)
+        err = discord.Embed(color=0xff0000, description=e)
+        return await ctx.send(embed=err)
 
     else:
         e = str(error)
