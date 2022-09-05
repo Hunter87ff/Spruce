@@ -231,8 +231,8 @@ async def ping(ctx):
 
 
 
-@bot.command()
-@commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
+@bot.command(aliases=["bi"])
+@commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
 
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
