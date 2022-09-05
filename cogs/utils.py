@@ -115,7 +115,7 @@ class Utility(commands.Cog):
 	
 	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
-	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
+	@commands.bot_has_permissions(send_messages=True)
 	async def whoiss(self, ctx, user:discord.Member=None):
 		if user == None:
 			user = ctx.author
