@@ -256,9 +256,9 @@ async def addemoji(ctx, emoji: discord.PartialEmoji):
         for g in bot.guilds:
             if g.id != ctx.guild.id:
                 #emoji = discord.utils.get(g.emojis, name=name)
-                await ctx.send(f"{emoji} added", delete_after=10)
+                return await ctx.send(f"{emoji} added", delete_after=10)
                 emoji_bytes = await emoji.read()
-                await ctx.guild.create_custom_emoji( name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
+                return await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
     else:
         return await ctx.send("You Should Check Your Permission")
 
@@ -276,7 +276,7 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 
-@bot.command()
+@bot.command(hidden=True)
 @commands.guild_only()
 @commands.bot_has_permissions(manage_webhooks=True)
 async def say(ctx, *, message):      
