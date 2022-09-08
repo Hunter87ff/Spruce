@@ -251,6 +251,7 @@ async def botinfo(ctx):
 @bot.command()
 @commands.guild_only()
 @commands.bot_has_permissions(manage_emojis=True)
+@commands.has_permissions(manage_emojis=True)
 async def addemoji(ctx, emoji: discord.PartialEmoji):
     if ctx.author.guild_permissions.manage_emojis:
         for g in bot.guilds:
