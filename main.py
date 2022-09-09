@@ -49,7 +49,7 @@ async def on_ready():
     while True:
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-            await asyncio.sleep(180)
+            await sleep(180)
     print(f'{bot.user} is ready')
 
 
