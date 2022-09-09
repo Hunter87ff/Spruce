@@ -133,7 +133,7 @@ class Nhelp(commands.MinimalHelpCommand):
         destination = self.get_destination()
         for page in self.paginator.pages:
             emby = discord.Embed(description=page, color = discord.Color.blurple())
-            emby.add_field(name="Links", value="[Support Server](https://discord.gg/vMnhpAyFZm) | [Invite Link](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=139992746070&scope=bot)")
+            emby.add_field(name="Links", value="[Support Server](https://discord.gg/vMnhpAyFZm) | [Invite Link](https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)")
 #           emby.add_field(name='Support Server', value='[join](https://discord.gg/FXbRZHz3cG)', inline = False)
             await destination.send(embed=emby)
 bot.help_command = Nhelp(no_category = 'Commands')
@@ -235,12 +235,12 @@ async def ping(ctx):
 
 
 
-@bot.command()
-@commands.bot_has_permissions(manage_messages=True, send_messages=True, embed_links=True)
+@bot.command(aliases=["bi"])
+@commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
 
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 42781", inline=False)
+  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 120516", inline=False)
   emb.add_field(name="<:owner:968371297744744448> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
@@ -255,14 +255,15 @@ async def botinfo(ctx):
 @bot.command()
 @commands.guild_only()
 @commands.bot_has_permissions(manage_emojis=True)
+@commands.has_permissions(manage_emojis=True)
 async def addemoji(ctx, emoji: discord.PartialEmoji):
     if ctx.author.guild_permissions.manage_emojis:
         for g in bot.guilds:
             if g.id != ctx.guild.id:
                 #emoji = discord.utils.get(g.emojis, name=name)
-                await ctx.send(f"{emoji} added", delete_after=10)
+                return await ctx.send(f"{emoji} added", delete_after=10)
                 emoji_bytes = await emoji.read()
-                await ctx.guild.create_custom_emoji( name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
+                return await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
     else:
         return await ctx.send("You Should Check Your Permission")
 
@@ -280,7 +281,7 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 
-@bot.command()
+@bot.command(hidden=True)
 @commands.guild_only()
 @commands.bot_has_permissions(manage_webhooks=True)
 async def say(ctx, *, message):      
