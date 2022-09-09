@@ -207,13 +207,15 @@ async def on_command_error(ctx, error):
     elif "Unknown file format." in str(error):
         return await ctx.send(embed=discord.embed(description="Invalid Input", color=0xff0000))
 
+    elif "This playlist type is unviewable." in str(error):
+        return await ctx.send(embed=discord.embed(description="This playlist type is unsupported!", color=0xff0000))
+
     else:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{e}```")
         await ctx.send(f"```py\n{e}```")
 
 
-#Unknown file format.
 
 
 @bot.command()
