@@ -202,13 +202,13 @@ async def on_command_error(ctx, error):
         return await ctx.send(embed=err)
 
     elif "Manage Messages" in str(error):
-        return await ctx.send(embed=discord.embed(description="Missing `Manage Messages` Permission", color=0xff0000))
+        return await ctx.send(embed=discord.Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
 
     elif "Unknown file format." in str(error):
-        return await ctx.send(embed=discord.embed(description="Invalid Input", color=0xff0000))
+        return await ctx.send(embed=discord.Embed(description="Invalid Input", color=0xff0000))
 
     elif "This playlist type is unviewable." in str(error):
-        return await ctx.send(embed=discord.embed(description="This playlist type is unsupported!", color=0xff0000))
+        return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
 
     else:
         e = str(error)
