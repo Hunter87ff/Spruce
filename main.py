@@ -78,7 +78,7 @@ async def nitrof(message):
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
 
         except:
-            await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+            await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
 
         if webhook == None:
             try:
@@ -200,6 +200,9 @@ async def on_command_error(ctx, error):
         e = str(error)
         err = discord.Embed(color=0xff0000, description=e)
         return await ctx.send(embed=err)
+
+    elif "Manage Messages" in str(error):
+        return await ctx.send(embed=discord.embed(description="Missing `Manage Messages` Permission", color=0xff0000))
 
     else:
         e = str(error)
