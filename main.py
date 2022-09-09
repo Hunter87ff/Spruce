@@ -78,7 +78,7 @@ async def nitrof(message):
             webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
 
         except:
-            message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+            await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
 
         if webhook == None:
             try:
@@ -102,7 +102,8 @@ async def nitrof(message):
                             nick = message.author.name
                         await message.delete()
                         return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
-                        
+    else:
+        return
                         
 
 
