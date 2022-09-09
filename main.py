@@ -142,6 +142,8 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 @bot.event
 async def on_command_error(ctx, error):
+    erl = bot.get_channel(1015166083050766366)
+
     if isinstance(error, commands.MissingRequiredArgument):
         err = discord.Embed(color=0xff0000, description="Missing Required Arguments")
         return await ctx.send(embed=err)
@@ -200,6 +202,7 @@ async def on_command_error(ctx, error):
 
     else:
         e = str(error)
+        await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{e}```")
         await ctx.send(f"```py\n{e}```")
 
 
