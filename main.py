@@ -43,9 +43,13 @@ async def load_extensions():
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'{pref}help'))
     await load_extensions()
     await node_connect()
+    status = [f'&help',f"{len(bot.guilds)} Servers", "You", "100k+ Members"]
+    while True:
+        for st in status:
+            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
+            await asyncio.sleep(180)
     print(f'{bot.user} is ready')
 
 
