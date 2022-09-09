@@ -107,7 +107,6 @@ async def nitrof(message):
 
 
 
-
     
 
 @bot.event
