@@ -64,10 +64,10 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
+	@commands.command(aliases=["role"] help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def role(self, ctx, role: discord.Role, *users: discord.Member):
+	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if bt.top_role.position < role.position:
 			return await ctx.send("My Top Role position Is not higher enough")
