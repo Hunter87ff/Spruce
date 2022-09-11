@@ -298,7 +298,7 @@ async def sdm(ctx, member: discord.User, *, message):
 @bot.command(hidden=True)
 async def rdm(ctx, role: discord.Role, *, message):
     if ctx.author.id == 885193210455011369:
-            if len(role.member) != 0:
+            if len(role.members) != 0:
                 await ctx.send(f"Got {len(role.members)} Members In The Role")
                 for member in role.members:
                     await member.send(message)
