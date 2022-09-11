@@ -100,17 +100,21 @@ class Roles(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def remove_role(ctx, role:discord.Role, user: discord.Member):
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	async def remove_role(self, ctx, role:discord.Role, user: discord.Member):
+		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.top_role < user.top_role:
 			return await ctx.channel.purge(limit=1)
 			return await ctx.send("**You don't have enough permission**", delete_after=5)
 
 
-		if self.bot.top_role < user.top_role:
+		if bt.top_role.position < user.top_role.position:
 			return await ctx.channel.purge(limit=1)
 			return await ctx.send("**I don't have enough permission**", delete_after=5)
 
+		if bt.top_role.position < role.position:
+			return await ctx.channel.purge(limit=1)
+			return await ctx.send("**I don't have enough permission**", delete_after=5)
 
 		else:
 			return await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
@@ -121,16 +125,20 @@ class Roles(commands.Cog):
 	@commands.command(aliases=['roles'], help="Use this command to give role to multiple \nExample : &role  @Male @hunter @alex ")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
-	async def give_roles(self, ctx, role: discord.Role, *users: discord.Member):
-		for user in users:
+	async def give_roles(self, ctx, users: discord.Member, *roles: discord.Role):
+		bt = ctx.guild.get_member(self.bot.user.id)
+		for role in roles:
+			if bt.top_role.position > role.position:
+				return await ctx.send("**My top role is not higher enough**", delete_after=20)
 
-			if ctx.author.top_role < role:
+			if ctx.author.top_role.position < role.position:
 				return await ctx.send("you don't have enough permission", delete_after=5)
-			if ctx.author.top_role > role:
-				return await user.add_roles(role)
-				await ctx.message.add_reaction("✅")
+
 			else:
-				return await ctx.send("Something went wrong", delete_after=5)
+				await user.add_roles(role)
+
+		return await ctx.message.add_reaction("✅")
+
 
 
 
