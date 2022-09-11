@@ -33,7 +33,7 @@ maindb = MongoClient(dburl)
 
 bot = commands.Bot(command_prefix= commands.when_mentioned_or("&"), intents=intents ) 
 #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
-
+bot.remove_command("help")
 
 async def load_extensions():
     for filename in os.listdir("./cogs"):
@@ -127,7 +127,7 @@ async def on_guild_channel_delete(channel):
 ##########################################################################################
 #                                          TEXT COMMANDS
 ############################################################################################
-
+"""
 class Nhelp(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
@@ -138,7 +138,7 @@ class Nhelp(commands.MinimalHelpCommand):
             await destination.send(embed=emby)
 bot.help_command = Nhelp(no_category = 'Commands')
 
-
+"""
 
 
 @bot.event
