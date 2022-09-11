@@ -1,12 +1,8 @@
 import discord
 from discord.ext import commands
 from asyncio import sleep
-import pymongo
-from pymongo import MongoClient
-import re
-import config
 from discord.ui import Button, View
-from modules import emojis
+
 
 
 
@@ -17,7 +13,7 @@ helpdsk = "・__Prefix__ : `,`\n・__Total Command__ : 76 | Usable : 54\n・Type
 cmd = commands
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix=config.prefix, intents=intents, help_command=None)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=intents, help_command=None)
 
 
 
