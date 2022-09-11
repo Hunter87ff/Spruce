@@ -212,7 +212,7 @@ async def on_command_error(ctx, error):
 
     else:
         e = str(error)
-        await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{e}```")
+        await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
         await ctx.send(f"```py\n{e}```")
 
 
@@ -314,7 +314,7 @@ async def say(ctx, *, message):
        
     data = {
     "content" : "",
-    "avatar_url" : f"{ctx.author.avatar_url}",
+    "avatar_url" : f"{ctx.author.display_avatar}",
     "username" : f"{ctx.author.name}"
 }
     data["embeds"] = [
