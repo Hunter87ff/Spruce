@@ -64,7 +64,7 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(aliases=["role"] help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
+	@commands.command(aliases=["role"], help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
 	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
