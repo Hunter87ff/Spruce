@@ -1,10 +1,9 @@
-
-
 import discord
 from asyncio import sleep
 from discord.ext import commands
 cmd = commands
-
+import datetime
+import humanfriendly
 
 class Moderation(commands.Cog):
 	def __init__(self, bot):
@@ -246,66 +245,44 @@ class Moderation(commands.Cog):
 
 
 	#Mute Command
-	@cmd.command(help="Make sure you've created a role named 'Muted' and then run the command '&setup' ")
-	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_messages=True)
-	async def mute(self, ctx, member: discord.Member,*,reason=None):
+	@cmd.command()
+	@commands.has_permissions(moderate_members=True)
+	@commands.bot_has_permissions(moderate_members=True)
+	async def unmute(self, ctx, member: discord.Member, *, reason=None):
 		bt = ctx.guild.get_member(self.bot.user.id)
-		if ctx.author.bot:
-			return
+	    if reason is None:
+	        reason = 'No reason provided'
+	    if not ctx.author.top_role.position > member.top_role.position:
+	        return await ctx.reply("You Can Not Manage Him")
 
-		muted = discord.utils.get(ctx.guild.roles, name="Muted")
-		if muted == None:
-			muted = await ctx.guild.create_role(name="Muted", color=0xff0000)
+	    if not bt.top_role.position > member.top_role.position:
+	        return await ctx.reply("I can't manage him")
 
-		if reason == None:
-			reason = f"{member} Muted By {ctx.author}"
-
-		if muted.position > bt.top_role.position:
-			return await ctx.reply("`Muted` role is higher than  my top role, I can't manage it")
-
-		if member == ctx.author:
-			return await ctx.send("**You cant mute your self**", delete_after=5)
-
-		if ctx.author.top_role.position < member.top_role.position:
-			return await ctx.send("**You can't Mute Him**", delete_after=5)
-
-		if bt.top_role.position < member.top_role.position:
-			return await ctx.send("**I can't Mute Him**", delete_after=5)
-
-		else:
-			try:
-				await member.edit(roles=[muted])
-				await ctx.message.delete()
-				return await ctx.send(f"{member} Muted", delete_after=5)
-			except:
-				return await ctx.send("Missing Permissions")
-
-
-
+	    else:
+	        time = humanfriendly.parse_timespan("0")
+	        await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
+	        await ctx.send(f"{member} has been muted for {time}.\nReason: {reason}")		
 
 
 	@cmd.command()
-	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_messages=True, send_messages=True)
-	async def unmute(self, ctx, member: discord.Member, *,reason=None):
+	@commands.has_permissions(moderate_members=True)
+	@commands.bot_has_permissions(moderate_members=True)
+	async def mute(self, ctx, member: discord.Member, time=None, *, reason=None):
+		if time == None:
+			time = "5m"
 		bt = ctx.guild.get_member(self.bot.user.id)
-		muted = discord.utils.get(ctx.guild.roles, name="Muted")
-		if ctx.author.bot:
-			return 
+	    if reason is None:
+	        reason = 'No reason provided'
+	    if not ctx.author.top_role.position > member.top_role.position:
+	        return await ctx.reply("You Can Not Manage Him")
 
-		if reason == None:
-			reason = f"{member} Unmuted By {ctx.author}"
+	    if not bt.top_role.position > member.top_role.position:
+	        return await ctx.reply("I can't manage him")
 
-		if ctx.author.top_role.position < member.top_role.position:
-			return await ctx.send("You can't Unmute Him", delete_after=5)
-
-		if bt.top_role.position < member.top_role.position:
-			return await ctx.send("I can't Mute Him", delete_after=5)
-
-		else:
-			await member.remove_roles(muted, reason=reason)
-			return await ctx.send(f"{member} Unmuted", delete_after=5)
+	    else:
+	        time = humanfriendly.parse_timespan(time)
+	        await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
+	        await ctx.send(f"{member} has been muted for {time}.\nReason: {reason}")		
 
 
 
