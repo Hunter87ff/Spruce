@@ -250,18 +250,18 @@ class Moderation(commands.Cog):
 	@commands.bot_has_permissions(moderate_members=True)
 	async def unmute(self, ctx, member: discord.Member, *, reason=None):
 		bt = ctx.guild.get_member(self.bot.user.id)
-	    if reason is None:
-	        reason = 'No reason provided'
-	    if not ctx.author.top_role.position > member.top_role.position:
-	        return await ctx.reply("You Can Not Manage Him")
+		if reason == None:
+			reason = 'No reason provided'
+		if not ctx.author.top_role.position > member.top_role.position:
+			return await ctx.reply("You Can Not Manage Him")
 
-	    if not bt.top_role.position > member.top_role.position:
-	        return await ctx.reply("I can't manage him")
+		if not bt.top_role.position > member.top_role.position:
+		    return await ctx.reply("I can't manage him")
 
-	    else:
-	        time = humanfriendly.parse_timespan("0")
-	        await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
-	        await ctx.send(f"{member} has been muted for {time}.\nReason: {reason}")		
+		else:
+		    time = humanfriendly.parse_timespan("0")
+		    await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
+		    await ctx.send(f"{member} has been muted for {time}.\nReason: {reason}")		
 
 
 	@cmd.command()
