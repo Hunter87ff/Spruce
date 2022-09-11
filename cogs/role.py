@@ -64,29 +64,15 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(aliases=['role_give'], help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
+	@commands.command(help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def role(self, ctx, role: discord.Role, *users: discord.Member=None):
+	async def role(self, ctx, role: discord.Role, *users: discord.Member):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if bt.top_role.position < role.position:
 			return await ctx.send("My Top Role position Is not higher enough")
 		if not ctx.author.top_role.position > role.position:
 			return await ctx.send("You can Not manage that role")
-
-		if len(role.members) != 0 and users == None:
-			users = role.members
-			for user in users:
-				if user.top_role.position > ctx.author.position:
-					pass
-
-				if bt.top_role.position < user.top_role.position:
-					return await ctx.send(f"{user}'s Role Is Higher Than My Top Role! I can not manage him")
-
-				else:	
-					await user.remove_roles(role, reason=f"Removed By {ctx.author}")
-					return await ctx.send(f"Role Removed By {len(role.members)}")
-
 
 
 		if users != None:
@@ -127,24 +113,25 @@ class Roles(commands.Cog):
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
-	async def remove_role(self, ctx, role:discord.Role, user: discord.Member):
+	async def remove_role(self, ctx, role:discord.Role, *user: discord.Member):
 		bt = ctx.guild.get_member(self.bot.user.id)
-		if ctx.author.top_role < user.top_role:
-			return await ctx.channel.purge(limit=1)
-			return await ctx.send("**You don't have enough permission**", delete_after=5)
+		for user in users:
+			if ctx.author.top_role < user.top_role:
+				return await ctx.channel.purge(limit=1)
+				return await ctx.send("**You don't have enough permission**", delete_after=5)
 
 
-		if bt.top_role.position < user.top_role.position:
-			return await ctx.channel.purge(limit=1)
-			return await ctx.send("**I don't have enough permission**", delete_after=5)
+			if bt.top_role.position < user.top_role.position:
+				return await ctx.channel.purge(limit=1)
+				return await ctx.send("**I don't have enough permission**", delete_after=5)
 
-		if bt.top_role.position < role.position:
-			return await ctx.channel.purge(limit=1)
-			return await ctx.send("**I don't have enough permission**", delete_after=5)
+			if bt.top_role.position < role.position:
+				return await ctx.channel.purge(limit=1)
+				return await ctx.send("**I don't have enough permission**", delete_after=5)
 
-		else:
-			return await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
-			return await ctx.send(f"**{role.name} removed from {user}**")
+			else:
+				await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
+				return await ctx.send(f"**{role.name} removed from {user}**")
 
 
 
