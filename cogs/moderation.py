@@ -261,7 +261,7 @@ class Moderation(commands.Cog):
 		else:
 		    time = humanfriendly.parse_timespan("0")
 		    await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
-		    await ctx.send(f"{member} has been muted for {time}.\nReason: {reason}")		
+		    await ctx.send(f"{member} has been unmuted")		
 
 
 	@cmd.command()
