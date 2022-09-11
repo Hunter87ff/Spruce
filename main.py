@@ -295,48 +295,9 @@ async def sdm(ctx, member: discord.User, *, message):
         return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
 
-@bot.command(hidden=True)
-async def rdm(ctx, role: discord.Role, *, message):
-    if ctx.author.id == 885193210455011369:
-            if len(role.members) != 0:
-                await ctx.send(f"Got {len(role.members)} Members In The Role")
-                for member in role.members:
-                    await member.send(message)
-                    await sleep(30)
-                return await ctx.send(f"Message Sent To {len(role.members)} Members")
-
-    if ctx.author.id != 885193210455011369:
-        return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
 
 
-
-@bot.command(hidden=True)
-@commands.guild_only()
-@commands.bot_has_permissions(manage_webhooks=True)
-async def say(ctx, *, message):      
-    for w in await ctx.channel.webhooks():
-        wurl = w.url
-       
-    data = {
-    "content" : "",
-    "avatar_url" : f"{ctx.author.display_avatar}",
-    "username" : f"{ctx.author.name}"
-}
-    data["embeds"] = [
-    {
-        "description" : f"{message}",
-        "title" : "",
-        "color" : 0xffff00
-    }]    
-    try:
-        #await ctx.channel.purge(limit=1)
-        requests.post(wurl, json = data)
-
-        
-    except:
-        await ctx.channel.send("**I think this channel has no any webhooks, don't worry i've created one! now you can try**")
-        await ctx.channel.create_webhook(name="Spruce")
 
 
 
