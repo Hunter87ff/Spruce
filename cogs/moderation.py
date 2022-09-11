@@ -271,7 +271,7 @@ class Moderation(commands.Cog):
 		if time == None:
 			time = "5m"
 		bt = ctx.guild.get_member(self.bot.user.id)
-	    if reason is None:
+	    if reason == None:
 	        reason = 'No reason provided'
 	    if not ctx.author.top_role.position > member.top_role.position:
 	        return await ctx.reply("You Can Not Manage Him")
