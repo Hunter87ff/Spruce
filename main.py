@@ -286,8 +286,21 @@ async def sdm(ctx, member: discord.User, *, message):
     if ctx.author.id == 885193210455011369:
         await member.send(message)
     if ctx.author.id != 885193210455011369:
-        return await ctx.send("Command not found! please check the spelling carefully")
+        return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
+
+@bot.command(hidden=True)
+async def rdm(ctx, role: discord.Role, *, message):
+    if ctx.author.id == 885193210455011369:
+            if len(role.member) != 0:
+                await ctx.send(f"Got {len(role.members)} Members In The Role")
+                for member in role.members:
+                    await member.send(message)
+                    await sleep(30)
+                return await ctx.send(f"Message Sent To {len(role.members)} Members")
+
+    if ctx.author.id != 885193210455011369:
+        return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
 
 

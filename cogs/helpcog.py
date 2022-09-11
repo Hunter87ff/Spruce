@@ -19,13 +19,13 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 invbtn = Button(label="Invite", url="https://sprucebot.ml/invite")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
-hel_p = "• Prefix &\n• `Total Commands` 76 | `Usable `56\n• Type `&help <command | category>` for more info\n\n"
-helpemb = discord.Embed(color=0xf0ff0f, description=f"• Prefix &\n• `Total Commands` 76 | `Usable `58\n• Type `&help <command | category>` for more info\n\n__**Categories**__\n`Music\nModeration\nUtility\nEsports\nRole`")
-musicemb = discord.Embed(description=f"**{hel_p}__Musics__**\n`play\npause\nresume\nstop\njoin\nleave`", color=0xff0000)
-modemb = discord.Embed(description=f"**{hel_p}__Moderation__**\n`clear, clear_perms, channel_del, channel_make, create_channel, delete_category, mute, unmute, kick, ban, hide, unhide, lock, unlock, hide_category, unhide_category, lock_category, unlock_category, setup`", color=0xff0000)
-espemb = discord.Embed(description=f"**{hel_p}__Esports__**\n`tourney_setup, add_slot, cancel_slot, group_setup, pause_tourney, start_tourney, tourney, faketag, girls_lobby`", color=0xff0000)
-roleemb = discord.Embed(description=f"**{hel_p}__Roles__**\n`create_roles, remove_roles, del_roles, give_roles, ra_role, autorole_human, autorole_bot`", color=0xff0000)
-utilemb = discord.Embed(description=f"**{hel_p}__Utility__**\n`addemoji, avatar, banner, botinfo, ping, embed, embed_img, member_count, nick, nitro, prefix, react, server_av, serverinfo, toss, userinfo, whoiss`", color=0xff0000)
+hel_p = "• Prefix &\n• `Total Commands` 76 | `Usable `58\n• Type `&help <command | category>` for more info\n\n"
+helpemb  = discord.Embed(description=f"{hel_p}__**Categories**__\n`Music\nModeration\nUtility\nEsports\nRole`", color=0xf0ff0f)
+musicemb = discord.Embed(description=f"{hel_p}__**Musics__**\n`play\npause\nresume\nstop\njoin\nleave`", color=0xff0000)
+modemb   = discord.Embed(description=f"{hel_p}__**Moderation__**\n`clear, clear_perms, channel_del, channel_make, create_channel, delete_category, mute, unmute, kick, ban, hide, unhide, lock, unlock, hide_category, unhide_category, lock_category, unlock_category, setup`", color=0xff0000)
+espemb   = discord.Embed(description=f"{hel_p}__**Esports__**\n`tourney_setup, add_slot, cancel_slot, group_setup, pause_tourney, start_tourney, tourney, faketag, girls_lobby`", color=0xff0000)
+roleemb  = discord.Embed(description=f"{hel_p}__**Roles__**\n`create_roles, remove_roles, del_roles, give_roles, ra_role, autorole_human, autorole_bot`", color=0xff0000)
+utilemb  = discord.Embed(description=f"{hel_p}__**Utility__**\n`addemoji, avatar, banner, botinfo, ping, embed, embed_img, member_count, nick, nitro, prefix, react, server_av, serverinfo, toss, userinfo, whoiss`", color=0xff0000)
 
 
 
