@@ -227,7 +227,7 @@ class Moderation(commands.Cog):
 
 
 	#clear command
-	@cmd.command(help="Use this command to clear messages in a text channel\nExample : &clear 10", aliases=['purge'])
+	@cmd.command(aliases=["purge"] help="Use this command to clear messages in a text channel\nExample : &clear 10", aliases=['purge'])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
