@@ -64,16 +64,42 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(aliases=['role'], help="Use this command to give role to someone \nExample : &role  @Male @hunter")
+	@commands.command(aliases=['role_give'], help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def role_give(self, ctx, role: discord.Role, *users: discord.Member):
-		for user in users:
-			if ctx.author.top_role < role:
-				return await ctx.send("you don't have enough permission", delete_after=5)
-			if ctx.author.top_role > role:
-				await user.add_roles(role)
-				await ctx.message.add_reaction("✅")
+	async def role(self, ctx, role: discord.Role, *users: discord.Member=None):
+		bt = ctx.guild.get_member(self.bot.user.id)
+		if bt.top_role.position < role.position:
+			return await ctx.send("My Top Role position Is not higher enough")
+		if not ctx.author.top_role.position > role.position:
+			return await ctx.send("You can Not manage that role")
+
+		if len(role.members) != 0 and users == None:
+			users = role.members
+			for user in users:
+				if user.top_role.position > ctx.author.position:
+					pass
+
+				if bt.top_role.position < user.top_role.position:
+					return await ctx.send(f"{user}'s Role Is Higher Than My Top Role! I can not manage him")
+
+				else:	
+					await user.remove_roles(role, reason=f"Removed By {ctx.author}")
+					return await ctx.send(f"Role Removed By {len(role.members)}")
+
+
+
+		if users != None:
+			for user in users:
+				if user.top_role.position > ctx.author.position:
+					pass
+
+				if bt.top_role.position < user.top_role.position:
+					return await ctx.send(f"{user}'s Role Is Higher Than My Top Role! I can not manage him")	
+
+				else:
+					await user.add_roles(role)
+					await ctx.message.add_reaction("✅")
 
 
 
@@ -125,7 +151,7 @@ class Roles(commands.Cog):
 	@commands.command(aliases=['roles'], help="Use this command to give role to multiple \nExample : &role  @Male @hunter @alex ")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
-	async def give_roles(self, ctx, users: discord.Member, *roles: discord.Role):
+	async def give_roles(self, ctx, user: discord.Member, *roles: discord.Role):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		for role in roles:
 			if bt.top_role.position > role.position:
@@ -133,6 +159,9 @@ class Roles(commands.Cog):
 
 			if ctx.author.top_role.position < role.position:
 				return await ctx.send("you don't have enough permission", delete_after=5)
+
+			if user.top_role.position > ctx.author.top_role.position:
+				return await  ctx.send("Your can not manage him")
 
 			else:
 				await user.add_roles(role)
