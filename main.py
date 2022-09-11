@@ -207,6 +207,12 @@ async def on_command_error(ctx, error):
     elif "Unknown file format." in str(error):
         return await ctx.send(embed=discord.Embed(description="Invalid Input", color=0xff0000))
 
+    elif "403 Forbidden (error code: 50013): Missing Permissions" in str(error):
+        try:
+            return await ctx.author.send(embed=discord.Embed(description="I don't have Permissions To Send message", color=0xff0000))
+        except:
+            return
+
     elif "This playlist type is unviewable." in str(error):
         return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
 
