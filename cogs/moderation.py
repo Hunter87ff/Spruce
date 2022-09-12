@@ -46,7 +46,6 @@ class Moderation(commands.Cog):
 
 
 
-
 	@cmd.command(help=" Use this command to lock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_channels=True)
