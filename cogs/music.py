@@ -45,7 +45,7 @@ class Music(commands.Cog):
 
 		if vc != None:
 			try:
-				await bt.edit(deafen=True, mute=False)
+				#await bt.edit(deafen=True, mute=False)
 				await vc.play(Song)
 			except:
 				return
