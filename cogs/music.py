@@ -73,6 +73,13 @@ class Music(commands.Cog):
 	    if not ctx.voice_client:
 	        	vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
 
+	    if ctx.voice_client != ctx.author.voice:
+	    	try:
+	    		await ctx.author.voice.channel.connect()
+	    	except:
+	    		return await ctx.reply("Please join a voice channel")
+
+
 	    else:
 	        vc: wavelink.Player = ctx.voice_client
 	        
