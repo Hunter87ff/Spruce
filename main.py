@@ -216,6 +216,12 @@ async def on_command_error(ctx, error):
     elif "This playlist type is unviewable." in str(error):
         return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
 
+    elif "'NoneType' object has no attribute 'queue'" in str(error):
+        e = str(error)
+        return await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
+
+
+
     else:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
