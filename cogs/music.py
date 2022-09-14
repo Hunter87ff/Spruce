@@ -53,19 +53,21 @@ class Music(commands.Cog):
 
 
 
+
+
 	@cmd.command(aliases=["p", "P"])
 	async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack):
 
-	    next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
-	    pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
-	    stop_btn = Button(emoji="<:WhiteButton:1019218566475681863>", style=ButtonStyle.danger, custom_id="stop_btn")
-	    queue_btn = Button(emoji="<:_playlist:1019219174070951967>", style=ButtonStyle.blurple, custom_id="queue_btn")
-	    play_btn = Button(emoji="<:play_btn:1019504469299441674>", custom_id="play_btn")
+		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
+		pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
+		stop_btn = Button(emoji="<:WhiteButton:1019218566475681863>", style=ButtonStyle.danger, custom_id="stop_btn")
+		queue_btn = Button(emoji="<:_playlist:1019219174070951967>", style=ButtonStyle.blurple, custom_id="queue_btn")
+		play_btn = Button(emoji="<:play_btn:1019504469299441674>", custom_id="play_btn")
 
-	    btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn]
-	    view = View()
-	    for btn in btns:
-	        view.add_item(btn)
+		btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn]
+		view = View()
+		for btn in btns:
+		    view.add_item(btn)
 
 		if not ctx.voice_client:
 			try:
@@ -79,27 +81,27 @@ class Music(commands.Cog):
 				if ctx.voice_client.channel != ctx.author.voice.channel:
 					vc : wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)
 
-	    else:
-	        vc: wavelink.Player = ctx.voice_client
-	        
+		else:
+		    vc: wavelink.Player = ctx.voice_client
+		    
 
-	    if vc.queue.is_empty and not vc.is_playing():
-	        await vc.play(search)
-	        tm = "%H:%M:%S"
-	        if search.duration < 3599:
-	            tm = "%M:%S"
-	        em = discord.Embed(title=search.title, url=search.uri, color=0x303136, description=f'Duration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
-	        await ctx.send(embed=em, view=view)
-	                
-	    else:
-	        await vc.queue.put_wait(search)
-	        await ctx.send(f'Added to the queue...', delete_after=5)
-	    vc.ctx = ctx
+		if vc.queue.is_empty and not vc.is_playing():
+		    await vc.play(search)
+		    tm = "%H:%M:%S"
+		    if search.duration < 3599:
+		        tm = "%M:%S"
+		    em = discord.Embed(title=search.title, url=search.uri, color=0x303136, description=f'Duration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
+		    await ctx.send(embed=em, view=view)
+		            
+		else:
+		    await vc.queue.put_wait(search)
+		    await ctx.send(f'Added to the queue...', delete_after=5)
+		vc.ctx = ctx
 
-	    try:
-	        if vc.loop: return
-	    except Exception:
-	        setattr(vc, "loop", False)
+		try:
+		    if vc.loop: return
+		except Exception:
+		    setattr(vc, "loop", False)
 
 
 
