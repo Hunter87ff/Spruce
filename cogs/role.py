@@ -77,7 +77,7 @@ class Roles(commands.Cog):
 
 		if users != None:
 			for user in users:
-				if user.top_role.position > ctx.author.position:
+				if user.top_role.position > ctx.author.top_role.position:
 					pass
 
 				if bt.top_role.position < user.top_role.position:
