@@ -76,6 +76,8 @@ class Music(commands.Cog):
 				if ctx.voice_client.channel != ctx.author.voice.channel:
 					await ctx.voice_client.disconnect()
 					vc: wavelink.Player = await ctx.author.voice.channel.connect(self_deaf=True, reconnect=True, cls=wavelink.Player)
+					
+					
 				if ctx.voice_client.channel == ctx.author.voice.channel:
 					vc: wavelink.Player = ctx.voice_client
 
@@ -270,6 +272,11 @@ class Music(commands.Cog):
 				await ctx.author.voice.channel.connect(reconnect=True)
 			except:
 				return await ctx.reply("Please Join VC")
+		if ctx.voice_client != None:
+		  try:
+		    await ctx.voice_client.move_to(ctx.author.voice.channel)
+		  except:
+		    return
 
 
 
