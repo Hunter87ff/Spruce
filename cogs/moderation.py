@@ -21,20 +21,17 @@ class Moderation(commands.Cog):
 		if ctx.author.bot:
 			return
 
-		snd = await ctx.send("<a:loading:969894982024568856>**Processing...**")
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
-
 		if muted == None:
 			muted = await ctx.guild.create_role(name="Muted", color=0xff0000)
 
-
 		if muted.position > bt.top_role.position:
-			return await snd.edit("`Muted` role is higher than  my top role, I can't manage it")
+			return await ctx.reply("`Muted` role is higher than  my top role, I can't manage it")
+
+		snd = await ctx.send("<a:loading:969894982024568856>**Processing...**")
 
 		overwrite = ctx.channel.overwrites_for(muted)
 		overwrite.update(send_messages=False, add_reactions=False, connect=False, speak=False)
-		
-
 		for channel in ctx.guild.channels:
 			await channel.set_permissions(muted, overwrite=overwrite)
 			
