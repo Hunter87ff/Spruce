@@ -67,18 +67,14 @@ class Music(commands.Cog):
 	    for btn in btns:
 	        view.add_item(btn)
 
-	    if ctx.author.voice.channel == None:
+	    if not ctx.author.voice:
 	        return await ctx.reply("Please join a voice channel")
 
 	    if not ctx.voice_client:
 	        	vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
 
 	    if ctx.voice_client != ctx.author.voice:
-	    	try:
-	    		await ctx.author.voice.channel.connect()
-	    	except:
-	    		return await ctx.reply("Please join a voice channel")
-
+	    	vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
 
 	    else:
 	        vc: wavelink.Player = ctx.voice_client
