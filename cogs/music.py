@@ -74,7 +74,8 @@ class Music(commands.Cog):
 		if ctx.voice_client is not None:
 			if ctx.author.voice is not None:
 				if ctx.voice_client.channel != ctx.author.voice.channel:
-					vc : wavelink.Player = await ctx.voice_client.move_to(ctx.author.voice.channel)
+					await ctx.voice_client.disconnect()
+					vc: wavelink.Player = await ctx.author.voice.channel.connect(self_deaf=True, reconnect=True, cls=wavelink.Player)
 				if ctx.voice_client.channel == ctx.author.voice.channel:
 					vc: wavelink.Player = ctx.voice_client
 
