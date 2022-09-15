@@ -7,9 +7,6 @@ from discord.ui import Button, View
 
 
 emd = discord.Embed
-helpdsk = "・__Prefix__ : `,`\n・__Total Command__ : 76 | Usable : 54\n・Type `&help <command | category>` for more information"
-
-
 cmd = commands
 intents = discord.Intents.default()
 intents.message_content = True
@@ -19,13 +16,13 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 invbtn = Button(label="Invite", url="https://sprucebot.ml/invite")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
-hel_p = "• Prefix &\n• `Total Commands` 78 | `Usable `60\n• Type `&help <command | category>` for more info\n\n"
-helpemb  = discord.Embed(description=f"{hel_p}__**Categories**__\n`Music\nModeration\nUtility\nEsports\nRole`", color=0xf0ff0f)
-musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play\npause\nresume\nstop\njoin\nleave`", color=0xff0000)
-modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear, clear_perms, channel_del, channel_make, create_channel, delete_category, mute, unmute, kick, ban, hide, unhide, lock, unlock, hide_category, unhide_category, lock_category, unlock_category, setup`", color=0xff0000)
-espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup, add_slot, cancel_slot, group_setup, pause_tourney, start_tourney, tourney, faketag, girls_lobby`", color=0xff0000)
-roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles, remove_roles, del_roles, give_roles, ra_role, autorole_human, autorole_bot`", color=0xff0000)
-utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji, avatar, banner, botinfo, ping, embed, embed_img, member_count, nick, nitro, prefix, react, server_av, serverinfo, toss, userinfo, whoiss`", color=0xff0000)
+hel_p = "• Prefix - `&`\n• Total Commands - `78` | `Usable - `60`\n• Type `&help <command | category>` for more info\n\n"
+helpemb  = discord.Embed(description=f"{hel_p}__**Categories**__\nMusic\nModeration\nUtility\nEsports\nRole", color=0xf0ff0f)
+musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xff0000)
+modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xff0000)
+espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`", color=0xff0000)
+roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `ra_role`, `role_all_human`, `role_all_bot`", color=0xff0000)
+utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xff0000)
 
 
 
