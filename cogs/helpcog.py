@@ -19,7 +19,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 invbtn = Button(label="Invite", url="https://sprucebot.ml/invite")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
-hel_p = "• Prefix &\n• `Total Commands` 76 | `Usable `58\n• Type `&help <command | category>` for more info\n\n"
+hel_p = "• Prefix &\n• `Total Commands` 78 | `Usable `60\n• Type `&help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(description=f"{hel_p}__**Categories**__\n`Music\nModeration\nUtility\nEsports\nRole`", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play\npause\nresume\nstop\njoin\nleave`", color=0xff0000)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear, clear_perms, channel_del, channel_make, create_channel, delete_category, mute, unmute, kick, ban, hide, unhide, lock, unlock, hide_category, unhide_category, lock_category, unlock_category, setup`", color=0xff0000)
@@ -430,6 +430,18 @@ class Helper(commands.Cog):
     async def stop(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `stop`\nExample : `&stop`", color=0x00ff00)
         await ctx.send(embed=em)
+
+    @help.command()
+    async def skip(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `skip`\nExample : `&skip`", color=0x00ff00)
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def queue(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `queue`\nExample : `&queue`", color=0x00ff00)
+        await ctx.send(embed=em)
+
+
 
 async def setup(bot):
     await bot.add_cog(Helper(bot))
