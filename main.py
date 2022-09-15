@@ -45,12 +45,15 @@ async def load_extensions():
 async def on_ready():
     await load_extensions()
     await node_connect()
+    st_log = bot.get_channel(1020027121231462400)
     status = [f'&help',f"{len(bot.guilds)} Servers", "You", "100k+ Members"]
     while True:
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
             await sleep(180)
-    print(f'{bot.user} is ready with {len(bot.commands)} commands')
+    stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
+    await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+    print(stmsg)
 
 
 
