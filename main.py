@@ -47,13 +47,15 @@ async def on_ready():
     await node_connect()
     st_log = bot.get_channel(1020027121231462400)
     status = [f'&help',f"{len(bot.guilds)} Servers", "You", "100k+ Members"]
+    
+    stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
+    await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+    print(stmsg)
     while True:
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
             await sleep(180)
-    stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
-    await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
-    print(stmsg)
+
 
 
 
