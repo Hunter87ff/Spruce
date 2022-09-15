@@ -50,7 +50,7 @@ async def on_ready():
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
             await sleep(180)
-    print(f'{bot.user} is ready')
+    print(f'{bot.user} is ready with {len(bot.commands)} commands')
 
 
 
