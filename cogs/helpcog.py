@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 invbtn = Button(label="Invite", url="https://sprucebot.ml/invite")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
-hel_p = "• Prefix - `&`\n• Total Commands - `78` | `Usable - `60`\n• Type `&help <command | category>` for more info\n\n"
+hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `60`\n• Type `&help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(description=f"{hel_p}__**Categories**__\nMusic\nModeration\nUtility\nEsports\nRole", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xff0000)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xff0000)
