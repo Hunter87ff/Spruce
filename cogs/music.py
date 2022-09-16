@@ -134,26 +134,6 @@ class Music(commands.Cog):
 	        await vc.stop()
 
 
-	@cmd.command(aliases=["vol", "Vol"])
-	async def volume(self, ctx, volume: int):
-	    if ctx.author.bot:
-	        return
-
-	    if volume > 200:
-	        return await ctx.reply("Volume Limit is `200`")
-
-	    if not ctx.author.voice:
-	        return await ctx.send("Please Join Vc")
-
-	    if not ctx.voice_client:
-	        return await ctx.send("I'm Not In A Vc")
-
-	    elif ctx.voice_client.channel == ctx.author.voice.channel:
-	        vc : wavelink.Player =  ctx.voice_client
-
-	    await vc.set_volume(volume)
-	    await ctx.send(f"Volume Set To {volume}")
-
 
 
 
