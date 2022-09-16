@@ -39,7 +39,7 @@ class Music(commands.Cog):
 	    tm = "%H:%M:%S"
 	    if next_song.duration < 3599:
 	        tm = "%M:%S"
-	    next_song_emb = discord.Embed(title=next_song.title, url=next_song.uri, color=0x303136, description=f'Duration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=next_song.thumbnail)
+	    next_song_emb = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}]({next_song.uri})**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=next_song.thumbnail)
 	    try:
 	        await ctx.send(embed=next_song_emb)
 
@@ -71,6 +71,11 @@ class Music(commands.Cog):
 			return
 
 
+		if not ctx.author.voice:
+			return await ctx.send("Please Join a vc")
+
+
+
 		if ctx.voice_client is not None:
 			if ctx.author.voice is not None:
 				if ctx.voice_client.channel != ctx.author.voice.channel:
@@ -89,17 +94,14 @@ class Music(commands.Cog):
 				return await ctx.send("Please Join a vc")
 
 
-		if not ctx.author.voice:
-			return await ctx.send("Please Join a vc")
-			
-		    
+
 
 		if vc.queue.is_empty and not vc.is_playing():
 		    await vc.play(search)
 		    tm = "%H:%M:%S"
 		    if search.duration < 3599:
 		        tm = "%M:%S"
-		    em = discord.Embed(title=search.title, url=search.uri, color=0x303136, description=f'Duration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
+		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}]({search.uri})**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
 		    await ctx.send(embed=em, view=view)
 		            
 		else:
@@ -108,7 +110,9 @@ class Music(commands.Cog):
 		vc.ctx = ctx
 
 		try:
-		    if vc.loop: return
+		    if vc.loop: 
+		    	return
+
 		except Exception:
 		    setattr(vc, "loop", False)
 
@@ -218,15 +222,15 @@ class Music(commands.Cog):
 
 	    if interaction.data["custom_id"] == "queue_btn":
 	        if not ctx.voice_client:
-	            return await interaction.response.send_message("im not even in a vc...", ephemeral=True)
+	            return await interaction.response.send_message("i'm not even in a vc...", ephemeral=True)
 
 	        elif ctx.author.voice == None:
-	            return await interaction.response.send_message("join a voice channel first lol", ephemeral=True)
+	            return await interaction.response.send_message("Please Join VC", ephemeral=True)
 
 
 	        vc: wavelink.Player = ctx.voice_client
 	        if vc.queue.is_empty:
-	            return await interaction.response.send_message("the queue is empty", ephemeral=True)
+	            return await interaction.response.send_message("Queue is empty", ephemeral=True)
 	        em = discord.Embed(title="Queue", color=0x303136)
 	        
 	        queue = vc.queue.copy()
@@ -269,7 +273,7 @@ class Music(commands.Cog):
 
 		if not ctx.voice_client:
 			try:
-				await ctx.author.voice.channel.connect(reconnect=True)
+				vc : wavelink.Player =  await ctx.author.voice.channel.connect(reconnect=True, cls = wavelink.Player)
 			except:
 				return await ctx.reply("Please Join VC")
 		if ctx.voice_client != None:
