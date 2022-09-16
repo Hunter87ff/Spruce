@@ -280,7 +280,7 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases=["disconnect"])
 	async def leave(self, ctx):
 		if ctx.author.voice == None:
 			return await ctx.reply("Please Join VC")
