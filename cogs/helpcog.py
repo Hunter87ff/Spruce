@@ -437,6 +437,11 @@ class Helper(commands.Cog):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `queue`\nExample : `&queue`", color=0x00ff00)
         await ctx.send(embed=em)
 
+    @help.command(aliases=["Vol", "vol", "Volume"])
+    async def volume(self, ctx):
+        em = discord.Embed(description="Aliases : `vol`\nUsage : `volume 100`\nExample : `&vol 100`", color=0x00ff00)
+        await ctx.send(embed=em)
+
 
 
 async def setup(bot):
