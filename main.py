@@ -14,7 +14,7 @@ onm = message_handel
 ochd = channel_handel
 from discord.ui import Button, View
 import wavelink
-
+import time
 
 
 intents = discord.Intents.default()
@@ -25,7 +25,7 @@ pref = os.environ["prefix"]
 #Configuring db
 dburl = os.environ["mongo_url"]
 maindb = MongoClient(dburl)
-
+startTime = time.time()
 
 
 
@@ -149,6 +149,7 @@ bot.help_command = Nhelp(no_category = 'Commands')
 @bot.event
 async def on_command_error(ctx, error):
     erl = bot.get_channel(1015166083050766366)
+    cmdnf = bot.get_channel(1020698810625826846)
 
     if isinstance(error, commands.MissingRequiredArgument):
         err = discord.Embed(color=0xff0000, description="Missing Required Arguments")
@@ -164,6 +165,7 @@ async def on_command_error(ctx, error):
 
     elif isinstance(error, commands.CommandNotFound):
         err = discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully.")
+        await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
         return await ctx.send(embed=err)
 
 
@@ -214,23 +216,20 @@ async def on_command_error(ctx, error):
 
     elif "403 Forbidden (error code: 50013): Missing Permissions" in str(error):
         try:
-            return await ctx.author.send(embed=discord.Embed(description="I don't have Permissions To Send message", color=0xff0000))
+            return await ctx.author.send(embed=discord.Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
         except:
             return
 
     elif "This playlist type is unviewable." in str(error):
         return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
 
-    elif "'NoneType' object has no attribute 'queue'" in str(error):
-        e = str(error)
-        return await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
-
 
 
     else:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
-        await ctx.send(f"```py\n{e}```")
+        brp = await ctx.reply(f"Suddenly You Got a Bug!")
+        await brp.edit(content="don't worry! I've reported to developers", delete_after=30)
 
 
 
@@ -268,8 +267,8 @@ async def ping(ctx):
 async def botinfo(ctx):
 
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:server:968372588533383178> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 120516", inline=False)
-  emb.add_field(name="<:owner:968371297744744448> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
+  emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 120516", inline=False)
+  emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
   emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
@@ -309,6 +308,21 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 
+def upt():
+    seconds = time.time() - startTime
+    #seconds = seconds % (24 * 3600)
+    hour = seconds // 3600
+    seconds %= 3600
+    mins = seconds // 60
+    day = hour * 24
+    #seconds %= 60
+    return "\🟢 Online For `%02dD %02dH %02dM`" % (day, hour, mins)
+
+
+
+@bot.command()
+async def uptime(ctx):
+    await ctx.send(upt())
 
 
 
