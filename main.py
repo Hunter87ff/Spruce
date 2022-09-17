@@ -267,7 +267,7 @@ async def ping(ctx):
 async def botinfo(ctx):
 
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 120516", inline=False)
+  emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 109321", inline=False)
   emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
@@ -322,7 +322,8 @@ def upt():
 
 @bot.command()
 async def uptime(ctx):
-    await ctx.send(upt())
+    if ctx.author.id == 885193210455011369:
+        await ctx.send(upt())
 
 
 
