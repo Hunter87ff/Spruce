@@ -90,9 +90,13 @@ async def tourney(message):
     ctx = message
     guild = message.guild
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
+    tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
     if message.author.bot:
         return
+      
+    if tmrole in ctx.author.roles:
+      return
 
     if td is None:
         return
