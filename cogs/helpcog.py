@@ -45,17 +45,17 @@ class Dropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if self.values[0] == "Music":
-            await interaction.response.edit_message(embed=musicemb)
+            await interaction.response.edit_message(embed=musicemb.set_thumbnail(url=ctx.guild.icon.url))
         if self.values[0] == "Moderation":
-            await interaction.response.edit_message(embed=modemb)
+            await interaction.response.edit_message(embed=modemb.set_thumbnail(url=ctx.guild.icon.url))
         if self.values[0] == "Esports":
-            await interaction.response.edit_message(embed=espemb)
+            await interaction.response.edit_message(embed=espemb.set_thumbnail(url=ctx.guild.icon.url))
         if self.values[0] == "Main":
-            await interaction.response.edit_message(embed=helpemb)
+            await interaction.response.edit_message(embed=helpemb.set_thumbnail(url=ctx.guild.icon.url))
         if self.values[0] == "Utility":
-            await interaction.response.edit_message(embed=utilemb)
+            await interaction.response.edit_message(embed=utilemb.set_thumbnail(url=ctx.guild.icon.url))
         if self.values[0] == "Role":
-            await interaction.response.edit_message(embed=roleemb)
+            await interaction.response.edit_message(embed=roleemb.set_thumbnail(url=ctx.guild.icon.url))
 
 
 
