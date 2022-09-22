@@ -171,10 +171,12 @@ class Roles(commands.Cog):
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
 			return await ctx.send("I can't manage This role")
 		for member in ctx.guild.members:
-			if role not in member.roles:
-				if not member.bot:
-					await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+			if not member.bot:
+				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
 		await prs.edit(content="Role Given To All Members")
+
+
+
 
 
 	@commands.command()
@@ -188,9 +190,8 @@ class Roles(commands.Cog):
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
 			return await ctx.send("I can't manage This role")
 		for member in ctx.guild.members:
-			if role not in member.roles:
-				if member.bot:
-					await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+			if member.bot:
+				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
 		await prs.edit(content="Role Given To All Members")
 
 
