@@ -226,7 +226,11 @@ async def on_command_error(ctx, error):
     elif "This playlist type is unviewable." in str(error):
         return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
 
-
+    elif "NotFound: 404 Not Found (error code: 10003): Unknown Channel" in str(error):
+        try:
+            return await ctx.send(embed=discord.Embed(description="Channel Deleted Or Invalid", color=0xff0000))
+        except:
+            return
 
     else:
         e = str(error)
