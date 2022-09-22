@@ -88,20 +88,20 @@ class Roles(commands.Cog):
 					await ctx.message.add_reaction("✅")
 
 
-
-	@cmd.command()
+	@cmd.command(aliases=["ra_role"])
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def ra_role(self, ctx, role: discord.Role, reason=None):
+	async def remove_role_members(self, ctx, role: discord.Role, reason=None):
+		prs = await ctx.send("<a:loading:969894982024568856> Processing...")
 		if reason == None:
 			reason = f"{role} removed by {ctx.author}"
 			
-		for member in ctx.guild.members:
-			if ctx.author.top_role < member.top_role:
-				return await ctx.send("**You don't have enough permission**", delete_after=5)
-			if role in member.roles:
-				await member.remove_roles(role, reason=reason)
-				return await ctx.send("**:white_checck_mark: Role Removed from everyone**")
+		for member in role.members:
+			await member.remove_roles(role, reason=reason)
+			
+		return await prs.edit(content="**:white_check_mark: Role Removed from everyone**", delete_after=30)
+
+
 
 
 

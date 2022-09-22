@@ -10,19 +10,20 @@ emd = discord.Embed
 cmd = commands
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=intents, help_command=None)
 
 
 
-invbtn = Button(label="Invite", url="https://sprucebot.ml/invite")
+invbtn = Button(label="Invite", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
-hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `60`\n• Type `&help <command | category>` for more info\n\n"
-helpemb  = discord.Embed(description=f"{hel_p}__**Categories**__\nMusic\nModeration\nUtility\nEsports\nRole", color=0xf0ff0f)
-musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xff0000)
-modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xff0000)
-espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`", color=0xff0000)
-roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `ra_role`, `role_all_human`, `role_all_bot`", color=0xff0000)
-utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xff0000)
+hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `64`\n• Type `&help <command | category>` for more info\n\n"
+helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828>Role**", color=0xf0ff0f)
+musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xf0ff0f)
+modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xf0ff0f)
+espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`", color=0xf0ff0f)
+roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`", color=0xf0ff0f)
+utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
 
 
 
@@ -78,7 +79,7 @@ class Helper(commands.Cog):
         view = DropdownView()
         for opt in opts:
             view.add_item(opt)
-        msg = await ctx.send(embed=helpemb, view=view)
+        msg = await ctx.send(embed=helpemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
 
 
 
@@ -88,7 +89,7 @@ class Helper(commands.Cog):
         buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=musicemb, view=view)
+        await ctx.send(embed=musicemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
 
 
 
@@ -98,7 +99,7 @@ class Helper(commands.Cog):
         buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=modemb, view=view)
+        await ctx.send(embed=modemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
 
 
 
@@ -108,7 +109,7 @@ class Helper(commands.Cog):
         buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=espemb, view=view)
+        await ctx.send(embed=espemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
 
 
     @help.group(invoke_without_command=True)
@@ -117,7 +118,7 @@ class Helper(commands.Cog):
         buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=roleemb, view=view)
+        await ctx.send(embed=roleemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
 
 
 
@@ -127,7 +128,7 @@ class Helper(commands.Cog):
         buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=utilemb, view=view)
+        await ctx.send(embed=utilemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
 
 
 
@@ -254,6 +255,23 @@ class Helper(commands.Cog):
     @help.command(aliases=["droles", "drole"])
     async def del_roles(self, ctx):
         em = discord.Embed(description="Aliases : `croles`\nUsage : `del_roles [roles...]`\nExample : `&del_roles @group1 @group2`", color=0x00ff00)
+        await ctx.send(embed=em)
+
+    @help.command(aliases=["ra_role"])
+    async def remove_role_members(self, ctx):
+        em = discord.Embed(description="Aliases : `ra_role`\nUsage : `ra_role <roles>`\nExample : `&ra_role @humans`\nDescription : Use This Command To Remove A Role From Everyone", color=0x00ff00)
+        await ctx.send(embed=em)
+
+
+    @help.command()
+    async def role_all_human(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `role_all_human`\nExample : `&role_all_human @members`", color=0x00ff00)
+        await ctx.send(embed=em)
+
+
+    @help.command()
+    async def role_all_bot(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `role_all_bot`\nExample : `&role_all_bot @members`", color=0x00ff00)
         await ctx.send(embed=em)
 
 
