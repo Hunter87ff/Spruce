@@ -188,8 +188,6 @@ class Helper(commands.Cog):
         await ctx.send(embed=em)
 
 
-
-
 #channel Related
 
     @help.command(aliases=["chd"])
@@ -227,6 +225,13 @@ class Helper(commands.Cog):
     async def lock_category(self, ctx):
         em = discord.Embed(description="Aliases : `lc`\nUsage : `lock_category <category> [role=None]`\nExample : `&lc 7654123645287`\nDescription : `Use This Command To lock A Hole Category`", color=0x00ff00)
         await ctx.send(embed=em) 
+
+    @help.command(aliases=["uhc"])
+    async def uhide_category(self, ctx):
+        em = discord.Embed(description="Aliases : `uhc`\nUsage : `uhc <category_id> [role=None]`\nExample : `&uhc 73462546213542614526`\n", color=0x00ff00)
+        await ctx.send(embed=em)
+
+
 
 
 
