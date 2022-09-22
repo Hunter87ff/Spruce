@@ -160,6 +160,39 @@ class Roles(commands.Cog):
 
 
 
+	@commands.command()
+	@commands.has_permissions(administrator=True, manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	async def role_all_human(self, ctx, role: discord.Role):
+		prs = await ctx.send("Processing...")
+		if ctx.author.top_role.position < role.position:
+			return await ctx.send("You Can't Manage This Role")
+	
+		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
+			return await ctx.send("I can't manage This role")
+		for member in ctx.guild.members:
+			if role not in member.roles:
+				if not member.bot:
+					await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+		await prs.edit(content="Role Given To All Members")
+
+
+	@commands.command()
+	@commands.has_permissions(administrator=True, manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	async def role_all_bot(self, ctx, role: discord.Role):
+		prs = await ctx.send("Processing...")
+		if ctx.author.top_role.position < role.position:
+			return await ctx.send("You Can't Manage This Role")
+	
+		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
+			return await ctx.send("I can't manage This role")
+		for member in ctx.guild.members:
+			if role not in member.roles:
+				if member.bot:
+					await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+		await prs.edit(content="Role Given To All Members")
+
 
 
 

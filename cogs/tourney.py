@@ -44,7 +44,7 @@ class Esports(commands.Cog):
     @commands.cooldown(2, 20, commands.BucketType.user)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
-    async def tourney_setup(self, ctx, front, total_slot, mentions, *, name):
+    async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         gid = ctx.guild.id%1000000000000
        
@@ -308,12 +308,12 @@ class Esports(commands.Cog):
             bt2 = Button(label="Total Slot", style=discord.ButtonStyle.green) 
             bt3 = Button(label="Mentions", style=discord.ButtonStyle.green)
             bt4 = Button(label="Save Changes")
-            bt5 = Button(label="Registration Channel")
+            #bt5 = Button(label="Registration Channel")
             bt6 = Button(label="Confirmation Channel")
             bt7 = Button(label="Add Slots")
             bt8 = Button(label="Cancle Slots")
             bt9 = Button(label="Confirm Role")
-            buttons = [bt0, bt1, bt2, bt3, bt5, bt6, bt9, bt4]
+            buttons = [bt0, bt1, bt2, bt3, bt4, bt6, bt9]
             view = View()
             ftf = None
             if tdb["faketag"] == "yes":
@@ -458,7 +458,7 @@ class Esports(commands.Cog):
                         return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
 
 
-            bt5.callback = r_ch
+            #bt5.callback = r_ch
             bt6.callback = c_ch
             bt4.callback = save_delete
             bt1.callback = ft
@@ -486,6 +486,49 @@ class Esports(commands.Cog):
         await ms.edit(content="Successfully Created")
       
     
+
+
+
+
+
+    @cmd.command(aliases=["t_reset"])
+    @commands.has_permissions(manage_channels=True,  manage_roles=True, manage_permissions=True)
+    @commands.bot_has_permissions(manage_channels=True, manage_messages=True, manage_roles=True, manage_permissions=True)
+    async def tourney_reset(self, ctx, channel: discord.TextChannel):
+        if ctx.author.bot:
+            return 
+
+        td = dbc.find_one({"rch" : channel.id})
+        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+
+
+        if tmrole not in ctx.author.roles:
+            return await ctx.reply("You Don't Have `tourney-mod` role")
+
+        if not td:
+            return await ctx.send("No Registration Running in this channel")
+
+
+        try:
+            cch = discord.utils.get(ctx.guild.channels, id=td["cch"])
+            await channel.purge(limit=20000)
+            await cch.purge(limit=20000)
+            dbc.update_one({"rch" : channel.id}, {"$set":{"reged" : 1}})
+            await ctx.send("Done")
+
+        except:
+            return
+
+
+
+
+
+
+
+
+
+
+
             
 async def setup(bot):
     await bot.add_cog(Esports(bot))
