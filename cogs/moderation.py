@@ -153,13 +153,13 @@ class Moderation(commands.Cog):
 		if role == None:
 			role = ctx.guild.default_role
 
-		channels = category.channels
-		for channel in channels:
-			overwrite = channel.overwrites_for(role)
-			overwrite.update(send_messages=False,add_reactions=False)
-			await ctx.channel.set_permissions(role, overwrite=overwrite)
-			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked**', delete_after=5)
-			await sleep(1)
+		for hchannel in category.channels:
+		  overwrite = hchannel.overwrites_for(role)
+		  overwrite.update(send_messages=False, add_reactions=False)
+		  await hchannel.set_permissions(role, overwrite=overwrite)
+
+		await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name}**', delete_after=5)
+			
 
 
 	@cmd.command(aliases=['ulc'])
@@ -172,13 +172,13 @@ class Moderation(commands.Cog):
 		if role == None:
 			role = ctx.guild.default_role
 
-		channels = category.channels
-		for channel in channels:
-			overwrite = channel.overwrites_for(role)
-			overwrite.update(send_messages=True,add_reactions=True)
-			await ctx.channel.set_permissions(role, overwrite=overwrite)
-			await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked**', delete_after=5)
-			await sleep(1)
+		for hchannel in category.channels:
+		  overwrite = hchannel.overwrites_for(role)
+		  overwrite.update(send_messages=True, add_reactions=True)
+		  await hchannel.set_permissions(role, overwrite=overwrite)
+
+		await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**', delete_after=5)
+
 
 
 	@cmd.command(aliases=['hc'])
