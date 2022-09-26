@@ -39,7 +39,7 @@ class Music(commands.Cog):
 	    tm = "%H:%M:%S"
 	    if next_song.duration < 3599:
 	        tm = "%M:%S"
-	    next_song_emb = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}]({next_song.uri})**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=next_song.thumbnail)
+	    next_song_emb = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=next_song.thumbnail)
 	    try:
 	        await ctx.send(embed=next_song_emb)
 
@@ -102,7 +102,7 @@ class Music(commands.Cog):
 		    tm = "%H:%M:%S"
 		    if search.duration < 3599:
 		        tm = "%M:%S"
-		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}]({search.uri})**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
+		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
 		    await ctx.send(embed=em, view=view)
 		            
 		else:
