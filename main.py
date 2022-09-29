@@ -251,17 +251,6 @@ async def cdm(ctx,amount:int):
       await message.delete()
 
 
-@bot.command(hidden=True)
-async def mmbrs(ctx):
-    if ctx.author.id  == config.owner_id:
-        i = 0
-        for guild in bot.guilds:
-            i = i + guild.member_count
-        await ctx.send(i)
-
-
-
-
 
 
 
@@ -277,15 +266,19 @@ async def ping(ctx):
     await ctx.send(f'**Current ping is {round(bot.latency*1000)} ms**')
 
 
-
+async def mmbrs(ctx):
+    i = 0
+    for guild in bot.guilds:
+        i = i + guild.member_count
+    return i
 
 
 @bot.command(aliases=["bi"])
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
-async def botinfo(ctx):
-
+async def botinfo(ctx): 
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : 113K+", inline=False)
+  mmbs = await mmbrs(ctx)
+  emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
   emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
