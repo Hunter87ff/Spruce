@@ -251,6 +251,16 @@ async def cdm(ctx,amount:int):
       await message.delete()
 
 
+@bot.command(hidden=True)
+async def mmbrs(ctx):
+    if ctx.author.id  == config.owner_id:
+        i = 0
+        for guild in bot.guilds:
+            i = i + guild.member_count
+        await ctx.send(i)
+
+
+
 
 
 
