@@ -260,7 +260,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=["droles", "drole"])
     async def del_roles(self, ctx):
-        em = discord.Embed(description="Aliases : `croles`\nUsage : `del_roles [roles...]`\nExample : `&del_roles @group1 @group2`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `droles`\nUsage : `del_roles [roles...]`\nExample : `&del_roles @group1 @group2`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["ra_role"])

@@ -46,7 +46,7 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases=['droles'])
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
