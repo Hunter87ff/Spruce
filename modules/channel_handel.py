@@ -1,25 +1,13 @@
-
-import discord
-from discord.ext import commands
-#from asyncio import sleep
-import pymongo
-from pymongo import MongoClient
-import re
-import datetime
 from modules import config
 
 
 
 
 maindb = config.maindb
-#maindb = MongoClient(os.environ["mongo_url"])
 db = maindb["tourneydb"]
-
 dbc = maindb["tourneydb"]["tourneydbc"]
-tourneydbc=dbc
+gtadbc =  maindb["gtamountdb"]["gtamountdbc"]
 
-gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
-gtadbc = gtamountdbc
 
 
 
