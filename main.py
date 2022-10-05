@@ -4,7 +4,6 @@ from discord.ext import commands
 from asyncio import sleep
 import datetime
 from datetime import datetime, timedelta
-from data import *
 import requests
 import pymongo
 import json
