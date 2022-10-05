@@ -6,7 +6,25 @@ from time import strftime
 from discord.ui import Button, View
 from discord import ButtonStyle
 from discord.ext import commands
+import requests
+from bs4 import BeautifulSoup
+import typing   
 
+
+
+def get_img(search):
+    imgs = []
+    if " " in search:
+        search = search.replace(" ", "+")
+    word = f"{search}+song"
+    url = f'https://www.google.com/search?q={word}&tbm=isch'.format(word)
+    content = requests.get(url).content
+    soup = BeautifulSoup(content,'html')
+    images = soup.findAll('img')
+    for image in images:
+        image_url = image.get('src')
+        imgs.append(str(image_url))
+    return imgs[1]
 
 cmd = commands
 class Music(commands.Cog):
@@ -17,8 +35,11 @@ class Music(commands.Cog):
 
 
 
+
+
 	@commands.Cog.listener()
-	async def on_wavelink_track_end(self, player: wavelink.Player, track: wavelink.YouTubeTrack, reason):
+	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.SoundCloudTrack] , reason):
+
 	    try:
 	        ctx = player.ctx
 	        vc: player = ctx.voice_client
@@ -35,11 +56,12 @@ class Music(commands.Cog):
 	        #return await vc.disconnect()
 
 	    next_song = vc.queue.get()
+	    image_url = get_img(search=next_song.title)
 	    await vc.play(next_song)
 	    tm = "%H:%M:%S"
 	    if next_song.duration < 3599:
 	        tm = "%M:%S"
-	    next_song_emb = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=next_song.thumbnail)
+	    next_song_emb = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=image_url)
 	    try:
 	        await ctx.send(embed=next_song_emb)
 
@@ -53,10 +75,9 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command(aliases=["p", "P"])
-	async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack):
-		return await ctx.reply("**Due to some policy issue. We've currnetly disabled music module. don't worry we're constantly trying to provide you the best.\nCome Back Soon With Something Special**", delete_after=60)
 
+	@cmd.command(aliases=["p", "P"])
+	async def play(self, ctx: commands.Context, *, search: typing.Union[wavelink.SoundCloudTrack]):
 		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
 		pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
 		stop_btn = Button(emoji="<:WhiteButton:1019218566475681863>", style=ButtonStyle.danger, custom_id="stop_btn")
@@ -102,7 +123,8 @@ class Music(commands.Cog):
 		    tm = "%H:%M:%S"
 		    if search.duration < 3599:
 		        tm = "%M:%S"
-		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=search.thumbnail)
+		    image_url = get_img(search=search.title)
+		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=image_url)
 		    await ctx.send(embed=em, view=view)
 		            
 		else:
@@ -118,6 +140,15 @@ class Music(commands.Cog):
 		    setattr(vc, "loop", False)
 
 
+
+
+
+	@cmd.command()
+	async def spotify(self, ctx, spotify_url: str):
+		player: wavelink.Player = ctx.voice_client
+		async for partial in spotify.SpotifyTrack.iterator(query=spotify_url):
+			player.queue.put(partial)
+		await ctx.send("Added To Queue...", delete_after=10)
 
 
 
@@ -201,9 +232,7 @@ class Music(commands.Cog):
 	                await interaction.response.send_message("Successfully Disconnected", ephemeral=True)
 	                await interaction.message.delete()
 	            except:
-	                return 
-	        else:
-	            await interaction.response.send_message("I'm Not in a vc", ephemeral=True)
+	                pass
 
 
 
@@ -296,25 +325,6 @@ class Music(commands.Cog):
 
 		if not ctx.voice_client:
 			return await ctx.reply("I'm Not Connected To Vc")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
