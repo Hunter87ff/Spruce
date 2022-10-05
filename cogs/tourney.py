@@ -338,7 +338,6 @@ class Esports(commands.Cog):
 
 
 
-
             async def save_delete(interaction):
                 await msg1.delete()
 
