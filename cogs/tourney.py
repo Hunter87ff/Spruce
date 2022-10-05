@@ -359,7 +359,10 @@ class Esports(commands.Cog):
                 gtadbc.update_one({"guild" : registration_channel.guild.id%1000000000000}, {"$set" : {"gta" : gta - 1}})
                 print("A Tournament Deleted")
                 dbc.delete_one({"tid" : registration_channel.id%1000000000000 })
-                await interaction.message.edit(content=f"**{config.tick} Tournament Deleted**")
+                await save_delete(interaction)
+                await interaction.message.delete()
+
+
 
 
             async def r_ch(interaction):
