@@ -30,6 +30,7 @@ gtadbc = gtamountdbc
 
 
 
+
 class Esports(commands.Cog):
 
     def __init__(self, bot):
@@ -312,11 +313,7 @@ class Esports(commands.Cog):
             bt7 = Button(label="Add Slots")
             bt8 = Button(label="Cancle Slots")
             bt9 = Button(label="Confirm Role")
-
-            bt10 = Button(label="Delete Tournament", style=discord.ButtonStyle.danger)
-            bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
-
-            buttons = [bt0, bt1, bt2, bt3, bt4, bt6, bt9, bt10]
+            buttons = [bt0, bt1, bt2, bt3, bt4, bt6, bt9]
             view = View()
             ftf = None
             if tdb["faketag"] == "yes":
@@ -346,19 +343,6 @@ class Esports(commands.Cog):
                 await msg1.delete()
 
 
-            async def delete_tourney_confirm(interaction):
-                view = View().add_item(bt11)
-                del_t_con = await interaction.response.send_message("**Are You Sure To Delete The Tournament?**", view=view)
-
-
-            async def delete_t_confirmed(interaction):
-                await interaction.message.edit(content=f"**{config.loading} Processing...**")
-                gtad = gtadbc.find_one({"guild" : registration_channel.guild.id%1000000000000})
-                gta = gtad["gta"]
-                gtadbc.update_one({"guild" : registration_channel.guild.id%1000000000000}, {"$set" : {"gta" : gta - 1}})
-                print("A Tournament Deleted")
-                dbc.delete_one({"tid" : registration_channel.id%1000000000000 })
-                await interaction.message.edit(content=f"**{config.tick} Tournament Deleted**")
 
 
             async def r_ch(interaction):
@@ -482,8 +466,6 @@ class Esports(commands.Cog):
             bt3.callback = mnts
             bt0.callback = strtps
             bt9.callback = conro
-            bt10.callback = delete_tourney_confirm
-            bt11.callback = delete_t_confirmed
 
 
 
