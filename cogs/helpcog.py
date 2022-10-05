@@ -329,7 +329,10 @@ class Helper(commands.Cog):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `pause_tourney <registration_channel>`\nExample : `&pause_tourney #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
         await ctx.send(embed=em)
 
-
+    @help.command()
+    async def tourney(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `tourney <registration_channel>`\nExample : `&tourney #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
+        await ctx.send(embed=em)
 
 
 #Utils Related
