@@ -224,8 +224,8 @@ class Music(commands.Cog):
 	@cmd.Cog.listener()
 	async def on_interaction(self, interaction):
 	    ctx = await self.bot.get_context(interaction.message)
-	    if not interaction.user.voice:
-	      return await interaction.response.send_message("Please Join Vc To Use", ephemeral=True)
+	    
+	      
 
 	    if interaction.data["custom_id"] == "stop_btn":
 	        if ctx.voice_client != None:
