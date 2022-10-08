@@ -224,6 +224,8 @@ class Music(commands.Cog):
 	@cmd.Cog.listener()
 	async def on_interaction(self, interaction):
 	    ctx = await self.bot.get_context(interaction.message)
+	    if not ctx.author.voice:
+	      return await interaction.response.send_message("Please Join Vc To Use")
 
 	    if interaction.data["custom_id"] == "stop_btn":
 	        if ctx.voice_client != None:
@@ -304,7 +306,7 @@ class Music(commands.Cog):
 
 		if not ctx.voice_client:
 			try:
-				vc : wavelink.Player =  await ctx.author.voice.channel.connect(reconnect=True, cls = wavelink.Player)
+				vc : wavelink.Player =  await ctx.author.voice.channel.connect(self_deaf=True, reconnect=True, cls = wavelink.Player)
 			except:
 				return await ctx.reply("Please Join VC")
 		if ctx.voice_client != None:
