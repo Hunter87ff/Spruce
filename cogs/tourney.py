@@ -61,24 +61,20 @@ class Esports(commands.Cog):
             overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, manage_channels=True, external_emojis=True, view_channel=True)
             reason= f'Created by {ctx.author.name}'   #reason for auditlog
             category = await ctx.guild.create_category(name, reason=f"{ctx.author.name} created")
+            await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
             await category.set_permissions(bt, overwrite=overwrite)
             await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
             await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
             await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
             await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
             r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    #registration Channel
+            await r_ch.set_permissions(ctx.guild.default_role, send_messages=True)
             c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)    #confirmation_channel
             g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
-            await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
-
-            role_name = front + "Confirmed"
-            EMB = discord.Embed(color=0x00ff00, description=f"**REGISTRATION STARTED\nTOTAL SLOT : `{total_slot}`**")
-            c_role = await ctx.guild.create_role(name=role_name, reason=f"Created by {ctx.author}") #role
-
-            await r_ch.set_permissions(c_role, send_messages=False)
-            await r_ch.send(embed=EMB)
-
-            await c_ch.set_permissions(ctx.guild.default_role, send_messages=False)
+            quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
+            await quer.set_permissions(ctx.guild.default_role, send_messages=True)
+            c_role = await ctx.guild.create_role(name=front + "Confirmed", reason=f"Created by {ctx.author}") #role
+            await r_ch.send(embed=discord.Embed(color=0x00ff00, description=f"REGISTRATION STARTED\nTOTAL SLOT : `{total_slot}`"))
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
                     "guild" : int(ctx.guild.id),
