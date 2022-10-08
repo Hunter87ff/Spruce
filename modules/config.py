@@ -6,6 +6,7 @@ from pymongo import MongoClient
 
 owner_id = 885193210455011369
 owner_tag = "hunter#6967"
+bot_id = 931202912888164474
 support_server = "https://discord.gg/vMnhpAyFZm"
 prefix = "&"
 maindb = MongoClient(os.environ["mongo_url"])

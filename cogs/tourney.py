@@ -24,9 +24,6 @@ gtadbc = gtamountdbc
 
 
 
- 
-
-
 
 
 
@@ -45,6 +42,7 @@ class Esports(commands.Cog):
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
+        bt = ctx.guild.get_member(self.bot.user.id)
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         gid = ctx.guild.id%1000000000000
        
@@ -57,9 +55,11 @@ class Esports(commands.Cog):
 
 
         if int(total_slot) < 20000:
+            overwrite = ctx.channel.overwrites_for(bt)
+            overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, manage_channels=True, external_emojis=True, view_channel=True)
             reason= f'Created by {ctx.author.name}'   #reason for auditlog
             category = await ctx.guild.create_category(name, reason=f"{ctx.author.name} created")
-            await category.set_permissions(ctx.guild.default_role, send_messages=False)
+            await category.set_permissions(bt, overwrite=overwrite)
             await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
             await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
             await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
@@ -70,11 +70,17 @@ class Esports(commands.Cog):
             await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
 
             role_name = front + "Confirmed"
+            EMB = discord.Embed(color=0x00ff00, description=f"**REGISTRATION STARTED\nTOTAL SLOT : `{total_slot}`**")
             c_role = await ctx.guild.create_role(name=role_name, reason=f"Created by {ctx.author}") #role
+
             await r_ch.set_permissions(c_role, send_messages=False)
+            await r_ch.send(embed=EMB)
+
+            await c_ch.set_permissions(ctx.guild.default_role, send_messages=False)
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
-                    "guild" : int(ctx.guild.id), 
+                    "guild" : int(ctx.guild.id),
+                    "t_name" : str(category.name), 
                     "rch" : int(r_ch.id),
                     "cch" : int(c_ch.id),
                     "crole" : int(c_role.id),
@@ -83,7 +89,8 @@ class Esports(commands.Cog):
                     "mentions" : int(mentions),
                     "slotpg" : 12,
                     "status" : "started",
-                    "faketag": "no"}
+                    "faketag": "no"
+                    }
             
             gtadbcds = gtadbc.find_one({"guild" : gid})
             
@@ -125,7 +132,7 @@ class Esports(commands.Cog):
         await cat.set_permissions(crl, overwrite=overwrite)
         amt = vc_amount + 1
         for i in range(1, amt):
-            await cat.create_voice_channel(name=f"SLOT {i}")
+            await cat.create_voice_channel(name=f"SLOT {i}", user_limit=6)
             if len(cat.channels) == vc_amount:
                 await ctx.message.delete()
                 await snd.delete()
