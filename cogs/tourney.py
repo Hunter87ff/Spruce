@@ -42,6 +42,8 @@ class Esports(commands.Cog):
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
+        if ctx.author.bot:
+            return
         bt = ctx.guild.get_member(self.bot.user.id)
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         gid = ctx.guild.id%1000000000000
@@ -118,9 +120,12 @@ class Esports(commands.Cog):
 
 
     @cmd.command()
+    @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
     async def girls_lobby(self, ctx, vc_amount : int):
+        if ctx.author.bot:
+            return
         male_rs = ["male", "boys", "boy", "men", "MALE", "BOY", "BOYS"]
         female_rs = ["female", "girls", "girl", "women", "FEMALE", "GIRL", "GIRLS", "WOMEN"]
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
@@ -153,7 +158,10 @@ class Esports(commands.Cog):
 
 
     @cmd.command()
+    @commands.has_role("tourney-mod")
     async def start_tourney(self, ctx, registration_channel : discord.TextChannel):
+        if ctx.author.bot:
+            return
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
@@ -167,7 +175,10 @@ class Esports(commands.Cog):
 
             
     @cmd.command(aliases=['pt'])
+    @commands.has_role("tourney-mod")
     async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
+        if ctx.author.bot:
+            return
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         
@@ -182,7 +193,10 @@ class Esports(commands.Cog):
             
 
     @cmd.command()
+    @commands.has_role("tourney-mod")
     async def cancel_slot(self, ctx, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
+        if ctx.author.bot:
+            return
         if reason == None:
                 reason = "Not Provided"
        
@@ -230,7 +244,10 @@ class Esports(commands.Cog):
         
             
     @cmd.command()
+    @commands.has_role("tourney-mod")
     async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name):
+        if ctx.author.bot:
+            return
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
         if tmrole == None:
@@ -259,7 +276,10 @@ class Esports(commands.Cog):
             
             
     @cmd.command()
+    @commands.has_role("tourney-mod")
     async def faketag(self, ctx, registration_channel: discord.TextChannel):
+        if ctx.author.bot:
+            return
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         if t_mod == None:
             t_mod = await ctx.guild.create_role("tourney-mod")
@@ -303,6 +323,8 @@ class Esports(commands.Cog):
     @commands.has_any_role("tourney-mod")
     @commands.bot_has_permissions(send_messages=True)
     async def tourney(self, ctx, registration_channel: discord.TextChannel):
+        if ctx.author.bot:
+            return
         rch = registration_channel
         tdb = dbc.find_one({"tid": rch.id%1000000000000})
 
@@ -499,9 +521,12 @@ class Esports(commands.Cog):
 
 
     @cmd.command(aliases=['gsetup'], help="group_setup FFMC 12 ")
+    @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def group_setup(self, ctx, front, amount : int):
+        if ctx.author.bot:
+            return
         ms = await ctx.send("Processing...")
         category = await ctx.guild.create_category(name=f"{front} GROUPS")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
@@ -521,6 +546,7 @@ class Esports(commands.Cog):
 
 
     @cmd.command(aliases=["t_reset"])
+    @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True,  manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(manage_channels=True, manage_messages=True, manage_roles=True, manage_permissions=True)
     async def tourney_reset(self, ctx, channel: discord.TextChannel):
