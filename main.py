@@ -173,7 +173,10 @@ async def on_command_error(ctx, error):
 
 
     elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
-        err = discord.Embed(color=0xff0000, description="You Do Not Have The Exact Role To Use This Command")
+        er = str(error)
+        if "'" in er:
+            er = er.replace("'", "`")
+        err = discord.Embed(color=0xff0000, description=er)
         return await ctx.send(embed=err)
 
     elif isinstance(error, commands.UserInputError):
