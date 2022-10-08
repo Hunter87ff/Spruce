@@ -225,7 +225,7 @@ class Music(commands.Cog):
 	async def on_interaction(self, interaction):
 	    ctx = await self.bot.get_context(interaction.message)
 	    if not interaction.user.voice:
-	      return await interaction.response.send_message("Please Join Vc To Use")
+	      return await interaction.response.send_message("Please Join Vc To Use", ephemeral=True)
 
 	    if interaction.data["custom_id"] == "stop_btn":
 	        if ctx.voice_client != None:
@@ -256,9 +256,6 @@ class Music(commands.Cog):
 	    if interaction.data["custom_id"] == "queue_btn":
 	        if not ctx.voice_client:
 	            return await interaction.response.send_message("i'm not even in a vc...", ephemeral=True)
-
-	        elif ctx.author.voice == None:
-	            return await interaction.response.send_message("Please Join VC", ephemeral=True)
 
 
 	        vc: wavelink.Player = ctx.voice_client
