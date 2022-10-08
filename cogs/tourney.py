@@ -38,9 +38,9 @@ class Esports(commands.Cog):
 
 
     @commands.command(aliases=['ts'])
-    @commands.cooldown(2, 20, commands.BucketType.user)
+    @commands.has_role("tourney-mod")
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
-    @commands.has_permissions(manage_channels=True)
+    @commands.has_permissions(manage_channels=True, manage_roles=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
         bt = ctx.guild.get_member(self.bot.user.id)
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
