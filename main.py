@@ -243,6 +243,9 @@ async def on_command_error(ctx, error):
         except:
             return
 
+    elif "Unknown Role" in str(error):
+        return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
+
     else:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
