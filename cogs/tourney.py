@@ -27,7 +27,6 @@ gtadbc = gtamountdbc
 
 
 
-
 class Esports(commands.Cog):
 
     def __init__(self, bot):
