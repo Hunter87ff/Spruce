@@ -391,31 +391,31 @@ class Esports(commands.Cog):
 
 
             async def r_ch(interaction):
-                await interaction.response.send_message("Mention Registration Channel")
+                await interaction.response.send_message("Mention Registration Channel", ephemeral=True)
                 channel = await checker.channel_input(ctx)
                 ach = dbc.find_one({"tid" : channel.id%1000000000000})
 
                 if channel.id%1000000000000 == tdb["tid"] or ach != None:
-                    return await ctx.send("A Tournament Already Running In This channel")
+                    return await ctx.send("A Tournament Already Running In This channel", delete_after=15)
 
                 else:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tid": channel.id%1000000000000}})
-                    await ctx.send("Registration Channel Updated")
+                    await ctx.send("Registration Channel Updated", delete_after=5)
 
 
 
 
             async def c_ch(interaction):
-                await interaction.response.send_message("Mention Confiration Channel")
+                await interaction.response.send_message("Mention Confiration Channel", ephemeral=True)
                 cchannel = await checker.channel_input(ctx)
                 acch = dbc.find_one({"cch" : cchannel.id})
 
                 if cchannel.id == cch.id or acch != None:
-                    return await ctx.send("A Tournament Already Running In This channel")
+                    return await ctx.send("A Tournament Already Running In This channel", delete_after=15)
                     
                 else:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"cch": cchannel.id}})
-                    await ctx.send("Confirm Channel Updated")
+                    await ctx.send("Confirm Channel Updated", delete_after=5)
 
 
 
@@ -437,36 +437,36 @@ class Esports(commands.Cog):
 
 
             async def ttl_slot(interaction):
-                await interaction.response.send_message("Enter Number Between 2 and 20000")
+                await interaction.response.send_message("Enter Number Between 2 and 20000", ephemeral=True)
                 tsl = await checker.ttl_slots(ctx)
                 
                 try:
                     if int(tsl) > 20000:
-                        return await ctx.send("Only Number Between 1 and 20000")
+                        return await ctx.send("Only Number Between 1 and 20000", delete_after=20)
                     if int(tsl) == 20000 or int(tsl) < 20000:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tslot" : int(tsl)}})
-                        await ctx.send("Total Slots Updated")
+                        await ctx.send("Total Slots Updated", delete_after=5)
 
                 except ValueError:
-                    return await ctx.send("Numbers Only")
+                    return await ctx.send("Numbers Only", delete_after=20)
 
 
 
 
             async def mnts(interaction):
-                await interaction.response.send_message("Enter Number Between 1 and 20")
+                await interaction.response.send_message("Enter Number Between 1 and 20", ephemeral=True)
                 mns = await checker.ttl_slots(ctx)
 
                 try:
                     if int(mns) > 20:
-                        return await ctx.send("Only Number upto 20")
+                        return await ctx.send("Only Number upto 20", delete_after=15)
 
                     if int(mns) == 20 or int(mns) < 20:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"mentions" : int(mns)}})
                         await ctx.send("Mentions Updated")
 
                 except ValueError:
-                    return await ctx.send("Numbers Only")
+                    return await ctx.send("Numbers Only", delete_after=15)
 
 
 
@@ -479,26 +479,27 @@ class Esports(commands.Cog):
                         await rch.send("**Tournament Paused**")
                         bt0.disabled = True
                         await interaction.response.edit_message(view=view)
-                        await ctx.send("Tournament Paused", delete_after=10)
+                        await ctx.send("Tournament Paused", delete_after=5)
 
                     if tdb["status"] == "paused":
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"status" : "started"}})
                         await rch.send("**Tournament Statred**")
                         bt0.disabled = True
                         await interaction.response.edit_message(view=view)
-                        await ctx.send("Tournament Started", delete_after=10)
+                        await ctx.send("Tournament Started", delete_after=5)
 
 
 
 
             async def conro(interaction):
                 if interaction.user == ctx.author:
-                    await interaction.response.send_message("Mention The Confirm Role")
+                    await interaction.response.send_message("Mention The Confirm Role", ephemeral=True)
                     con_role = await checker.check_role(ctx)
                     cndb = dbc.find_one({"crole" : str(con_role.id)})
 
                     if cndb == None:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"crole" : con_role.id}})
+                        await ctx.send("Confirm Role Updated", delete_after=5)
                     if cndb != None:
                         return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
 

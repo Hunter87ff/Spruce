@@ -1,22 +1,26 @@
 import os 
 import discord
-from discord.ext import commands
-from asyncio import sleep
+import wavelink
+import time
+import typing
+import asyncio
 import datetime
-from datetime import datetime, timedelta
 import requests
 import pymongo
 import json
+from asyncio import sleep
 from pymongo import MongoClient
-from modules import (message_handel, channel_handel, checker, config, color)
-onm = message_handel
-ochd = channel_handel
+from discord.ext import commands
 from discord.ui import Button, View
-import wavelink
-import time
+from datetime import datetime, timedelta
+from modules import (message_handel, channel_handel, checker, config, color)
+from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
+
+
 
  
-
+onm = message_handel
+ochd = channel_handel
 intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
@@ -130,7 +134,22 @@ async def on_message(message):
 async def on_guild_channel_delete(channel):
     await ochd.ch_handel(channel)
 	
-	
+
+@bot.event
+async def on_guild_join(guild):
+    ch = bot.get_channel(1028673206850179152)
+    link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
+    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nInvite Link : {link}```"
+    return await ch.send(msg)
+
+
+@bot.event
+async def on_guild_remove(guild):
+    ch = bot.get_channel(1028673254606508072)
+    #link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
+    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}```"
+    return await ch.send(msg)
+
 	
 ##########################################################################################
 #                                          TEXT COMMANDS
@@ -188,7 +207,7 @@ async def on_command_error(ctx, error):
         return await ctx.send(embed=err)
 
     elif isinstance(error, commands.NotOwner):
-        err = discord.Embed(color=0xff0000, description="This Is A Owner Only Command You Cant Use It")
+        err = discord.Embed(color=0xff0000, description="This Is A Owner Only Command You Can't Use It")
         return await ctx.send(embed=err)
 
     elif isinstance(error, commands.MessageNotFound):
