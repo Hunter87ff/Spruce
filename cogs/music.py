@@ -16,7 +16,7 @@ def get_img(search):
     imgs = []
     if " " in search:
         search = search.replace(" ", "+")
-    word = f"{search}+song"
+    word = f"{search}+youtube"
     url = f'https://www.google.com/search?q={word}&tbm=isch'.format(word)
     content = requests.get(url).content
     soup = BeautifulSoup(content,'html')
