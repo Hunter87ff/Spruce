@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 cmd = commands
+from modules import config
 
 blurple = 0x7289da
 greyple = 0x99aab5
@@ -47,18 +48,22 @@ class Roles(commands.Cog):
 
 
 	@cmd.command(aliases=['droles'])
-	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def del_roles(self, ctx, *roles : discord.Role):
+		bt = ctx.guild.get_member(self.bot.user.id)
+		msg = await ctx.send(f"{config.loading} Processing...")
 		for role in roles:
-			if ctx.author.top_role < role:
-				return await ctx.send("This Role Is Higher Than Your Top Role", delete_after=5)
-#			elif self.bot.top_role < role:
-#				return await ctx.send("This Role Is Higher Than My Top Role", delete_after=5)
+			if ctx.author.top_role.position < role.position:
+				return await ctx.send("Role Is Higher Than Your Top Role", delete_after=5)
+
+			elif bt.top_role.position < role.position:
+				return await ctx.send("Role Is Higher Than My Top Role", delete_after=5)
+
 			else:
 				await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
-				await ctx.send(f"Role {role.name} has been deleted by {ctx.author}", delete_after=5)
+
+		await msg.edit(f"{config.vf}Roles Successfully Deleted", delete_after=10)
 
 
 
