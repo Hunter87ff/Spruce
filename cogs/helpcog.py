@@ -316,7 +316,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['ts', "tsetup"])
     async def tourney_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `tourney_setup <front> <total_slot> <mentions> <name>`\nExample : `&tourney_setup WS｜ 360 4 WEEKLY SCRIM`\nNote : You Must Have @tourney-mod Role", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <front> <total_slot> <mentions> <name>`\nExample : `&tourney_setup WS｜ 360 4 WEEKLY SCRIM`\nNote : You Must Have @tourney-mod Role", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['st_tourney', "tourney_start"])
