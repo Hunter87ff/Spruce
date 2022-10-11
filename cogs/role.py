@@ -63,7 +63,7 @@ class Roles(commands.Cog):
 			else:
 				await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
 
-		await msg.edit(f"{config.vf}Roles Successfully Deleted", delete_after=10)
+		await msg.edit(content=f"{config.vf}Roles Successfully Deleted", delete_after=10)
 
 
 
