@@ -203,6 +203,40 @@ class Roles(commands.Cog):
 
 
 
+	@commands.command(aliases=["hr"])
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def hide_roles(self, ctx):
+	    roles = ctx.guild.roles
+
+	    for role in roles:
+	        if role.position < ctx.author.top_role.position:
+	                try:
+	                    await role.edit(hoist=False)
+	                except:
+	                    pass
+
+
+
+
+	@cmd.command(aliases=["uhr"])
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def unhide_roles(self, ctx, *roles : discord.Role):
+
+	    for role in roles:
+	        if role.position < ctx.author.top_role.position:
+	            try:
+	                await role.edit(hoist=True)
+	            except:
+	                pass
+
+
+
+
+
+
+
 
 
 

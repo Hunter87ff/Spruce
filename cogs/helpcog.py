@@ -22,7 +22,7 @@ helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Cat
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xf0ff0f)
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`", color=0xf0ff0f)
-roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`", color=0xf0ff0f)
+roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
 
 
@@ -285,7 +285,16 @@ class Helper(commands.Cog):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `clear_perms [role=None]`\nExample : `&clear_perms @public`\nDescription : Use this command to remove all permissions from roles", color=0x00ff00)
         await ctx.send(embed=em)
 
+    @help.command(aliases=["hr"])
+    async def hide_roles(self, ctx):
+        em = discord.Embed(description="Aliases : `hr`\nUsage : `hide_roles`\nExample : `&hide_roles`\nDescription : Use this command to hide all roles in memebr list", color=0x00ff00)
+        await ctx.send(embed=em)
 
+
+    @help.command(aliases=["uhr"])
+    async def unhide_roles(self, ctx):
+        em = discord.Embed(description="Aliases : `uhr`\nUsage : `unhide_roles [roles..]`\nExample : `&unhide_roles @moderator @Admin`\nDescription : Use this command to roles roles in memebr list", color=0x00ff00)
+        await ctx.send(embed=em)
 
 #Esports Related
 
