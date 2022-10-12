@@ -139,7 +139,7 @@ async def on_guild_channel_delete(channel):
 @bot.event
 async def on_guild_join(guild):
     ch = bot.get_channel(1028673206850179152)
-    link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
+    link = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
     msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nInvite Link : {link}```"
     return await ch.send(msg)
 
