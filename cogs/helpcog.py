@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from asyncio import sleep
 from discord.ui import Button, View
-
+from modules import config
 
 
 
@@ -17,7 +17,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 invbtn = Button(label="Invite", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
-hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `64`\n• Type `&help <command | category>` for more info\n\n"
+hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `67`\n• Type `&help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xf0ff0f)
@@ -244,7 +244,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=["role", "role_give"])
     async def give_role(self, ctx):
-        em = discord.Embed(description="Aliases : `role`\nUsage : `give_role <role> [users...]`\nExample : `&role @Male @hunter`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `role`\nUsage : `give_role <role> [members...]`\nExample : `&role @Male @hunter`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
@@ -254,7 +254,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=["role_remove", "role_re"])
     async def remove_role(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `remove_role <role> [user...]`\nExample : `&remove_role @Male @hunter`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `remove_role <role> [memebrs...]`\nExample : `&remove_role @Male @hunter`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["droles", "drole"])
@@ -295,6 +295,10 @@ class Helper(commands.Cog):
     async def unhide_roles(self, ctx):
         em = discord.Embed(description="Aliases : `uhr`\nUsage : `unhide_roles [roles..]`\nExample : `&unhide_roles @moderator @Admin`\nDescription : Use this command to roles roles in memebr list", color=0x00ff00)
         await ctx.send(embed=em)
+
+
+
+
 
 #Esports Related
 
