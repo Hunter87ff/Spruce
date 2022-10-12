@@ -29,6 +29,7 @@ intents.message_content = True
 intents.reactions = True
 intents.members = True
 intents.voice_states = True
+intents.guilds = True
 pref = os.environ["prefix"]
 
 
