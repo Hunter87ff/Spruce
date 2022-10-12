@@ -140,7 +140,7 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(aliases=['roles'], help="Use this command to give role to multiple \nExample : &role  @Male @hunter @alex ")
+	@cmd.command(aliases=['roles'], help="Use this command to give role to multiple \nExample : &role  @Male @hunter @alex ")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def give_roles(self, ctx, user: discord.Member, *roles: discord.Role):
@@ -165,7 +165,7 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command()
+	@cmd.command()
 	@commands.has_permissions(administrator=True, manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def role_all_human(self, ctx, role: discord.Role):
@@ -184,7 +184,7 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command()
+	@cmd.command()
 	@commands.has_permissions(administrator=True, manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def role_all_bot(self, ctx, role: discord.Role):
@@ -203,6 +203,36 @@ class Roles(commands.Cog):
 
 
 
+
+
+
+	@cmd.command(aliases=["hr"])
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def hide_roles(ctx):
+	    roles = ctx.guild.roles
+
+	    for role in roles:
+	        if role.position < ctx.author.top_role.position:
+	                try:
+	                    await role.edit(hoist=False)
+	                except:
+	                    pass
+
+
+
+
+	@cmd.command(aliases=["uhr"])
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def unhide_roles(ctx, *roles : discord.Role):
+
+	    for role in roles:
+	        if role.position < ctx.author.top_role.position:
+	            try:
+	                await role.edit(hoist=True)
+	            except:
+	                pass
 
 
 
