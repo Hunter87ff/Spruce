@@ -207,7 +207,7 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide_roles(self, ctx):
-		msg = await ctx.send(f'{config.loading}** Processing..**')
+	    msg = await ctx.send(f'{config.loading}** Processing..**')
 	    roles = ctx.guild.roles
 	    for role in roles:
 	        if role.position < ctx.author.top_role.position:
@@ -224,7 +224,7 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_roles(self, ctx, *roles : discord.Role):
-		msg = await ctx.send(f'{config.loading}** Processing..**')
+	    msg = await ctx.send(f'{config.loading}** Processing..**')
 	    for role in roles:
 	        if role.position < ctx.author.top_role.position:
 	            try:
