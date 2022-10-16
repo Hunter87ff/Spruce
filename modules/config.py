@@ -8,6 +8,7 @@ owner_id = 885193210455011369
 owner_tag = "hunter#6967"
 bot_id = 931202912888164474
 support_server = "https://discord.gg/vMnhpAyFZm"
+support_server_id = 947443790053015623
 prefix = "&"
 maindb = MongoClient(os.environ["mongo_url"])
 version = "1.9.3"

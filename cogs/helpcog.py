@@ -29,10 +29,7 @@ buttons =[invbtn, votebtn, support_serverbtn]
 
 
 def get_thum(ctx):
-    guild = bot.get_guild(947443790053015623)
-    return guild.icon.url
-
-
+    return ctx.guild.get_member(config.bot_id).display_avatar
 
 
 
