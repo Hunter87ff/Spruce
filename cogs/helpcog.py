@@ -51,6 +51,7 @@ class Dropdown(discord.ui.Select):
         super().__init__(placeholder='Choose Command Category...', min_values=1, max_values=1, options=options)
 
     async def callback(self, interaction: discord.Interaction):
+        ctx = interaction
         if self.values[0] == "Music":
             await interaction.response.edit_message(embed=musicemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
         if self.values[0] == "Moderation":
