@@ -52,17 +52,17 @@ class Dropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if self.values[0] == "Music":
-            await interaction.response.edit_message(embed=musicemb.set_thumbnail(url=interaction.guild.icon.url).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await interaction.response.edit_message(embed=musicemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
         if self.values[0] == "Moderation":
-            await interaction.response.edit_message(embed=modemb.set_thumbnail(url=interaction.guild.icon.url).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await interaction.response.edit_message(embed=modemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
         if self.values[0] == "Esports":
-            await interaction.response.edit_message(embed=espemb.set_thumbnail(url=interaction.guild.icon.url).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await interaction.response.edit_message(embed=espemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
         if self.values[0] == "Main":
-            await interaction.response.edit_message(embed=helpemb.set_thumbnail(url=interaction.guild.icon.url).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await interaction.response.edit_message(embed=helpemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
         if self.values[0] == "Utility":
-            await interaction.response.edit_message(embed=utilemb.set_thumbnail(url=interaction.guild.icon.url).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await interaction.response.edit_message(embed=utilemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
         if self.values[0] == "Role":
-            await interaction.response.edit_message(embed=roleemb.set_thumbnail(url=interaction.guild.icon.url).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await interaction.response.edit_message(embed=roleemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
 
 
 
