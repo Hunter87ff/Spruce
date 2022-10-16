@@ -31,7 +31,8 @@ buttons =[invbtn, votebtn, support_serverbtn]
 def get_thum(ctx):
     if not ctx.guild.icon:
         return ctx.author.display_avatar
-    else:
+
+    elif ctx.guild.icon.url:
         return ctx.guild.icon.url
 
 
