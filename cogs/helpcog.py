@@ -83,7 +83,7 @@ class Helper(commands.Cog):
             return
 
         view = DropdownView()
-        for opt in opts:
+        for opt in buttons:
             view.add_item(opt)
         msg = await ctx.send(embed=helpemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
