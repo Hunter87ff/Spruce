@@ -25,8 +25,13 @@ modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clea
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`", color=0xf0ff0f)
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
-
-
+buttons =[invbtn, votebtn, support_serverbtn]
+def get_thum(ctx):
+    try:
+        thum = ctx.guild.icon.url
+    except:
+        thum = ctx.author.display_avatar
+    return thum
 
 class Dropdown(discord.ui.Select):
     def __init__(self):
@@ -77,65 +82,55 @@ class Helper(commands.Cog):
         if ctx.author.bot:
             return
 
-        opts = [invbtn, votebtn, support_serverbtn]
         view = DropdownView()
-        try:
-          thum = ctx.guild.icon.url
-        except:
-          thum = ctx.author.display_avatar
         for opt in opts:
             view.add_item(opt)
-        msg = await ctx.send(embed=helpemb.set_thumbnail(url=thum), view=view)
+        msg = await ctx.send(embed=helpemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
 
 
     @help.group(invoke_without_command=True)
     async def Music(self, ctx):
         view = View()
-        buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=musicemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
+        await ctx.send(embed=musicemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
 
 
     @help.group(invoke_without_command=True)
     async def Moedration(self, ctx):
         view = View()
-        buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=modemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
+        await ctx.send(embed=modemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
 
 
     @help.group(invoke_without_command=True)
     async def Esports(self, ctx):
         view = View()
-        buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=espemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
+        await ctx.send(embed=espemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
 
     @help.group(invoke_without_command=True)
     async def Role(self, ctx):
         view = View()
-        buttons =[invbtn, votebtn]
+        
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=roleemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
+        await ctx.send(embed=roleemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
 
 
     @help.group(invoke_without_command=True)
     async def Utility(self, ctx):
         view = View()
-        buttons =[invbtn, votebtn]
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=utilemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
-
+        await ctx.send(embed=utilemb.set_thumbnail(url=get_thum(ctx)), view=view)
 
 
 
