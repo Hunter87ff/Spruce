@@ -26,12 +26,18 @@ espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, 
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
 buttons =[invbtn, votebtn, support_serverbtn]
+
+
 def get_thum(ctx):
-    try:
-        thum = ctx.guild.icon.url
-    except:
-        thum = ctx.author.display_avatar
-    return thum
+    if not ctx.guild.icon:
+        return ctx.author.display_avatar
+    else:
+        return ctx.guild.icon.url
+
+
+
+
+
 
 class Dropdown(discord.ui.Select):
     def __init__(self):
