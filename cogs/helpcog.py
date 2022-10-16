@@ -78,9 +78,13 @@ class Helper(commands.Cog):
 
         opts = [invbtn, votebtn]
         view = DropdownView()
+        try:
+          thum = ctx.guild.icon.url
+        except:
+          thum = ctx.author.display_avatar
         for opt in opts:
             view.add_item(opt)
-        msg = await ctx.send(embed=helpemb.set_thumbnail(url=ctx.guild.icon.url), view=view)
+        msg = await ctx.send(embed=helpemb.set_thumbnail(url=thum), view=view)
 
 
 
