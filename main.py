@@ -50,11 +50,12 @@ async def load_extensions():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             await bot.load_extension(f"cogs.{filename[:-3]}")
+asyncio.run(load_extensions())
+
 
 
 @bot.event
 async def on_ready():
-    await load_extensions()
     await node_connect()
     st_log = bot.get_channel(1020027121231462400)
     status = [f'&help',f"{len(bot.guilds)} Servers", "You", "100k+ Members"]
