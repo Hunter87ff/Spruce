@@ -36,7 +36,7 @@ class Esports(commands.Cog):
 
 
 
-    @commands.command(aliases=['ts'])
+    @commands.command(aliases=['ts','tourneysetup'])
     @commands.has_role("tourney-mod")
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True, manage_roles=True)
@@ -114,7 +114,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command()
+    @cmd.command(aliases=["girlslobby"])
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
