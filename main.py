@@ -273,13 +273,19 @@ async def on_command_error(ctx, error):
     elif "Unknown Role" in str(error):
         return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
 
+    elif "Cannot delete a channel required for community servers" in str(error):
+        return await ctx.send(embed=discord.Embed(description="**Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
+
+    elif "403 Forbidden (error code: 50001): Missing Access" in str(error):
+        return await ctx.send(embed=discord.Embed(description="**Missing Access! You Should Check My Permissions**", color=0xff0000), delete_after=30)
+
     else:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
         brp = await ctx.reply(f"Suddenly You Got a Bug!")
         await brp.edit(content="don't worry! I've reported to developers", delete_after=30)
 
-
+#
 
 
 @bot.command()
