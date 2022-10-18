@@ -253,6 +253,9 @@ async def on_command_error(ctx, error):
     elif "This playlist type is unviewable." in str(error):
         return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
 
+    elif "Maximum number of channels in category reached (50)" in str(error):
+        return await ctx.send(embed=discord.Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
+
     elif isinstance(error, commands.BotMissingPermissions):
         er = str(error)
         if "(s)" in er:
