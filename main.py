@@ -285,7 +285,7 @@ async def on_command_error(ctx, error):
         brp = await ctx.reply(f"Suddenly You Got a Bug!")
         await brp.edit(content="don't worry! I've reported to developers", delete_after=30)
 
-#
+
 
 
 @bot.command()
@@ -296,6 +296,14 @@ async def cdm(ctx,amount:int):
     if message.author == bot.user:
       await message.delete()
 
+
+@bot.command()
+async def inrole(ctx, role: discord.Role):
+    if len(role.members) > 199:
+        return await ctx.send("Too Many Members To Show")
+    em = discord.Embed(color=0xff0000)
+    em.add_field(name=f"Members in {role.mention}", value=" ,".join(member.mention for member in role.members))
+    await ctx.send(embed=em)
 
 
 
