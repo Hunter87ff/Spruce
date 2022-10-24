@@ -242,7 +242,7 @@ class Music(commands.Cog):
 
 		if interaction.data["custom_id"] == "next_btn":
 			if not interaction.user.voice:
-				return await interaction.response.send_message("Please Join VC")
+				return await interaction.response.send_message("Please Join VC", ephemeral=True)
 
 			if ctx.voice_client != None:
 				vc: wavelink.Player = ctx.voice_client
@@ -277,7 +277,7 @@ class Music(commands.Cog):
 		    
 		if interaction.data["custom_id"] == "pause_btn":
 		    if not interaction.user.voice:
-		        return await ctx.reply("Please Join VC")
+		        return await interaction.response.send_message("Please Join VC", ephemeral=True)
 		        
 		    if ctx.voice_client != None:
 		        vc : wavelink.Player = ctx.voice_client
@@ -289,7 +289,7 @@ class Music(commands.Cog):
 
 		if interaction.data["custom_id"] == "play_btn":
 		    if not interaction.user.voice:
-		        return await ctx.reply("Please Join VC")
+		        return await interaction.response.send_message("Please Join VC", ephemeral=True)
 		        
 		    if ctx.voice_client != None:
 		        vc : wavelink.Player = ctx.voice_client
