@@ -223,80 +223,84 @@ class Music(commands.Cog):
 
 	@cmd.Cog.listener()
 	async def on_interaction(self, interaction):
-	    ctx = await self.bot.get_context(interaction.message)
-	    
-	      
+		ctx = await self.bot.get_context(interaction.message)
 
-	    if interaction.data["custom_id"] == "stop_btn":
-	        if ctx.voice_client != None:
-	            try:
-	                await ctx.voice_client.disconnect()
-	                await interaction.response.send_message("Successfully Disconnected", ephemeral=True)
-	                await interaction.message.delete()
-	            except:
-	                pass
+		  
 
-
-
-	    if interaction.data["custom_id"] == "next_btn":
-	            if ctx.voice_client != None:
-	                vc: wavelink.Player = ctx.voice_client
-	                #player = bot.wavelink.get_player(ctx.guild.id)
-
-	            if vc.queue.is_empty:
-	                return await interaction.response.send_message("the queue is empty", ephemeral=True)
-
-	            else:
-	                await interaction.response.send_message("Skiping...")
-	                await ctx.channel.purge(limit=1)
-	                await vc.stop()
+		if interaction.data["custom_id"] == "stop_btn":
+			if not interaction.user.voice:
+				return await interaction.response.send_message("Please Join VC", ephemeral=True)
+			if ctx.voice_client != None:
+				try:
+					await ctx.voice_client.disconnect()
+					await interaction.response.send_message("Successfully Disconnected", ephemeral=True)
+					await interaction.message.delete()
+				except:
+					pass
 
 
 
-	    if interaction.data["custom_id"] == "queue_btn":
-	        if not ctx.voice_client:
-	            return await interaction.response.send_message("i'm not even in a vc...", ephemeral=True)
+		if interaction.data["custom_id"] == "next_btn":
+			if not interaction.user.voice:
+				return await interaction.response.send_message("Please Join VC")
 
+			if ctx.voice_client != None:
+				vc: wavelink.Player = ctx.voice_client
+				#player = bot.wavelink.get_player(ctx.guild.id)
 
-	        vc: wavelink.Player = ctx.voice_client
-	        if vc.queue.is_empty:
-	            return await interaction.response.send_message("Queue is empty", ephemeral=True)
-	        em = discord.Embed(title="Queue", color=0x303136)
-	        
-	        queue = vc.queue.copy()
-	        songCount = 0
-	        for song in queue:
-	            songCount += 1
-	            em.add_field(name=f"Song Position {str(songCount)}", value=f"`{song}`")
-	        await interaction.response.send_message(embed=em, ephemeral=True)
-	        
-	        
-	    if interaction.data["custom_id"] == "pause_btn":
-	        if not ctx.author.voice:
-	            return await ctx.reply("Please Join VC")
-	            
-	        if ctx.voice_client != None:
-	            vc : wavelink.Player = ctx.voice_client
+			if vc.queue.is_empty:
+				return await interaction.response.send_message("the queue is empty", ephemeral=True)
 
-	            if vc.is_playing:
-	                await vc.pause()
-	                return await interaction.response.send_message("Paused", ephemeral=True)
-
-
-	    if interaction.data["custom_id"] == "play_btn":
-	        if not ctx.author.voice:
-	            return await ctx.reply("Please Join VC")
-	            
-	        if ctx.voice_client != None:
-	            vc : wavelink.Player = ctx.voice_client
-
-	            if vc.is_paused:
-	                await vc.resume()
-	                return await interaction.response.send_message("Resumed", ephemeral=True)
+			else:
+			    await interaction.response.send_message("Skiping...")
+			    await ctx.channel.purge(limit=1)
+			    await vc.stop()
 
 
 
-	@cmd.command()
+		if interaction.data["custom_id"] == "queue_btn":
+		    if not interaction.user.voice:
+		        return await interaction.response.send_message("i'm not even in a vc...", ephemeral=True)
+
+		    vc: wavelink.Player = ctx.voice_client
+		    if vc.queue.is_empty:
+		        return await interaction.response.send_message("Queue is empty", ephemeral=True)
+		    em = discord.Embed(title="Queue", color=0x303136)
+		    
+		    queue = vc.queue.copy()
+		    songCount = 0
+		    for song in queue:
+		        songCount += 1
+		        em.add_field(name=f"Song Position {str(songCount)}", value=f"`{song}`")
+		    await interaction.response.send_message(embed=em, ephemeral=True)
+		    
+		    
+		if interaction.data["custom_id"] == "pause_btn":
+		    if not interaction.user.voice:
+		        return await ctx.reply("Please Join VC")
+		        
+		    if ctx.voice_client != None:
+		        vc : wavelink.Player = ctx.voice_client
+
+		        if vc.is_playing:
+		            await vc.pause()
+		            return await interaction.response.send_message("Paused", ephemeral=True)
+
+
+		if interaction.data["custom_id"] == "play_btn":
+		    if not interaction.user.voice:
+		        return await ctx.reply("Please Join VC")
+		        
+		    if ctx.voice_client != None:
+		        vc : wavelink.Player = ctx.voice_client
+
+		        if vc.is_paused:
+		            await vc.resume()
+		            return await interaction.response.send_message("Resumed", ephemeral=True)
+
+
+
+	@cmd.command(aliases=["connect"])
 	async def join(self, ctx):
 		if ctx.author.voice == None:
 			return await ctx.reply("Please Join VC")
@@ -314,7 +318,7 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command(aliases=["stop"])
+	@cmd.command(aliases=["stop", "disconnect"])
 	async def leave(self, ctx):
 		if ctx.author.voice == None:
 			return await ctx.reply("Please Join VC")
