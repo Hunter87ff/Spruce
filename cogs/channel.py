@@ -66,7 +66,7 @@ class Channel(commands.Cog):
 		        for channel in category.channels:
 		            await channel.delete(reason=f'Deleted by {ctx.author.name}')
 
-		            if len(category.channels) == 1:
+		            if len(category.channels) == 0:
 		                await category.delete()
 		                return await interaction.message.edit(content=f'**<:vf:947194381172084767>Successfully Deleted**')
 		async def del_msg(interaction):
