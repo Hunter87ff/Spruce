@@ -87,6 +87,8 @@ async def ft_ch(message):
 
 
 async def tourney(message):
+    if not message.guild:
+        return
     ctx = message
     guild = message.guild
     td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
