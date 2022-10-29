@@ -38,7 +38,7 @@ class Music(commands.Cog):
 
 
 	@commands.Cog.listener()
-	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.YouTubeMusicTrack, wavelink.SoundCloudTrack] , reason):
+	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.YouTubeMusicTrack, spotify.SpotifyTrack, wavelink.SoundCloudTrack] , reason):
 
 	    try:
 	        ctx = player.ctx
@@ -77,7 +77,7 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["p", "P"])
-	async def play(self, ctx: commands.Context, *, search: typing.Union[wavelink.YouTubeMusicTrack, wavelink.SoundCloudTrack]):
+	async def play(self, ctx: commands.Context, *, search: typing.Union[wavelink.YouTubeMusicTrack, spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
 		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
 		pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
 		stop_btn = Button(emoji="<:WhiteButton:1019218566475681863>", style=ButtonStyle.danger, custom_id="stop_btn")
@@ -145,10 +145,13 @@ class Music(commands.Cog):
 
 	@cmd.command()
 	async def spotify(self, ctx, spotify_url: str):
+		if not ctx.voice_client:
+			await Music.join(self, ctx)
 		player: wavelink.Player = ctx.voice_client
+		ms = await ctx.send("Playlist Loading")
 		async for partial in spotify.SpotifyTrack.iterator(query=spotify_url):
 			player.queue.put(partial)
-		await ctx.send("Added To Queue...", delete_after=10)
+		await ms.edit(content="Playlist Loaded.", delete_after=20)
 
 
 
