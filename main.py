@@ -1,17 +1,17 @@
 import os 
 import json
 import time
-import discord
-import wavelink
 import random
 import typing
+import pymongo
+import discord
 import asyncio
 import datetime
 import requests
-import pymongo
-
+import wavelink
 from asyncio import sleep
 from pymongo import MongoClient
+from wavelink.ext import spotify
 from discord.ext import commands
 from discord.ui import Button, View
 from datetime import datetime, timedelta
@@ -53,12 +53,13 @@ async def load_extensions():
 asyncio.run(load_extensions())
 
 
+guild_count = len(bot.guilds)
 
 @bot.event
 async def on_ready():
     await node_connect()
     st_log = bot.get_channel(1020027121231462400)
-    status = [f'&help',f"{len(bot.guilds)} Servers", "You", "100k+ Members"]
+    status = [f'&help', f"{guild_count} Servers", "You", "Sprucebot.ml/invite", "130k+ Members"]
     
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
@@ -77,7 +78,7 @@ async def on_wavelink_node_ready(node: wavelink.Node):
 
 async def node_connect():
     await bot.wait_until_ready()
-    await wavelink.NodePool.create_node(bot = bot, host='lavalink.oops.wtf', port=443, password="www.freelavalink.ga", https=True)
+    await wavelink.NodePool.create_node(bot = bot, host=config.m_host, port=443, password=config.m_host_psw, https=True, spotify_client=spotify.SpotifyClient(client_id=config.spot_id, client_secret=config.spot_secret))
 
 
 
@@ -144,7 +145,7 @@ async def on_guild_channel_delete(channel):
 async def on_guild_join(guild):
     ch = bot.get_channel(1028673206850179152)
     link = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
-    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nInvite Link : {link}```"
+    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nInvite Link : {link}```"
     return await ch.send(msg)
 
 
@@ -283,7 +284,7 @@ async def on_command_error(ctx, error):
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
         brp = await ctx.reply(f"Suddenly You Got a Bug!")
-        await brp.edit(content="don't worry! I've reported to developers", delete_after=30)
+        await brp.edit(content=f"Error Ditected. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
 
 
 

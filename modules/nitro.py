@@ -4,12 +4,12 @@ import discord
 from discord.ext import commands
 import pymongo
 from pymongo import MongoClient
+from modules import config
 
 
 
 
-
-maindb = MongoClient(os.environ["mongo_url"])
+maindb = config.maindb
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
 
 

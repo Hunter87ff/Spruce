@@ -4,6 +4,8 @@ import os
 from pymongo import MongoClient
 
 
+
+version = "1.9.4"
 owner_id = 885193210455011369
 owner_tag = "hunter#6967"
 bot_id = 931202912888164474
@@ -11,9 +13,10 @@ support_server = "https://discord.gg/vMnhpAyFZm"
 support_server_id = 947443790053015623
 prefix = "&"
 maindb = MongoClient(os.environ["mongo_url"])
-version = "1.9.3"
-
-
+spot_id = os.environ["spot_id"]
+spot_secret = os.environ["spot_secret"]
+m_host = 'lavalink.oops.wtf'           #os.environ["m_host"]
+m_host_psw =  "www.freelavalink.ga"    #os.environ["m_host_psw"]
 
 
 #emojis
@@ -43,7 +46,7 @@ defean = "<:defean:969894009331933205>"
 loading = "<a:loading:969894982024568856>"
 default_tick = "✅"
 default_cross = "❌"
-
+heart = "❤️"
 
 #colors
 blurple = 0x7289da
