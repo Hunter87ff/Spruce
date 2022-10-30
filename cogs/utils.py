@@ -30,9 +30,7 @@ d_teal = 0x11806a
 yellow = 0xffff00
 
 
-whois = ["Noob","kya pata mai nehi janta","bohot piro", "Bohot E-smart",
-"Good boy/girl : mujhe gender pata nehi ","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot",
- "1 number ka noob","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
+whois = ["Noob","Unknown Person","kya pata mai nehi janta","bohot piro", "Bohot E-smart","Dusro Ko Jan Ne Se Pehle Khud Ko Jan Lo","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
 dburl = os.environ["mongo_url"]
 maindb = MongoClient(dburl)
@@ -50,7 +48,7 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command(aliases=['av'])
+	@cmd.command(aliases=['av', "pfp"])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def avatar(self, ctx, user: discord.User = None):
 
@@ -91,17 +89,16 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command(aliases=['bnr'])
-	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
-	async def banner(self, ctx, user:discord.User = None ):
-		if user == None:
-			user = ctx.author
-		req = await self.bot.http.request(discord.http.Route("GET", "/users/{uid}", uid=user.id))
-		banner_id = req["banner"]
-
-		if banner_id:
-			banner_url = f"https://cdn.discordapp.com/banners/{user.id}/{banner_id}.gif?size=1024"
-		await ctx.send(f"{banner_url}")
+	@cmd.command()
+	async def bnrr(self, ctx, user:discord.User):
+		usr = await self.bot.fetch_user(user.id)
+		banner = usr.banner
+		if not banner:
+		    return await ctx.reply("User Don't Have A Banner", delete_after=20)
+		banner_url = banner.url
+		emb = discord.Embed(colour=0xff0000, description=f"**[BANNER URL]({banner_url})**")
+		emb.set_image(url=banner_url)
+		await ctx.send(embed=emb)
 
 
 	@cmd.command(aliases=['emb'])
