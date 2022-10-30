@@ -53,13 +53,13 @@ async def load_extensions():
 asyncio.run(load_extensions())
 
 
-guild_count = len(bot.guilds)
+
 
 @bot.event
 async def on_ready():
     await node_connect()
     st_log = bot.get_channel(1020027121231462400)
-    status = [f'&help', f"{guild_count} Servers", "You", "Sprucebot.ml/invite", "130k+ Members"]
+    status = ['&help', f"{len(bot.guilds) }Servers", "You", "Sprucebot.ml/invite", "130k+ Members"]
     
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
