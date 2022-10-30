@@ -90,7 +90,11 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=["bnr"])
-	async def banner(self, ctx, user:discord.User):
+	async def banner(self, ctx, user:discord.User=None):
+		if ctx.author.bot:
+			return
+		if user == None:
+			user = ctx.author
 		usr = await self.bot.fetch_user(user.id)
 		banner = usr.banner
 		if not banner:
