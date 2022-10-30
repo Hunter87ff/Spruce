@@ -89,8 +89,8 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command()
-	async def bnrr(self, ctx, user:discord.User):
+	@cmd.command(aliases=["bnr"])
+	async def banner(self, ctx, user:discord.User):
 		usr = await self.bot.fetch_user(user.id)
 		banner = usr.banner
 		if not banner:
