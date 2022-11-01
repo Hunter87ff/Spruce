@@ -263,7 +263,7 @@ class Music(commands.Cog):
 
 		if interaction.data["custom_id"] == "queue_btn":
 		    if not interaction.user.voice:
-		        return await interaction.response.send_message("i'm not even in a vc...", ephemeral=True)
+		        return await interaction.response.send_message("Please Join VC", ephemeral=True)
 
 		    vc: wavelink.Player = ctx.voice_client
 		    if vc.queue.is_empty:
