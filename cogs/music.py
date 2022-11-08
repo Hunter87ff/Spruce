@@ -38,7 +38,7 @@ class Music(commands.Cog):
 
 
 	@commands.Cog.listener()
-	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.YouTubeMusicTrack, spotify.SpotifyTrack, wavelink.SoundCloudTrack] , reason):
+	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.YouTubeTrack, wavelink.YouTubeMusicTrack, spotify.SpotifyTrack, wavelink.SoundCloudTrack] , reason):
 
 	    try:
 	        ctx = player.ctx
@@ -77,7 +77,7 @@ class Music(commands.Cog):
 
 
 	@cmd.command(aliases=["p", "P"])
-	async def play(self, ctx: commands.Context, *, search: typing.Union[wavelink.YouTubeMusicTrack, spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
+	async def play(self, ctx: commands.Context, *, search: typing.Union[wavelink.YouTubeTrack, wavelink.YouTubeMusicTrack, spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
 		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
 		pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
 		stop_btn = Button(emoji="<:WhiteButton:1019218566475681863>", style=ButtonStyle.danger, custom_id="stop_btn")
