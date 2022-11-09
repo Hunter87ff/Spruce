@@ -18,12 +18,12 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 invbtn = Button(label="Invite", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
 votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
 support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhpAyFZm")
-hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `67`\n• Type `&help <command | category>` for more info\n\n"
+hel_p = "• Prefix - `&`\n• Total Commands - `78` | Usable - `69`\n• Type `&help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xf0ff0f)
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`", color=0xf0ff0f)
-roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
+roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
 buttons =[invbtn, votebtn, support_serverbtn]
 
@@ -239,6 +239,18 @@ class Helper(commands.Cog):
 
 
 #role Related
+
+    @help.command()
+    async def inrole(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `inrole`\nExample : `&inrole`", color=0x00ff00)
+        await ctx.send(embed=em)
+
+
+    @help.command()
+    async def port(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `port <role1> <role2>`\nExample : `&port @ipl-group1 @ipl-group2`", color=0x00ff00)
+        await ctx.send(embed=em)
+
     @help.command(aliases=["croles", "crole"])
     async def create_roles(self, ctx):
         em = discord.Embed(description="Aliases : `croles`\nUsage : `create_roles [Names...]`\nExample : `&create_roles family male female`", color=0x00ff00)
@@ -331,7 +343,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['ts', "tsetup"])
     async def tourney_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <front> <total_slot> <mentions> <name>`\nExample : `&tourney_setup WS｜ 360 4 WEEKLY SCRIM`\nNote : You Must Have @tourney-mod Role", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <front> <total_slot> <mentions> <name>`\nExample : `&tourney_setup WS｜ 360 4 WEEKLY SCRIM`\nNote : You Must Have @tourney-mod Role\n\n**[Watch Tutorial](https://youtu.be/R9UmQ_NJD7M)**", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['st_tourney', "tourney_start"])

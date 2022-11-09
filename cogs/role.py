@@ -95,7 +95,7 @@ class Roles(commands.Cog):
 
 	@cmd.command(aliases=["ra_role"])
 	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role_members(self, ctx, role: discord.Role, reason=None):
 		prs = await ctx.send("<a:loading:969894982024568856> Processing...")
 		if reason == None:
@@ -108,10 +108,43 @@ class Roles(commands.Cog):
 
 
 
+	@cmd.command()
+	async def inrole(self, ctx, role: discord.Role):
+		if ctx.author.bot:
+			return
+		if len(role.members) > 199:
+			return await ctx.send("Too Many Members To Show")
+		em = discord.Embed(color=0xff0000)
+		em.add_field(name=f"Members in {role.mention}", value=" ,".join(member.mention for member in role.members))
+		await ctx.send(embed=em)
 
 
+	@cmd.command()
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def port(self, ctx, role1: discord.Role, role2: discord.Role, reason=None):
+		if ctx.author.bot:
+			return
+		bt = ctx.guild.get_member(self.bot.user.id)
 
+		if role2.position > bt.top_role.position:
+			return await ctx.send("I Can't Manage This Role, It is Higher Than My Top Role")
 
+		if role2.position > ctx.author.top_role.position:
+			return await ctx.send("You Can't Manage This Role")
+
+		await ctx.reply("If You're Running this command by mistake! You Can Run `&help ra_role`")
+
+		if reason == None:
+			reason = f"{role2.name} added by {ctx.author}"
+			
+		msg = await ctx.send(f"**{config.loading} Processing...**")
+
+		for m in role1.members:
+			if m.top_role.position < bt.top_role.position:
+				await m.add_roles(role2, reason=reason)
+
+		await msg.edit(content=f"{config.vf} **Role Added Successfully.**", delete_after=30)
 
 
 

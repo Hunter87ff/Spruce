@@ -245,7 +245,7 @@ async def on_command_error(ctx, error):
     elif "Unknown file format." in str(error):
         return await ctx.send(embed=discord.Embed(description="Invalid Input", color=0xff0000))
 
-    elif "403 Forbidden (error code: 50013): Missing Permissions" in str(error):
+    elif "Send Messages" in str(error):
         try:
             return await ctx.author.send(embed=discord.Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
         except:
@@ -298,13 +298,7 @@ async def cdm(ctx,amount:int):
       await message.delete()
 
 
-@bot.command()
-async def inrole(ctx, role: discord.Role):
-    if len(role.members) > 199:
-        return await ctx.send("Too Many Members To Show")
-    em = discord.Embed(color=0xff0000)
-    em.add_field(name=f"Members in {role.mention}", value=" ,".join(member.mention for member in role.members))
-    await ctx.send(embed=em)
+
 
 
 
@@ -359,7 +353,12 @@ async def addemoji(ctx, emoji: discord.PartialEmoji):
 @bot.command(hidden=True)
 async def sdm(ctx, member: discord.User, *, message):
     if ctx.author.id == 885193210455011369:
-        await member.send(message)
+        try:
+            await member.send(message)
+            return ctx.reply("Done")
+        except:
+            return
+
     if ctx.author.id != 885193210455011369:
         return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
@@ -367,22 +366,6 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 
-def upt():
-    seconds = time.time() - startTime
-    #seconds = seconds % (24 * 3600)
-    hour = seconds // 3600
-    seconds %= 3600
-    mins = seconds // 60
-    day = hour * 24
-    #seconds %= 60
-    return "\🟢 Online For `%02dD %02dH %02dM`" % (day, hour, mins)
-
-
-
-@bot.command()
-async def uptime(ctx):
-    if ctx.author.id == 885193210455011369:
-        await ctx.send(upt())
 
 
 
