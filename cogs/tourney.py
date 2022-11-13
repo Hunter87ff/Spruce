@@ -41,6 +41,7 @@ class Esports(commands.Cog):
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
+        prefix = front
         if ctx.author.bot:
             return
         bt = ctx.guild.get_member(self.bot.user.id)
@@ -77,20 +78,21 @@ class Esports(commands.Cog):
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
                     "guild" : int(ctx.guild.id),
-                    "t_name" : str(category.name), 
+                    "t_name" : str(name), 
+                    "prefix" : str(prefix),
                     "rch" : int(r_ch.id),
                     "cch" : int(c_ch.id),
+                    "gch" : int(g_ch.id),
                     "crole" : int(c_role.id),
                     "tslot" : int(total_slot),
                     "reged" : 1,
                     "mentions" : int(mentions),
-                    "slotpg" : 12,
                     "status" : "started",
                     "faketag": "no"
                     }
             
             gtadbcds = gtadbc.find_one({"guild" : gid})
-            
+
             if gtadbcds == None:
                 gtadbc.insert_one({"guild" : gid, "gta" : 1})
                 await sleep(8)
