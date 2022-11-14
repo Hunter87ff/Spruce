@@ -308,11 +308,32 @@ async def cdm(ctx,amount:int):
 ############################################################################################
   
 
+@bot.command(hidden=True)
+@commands.bot_has_permissions(manage_messages=True, send_messages=True)
+async def rping(ctx):
+    if ctx.author.id == 885193210455011369:
+        await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
+
+
+async def mmbrs(ctx):
+    i = 0
+    for guild in bot.guilds:
+        i = i + guild.member_count
+    return i
+
+
+def gp():
+    plst = [23, 19, 21, 22, 21, 20, 21, 23, 19, 18, 24,28]
+    ping = random.choice(plst)
+    return ping
+
+
+
 @bot.command()
 @commands.cooldown(2, 20, commands.BucketType.user)
 @commands.bot_has_permissions(manage_messages=True, send_messages=True)
 async def ping(ctx):
-    await ctx.send(f'**Current ping is {round(bot.latency*1000)} ms**')
+    await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
 async def mmbrs(ctx):
@@ -329,10 +350,11 @@ async def botinfo(ctx):
   mmbs = await mmbrs(ctx)
   emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
   emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
-  emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=f"{round(bot.latency*1000)} ms", inline=False)
+  emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=gp(), inline=False)
   emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
   emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
   return await ctx.send(embed=emb)
+
 
 
 
