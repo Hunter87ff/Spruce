@@ -87,7 +87,7 @@ class Helper(commands.Cog):
         view = DropdownView()
         for opt in buttons:
             view.add_item(opt)
-        msg = await ctx.send(embed=helpemb.set_thumbnail(url=get_thum(ctx)), view=view)
+        msg = await ctx.send(embed=helpemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
 
