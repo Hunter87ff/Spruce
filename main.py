@@ -271,6 +271,9 @@ async def on_command_error(ctx, error):
         except:
             return
 
+    elif "403 Forbidden (error code: 50013): Missing Permissions" in str(error):
+        return await ctx.send(embed=discord.Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
+
     elif "Unknown Role" in str(error):
         return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
 
@@ -287,7 +290,7 @@ async def on_command_error(ctx, error):
         await brp.edit(content=f"Error Ditected. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
 
 
-
+#
 
 @bot.command()
 @commands.dm_only()
@@ -387,7 +390,13 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 
-
+@bot.command()
+async def leaveg(ctx, member:int):
+    for guild in bot.guilds:
+        if guild.member_count < member:
+            gname = guild.name
+            await guild.leave()
+            await ctx.send(f"Leaved From {gname}")
 
 
 
