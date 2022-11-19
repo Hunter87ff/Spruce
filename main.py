@@ -390,8 +390,14 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 
-@bot.command()
+@bot.command(hidden=True)
 async def leaveg(ctx, member:int):
+    if ctx.author.bot:
+        return
+
+    if ctx.author.id != config.owner_id:
+        return
+        
     for guild in bot.guilds:
         if guild.member_count < member:
             gname = guild.name
