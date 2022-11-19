@@ -145,7 +145,7 @@ async def on_guild_channel_delete(channel):
 async def on_guild_join(guild):
     ch = bot.get_channel(1028673206850179152)
     link = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
-    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nInvite Link : {link}```"
+    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
     return await ch.send(msg)
 
 
@@ -153,7 +153,7 @@ async def on_guild_join(guild):
 async def on_guild_remove(guild):
     ch = bot.get_channel(1028673254606508072)
     #link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
-    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}```"
+    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
     return await ch.send(msg)
 
 	
@@ -397,7 +397,7 @@ async def leaveg(ctx, member:int):
 
     if ctx.author.id != config.owner_id:
         return
-        
+
     for guild in bot.guilds:
         if guild.member_count < member:
             gname = guild.name
