@@ -38,7 +38,7 @@ class Esports(commands.Cog):
 
     @commands.command(aliases=['ts','tourneysetup'])
     @commands.has_role("tourney-mod")
-    @commands.bot_has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, send_messages=True)
+    @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
         prefix = front
