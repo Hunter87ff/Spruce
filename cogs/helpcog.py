@@ -96,7 +96,7 @@ class Helper(commands.Cog):
         view = View()
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=musicemb.set_thumbnail(url=get_thum(ctx)), view=view)
+        await ctx.send(embed=musicemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
 
@@ -105,7 +105,7 @@ class Helper(commands.Cog):
         view = View()
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=modemb.set_thumbnail(url=get_thum(ctx)), view=view)
+        await ctx.send(embed=modemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
 
@@ -114,7 +114,7 @@ class Helper(commands.Cog):
         view = View()
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=espemb.set_thumbnail(url=get_thum(ctx)), view=view)
+        await ctx.send(embed=espemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
     @help.group(invoke_without_command=True)
@@ -123,7 +123,7 @@ class Helper(commands.Cog):
         
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=roleemb.set_thumbnail(url=get_thum(ctx)), view=view)
+        await ctx.send(embed=roleemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
 
@@ -132,7 +132,7 @@ class Helper(commands.Cog):
         view = View()
         for bt in buttons:
             view.add_item(bt)
-        await ctx.send(embed=utilemb.set_thumbnail(url=get_thum(ctx)), view=view)
+        await ctx.send(embed=utilemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
 
