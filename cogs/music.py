@@ -13,7 +13,6 @@ import typing
 
 
 def get_img(search):
-    imgs = []
     if " " in search:
         search = search.replace(" ", "+")
     word = f"{search}+youtube"
@@ -22,9 +21,9 @@ def get_img(search):
     soup = BeautifulSoup(content,'html')
     images = soup.findAll('img')
     for image in images:
-        image_url = image.get('src')
-        imgs.append(str(image_url))
-    return imgs[1]
+        img_url = image.get('src')
+        if "https" in str(img_url):
+        	return img_url
 
 cmd = commands
 class Music(commands.Cog):
