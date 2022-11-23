@@ -231,7 +231,7 @@ class Esports(commands.Cog):
                 for message in messages:
                     if member.mention in message.content:
                         if message.author.id == 931202912888164474:
-                            emb = discord.Embed(color=0xffff00, description=f"**{reged} SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
+                            emb = discord.Embed(color=0xffff00, description=f"**{reged}) SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             emb.timestamp = datetime.datetime.utcnow()
                             await message.edit(embed=emb)
@@ -518,26 +518,35 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command(aliases=['gsetup'], help="group_setup FFMC 12 ")
+
+
+    @cmd.command(aliases=['gsetup'], help="&group_setup FFMC 1 16 ")
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def group_setup(self, ctx, front, amount : int):
+    async def group_setup(ctx, prefix:str, start:int, end:int):
         if ctx.author.bot:
             return
-        ms = await ctx.send("Processing...")
-        category = await ctx.guild.create_category(name=f"{front} GROUPS")
+        if start < 1:
+            return await ctx.reply("Starting Number Should Not Be Lower Than 1")
+        if end > 50:
+            return await ctx.reply("Ending Number Should Not Be Higher Than 50")
+
+        if end < start:
+            return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
+        ms = await ctx.send(f"{config.loading}Processing...")
+
+        category = await ctx.guild.create_category(name=f"{prefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
-        for i in range(1, amount+1):
-            gch = await ctx.guild.create_text_channel(category=category, name=f"{front}-group-{i}")
-            grl = await ctx.guild.create_role(name=f"{front.lower()}-group-{i}", color=0x89d99e)
-            overwrite = ctx.channel.overwrites_for(grl)
-            overwrite.update(send_messages=True, view_channel=True, add_reactions=False)
-            if gch.name == grl.name:
-                await gch.set_permissions(grl, overwrite=overwrite)
-        await ms.edit(content="Successfully Created")
-      
-    
+
+        for i in range(start, end+1):
+            role = await ctx.guild.create_role(name=f"{prefix.upper()} G{i}", color=0x4bd6af)
+            channel = await ctx.guild.create_text_channel(name=f"{prefix}-group-{i}", category=category)
+
+            overwrite = ctx.channel.overwrites_for(role)
+            overwrite.update(view_channel=True, send_messages=True, add_reactions=False)
+            await channel.set_permissions(role, overwrite=overwrite)
+        await ms.edit(content=f"{vf}Successfully Created")
 
 
 
