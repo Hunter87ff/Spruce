@@ -524,7 +524,7 @@ class Esports(commands.Cog):
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def group_setup(ctx, prefix:str, start:int, end:int):
+    async def group_setup(self, ctx, prefix:str, start:int, end:int):
         if ctx.author.bot:
             return
         if start < 1:

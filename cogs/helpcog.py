@@ -333,7 +333,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['gsetup'])
     async def group_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `gsetup`\nUsage : `group_setup <front> <amount>`\nExample : `&group_setup WS｜ 120`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `gsetup`\nUsage : `group_setup <prefix> <starting group no> <end group no.>`\nExample : `&group_setup ws 1 14`\nNote: Here 1 means group1 and 14 means group14", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['grls_lobby', "girls_lby"])
