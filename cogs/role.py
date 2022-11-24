@@ -69,34 +69,63 @@ class Roles(commands.Cog):
 
 
 
-	@commands.command(aliases=["role"], help="Use this command to give/remove role for someone \nExample : &role  @Male @hunter")
-	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
-		bt = ctx.guild.get_member(self.bot.user.id)
-		if bt.top_role.position < role.position:
-			return await ctx.send("My Top Role position Is not higher enough")
-		if not ctx.author.top_role.position > role.position:
-			return await ctx.send("You can Not manage that role")
+@cmd.command()
+@commands.has_permissions(manage_roles=True)
+@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
+async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
+	if ctx.author.bot:
+		return
+	ms = await ctx.send("Processing...")
+	bt = ctx.guild.get_member(self.bot.user.id)
+	given = []
+	if bt.top_role.position <= role.position:
+	 await ms.edit(content="My Top Role position Is not higher enough")
+	if not ctx.author.top_role.position > role.position:
+		return await ms.edit(content="You can Not manage that role")
 
 
-		if users != None:
-			for user in users:
+	if users:
+		for user in users:
+			if user.top_role.position > ctx.author.top_role.position:
+				await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+
+			if bt.top_role.position < user.top_role.position:
+				await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him") 
+
+			else:
+				await user.add_roles(role)
+				given.append(user)
+
+		await ms.edit(content=f"{role.mention} given To {len(given)} Members")
+
+	if not users and ctx.message.reference:
+		message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+		for user in ctx.guild.members:
+			if user.mention in message.content.split():
 				if user.top_role.position > ctx.author.top_role.position:
-					pass
+					await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+
 
 				if bt.top_role.position < user.top_role.position:
-					return await ctx.send(f"{user}'s Role Is Higher Than My Top Role! I can not manage him")	
+					await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+
 
 				else:
 					await user.add_roles(role)
-					await ctx.message.add_reaction("✅")
+					given.append(user)
+
+		await ms.edit(content=f"Role Added To - {len(given)} Members")
+
+
+
 
 
 	@cmd.command(aliases=["ra_role"])
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role_members(self, ctx, role: discord.Role, reason=None):
+		if ctx.author.bot:
+			return
 		prs = await ctx.send("<a:loading:969894982024568856> Processing...")
 		if reason == None:
 			reason = f"{role} removed by {ctx.author}"
@@ -152,6 +181,8 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def remove_role(self, ctx, role:discord.Role, *user: discord.Member):
+		if ctx.author.bot:
+			return
 		bt = ctx.guild.get_member(self.bot.user.id)
 		for user in users:
 			if ctx.author.top_role < user.top_role:
@@ -177,6 +208,8 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def give_roles(self, ctx, user: discord.Member, *roles: discord.Role):
+		if ctx.author.bot:
+			return
 		bt = ctx.guild.get_member(self.bot.user.id)
 		for role in roles:
 			if bt.top_role.position > role.position:
@@ -202,6 +235,8 @@ class Roles(commands.Cog):
 	@commands.has_permissions(administrator=True, manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def role_all_human(self, ctx, role: discord.Role):
+		if ctx.author.bot:
+			return
 		prs = await ctx.send("Processing...")
 		if ctx.author.top_role.position < role.position:
 			return await ctx.send("You Can't Manage This Role")
@@ -221,6 +256,8 @@ class Roles(commands.Cog):
 	@commands.has_permissions(administrator=True, manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def role_all_bot(self, ctx, role: discord.Role):
+		if ctx.author.bot:
+			return
 		prs = await ctx.send("Processing...")
 		if ctx.author.top_role.position < role.position:
 			return await ctx.send("You Can't Manage This Role")
@@ -240,15 +277,17 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide_roles(self, ctx):
-	    msg = await ctx.send(f'{config.loading}** Processing..**')
-	    roles = ctx.guild.roles
-	    for role in roles:
-	        if role.position < ctx.author.top_role.position:
-	                try:
-	                    await role.edit(hoist=False)
-	                except:
-	                    pass
-	    await msg.edit(content=f"{config.vf} Done", delete_after=10)
+		if ctx.author.bot:
+			return
+		msg = await ctx.send(f'{config.loading}** Processing..**')
+		roles = ctx.guild.roles
+		for role in roles:
+		    if role.position < ctx.author.top_role.position:
+		            try:
+		                await role.edit(hoist=False)
+		            except:
+		                pass
+		await msg.edit(content=f"{config.vf} Done", delete_after=10)
 
 
 
