@@ -524,19 +524,19 @@ class Esports(commands.Cog):
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def group_setup(self, ctx, prefix:str, start:int, end:int):
+    async def group_setup(self, ctx, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
         if ctx.author.bot:
             return
         if start < 1:
             return await ctx.reply("Starting Number Should Not Be Lower Than 1")
-        if end > 50:
-            return await ctx.reply("Ending Number Should Not Be Higher Than 50")
 
         if end < start:
             return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
         ms = await ctx.send(f"{config.loading}Processing...")
+        
+        if category == None:
+            category = await ctx.guild.create_category(name=f"{prefix} Groups")
 
-        category = await ctx.guild.create_category(name=f"{prefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
 
         for i in range(start, end+1):
