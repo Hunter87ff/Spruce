@@ -69,52 +69,52 @@ class Roles(commands.Cog):
 
 
 
-@cmd.command()
-@commands.has_permissions(manage_roles=True)
-@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
-async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
-	if ctx.author.bot:
-		return
-	ms = await ctx.send("Processing...")
-	bt = ctx.guild.get_member(self.bot.user.id)
-	given = []
-	if bt.top_role.position <= role.position:
-	 await ms.edit(content="My Top Role position Is not higher enough")
-	if not ctx.author.top_role.position > role.position:
-		return await ms.edit(content="You can Not manage that role")
+	@cmd.command(aliases=["role"])
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, manage_permissions=True, send_messages=True)
+	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
+		if ctx.author.bot:
+			return
+		ms = await ctx.send("Processing...")
+		bt = ctx.guild.get_member(self.bot.user.id)
+		given = []
+		if bt.top_role.position <= role.position:
+		 await ms.edit(content="My Top Role position Is not higher enough")
+		if not ctx.author.top_role.position > role.position:
+			return await ms.edit(content="You can Not manage that role")
 
 
-	if users:
-		for user in users:
-			if user.top_role.position > ctx.author.top_role.position:
-				await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
-
-			if bt.top_role.position < user.top_role.position:
-				await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him") 
-
-			else:
-				await user.add_roles(role)
-				given.append(user)
-
-		await ms.edit(content=f"{role.mention} given To {len(given)} Members")
-
-	if not users and ctx.message.reference:
-		message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-		for user in ctx.guild.members:
-			if user.mention in message.content.split():
+		if users:
+			for user in users:
 				if user.top_role.position > ctx.author.top_role.position:
 					await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
 
-
 				if bt.top_role.position < user.top_role.position:
-					await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
-
+					await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him") 
 
 				else:
 					await user.add_roles(role)
 					given.append(user)
 
-		await ms.edit(content=f"Role Added To - {len(given)} Members")
+			await ms.edit(content=f"{role.mention} given To {len(given)} Members")
+
+		if not users and ctx.message.reference:
+			message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+			for user in ctx.guild.members:
+				if user.mention in message.content.split():
+					if user.top_role.position > ctx.author.top_role.position:
+						await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+
+
+					if bt.top_role.position < user.top_role.position:
+						await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+
+
+					else:
+						await user.add_roles(role)
+						given.append(user)
+
+			await ms.edit(content=f"Role Added To - {len(given)} Members")
 
 
 
