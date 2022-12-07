@@ -15,8 +15,8 @@ prefix = "&"
 maindb = MongoClient(os.environ["mongo_url"])
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
-m_host = 'lavalink.oops.wtf'           #os.environ["m_host"]
-m_host_psw =  "www.freelavalink.ga"    #os.environ["m_host_psw"]
+m_host = 'node2.lewdhutao.tech'           #os.environ["m_host"]
+m_host_psw =  "lewdhutao"    #os.environ["m_host_psw"]
 
 
 #emojis
