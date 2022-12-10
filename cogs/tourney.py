@@ -544,7 +544,7 @@ class Esports(commands.Cog):
             channel = await ctx.guild.create_text_channel(name=f"{prefix}-group-{i}", category=category)
 
             overwrite = ctx.channel.overwrites_for(role)
-            overwrite.update(view_channel=True, send_messages=True, add_reactions=False)
+            overwrite.update(view_channel=True, send_messages=True, add_reactions=False, attach_files=True)
             await channel.set_permissions(role, overwrite=overwrite)
         await ms.edit(content=f"{config.vf}Successfully Created")
 
