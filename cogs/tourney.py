@@ -88,7 +88,9 @@ class Esports(commands.Cog):
                     "reged" : 1,
                     "mentions" : int(mentions),
                     "status" : "started",
-                    "faketag": "no"
+                    "faketag": "no",
+                    "pub" : "no",
+                    "prize" : "Nothing"
                     }
             
             gtadbcds = gtadbc.find_one({"guild" : gid})

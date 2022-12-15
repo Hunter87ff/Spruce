@@ -304,6 +304,59 @@ async def cdm(ctx,amount:int):
 
 
 
+async def il(id):
+    try:
+        channel = bot.get_channel(id)
+    except:
+        return "Not Available"
+    try:
+        link = await channel.create_invite(reason=None, max_age=360000, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
+    except:
+        return "Not Available"
+
+    return link
+
+
+
+#dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
+
+@bot.command()
+async def tourneys(ctx):
+    dta = dbc.find()
+    emb = discord.Embed(title="Tournaments", color=0x00ff00)
+    msg = await ctx.send("Sending You! Via DM")
+    for i in dta:
+        rch = bot.get_channel(i["rch"])
+        if i["reged"] >= i["tslot"]/10:
+            if i["reged"]/i["tslot"]*100 < 99:
+                if i["pub"] == "yes":
+                    invite = await il(id=i["rch"])
+                    emb.add_field(name=rch.category.name.upper(), value=f'Prize : {i["prize"]}\n[Register]({invite})\n----------------')
+
+    try:
+        await ctx.author.send(embed=emb)
+        await msg.edit(content="Please Check Your DM")
+    except:
+        await msg.edit(content="I Think You've Disabled Your DM")
+
+
+
+
+@bot.command()
+@commands.bot_has_permissions(create_instant_invite=True)
+@commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
+@commands.has_role("tourney-mod")
+async def publish(ctx, rch: discord.TextChannel, *, prize: str):
+    if len(prize) > 30:
+        return await ctx.reply("Only 30 Letters Allowed ")
+    try:
+        dbcd = dbc.find_one({"rch" : rch.id})
+    except:
+        return await ctx.send("Tournament Not Found")
+
+    dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
+    await ctx.send(f"{rch.category.name} is now public")
+
 
 
 ############################################################################################
