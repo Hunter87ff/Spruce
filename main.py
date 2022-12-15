@@ -322,6 +322,7 @@ async def il(id):
 
 @bot.command()
 async def tourneys(ctx):
+    dbc = maindb["tourneydb"]["tourneydbc"]
     dta = dbc.find()
     emb = discord.Embed(title="Tournaments", color=0x00ff00)
     msg = await ctx.send("Sending You! Via DM")
@@ -347,6 +348,7 @@ async def tourneys(ctx):
 @commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
 @commands.has_role("tourney-mod")
 async def publish(ctx, rch: discord.TextChannel, *, prize: str):
+    dbc = maindb["tourneydb"]["tourneydbc"]
     if len(prize) > 30:
         return await ctx.reply("Only 30 Letters Allowed ")
     try:
