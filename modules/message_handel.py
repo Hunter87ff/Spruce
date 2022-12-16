@@ -31,7 +31,7 @@ def find_team(message):
         return f"{message.author}'s team"
 
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
-    teamname = f"Team {teamname.title()}" if teamname else f"{message.author}'s team"
+    teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
 
 
