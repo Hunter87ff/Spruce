@@ -149,6 +149,7 @@ async def tourney(message):
                             await message.author.add_roles(crole)
 
 
+
                     if fmsg.author.id != ctx.author.id:
                         ftch = await ft_ch(message)
                         if ftch == True:
