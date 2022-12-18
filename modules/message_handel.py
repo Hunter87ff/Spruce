@@ -170,7 +170,7 @@ async def tourney(message):
                             femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                             femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             femb.timestamp = datetime.datetime.utcnow()
-                            return await cch.send(message.author.mention, embed=femb)
+                            return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                         
 
                             
@@ -185,7 +185,7 @@ async def tourney(message):
                     nfemb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}](https://discordapp.com/channels/{message.channel.guild.id}/{message.channel.id}/{message.id})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                     nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                     nfemb.timestamp = datetime.datetime.utcnow()
-                    return await cch.send(message.author.mention, embed=nfemb)
+                    return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
 
 
         elif len(message.mentions) < ments:
