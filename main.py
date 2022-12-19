@@ -130,9 +130,12 @@ async def nitrof(message):
 
 @bot.event
 async def on_message(message):
-    await onm.tourney(message)
-    await nitrof(message)
     await bot.process_commands(message)
+    await nitrof(message)
+    await onm.tourney(message)
+    await onm.auto_grp(message)
+    
+    
    
    
 	

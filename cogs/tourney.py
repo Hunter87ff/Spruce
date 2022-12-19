@@ -557,8 +557,8 @@ class Esports(commands.Cog):
 
     @cmd.command(aliases=["t_reset"])
     @commands.has_role("tourney-mod")
-    @commands.has_permissions(manage_channels=True,  manage_roles=True, manage_permissions=True)
-    @commands.bot_has_permissions(manage_channels=True, manage_messages=True, manage_roles=True, manage_permissions=True)
+    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
+    @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tourney_reset(self, ctx, channel: discord.TextChannel):
         if ctx.author.bot:
             return 
@@ -588,6 +588,29 @@ class Esports(commands.Cog):
 
 
 
+
+    @cmd.command()
+    @commands.has_role("tourney-mod")
+    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
+    @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    async def auto_group(self, ctx, reg: discord.TextChannel):
+
+        try:
+            td = dbc.find_one({"rch":int(reg.id)})
+        except:
+            return await ctx.send("No Tournament Found")
+
+
+        if td["auto_grp"] == "yes":
+            dbc.update_one({"rch":reg.id},{"$set":{"auto_grp":"no"}})
+            await ctx.send("Auto Group Disabled")
+            
+
+
+        if td["auto_grp"] == "no":
+            dbc.update_one({"rch":reg.id},{"$set":{"auto_grp":"yes"}})
+            await ctx.send("Auto Group Enabled")
+            
 
 
 
