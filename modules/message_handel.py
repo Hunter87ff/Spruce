@@ -219,7 +219,6 @@ def get_group(reged):
 
 
 async def auto_grp(message):
-    await bot.process_commands(message)
     try:
         td = dbc.find_one({"cch":message.channel.id})
     except:
