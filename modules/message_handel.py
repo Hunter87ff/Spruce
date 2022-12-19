@@ -21,7 +21,9 @@ gtadbc = gtamountdbc
 
 
 
-
+##########################################################################
+########################### SLOT CONFIRM SYSTEM ##########################
+##########################################################################
 
 
 def find_team(message):
@@ -63,26 +65,7 @@ async def ft_ch(message):
                     pass
 
                 if mnt in message.mentions:
-                    #tk = len(set(ctx.mentions) & set(fmsg.mentions))
-                    #mon = len(ctx.mentions) - tk
                     return True
-
-
-
-"""
-    try:
-        tmrl = discord.utils.get(message.guild.roles, name="tourney-mod")
-    except:
-        pass
-    if tmrl == None:
-        try:
-            tmrl = await message.guild.create_role(name="tourney-mod", color=0xfff000)
-        except:
-            await message.channel.send("Missing Permission- `Manage_roles`")
-            
-    if tmrl in message.author.roles:
-        return
-"""
 
 
 
@@ -194,4 +177,59 @@ async def tourney(message):
             await message.delete()
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
+
+#########################################################
+################ GROUP SYSTEM ###########################
+#########################################################
+
+
+def get_slot(ms):
+    for i in range(1, 13):
+        if f"{i})" not in ms.content:
+            return f"{i})"
+
+
+async def prc(group,  grpc , msg, tsl):
+    messages = [message async for message in grpc.history(limit=tsl)]
+
+    for ms in messages:
+        if ms.author.id == 1003313695016886393:
+            if f"**__GROUP__ {str(group)} **" in ms.content:
+                cont = f"{ms.content}\n{get_slot(ms)} {msg}"
+                return await ms.edit(content=cont)
+
+            if f"**__GROUP__ {str(group)} **" not in ms.content:
+                ms = await grpc.send(f"**__GROUP__ {group} ** \n")
+                cont = f"{ms.content}\n{get_slot(ms=ms)} {msg}"
+                return await ms.edit(content=cont)
+
+
+    if len(messages) < 1:
+        ms = await grpc.send(f"**__GROUP__ {group} ** \n")
+        cont = f"{ms.content}\n{get_slot(ms)} {msg}"
+        return await ms.edit(content=cont)
+
+
+def get_group(reged):
+    print(reged)
+    grp = reged/12
+    if grp > int(grp):
+        grp = grp + 1
+    return str(int(grp))
+
+
+async def auto_grp(message):
+    await bot.process_commands(message)
+    try:
+        td = dbc.find_one({"cch":message.channel.id})
+    except:
+        return
+
+    if td:
+        if td["auto_grp"] == "yes":
+            if message.author.id == 931202912888164474:
+                reged = td["reged"]
+                grpch = bot.get_channel(td["gch"])
+                group = get_group(reged=reged)
+                return await prc(group=group, grpc=grpch, msg=message.content, tsl=td["tslot"])
 
