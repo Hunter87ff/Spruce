@@ -194,7 +194,7 @@ async def prc(group,  grpc , msg, tsl):
     messages = [message async for message in grpc.history(limit=tsl)]
 
     for ms in messages:
-        if ms.author.id == 1003313695016886393:
+        if ms.author.id == 931202912888164474:
             if f"**__GROUP__ {str(group)} **" in ms.content:
                 cont = f"{ms.content}\n{get_slot(ms)} {msg}"
                 return await ms.edit(content=cont)
