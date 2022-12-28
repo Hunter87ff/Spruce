@@ -120,7 +120,7 @@ async def tourney(message):
 
  
                     if fmsg.author.id == ctx.author.id and len(messages) == 1:
-                        print("Same Author")
+
                         if len(messages) == 1:
                             await message.add_reaction("✅")
                             reg_update(message)
@@ -159,8 +159,6 @@ async def tourney(message):
                             
 
                 if td["faketag"] == "yes":
-                    print("Fake Tag Yes")
-
                     await message.author.add_roles(crole)
                     await message.add_reaction("✅")
                     reg_update(message)
@@ -212,7 +210,6 @@ async def prc(group,  grpc , msg, tsl):
 
 
 def get_group(reged):
-    print(reged)
     grp = reged/12
     if grp > int(grp):
         grp = grp + 1
