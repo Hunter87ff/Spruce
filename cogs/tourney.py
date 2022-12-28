@@ -24,6 +24,18 @@ gtadbc = gtamountdbc
 
 
 
+async def get_input(ctx, check=None, timeout=30):
+    check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
+    try:
+        msg = await ctx.bot.wait_for("message", check=check, timeout=timeout)
+
+    except asyncio.TimeoutError:
+        return await ctx.send("Time Out! Try Again")
+
+
+    else:
+        return msg.content
+
 
 
 
@@ -551,6 +563,36 @@ class Esports(commands.Cog):
             await channel.set_permissions(role, overwrite=overwrite)
         await ms.edit(content=f"{config.vf}Successfully Created")
 
+
+
+
+
+
+    @cmd.command(aliases=["cs"])
+    @commands.has_any_role("tourney-mod")
+    @commands.bot_has_permissions(send_messages=True)
+    @commands.has_permissions(manage_messages=True)
+    async def change_slot(self, ctx, *, slot:str):
+        if ctx.message.reference:
+            msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            if slot in msg.content:
+                dta = msg.content
+                ask = await ctx.send("Enter New Team Name + Mention")
+                new_slot = await get_input(ctx)
+                if new_slot:
+                    dta = dta.replace(str(slot), str(new_slot))
+                    if msg.author.id == self.bot.user.id:
+                        await msg.edit(content=dta)
+                        await ask.delete()
+                        return await ctx.send("Group Updated", delete_after=10)
+                    if msg.author.id != self.bot.user.id:
+                        return await ctx.send("I Got It!\n But I Can't Edit The Message.\nBecause I'm Not The Author Of The Message")
+
+            else:
+                return await ctx.send("No Team Found")
+
+        if not ctx.message.reference:
+            return await ctx.reply("**Please Run This Command By Replying The Group Message**", delete_after=30)
 
 
 
