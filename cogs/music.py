@@ -156,7 +156,7 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases=["next"])
 	async def skip(self, ctx):
 	    if ctx.voice_client != None:
 	        vc: wavelink.Player = ctx.voice_client
@@ -320,7 +320,7 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command(aliases=["stop", "disconnect"])
+	@cmd.command(aliases=["stop", "disconnect", " Stop"])
 	async def leave(self, ctx):
 		if ctx.author.voice == None:
 			return await ctx.reply("Please Join VC")
