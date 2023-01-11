@@ -194,8 +194,11 @@ async def prc(group,  grpc , msg, tsl):
     for ms in messages:
         if ms.author.id == 931202912888164474:
             if f"**__GROUP__ {str(group)} **" in ms.content:
-                cont = f"{ms.content}\n{get_slot(ms)} {msg}"
-                return await ms.edit(content=cont)
+                if "12)" not in ms.content.split():
+                    cont = f"{ms.content}\n{get_slot(ms)} {msg}"
+                    return await ms.edit(content=cont)
+                if "12)" in ms.content.split():
+                    pass
 
             if f"**__GROUP__ {str(group)} **" not in ms.content:
                 ms = await grpc.send(f"**__GROUP__ {group} ** \n")
