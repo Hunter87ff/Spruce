@@ -229,4 +229,3 @@ async def auto_grp(message):
                 grpch = discord.utils.get(message.guild.channels, id=int(td["gch"]))
                 group = get_group(reged=reged)
                 return await prc(group=group, grpc=grpch, msg=message.content, tsl=td["tslot"])
-
