@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://cdn.discordapp.com/icons/947443790053015623/3d3d8cb1823a4a69cc5cd2014c6f6a95.png?size=1024" height="50px" width="50px"/>
+<img src="https://cdn.discordapp.com/avatars/931202912888164474/6569b58ca3c4e8a3ff68a1267dcaf90e.png?size=1024" height="50px" width="50px"/>
 </p>
 <h3 align="center">Spruce</h3>
 <p align="center" > 
@@ -14,10 +14,37 @@ If you decide to edit, compile or use this code in any way. Kindly respect the [
 
 
 
-## How do I contribute?
-If you are looking forward to contribute to the project, we welcome you with open arms. kindly open an issue first for discussion. It's also a good option to join the <a href="https://discord.gg/vMnhpAyFZm">Support Server</a> and get `@Dev Team` role.
-
-
 ## 💌 Support Server
 [![DiscordBanner](https://invidget.switchblade.xyz/vMnhpAyFZm)](https://discord.gg/vMnhpAyFZm)
 
+## Commands
+
+__**Esports**__
+
+`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`
+
+
+---------------------------------
+
+__**Moderation**__
+
+`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`
+
+---------------------------------
+
+__**Utility**__
+
+`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`
+
+---------------------------------
+
+__**Roles**__
+
+`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`
+
+---------------------------------
+
+
+__**Musics**__
+
+`play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`

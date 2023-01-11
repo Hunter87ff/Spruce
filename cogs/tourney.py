@@ -283,7 +283,7 @@ class Esports(commands.Cog):
                 emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {Team_Name.upper()}**\n**Added By** : {ctx.author.mention} ")
                 emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
                 emb.timestamp = datetime.datetime.utcnow()
-                return await cch.send(member.mention, embed=emb)     
+                return await cch.send(f"{Team_Name} {member.mention}", embed=emb)     
             
             
             
