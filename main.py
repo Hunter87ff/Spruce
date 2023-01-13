@@ -137,7 +137,6 @@ async def on_message(message):
     
     
    
-   
 	
 @bot.event
 async def on_guild_channel_delete(channel):
