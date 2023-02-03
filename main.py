@@ -130,6 +130,8 @@ async def nitrof(message):
 
 @bot.event
 async def on_message(message):
+    if message.webhook_id != None:
+        return
     await bot.process_commands(message)
     #await nitrof(message)
     await onm.tourney(message)
