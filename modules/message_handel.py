@@ -195,9 +195,8 @@ async def prc(group,  grpc , msg, tsl):
         if len(messages) <3:
             if ms.author.id != 931202912888164474:
                 if f"**__GROUP__ {str(group)} **" not in ms.content:
-                    msg = await grpc.send(f"**__GROUP__ {group} ** \n")
-                    cont = f"{ms.content}\n{get_slot(ms)} {msg}"
-                    return await ms.edit(content=cont)
+                    await grpc.send(f"**__GROUP__ {group} ** \n{ms.content}\n{get_slot(ms)} {msg}")
+
 
         if ms.author.id == 931202912888164474:
             if f"**__GROUP__ {str(group)} **" in ms.content:
