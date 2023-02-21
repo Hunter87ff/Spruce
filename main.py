@@ -422,7 +422,7 @@ async def botinfo(ctx):
 
 
 
-@bot.command()
+@bot.command(aliases=["steal"])
 @commands.guild_only()
 @commands.bot_has_permissions(manage_emojis=True)
 @commands.has_permissions(manage_emojis=True)
