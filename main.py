@@ -463,11 +463,16 @@ async def leaveg(ctx, member:int):
             await guild.leave()
             await ctx.send(f"Leaved From {gname}")
 
+
+
+
+
 @bot.command(hidden=True)
 async def restart(ctx):
   if ctx.author.id == config.owner_id:
     try:
       os.system("python main.py")
+      return await ctx.send("**Restarting...**")
     except:
       return
   
