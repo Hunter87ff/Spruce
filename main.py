@@ -471,8 +471,8 @@ async def leaveg(ctx, member:int):
 async def restart(ctx):
   if ctx.author.id == config.owner_id:
     try:
+      await ctx.send("**Restarting...**")
       os.system("python main.py")
-      return await ctx.send("**Restarting...**")
     except:
       return
   
