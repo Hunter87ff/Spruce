@@ -312,7 +312,7 @@ async def tts(ctx, *, message):
     output = gTTS(text=message, lang="en", tld="co.in")
     output.save(f"tts.mp3")
     #fl = open("tts.mp3", r).read()
-    await ctx.send(file=discord.File("tts.mp3"))
+    await ctx.send(ctx.author.mention, file=discord.File("tts.mp3"))
     os.remove("tts.mp3")
 
 
