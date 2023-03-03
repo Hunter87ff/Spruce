@@ -386,7 +386,7 @@ class Helper(commands.Cog):
 #Utils Related
     @help.command()
     async def tts(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `tts <sentense>`\nExample : `&tts hello {ctx.author}, color=0x00ff00)
+        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `tts <sentense>`\nExample : `&tts hello {ctx.author}", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["steal"])
