@@ -24,7 +24,7 @@ musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xf0ff0f)
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`", color=0xf0ff0f)
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
-utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
+utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
 buttons =[invbtn, votebtn, support_serverbtn]
 
 
@@ -384,8 +384,12 @@ class Helper(commands.Cog):
 
 
 #Utils Related
-
     @help.command()
+    async def tts(self, ctx):
+        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `tts <sentense>`\nExample : `&tts hello {ctx.author}, color=0x00ff00)
+        await ctx.send(embed=em)
+
+    @help.command(aliases=["steal"])
     async def addemoji(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `addemoji <emoji>`\nExample : `&addemoji` <:vf:947194381172084767>", color=0x00ff00)
         await ctx.send(embed=em)
