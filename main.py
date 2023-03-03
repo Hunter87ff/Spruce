@@ -309,8 +309,6 @@ async def cdm(ctx,amount:int):
 
 @bot.command()
 async def tts(ctx, *, message):
-    if len(message.content.split()) > 100:
-        return await ctx.send("Maximum 100 Words Allowed")
     output = gTTS(text=message, lang="en", tld="co.in")
     output.save(f"tts.mp3")
     #fl = open("tts.mp3", r).read()
