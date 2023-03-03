@@ -9,6 +9,8 @@ import asyncio
 import datetime
 import requests
 import wavelink
+import gtts
+from gtts import gTTS
 from asyncio import sleep
 from pymongo import MongoClient
 from wavelink.ext import spotify
@@ -59,8 +61,7 @@ asyncio.run(load_extensions())
 async def on_ready():
     await node_connect()
     st_log = bot.get_channel(1020027121231462400)
-    status = ['&help', f"{len(bot.guilds) } Servers", "You", "Sprucebot.ml/invite", "200k+ Members"]
-    
+    status = ['&help', f"{len(bot.guilds) } Servers", "You", "Sprucebot.ml/invite", "189k+ Members"]
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
     print(stmsg)
@@ -306,6 +307,17 @@ async def cdm(ctx,amount:int):
 
 
 
+@bot.command()
+async def tts(ctx, *, message):
+    if len(message.content.split()) > 100:
+        return await ctx.send("Maximum 100 Words Allowed")
+    output = gTTS(text=message, lang="en", tld="co.in")
+    output.save(f"tts.mp3")
+    #fl = open("tts.mp3", r).read()
+    await ctx.send(file=discord.File("tts.mp3"))
+    os.remove("tts.mp3")
+
+
 
 
 async def il(id):
@@ -422,7 +434,7 @@ async def botinfo(ctx):
 
 
 
-@bot.command(aliases=["steal"])
+@bot.command()
 @commands.guild_only()
 @commands.bot_has_permissions(manage_emojis=True)
 @commands.has_permissions(manage_emojis=True)
@@ -463,20 +475,6 @@ async def leaveg(ctx, member:int):
             await guild.leave()
             await ctx.send(f"Leaved From {gname}")
 
-
-
-
-
-@bot.command(hidden=True)
-async def restart(ctx):
-  if ctx.author.id == config.owner_id:
-    try:
-      await ctx.send("**Restarting...**")
-      os.system("python main.py")
-    except:
-      return
-  
-  
 
 
 bot.run(os.environ['TOKEN'])

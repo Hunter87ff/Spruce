@@ -9,3 +9,4 @@ wavelink
 lavalink
 bs4
 humanfriendly
+gtts
