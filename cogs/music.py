@@ -77,6 +77,8 @@ class Music(commands.Cog):
 
 	@cmd.command(aliases=["p", "P"])
 	async def play(self, ctx: commands.Context, *, search: typing.Union[spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
+	  if ctx.author.id != 885193210455011369:
+	    return await ctx.send("Music Module Is Currently Paused!")
 		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
 		pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
 		stop_btn = Button(emoji="<:WhiteButton:1019218566475681863>", style=ButtonStyle.danger, custom_id="stop_btn")
