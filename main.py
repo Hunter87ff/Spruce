@@ -307,8 +307,15 @@ async def cdm(ctx,amount:int):
 
 
 
+block = ["ass", "asses", "asshole", "bc", "behenchod", "betichod", "bhenchod", "bhos", "bitch", "boob", "bsdk", "bsdke", "carding", "chumt", "chut", "chutia", "chutiya", "comdon", "condom", "faggot", "fuck", "fucker", "gamd", "gamdu", "gand", "hentai", "idiot", "khanki", "kutta", "lauda", "lawde", "lund", "maderchod", "motherchod", "nigg"," p0rn", "penis", "pepe", "porn", "pornhub", "pussy", "ramdi", "randi", "sex", "sexy", "titt", "vagina", "xhamster", "xnxx", "xvideos", "खनकी", "गांडू", "चुटिया", "छूट", "छोड़", "छोड़ू", "बेटीछोद", "भोसडीके", "मदरचोड", "मादरचोद", "लुंड"]
+good = ["good", "awesome", "smart", "la la la"]
 @bot.command()
 async def tts(ctx, *, message):
+    if len(message.split()) > 100:
+        return await ctx.send("Maximum 100 words allowed")
+    for i in block:
+        if i in message.split():
+            message = message.replace(i,random.choice(good))
     output = gTTS(text=message, lang="en", tld="co.in")
     output.save(f"tts.mp3")
     #fl = open("tts.mp3", r).read()
