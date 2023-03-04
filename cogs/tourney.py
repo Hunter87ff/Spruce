@@ -102,7 +102,7 @@ class Esports(commands.Cog):
                     "status" : "started",
                     "faketag": "no",
                     "pub" : "no",
-                    "prize" : "Nothing",
+                    "prize" : "No Data",
                     "auto_grp":"yes"
                     }
             
