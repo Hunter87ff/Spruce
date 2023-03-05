@@ -311,12 +311,13 @@ block = ["ass", "asses", "asshole", "bc", "behenchod", "betichod", "bhenchod", "
 good = ["good", "awesome", "smart", "la la la", "achha", "bohot achha"]
 @bot.command()
 async def tts(ctx, *, message):
-    if len(message.split()) > 100:
+    msg = str(message)
+    if len(msg.split()) > 100:
         return await ctx.send("Maximum 100 words allowed")
     for i in block:
-        if i in message.split():
-            message = message.replace(i,random.choice(good))
-    output = gTTS(text=message, lang="en", tld="co.in")
+        if i in msg.split():
+            messagee = msg.replace(i,random.choice(good))
+    output = gTTS(text=messagee, lang="en", tld="co.in")
     output.save(f"tts.mp3")
     #fl = open("tts.mp3", r).read()
     await ctx.send(ctx.author.mention, file=discord.File("tts.mp3"))
@@ -437,7 +438,17 @@ async def botinfo(ctx):
 
 
 
-
+@bot.command()
+async def owners(ctx):
+    if ctx.guild.id != 947443790053015623:
+        return
+    ofcg = bot.get_guild(947443790053015623)
+    owner_role = ofcg.get_role(1043134410029019176)
+    for i in bot.guilds:
+        if i.owner in ofcg.members:
+            if i.member_count > 100:
+                onr = ofcg.get_member(i.owner)
+                await onr.add_roles(owner_role)
 
 
 @bot.command()
