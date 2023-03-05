@@ -8,6 +8,7 @@ from discord import ButtonStyle
 from discord.ext import commands
 import requests
 from bs4 import BeautifulSoup
+from modules import config
 import typing   
 
 
