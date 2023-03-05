@@ -447,7 +447,7 @@ async def owners(ctx):
     for i in bot.guilds:
         if i.owner in ofcg.members:
             if i.member_count > 100:
-                onr = ofcg.get_member(i.owner)
+                onr = ofcg.get_member(i.owner.id)
                 await onr.add_roles(owner_role)
 
 
