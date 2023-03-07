@@ -306,7 +306,7 @@ async def cdm(ctx,amount:int):
       await message.delete()
 
 @bot.command()
-async def p(ctx, url):
+async def rp(ctx, url):
     if ctx.author.voice:
         channel = ctx.author.voice.channel
         voice = await channel.connect()
