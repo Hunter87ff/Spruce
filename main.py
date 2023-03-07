@@ -311,6 +311,7 @@ block = ["ass", "asses", "asshole", "bc", "behenchod", "betichod", "bhenchod", "
 good = ["good", "awesome", "smart", "la la la", "achha", "bohot achha"]
 @bot.command()
 async def tts(ctx, *, message):
+    msg = str(message)
     for i in block:
         if i in msg.split():
             messagee = msg.replace(i,random.choice(good))
