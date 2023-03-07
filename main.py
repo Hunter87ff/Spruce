@@ -307,15 +307,10 @@ async def cdm(ctx,amount:int):
 
 
 
-block = ["ass", "asses", "asshole", "bc", "behenchod", "betichod", "bhenchod", "bhos", "bitch", "boob", "bsdk", "bsdke", "carding", "chumt", "chut", "chutia", "chutiya", "comdon", "condom", "faggot", "fuck", "fucker", "gamd", "gamdu", "gand", "hentai", "idiot", "khanki", "kutta", "lauda", "lawde", "lund", "maderchod", "motherchod", "nigg"," p0rn", "penis", "pepe", "porn", "pornhub", "pussy", "ramdi", "randi", "sex", "sexy", "titt", "vagina", "xhamster", "xnxx", "xvideos", "खनकी", "गांडू", "चुटिया", "छूट", "छोड़", "छोड़ू", "बेटीछोद", "भोसडीके", "मदरचोड", "मादरचोद", "लुंड"]
-good = ["good", "awesome", "smart", "la la la", "achha", "bohot achha"]
+
 @bot.command()
 async def tts(ctx, *, message):
-    msg = str(message)
-    for i in block:
-        if i in msg.split():
-            messagee = msg.replace(i,random.choice(good))
-    output = gTTS(text=messagee, lang="en", tld="co.in")
+    output = gTTS(text=message, lang="en", tld="co.in")
     output.save(f"tts.mp3")
     #fl = open("tts.mp3", r).read()
     await ctx.send(ctx.author.mention, file=discord.File("tts.mp3"))
