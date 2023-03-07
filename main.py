@@ -305,6 +305,18 @@ async def cdm(ctx,amount:int):
     if message.author == bot.user:
       await message.delete()
 
+@bot.command()
+async def p(ctx, url):
+    if ctx.author.voice:
+        channel = ctx.author.voice.channel
+        voice = await channel.connect()
+    else:
+        await ctx.channel.send("You are not connected to a voice channel.")
+
+    # Play the track
+    voice.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=url))
+    voice.is_playing()
+    await ctx.channel.send("Now playin")
 
 
 
