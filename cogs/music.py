@@ -79,7 +79,7 @@ class Music(commands.Cog):
 
 #, wavelink.SoundCloudTrack
 	@cmd.command(aliases=["pp"])
-	async def pplay(self, ctx: commands.Context, *, search: typing.Union[wavelink.SoundCloudTrack, spotify.SpotifyTrack]):
+	async def pplay(self, ctx: commands.Context, *, search: typing.Union[spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
 		if ctx.author.id != config.owner_id:
 			return await ctx.send("Music Module Is Currently Paused")
 
