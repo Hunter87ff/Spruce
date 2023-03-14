@@ -190,7 +190,7 @@ class Music(commands.Cog):
 
 	    else:
 	    	vc.loop = False
-	        await vc.stop()
+	    	await vc.stop()
 
 
 
