@@ -85,6 +85,7 @@ class Music(commands.Cog):
 					return await ctx.reply(embed=discord.Embed(description="No Audio Available For Loop...", color=0xff0000))
 				else:
 					vc.loop = True
+					await ctx.message.add_reaction(config.vf)
 
 		if ctx.author.voice == None:
 			em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
