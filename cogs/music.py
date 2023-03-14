@@ -280,10 +280,10 @@ class Music(commands.Cog):
 				return await interaction.response.send_message("the queue is empty", ephemeral=True)
 
 			else:
-			    ms = await interaction.response.send_message("Skiping...")
+			    ms = await interaction.response.send_message("Skiping...", ephemeral=True)
 			    vc.loop = False
 			    await vc.stop()
-			    await ms.delete()
+
 
 
 
