@@ -447,6 +447,7 @@ async def botinfo(ctx):
 async def owners(ctx):
     if ctx.guild.id != 947443790053015623:
         return
+    ms = await ctx.send("Processing...")
     ofcg = bot.get_guild(947443790053015623)
     owner_role = ofcg.get_role(1043134410029019176)
     for i in bot.guilds:
@@ -454,6 +455,7 @@ async def owners(ctx):
             if i.member_count > 100:
                 onr = ofcg.get_member(i.owner.id)
                 await onr.add_roles(owner_role)
+    return ms.delete()
 
 
 @bot.command()

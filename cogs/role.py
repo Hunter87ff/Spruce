@@ -141,11 +141,20 @@ class Roles(commands.Cog):
 	async def inrole(self, ctx, role: discord.Role):
 		if ctx.author.bot:
 			return
-		if len(role.members) > 199:
-			return await ctx.send("Too Many Members To Show")
-		em = discord.Embed(color=0xff0000)
-		em.add_field(name=f"Members in {role.mention}", value=" ,".join(member.mention for member in role.members))
-		await ctx.send(embed=em)
+		msg = ""
+		if len(role.members) < 15:
+			for i in role.members:
+				msg = msg + f"\n{i} : {i.id}"
+				await ctx.send(msg)
+		if len(role.members) > 15 and i < 1000000:
+			for i in role.members:
+				msg = msg + f"\n{i} : {i.id}"
+			file = open("members.txt", "w", encoding="utf-8")
+			file.write(msg)
+			file.close()
+			await ctx.send(file=discord.File("members.txt"))
+		if len(role.members) > 1000000:
+			return await ctx.send("Too Many Members To Show!")
 
 
 	@cmd.command()
