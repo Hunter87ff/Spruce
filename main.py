@@ -63,7 +63,7 @@ async def on_ready():
     st_log = bot.get_channel(1020027121231462400)
     status = ['&help', "You", "Sprucebot.ml/invite", "210k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
-    await st_log.send(embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+    await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
     print(stmsg)
     while True:
         for st in status:

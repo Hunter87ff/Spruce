@@ -76,6 +76,26 @@ class Music(commands.Cog):
 
 
 
+	@cmd.command()
+	async def loop(self, ctx):
+		if ctx.author.voice != None:
+			if ctx.voice_client != None:
+				vc: wavelink.Player = ctx.voice_client
+				if vc.is_playing == False:
+					return await ctx.reply(embed=discord.Embed(description="No Audio Available For Loop...", color=0xff0000))
+				else:
+					vc.loop = True
+
+		if ctx.author.voice == None:
+			em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
+			await ctx.reply(embed=em)
+
+		if ctx.voice_client == None:
+			return await ctx.reply(embed=discord.Embed(description="I'm Not Connected To Vc!!"))
+
+
+
+
 
 #, wavelink.SoundCloudTrack
 	@cmd.command(aliases=["p", "P"])
@@ -169,6 +189,7 @@ class Music(commands.Cog):
 	        return await ctx.send("the queue is empty", ephemeral=True)
 
 	    else:
+	    	vc.loop = False
 	        await vc.stop()
 
 
@@ -258,9 +279,10 @@ class Music(commands.Cog):
 				return await interaction.response.send_message("the queue is empty", ephemeral=True)
 
 			else:
-			    await interaction.response.send_message("Skiping...")
-			    await ctx.channel.purge(limit=1)
+			    ms = await interaction.response.send_message("Skiping...")
+			    vc.loop = False
 			    await vc.stop()
+			    await ms.delete()
 
 
 

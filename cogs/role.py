@@ -145,7 +145,7 @@ class Roles(commands.Cog):
 		if len(role.members) < 15:
 			for i in role.members:
 				msg = msg + f"\n{i} : {i.id}"
-				await ctx.send(msg)
+			await ctx.send(msg)
 		if len(role.members) > 15 and len(role.members) < 1000000:
 			for i in role.members:
 				msg = msg + f"\n{i} : {i.id}"
