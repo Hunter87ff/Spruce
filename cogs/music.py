@@ -70,18 +70,16 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command(aliases=["p"])
-	async def play(self, ctx, *, Query):
+	@cmd.command(aliases=["+pp"])
+	async def pplay(self, ctx, *, Query):
 		return await ctx.send("Music Module Is Currently Paused")
 
 
 
 
 #, wavelink.SoundCloudTrack
-	@cmd.command(aliases=["pp"])
-	async def pplay(self, ctx: commands.Context, *, search: typing.Union[wavelink.SoundCloudTrack, spotify.SpotifyTrack]):
-		if ctx.author.id != config.owner_id:
-			return await ctx.send("Music Module Is Currently Paused")
+	@cmd.command(aliases=["p", "P"])
+	async def play(self, ctx: commands.Context, *, search: typing.Union[spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
 
 		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")
 		pause_btn = Button(emoji="<:Pause:1019217055712559195>", custom_id="pause_btn")
