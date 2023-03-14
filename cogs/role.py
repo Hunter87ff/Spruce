@@ -146,7 +146,7 @@ class Roles(commands.Cog):
 			for i in role.members:
 				msg = msg + f"\n{i} : {i.id}"
 				await ctx.send(msg)
-		if len(role.members) > 15 and i < 1000000:
+		if len(role.members) > 15 and len(role.members) < 1000000:
 			for i in role.members:
 				msg = msg + f"\n{i} : {i.id}"
 			file = open("members.txt", "w", encoding="utf-8")
