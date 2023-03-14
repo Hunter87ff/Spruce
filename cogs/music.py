@@ -183,15 +183,15 @@ class Music(commands.Cog):
 
 	@cmd.command(aliases=["next"])
 	async def skip(self, ctx):
-	    if ctx.voice_client != None:
-	        vc: wavelink.Player = ctx.voice_client
-
-	    if vc.queue.is_empty:
-	        return await ctx.send("the queue is empty", ephemeral=True)
-
-	    else:
-	    	vc.loop = False
-	    	await vc.stop()
+		if not ctx.author.voice:
+			return await ctx.reply(embed=discord.Embed(description="Please Join VC To Use This Command", color=0xff0000))
+		if ctx.voice_client != None:
+			vc: wavelink.Player = ctx.voice_client
+		if vc.queue.is_empty:
+			return await ctx.send("the queue is empty", ephemeral=True)
+		else:
+			vc.loop = False
+			await vc.stop()
 
 
 
