@@ -137,8 +137,21 @@ async def on_message(message):
     #await nitrof(message)
     await onm.tourney(message)
     await onm.auto_grp(message)
+    await reconnect(message)
     
-    
+async def reconnect(message):
+	for i in message.guild.voice_channels:
+		if "Music" in i.name:
+			try:
+				return await i.connect(self_deaf=True, reconnect=True)
+			except:
+				return
+		else: 
+			try:
+				return await i.connect(self_deaf=True, reconnect=True)
+			except:
+				return
+
    
 	
 @bot.event
