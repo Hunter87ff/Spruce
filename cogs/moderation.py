@@ -121,7 +121,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command(aliases=['lc'])
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def lock_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -131,10 +131,13 @@ class Moderation(commands.Cog):
 
 		for hchannel in category.channels:
 		  overwrite = hchannel.overwrites_for(role)
-		  overwrite.update(send_messages=False, add_reactions=False)
+		  overwrite.update(send_messages=False)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
 
-		await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name}**')
+		try:
+			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From {role.name}**')
+		except:
+			return
 			
 
 
