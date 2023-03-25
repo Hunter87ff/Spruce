@@ -12,40 +12,10 @@ class Moderation(commands.Cog):
 
 	#start commands
 
-	@cmd.command(help="to setup muted role perms")
-	@commands.cooldown(2, 20, commands.BucketType.user)
-	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
-	async def setup(self, ctx):
-		bt = ctx.guild.get_member(self.bot.user.id)
-		if ctx.author.bot:
-			return
-
-		muted = discord.utils.get(ctx.guild.roles, name="Muted")
-		if muted == None:
-			muted = await ctx.guild.create_role(name="Muted", color=0xff0000)
-
-		if muted.position > bt.top_role.position:
-			return await ctx.reply("`Muted` role is higher than  my top role, I can't manage it")
-
-		snd = await ctx.send("<a:loading:969894982024568856>**Processing...**")
-
-		overwrite = ctx.channel.overwrites_for(muted)
-		overwrite.update(send_messages=False, add_reactions=False, connect=False, speak=False)
-		for channel in ctx.guild.channels:
-			await channel.set_permissions(muted, overwrite=overwrite)
-			
-		try:
-			await snd.edit(content=f'**<:vf:947194381172084767>Setuped Successfully**')
-			
-		except:
-			return
-
-
 	@cmd.command(help=" Use this command to lock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
-	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def lock(self, ctx, role: discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -55,14 +25,13 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(send_messages=False, add_reactions=False)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.channel.purge(limit=1)
-		return await ctx.send('**<:vf:947194381172084767> Channel has been locked**', delete_after=5)
+		return await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role.mention}`**', delete_after=5)
 
 
 	@cmd.command(help=" Use this command to unlock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
-	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def unlock(self, ctx, role: discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -72,14 +41,13 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(send_messages=True, add_reactions=True)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.channel.purge(limit=1)
-		return await ctx.send('**<:vf:947194381172084767> Channel has been unlocked**', delete_after=5)
+		return await ctx.send(f'**<:vf:947194381172084767> Channel has been unlocked from `{role.mention}`**', delete_after=5)
 
 
 
 	@cmd.command(help=" Use this command to hide a channel")
-	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def hide(self, ctx, role: discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -89,8 +57,7 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(view_channel=False)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.channel.purge(limit=1)
-		return await ctx.send('**<:vf:947194381172084767>This channel is hidden from everyone**',delete_after=5)
+		return await ctx.send(f'**<:vf:947194381172084767>This channel is hidden from `{role.mention}`**',delete_after=5)
 
 
 
@@ -99,8 +66,8 @@ class Moderation(commands.Cog):
 
 
 	@cmd.command(help=" Use this command to remove all permissions permission from all roles")
-	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def clear_perms(self, ctx, role: discord.Role=None):
 		bt = ctx.guild.get_member(self.bot.user.id)
 
@@ -111,13 +78,13 @@ class Moderation(commands.Cog):
 			for role in ctx.guild.roles:
 				if role.position < bt.top_role.position:
 					await role.edit(permissions=discord.Permissions(permissions=0))
+			return await ctx.send(f'**<:vf:947194381172084767>All Permissions Removed from everyone**')
+
 
 		if role != None:
 			if role.position < bt.top_role.position:
 				await role.edit(permissions=discord.Permissions(permissions=0))
-
-
-		return await ctx.send('**<:vf:947194381172084767>This channel is hidden from everyone**',delete_after=5)
+				return await ctx.send(f'**<:vf:947194381172084767>All Permissions Removed from `{role.mention}`**')
 
 
 
@@ -127,8 +94,8 @@ class Moderation(commands.Cog):
 
 
 	@cmd.command(help=" Use this command to unhide a channel")
-	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def unhide(self, ctx, role:discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -138,14 +105,13 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(view_channel=True)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.channel.purge(limit=1)
-		return await ctx.send('**<:vf:947194381172084767>This channel is visible to everyone**',delete_after=5)
+		return await ctx.send(f'**<:vf:947194381172084767>This channel is visible to `{role.mention}`**')
 
 
 
 	@cmd.command(aliases=['lc'])
-	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def lock_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -158,13 +124,13 @@ class Moderation(commands.Cog):
 		  overwrite.update(send_messages=False, add_reactions=False)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
 
-		await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name}**', delete_after=5)
+		await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name}**')
 			
 
 
 	@cmd.command(aliases=['ulc'])
-	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def unlock_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -177,7 +143,7 @@ class Moderation(commands.Cog):
 		  overwrite.update(send_messages=True, add_reactions=True)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
 
-		await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**', delete_after=5)
+		await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**')
 
 
 
@@ -246,7 +212,7 @@ class Moderation(commands.Cog):
 	#Mute Command
 	@cmd.command()
 	@commands.has_permissions(moderate_members=True)
-	@commands.bot_has_permissions(moderate_members=True)
+	@commands.bot_has_permissions(moderate_members=True, send_messages=True)
 	async def unmute(self, ctx, member: discord.Member, *, reason=None):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if reason == None:
@@ -265,7 +231,7 @@ class Moderation(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(moderate_members=True)
-	@commands.bot_has_permissions(moderate_members=True)
+	@commands.bot_has_permissions(moderate_members=True, send_messages=True)
 	async def mute(self, ctx, member: discord.Member, time=None, *, reason=None):
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if time == None:
@@ -289,7 +255,7 @@ class Moderation(commands.Cog):
 
 	@commands.command()
 	@commands.has_permissions(kick_members=True)
-	@commands.bot_has_permissions(kick_members=True)
+	@commands.bot_has_permissions(kick_members=True, send_messages=True)
 	async def kick(self, ctx, member: discord.Member, reason=None):
 		if ctx.author.bot:
 			return
@@ -313,7 +279,7 @@ class Moderation(commands.Cog):
 
 	@commands.command()
 	@commands.bot_has_permissions(ban_members=True)
-	@commands.has_permissions(ban_members=True)
+	@commands.has_permissions(ban_members=True, send_messages=True)
 	async def ban(self, ctx, member: discord.Member, reason=None):
 		if ctx.author.bot:
 			return
@@ -322,7 +288,7 @@ class Moderation(commands.Cog):
 			reason = f"{member} banned by {ctx.author}"
 
 		if ctx.author.top_role.position < member.top_role.position:
-			return await ctx.send("You don't have enough permission", delete_after=5)
+			return await ctx.send(f"{member}'s role is higher than yours", delete_after=5)
 
 		elif member == ctx.author:
 			return await ctx.send("**You can't ban your self**", delete_after=5)
