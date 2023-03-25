@@ -73,8 +73,8 @@ class Esports(commands.Cog):
             overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, manage_channels=True, external_emojis=True, view_channel=True)
             reason= f'Created by {ctx.author.name}'   #reason for auditlog
             category = await ctx.guild.create_category(name, reason=f"{ctx.author.name} created")
-            await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
             await category.set_permissions(bt, overwrite=overwrite)
+            await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
             await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
             await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
             await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
