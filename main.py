@@ -274,7 +274,7 @@ async def on_command_error(ctx, error):
             return
 
     elif "403 Forbidden (error code: 50013): Missing Permissions" in str(error):
-        return await ctx.send(embed=discord.Embed(description="**Missing Permissions! You Should Check My Permissions,\n Tip: Check My `VIEW_CHANNEL` or `SEND_MESSAGES` Permission**", color=0xff0000), delete_after=30)
+        return await ctx.send(embed=discord.Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
 
     elif "Unknown Role" in str(error):
         return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
