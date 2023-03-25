@@ -146,7 +146,7 @@ class Moderation(commands.Cog):
 		  await hchannel.set_permissions(role, overwrite=overwrite)
 
 		try:
-			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From {role.name}**')
+			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From `{role.name}`**')
 		except:
 			return
 			
@@ -189,7 +189,7 @@ class Moderation(commands.Cog):
 		  overwrite = hchannel.overwrites_for(role)
 		  overwrite.update(view_channel=False)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
-		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from {role.name}**', color=0x00ff00)
+		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from `{role.name}`**', color=0x00ff00)
 		try:
 			await ctx.send(embed=em)
 		except:
@@ -214,7 +214,7 @@ class Moderation(commands.Cog):
 		  overwrite = uhchannel.overwrites_for(role)
 		  overwrite.update(view_channel=True)
 		  await uhchannel.set_permissions(role, overwrite=overwrite)
-		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to {role.name}**', color=0x00ff00)
+		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to `{role.name}`**', color=0x00ff00)
 		try:
 			await ctx.send(embed=em, delete_after=5)
 		except:
