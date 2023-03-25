@@ -28,28 +28,45 @@ class Channel(commands.Cog):
 
 	@cmd.command(aliases=['chm'])
 	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def channel_make(self, ctx, *names):
+		try:
+			ms = await ctx.send("Processing...")
+		except:
+			pass
 		for name in names:
 			await ctx.guild.create_text_channel(name)
-			await ctx.send(f'**<:vf:947194381172084767>`{name}` has been created**',delete_after=5)
-			await sleep(1)
+
+		if ms:
+			try:
+				await ms.edit(content=f'**<:vf:947194381172084767>All channels Created.**')
+			except:
+				return
+
 
 
 	@cmd.command(aliases=['chd'])
-	@commands.has_permissions(manage_channels=True, send_messages=True)
-	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
+	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def channel_del(self, ctx, *channels: discord.TextChannel):
+		try:
+			ms = await ctx.send("Processing...")
+		except:
+			pass
 		for ch in channels:
 			await ch.delete()
-			await ctx.send(f'**<:vf:947194381172084767>`{ch.name}` has been deleted**',delete_after=5)
-			await sleep(1)
+		if ms:
+			try:
+				await ms.edit(content=f'**<:vf:947194381172084767>`Channels deleted Successfully**')
+			except:
+				return
+
 
 
 
 	@cmd.command(aliases=['dc'])
 	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(manage_channels=True, send_messages=True, manage_messages=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def delete_category(self, ctx, category: discord.CategoryChannel):
 		if ctx.author.bot:
 			return
@@ -79,12 +96,19 @@ class Channel(commands.Cog):
 
 	@cmd.command(aliases=['cch'])
 	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(manage_channels=True, send_messages=True)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def create_channel(self, ctx, category, *names):
-	  for name in names:
-	    category = await discord.utils.get(ctx.guild.categories, category)
-	    await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-	    await ctx.send("Done", delete_after=5)
+		try:
+			ms = await ctx.send("Processing...")
+		except:
+			return
+		for name in names:
+			category = await discord.utils.get(ctx.guild.categories, category)
+			await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
+		try:
+			await ms.edit(content="Channels Created.")
+		except:
+			return
 
 
 
