@@ -15,7 +15,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help=" Use this command to lock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def lock(self, ctx, role: discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -25,7 +25,7 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(send_messages=False, add_reactions=False)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		return await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role.mention}`**', delete_after=5)
+		await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role}`**', delete_after=5)
 
 
 	@cmd.command(help=" Use this command to unlock a channel")

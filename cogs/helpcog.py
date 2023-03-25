@@ -21,7 +21,7 @@ support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhp
 hel_p = "• Prefix - `&`\n• Total Commands - `81` | Usable - `75`\n• Type `&help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
-modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`", color=0xf0ff0f)
+modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`", color=0xf0ff0f)
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`", color=0xf0ff0f)
@@ -164,10 +164,7 @@ class Helper(commands.Cog):
     async def unmute(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `unmute <member> [reason=None]`\nExample : `&unmute @abhi spamming`", color=0x00ff00)
         await ctx.send(embed=em)
-    @help.command()
-    async def setup(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `setup`\nExample : `&setup`\nNote : Mute Role Must Be Lower than My Position", color=0x00ff00)
-        await ctx.send(embed=em)
+
 
     @help.command()
     async def hide(self, ctx):
