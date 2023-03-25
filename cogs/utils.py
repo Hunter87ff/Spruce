@@ -7,7 +7,7 @@ import json
 import os
 import pymongo
 from pymongo import MongoClient
-
+from modules import config
 blurple = 0x7289da
 greyple = 0x99aab5
 d_grey = 0x546e7a
@@ -31,9 +31,8 @@ yellow = 0xffff00
 
 
 whois = ["Noob","Unknown Person","kya pata mai nehi janta","bohot piro", "Bohot E-smart","Dusro Ko Jan Ne Se Pehle Khud Ko Jan Lo","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
-coin = ["<:coin_tell:975413333291335702> ", "<:coin_head:975413366493413476>"]
-dburl = os.environ["mongo_url"]
-maindb = MongoClient(dburl)
+coin = ["975413333291335702", "975413366493413476"]
+maindb = config.maindb
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
 
 
@@ -74,7 +73,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.command(aliases=['sav'])
-	@commands.bot_has_permissions(send_messages=True, embed_links=True)
+	@commands.bot_has_permissions(embed_links=True)
 	async def server_av(self, ctx, guild:discord.Guild=None):
 		if guild == None:
 			guild = ctx.guild
@@ -116,7 +115,6 @@ class Utility(commands.Cog):
 	
 	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
-	@commands.bot_has_permissions(send_messages=True)
 	async def whoiss(self, ctx, user:discord.Member=None):
 		if user == None:
 			user = ctx.author
@@ -136,11 +134,12 @@ class Utility(commands.Cog):
 			return await ctx.send(embed=emb)
 
 	@cmd.command()
-	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
+	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
 	async def toss(self, ctx):
-		msg = random.choice(coin)
-		emb = discord.Embed(title=msg, color=yellow)
+		msg = f"https://cdn.discordapp.com/emojis/{random.choice(coin)}.png"
+		emb = discord.Embed(color=yellow)
+		emb.set_image(url=msg)
 		await ctx.send(embed=emb)
 
 
@@ -170,22 +169,19 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(administrator=True)
-	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
+	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def prefix(self, ctx):
-		await ctx.send(os.environ["prefix"])
+		await ctx.send(config.prefix)
 
 
 
 	@cmd.command(aliases=['mc'])
-	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
+	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
-	  
 		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=teal)
 		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
-		
-		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb)
 
 		
@@ -215,7 +211,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
-	@commands.bot_has_permissions(manage_messages=True, send_messages=True, manage_nicknames=True)
+	@commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
 	async def nick(self, ctx, user:discord.Member,  *, Nick):
 		bt = ctx.guild.get_member(self.bot.user.id)
 
@@ -230,7 +226,7 @@ class Utility(commands.Cog):
 
 	@cmd.command()
 	@commands.has_permissions(manage_webhooks=True)
-	@commands.bot_has_permissions(manage_webhooks=True, manage_messages=True)
+	@commands.bot_has_permissions(manage_webhooks=True)
 	async def nitro(self, ctx):
 		gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
 		if gnitro == None:
