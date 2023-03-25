@@ -36,6 +36,22 @@ async def get_input(ctx, check=None, timeout=30):
     else:
         return msg.content
 
+async def lc_ch(channel:discord.TextChannel, role:discord.Role=None):
+    if role == None:
+        role = channel.guild.default_role
+    overwrite = channel.overwrites_for(role)
+    overwrite.update(send_messages=False)
+    await channel.set_permissions(role, overwrite=overwrite)
+
+
+async def unlc_ch(channel:discord.TextChannel, role:discord.Role=None):
+    if role == None:
+        role = channel.guild.default_role
+    overwrite = channel.overwrites_for(role)
+    overwrite.update(send_messages=True)
+    await channel.set_permissions(role, overwrite=overwrite)
+
+
 
 
 
@@ -51,7 +67,7 @@ class Esports(commands.Cog):
     @commands.command(aliases=['ts','tourneysetup'])
     @commands.has_role("tourney-mod")
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
-    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, read_message_history=True, send_messages=True)
+    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, read_message_history=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
         prefix = front
         if ctx.author.bot:
@@ -80,13 +96,15 @@ class Esports(commands.Cog):
             await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
             await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
             r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    #registration Channel
-            await r_ch.set_permissions(ctx.guild.default_role, send_messages=True)
+            await unlc_ch(channel=r_ch)
+            #await r_ch.set_permissions(ctx.guild.default_role, send_messages=True)
             c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)    #confirmation_channel
             g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
             quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
-            await quer.set_permissions(ctx.guild.default_role, send_messages=True)
+            await unlc_ch(channel=quer)
+            #await quer.set_permissions(ctx.guild.default_role, send_messages=True)
             c_role = await ctx.guild.create_role(name=front + "Confirmed", reason=f"Created by {ctx.author}") #role
-            await r_ch.send(embed=discord.Embed(color=0x00ff00, description=f"REGISTRATION STARTED\nTOTAL SLOT : `{total_slot}`"))
+            await r_ch.send(embed=discord.Embed(color=0x00ff00, description=f"**REGISTRATION STARTED\nTOTAL SLOT : `{total_slot}`\nMENTION REQUIRED: {mentions}**"))
             
             tour = {"tid" : int(r_ch.id%1000000000000), 
                     "guild" : int(ctx.guild.id),
