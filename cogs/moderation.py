@@ -23,7 +23,7 @@ class Moderation(commands.Cog):
 		if role == None:
 			role = ctx.guild.default_role
 		overwrite = ctx.channel.overwrites_for(role)
-		overwrite.update(send_messages=False, add_reactions=False)
+		overwrite.update(send_messages=False)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
 		await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role.name}`**', delete_after=5)
 
@@ -39,7 +39,7 @@ class Moderation(commands.Cog):
 		if role == None:
 			role = ctx.guild.default_role
 		overwrite = ctx.channel.overwrites_for(role)
-		overwrite.update(send_messages=True, add_reactions=True)
+		overwrite.update(send_messages=True)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
 		return await ctx.send(f'**<:vf:947194381172084767> Channel has been unlocked from `{role.name}`**', delete_after=5)
 
