@@ -15,7 +15,7 @@ class Moderation(commands.Cog):
 	@cmd.command(help=" Use this command to lock a channel")
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def lock(self, ctx, role: discord.Role=None):
 		if ctx.author.bot:
 			return
@@ -25,7 +25,7 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(send_messages=False, add_reactions=False)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role}`**', delete_after=5)
+		await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role.name}`**', delete_after=5)
 
 
 	@cmd.command(help=" Use this command to unlock a channel")
@@ -41,7 +41,7 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(send_messages=True, add_reactions=True)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		return await ctx.send(f'**<:vf:947194381172084767> Channel has been unlocked from `{role.mention}`**', delete_after=5)
+		return await ctx.send(f'**<:vf:947194381172084767> Channel has been unlocked from `{role.name}`**', delete_after=5)
 
 
 
@@ -57,7 +57,7 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(view_channel=False)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		return await ctx.send(f'**<:vf:947194381172084767>This channel is hidden from `{role.mention}`**',delete_after=5)
+		return await ctx.send(f'**<:vf:947194381172084767>This channel is hidden from `{role.name}`**',delete_after=5)
 
 
 
@@ -84,7 +84,7 @@ class Moderation(commands.Cog):
 		if role != None:
 			if role.position < bt.top_role.position:
 				await role.edit(permissions=discord.Permissions(permissions=0))
-				return await ctx.send(f'**<:vf:947194381172084767>All Permissions Removed from `{role.mention}`**')
+				return await ctx.send(f'**<:vf:947194381172084767>All Permissions Removed from `{role.name}`**')
 
 
 
@@ -105,7 +105,7 @@ class Moderation(commands.Cog):
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(view_channel=True)
 		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		return await ctx.send(f'**<:vf:947194381172084767>This channel is visible to `{role.mention}`**')
+		return await ctx.send(f'**<:vf:947194381172084767>This channel is visible to `{role.name}`**')
 
 
 
