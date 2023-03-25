@@ -51,7 +51,7 @@ class Esports(commands.Cog):
     @commands.command(aliases=['ts','tourneysetup'])
     @commands.has_role("tourney-mod")
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
-    @commands.has_permissions(manage_channels=True, manage_roles=True)
+    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, read_message_history=True, send_messages=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
         prefix = front
         if ctx.author.bot:
@@ -70,7 +70,7 @@ class Esports(commands.Cog):
 
         if int(total_slot) < 20000:
             overwrite = ctx.channel.overwrites_for(bt)
-            overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, manage_channels=True, external_emojis=True, view_channel=True)
+            overwrite.update(send_messages=True, manage_messages=True, manage_permissions=True, read_message_history=True, manage_channels=True, external_emojis=True, view_channel=True)
             reason= f'Created by {ctx.author.name}'   #reason for auditlog
             category = await ctx.guild.create_category(name, reason=f"{ctx.author.name} created")
             await category.set_permissions(bt, overwrite=overwrite)
