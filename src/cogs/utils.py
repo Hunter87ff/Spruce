@@ -46,6 +46,23 @@ class Utility(commands.Cog):
 		self.counter = 0
 
 
+	@cmd.command()
+	async def uptime(self, ctx):
+		try:
+			sch = self.bot.get_channel(1020027121231462400)
+		except:
+			return
+		messages = [message async for message in sch.history(limit=3)]
+		uptime = ctx.message.created_at - messages[0].created_at
+		upt = str(uptime).split(".")[0]
+		try:
+			await ctx.send(f"**Current Uptime Is - `{upt} h`**")
+		except:
+			return
+
+
+
+
 
 	@cmd.command(aliases=['av', "pfp"])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
