@@ -64,8 +64,7 @@ class Esports(commands.Cog):
 
 
 
-    @commands.command(aliases=['ts','tourneysetup'])
-    @commands.has_role("tourney-mod")
+    @commands.command(aliases=['ts','tourneysetup','setup'])
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
@@ -77,8 +76,13 @@ class Esports(commands.Cog):
         gid = ctx.guild.id%1000000000000
        
 
-        if tmrole == None:
+        if not tmrole:
             tmrole = await ctx.guild.create_role(name="tourney-mod")
+
+        if tmrole:
+            if not ctx.author.guild_permissions.administrator:
+                if tmrole not in ctx.author.roles:
+                    return await ctx.send(f"You Must Have {tmrole.mention} role to run rhis command")
 
         if int(total_slot) > 20000:
             return await ctx.send("Total Slot should be below 20000")
