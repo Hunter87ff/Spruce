@@ -14,7 +14,6 @@ cmd = commands
 
 
 
-
 maindb = MongoClient(os.environ["mongo_url"]) 
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
