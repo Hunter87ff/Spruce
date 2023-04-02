@@ -9,6 +9,9 @@ import pymongo
 from pymongo import MongoClient
 from modules import config
 from discord.ui import Button, View
+import gtts
+from gtts import gTTS
+
 
 
 blurple = 0x7289da
