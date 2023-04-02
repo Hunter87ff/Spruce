@@ -135,7 +135,7 @@ class Utility(commands.Cog):
 
 	@cmd.command(aliases=['text2speech'])
 	async def tts(self, ctx, *, message):
-		if len(message.content.split()) > 100:
+		if len(message.split()) > 100:
 			return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
 		output = gTTS(text=message, lang="en", tld="co.in")
 		output.save(f"tts.mp3")
