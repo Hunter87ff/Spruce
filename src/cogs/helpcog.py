@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 
 invbtn = Button(label="Invite", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
-votebtn = Button(label="Vote", url="https://discord.ly/spruce/upvote")
+votebtn = Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")
 support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhpAyFZm")
 hel_p = "• Prefix - `&`\n• Total Commands - `84` | Usable - `79`\n• Type `&help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
