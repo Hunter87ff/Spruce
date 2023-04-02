@@ -302,30 +302,6 @@ async def cdm(ctx,amount:int):
     if message.author == bot.user:
       await message.delete()
 
-@bot.command()
-async def rp(ctx, url):
-    if ctx.author.voice:
-        channel = ctx.author.voice.channel
-        voice = await channel.connect()
-    else:
-        await ctx.channel.send("You are not connected to a voice channel.")
-
-    # Play the track
-    voice.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=url))
-    voice.is_playing()
-    await ctx.channel.send("Now playin")
-
-
-
-@bot.command()
-async def tts(ctx, *, message):
-    output = gTTS(text=message, lang="en", tld="co.in")
-    output.save(f"tts.mp3")
-    #fl = open("tts.mp3", r).read()
-    await ctx.send(ctx.author.mention, file=discord.File("tts.mp3"))
-    os.remove("tts.mp3")
-
-
 
 
 
@@ -455,15 +431,6 @@ async def owners(ctx):
     return ms.delete()
 
 
-@bot.command()
-@commands.guild_only()
-@commands.bot_has_permissions(manage_emojis=True)
-@commands.has_permissions(manage_emojis=True)
-async def addemoji(ctx, emoji: discord.PartialEmoji):
-    emoji_bytes = await emoji.read()
-    new = await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
-    return await ctx.send(f"{new} added", delete_after=10)
-
 
 
 
@@ -472,7 +439,7 @@ async def sdm(ctx, member: discord.User, *, message):
     if ctx.author.id == 885193210455011369:
         try:
             await member.send(message)
-            return ctx.reply("Done")
+            return await ctx.reply("Done")
         except:
             return
 
@@ -483,18 +450,27 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 @bot.command(hidden=True)
-async def leaveg(ctx, member:int):
+async def leaveg(ctx, member:int, guild_id:int=None):
     if ctx.author.bot:
         return
 
     if ctx.author.id != config.owner_id:
         return
 
-    for guild in bot.guilds:
-        if guild.member_count < member:
-            gname = guild.name
-            await guild.leave()
-            await ctx.send(f"Leaved From {gname}")
+    if not guild_id:
+        for guild in bot.guilds:
+            if guild.member_count < member:
+                gname = guild.name
+                await guild.leave()
+                await ctx.send(f"Leaved From {gname}, Members: {guild.member_count}")
+    if guild_id:
+        try:
+            gld = bot.get_guild(guild_id)
+        except:
+            return
+        if gld:
+            await gld.leave()
+            await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
 
 

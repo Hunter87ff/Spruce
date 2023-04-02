@@ -8,6 +8,9 @@ import os
 import pymongo
 from pymongo import MongoClient
 from modules import config
+from discord.ui import Button, View
+
+
 blurple = 0x7289da
 greyple = 0x99aab5
 d_grey = 0x546e7a
@@ -129,6 +132,26 @@ class Utility(commands.Cog):
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=embed)
 
+
+	@cmd.command(aliases=['text2speech'])
+	async def tts(self, ctx, *, message):
+		if str(message.content)
+		output = gTTS(text=message, lang="en", tld="co.in")
+		output.save(f"tts.mp3")
+		#fl = open("tts.mp3", r).read()
+		await ctx.send(ctx.author.mention, file=discord.File("tts.mp3"))
+		os.remove("tts.mp3")
+
+
+	@cmd.command(aliases=['steal'])
+	@commands.guild_only()
+	@commands.bot_has_permissions(manage_emojis=True)
+	@commands.has_permissions(manage_emojis=True)
+	async def addemoji(self, ctx, emoji: discord.PartialEmoji):
+		emoji_bytes = await emoji.read()
+		new = await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
+		return await ctx.send(f"{new} added", delete_after=10)
+
 	
 	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
@@ -150,6 +173,8 @@ class Utility(commands.Cog):
 			emb = discord.Embed(description=f"{user.mention}  {msg}", color=blurple)
 			return await ctx.send(embed=emb)
 
+
+
 	@cmd.command()
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
@@ -159,6 +184,45 @@ class Utility(commands.Cog):
 		emb.set_image(url=msg)
 		await ctx.send(embed=emb)
 
+
+
+	@cmd.command()
+	@commands.bot_has_permissions(send_messages=True)
+	@commands.cooldown(2, 8, commands.BucketType.user)
+	async def invite(self, ctx):
+		invbtn = Button(label="Invite Now", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
+		view = View()
+		view.add_item(invbtn)
+		try:
+			await ctx.send("**Click On The Button To Invite Me:**", view=view)
+		except:
+			return
+
+
+	@cmd.command()
+	@commands.bot_has_permissions(send_messages=True)
+	@commands.cooldown(2, 8, commands.BucketType.user)
+	async def vote(self, ctx):
+		invbtn = Button(label="Vote Now", url="https://top.gg/bot/931202912888164474/vote")
+		view = View()
+		view.add_item(invbtn)
+		try:
+			await ctx.send("**Click On The Button To Vote Me ^_^**", view=view)
+		except:
+			return
+
+
+	@cmd.command()
+	@commands.bot_has_permissions(send_messages=True)
+	@commands.cooldown(2, 8, commands.BucketType.user)
+	async def support(self, ctx):
+		invbtn = Button(label="Support", url="https://discord.gg/vMnhpAyFZm")
+		view = View()
+		view.add_item(invbtn)
+		try:
+			await ctx.send("**Click On The Button To Join Our Support Server For Any Issue**", view=view)
+		except:
+			return
 
 
 	@cmd.command(aliases=['em'])
