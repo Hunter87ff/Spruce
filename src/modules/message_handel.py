@@ -110,7 +110,6 @@ async def tourney(message):
             await rch.set_permissions(guild.default_role, overwrite=overwrite)
             await message.delete()
             return await rch.send("**Registration Closed**")
-            
         
         elif len(message.mentions) == ments or len(message.mentions) > ments:
             

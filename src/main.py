@@ -22,7 +22,6 @@ from discord.ext.commands.converter import (MemberConverter, RoleConverter, Text
 
 
 
-
  
 onm = message_handel
 ochd = channel_handel
