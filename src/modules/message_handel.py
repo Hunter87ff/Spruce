@@ -130,6 +130,8 @@ async def tourney(message):
                             femb.timestamp = datetime.datetime.utcnow()
                             await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             await message.author.add_roles(crole)
+                            if rgs >= tslot*0.1:
+                                dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : "Not Published Yet"}})
 
 
 

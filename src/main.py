@@ -180,96 +180,70 @@ bot.help_command = Nhelp(no_category = 'Commands')
 async def on_command_error(ctx, error):
     erl = bot.get_channel(1015166083050766366)
     cmdnf = bot.get_channel(1020698810625826846)
-    if isinstance(error, commands.MissingRequiredArgument):
-        err = discord.Embed(color=0xff0000, description="Missing Required Arguments")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.MissingPermissions):
-        err = discord.Embed(color=0xff0000, description="You don't have Permissions To Use This Command")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.DisabledCommand):
-        err = discord.Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.CommandNotFound):
-        err = discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully.")
-        await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
-        return await ctx.send(embed=err)
-    elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
-        er = str(error)
-        if "'" in er:
-            er = er.replace("'", "`")
-        err = discord.Embed(color=0xff0000, description=er)
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.UserInputError):
-        err = discord.Embed(color=0xff0000, description="Please Enter Valid Arguments")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.EmojiNotFound):
-        err = discord.Embed(color=0xff0000, description="Emoji Not Found")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.NotOwner):
-        err = discord.Embed(color=0xff0000, description="This Is A Owner Only Command You Can't Use It")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.MessageNotFound):
-        err = discord.Embed(color=0xff0000, description="Message Not Found Or Deleted")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.MemberNotFound):
-        err = discord.Embed(color=0xff0000, description="Member Not Found")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.ChannelNotFound):
-        err = discord.Embed(color=0xff0000, description="Channel Not Found")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.GuildNotFound):
-        return await ctx.send("**I'm Not In The Server! which You Want To See**", delete_after=19)
-    elif isinstance(error, commands.ChannelNotReadable):
-        err = discord.Embed(color=0xff0000, description="Can Not Read Messages Of The Channel")
-        return await ctx.send(embed=err)
-    elif isinstance(error, commands.CommandOnCooldown):
-        e = str(error)
-        err = discord.Embed(color=0xff0000, description=e)
-        return await ctx.send(embed=err)
-    elif "Manage Messages" in str(error):
-        return await ctx.send(embed=discord.Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
-    elif "Unknown file format." in str(error):
-        return await ctx.send(embed=discord.Embed(description="Invalid Input", color=0xff0000))
-    elif "Send Messages" in str(error):
-        try:
+    try:
+        if isinstance(error, commands.MissingRequiredArgument):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `&help <this_command>` to get Instructions"))
+        elif isinstance(error, commands.MissingPermissions):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
+        elif isinstance(error, commands.DisabledCommand):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
+        elif isinstance(error, commands.CommandNotFound):
+            await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
+        elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
+        elif isinstance(error, commands.UserInputError):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Please Enter Valid Arguments"))
+        elif isinstance(error, commands.EmojiNotFound):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Emoji Not Found"))
+        elif isinstance(error, commands.NotOwner):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="This Is A Owner Only Command You Can't Use It"))
+        elif isinstance(error, commands.MessageNotFound):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Message Not Found Or Deleted"))
+        elif isinstance(error, commands.MemberNotFound):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Member Not Found"))
+        elif isinstance(error, commands.ChannelNotFound):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Channel Not Found"))
+        elif isinstance(error, commands.GuildNotFound):
+            return await ctx.send("**I'm Not In The Server! which You Want To See**", delete_after=19)
+        elif isinstance(error, commands.ChannelNotReadable):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Can Not Read Messages Of The Channel"))
+        elif isinstance(error, commands.CommandOnCooldown):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
+        elif "Manage Messages" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
+        elif "Unknown file format." in str(error):
+            return await ctx.send(embed=discord.Embed(description="Invalid Input", color=0xff0000))
+        elif "Send Messages" in str(error):
             return await ctx.author.send(embed=discord.Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
-        except:
-            return
-    elif "This playlist type is unviewable." in str(error):
-        return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
-    elif "Maximum number of channels in category reached (50)" in str(error):
-        return await ctx.send(embed=discord.Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
-    elif isinstance(error, commands.BotMissingPermissions):
-        er = str(error)
-        if "(s)" in er:
-            er = er.replace("(s)", " ")
-        err = discord.Embed(color=0xff0000, description=er)
-        return await ctx.send(embed=err)
-    elif "NotFound: 404 Not Found (error code: 10003): Unknown Channel" in str(error):
-        try:
+        elif "This playlist type is unviewable." in str(error):
+            return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
+        elif "Maximum number of channels in category reached (50)" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
+        elif isinstance(error, commands.BotMissingPermissions):
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
+        elif "error code: 10003" in str(error):
             return await ctx.send(embed=discord.Embed(description="Channel Deleted Or Invalid", color=0xff0000))
-        except:
-            return
-    elif "403 Forbidden (error code: 50013): Missing Permissions" in str(error):
-        return await ctx.send(embed=discord.Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
-    elif "Unknown Role" in str(error):
-        return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
-    elif "Cannot delete a channel required for community servers" in str(error):
-        return await ctx.send(embed=discord.Embed(description="**Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
-    elif "403 Forbidden (error code: 50001): Missing Access" in str(error):
-        return await ctx.send(embed=discord.Embed(description="**Missing Access! Maybe A Hidden Channel Which I Can't See.**", color=0xff0000), delete_after=30)
-    elif "error code: 30005" in str(error):
-        return await ctx.send(embed=discord.Embed(description=" Maximum number of guild roles reached (250)", color=0xff0000))
-    elif "error code: 30007" in str(error):
-        return await ctx.send(embed=discord.Embed(description="Maximum number of webhooks reached (15)", color=0xff0000))
-    elif "error code: 30008" in str(error):
-        return await ctx.send(embed=discord.Embed(description="Maximum number of emojis reached", color=0xff0000))
-    elif "error code: 30010" in str(error):
-        return await ctx.send(embed=discord.Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
-    elif "error code: 30013" in str(error):
-        return await ctx.send(embed=discord.Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
+        elif "error code: 50013" in str(error):
+            return await ctx.send(embed=discord.Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
+        elif "Unknown Role" in str(error):
+            return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
+        elif "Cannot delete a channel required for community servers" in str(error):
+            return await ctx.send(embed=discord.Embed(description="**Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
+        elif "error code: 50001" in str(error):
+            return await ctx.send(embed=discord.Embed(description="**Missing Access! Maybe A Hidden Channel Which I Can't See.**", color=0xff0000), delete_after=30)
+        elif "error code: 30005" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Maximum number of guild roles reached (250)", color=0xff0000))
+        elif "error code: 30007" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Maximum number of webhooks reached (15)", color=0xff0000))
+        elif "error code: 30008" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Maximum number of emojis reached", color=0xff0000))
+        elif "error code: 30010" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
+        elif "error code: 30013" in str(error):
+            return await ctx.send(embed=discord.Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
 
-    else:
+    except:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
         brp = await ctx.reply(f"Processing...")
@@ -336,8 +310,11 @@ async def publish(ctx, rch: discord.TextChannel, *, prize: str):
         return await ctx.reply("Only 30 Letters Allowed ")
     try:
         dbcd = dbc.find_one({"rch" : rch.id})
+        if dbcd["reged"] < dbcd["tslot"]*0.1:
+            return await ctx.send("You've To Fill 10% Slot. To Publish This Tournament")
     except:
         return await ctx.send("Tournament Not Found")
+
 
     dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
     await ctx.send(f"{rch.category.name} is now public")
@@ -356,39 +333,29 @@ async def rping(ctx):
         await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
 
 
-async def mmbrs(ctx):
+def mmbrs(ctx=None):
     i = 0
     for guild in bot.guilds:
         i = i + guild.member_count
     return i
-
 
 def gp():
     plst = [23, 19, 21, 22, 21, 20, 21, 23, 19, 18, 24,28]
     ping = random.choice(plst)
     return ping
 
-
-
 @bot.command()
 @commands.cooldown(2, 20, commands.BucketType.user)
-@commands.bot_has_permissions(manage_messages=True, send_messages=True)
+@commands.bot_has_permissions(send_messages=True)
 async def ping(ctx):
     await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
-async def mmbrs(ctx):
-    i = 0
-    for guild in bot.guilds:
-        i = i + guild.member_count
-    return i
-
-
-@bot.command(aliases=["bi"])
+@bot.command(aliases=["bi", "about", "info"])
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx): 
   emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  mmbs = await mmbrs(ctx)
+  mmbs = mmbrs()
   emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
   emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
   emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=gp(), inline=False)
