@@ -10,6 +10,20 @@ gtadbc = gtamountdbc
 
 
 
+async def lc_ch(channel:discord.TextChannel, role:discord.Role=None):
+    if role == None:
+        role = channel.guild.default_role
+    overwrite = channel.overwrites_for(role)
+    overwrite.update(send_messages=False)
+    await channel.set_permissions(role, overwrite=overwrite)
+
+
+async def unlc_ch(channel:discord.TextChannel, role:discord.Role=None):
+    if role == None:
+        role = channel.guild.default_role
+    overwrite = channel.overwrites_for(role)
+    overwrite.update(send_messages=True)
+    await channel.set_permissions(role, overwrite=overwrite)
 
 
 
@@ -42,17 +56,9 @@ class Slash(commands.Cog):
 	@app_commands.command(description="Use This Command To Create A Mention Basis Tournament, ")
 	@commands.bot_has_permissions(manage_channels=True, manage_roles=True)
 	@commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
-	async def tourney_setup(self, interaction:Interaction, front:str=None, total_slot:int=None, mentions:int=None, *, name:str=None):
+	async def tourney_setup(self, interaction:Interaction, front:str, total_slot:int, mentions:int, *, name:str):
 	    if interaction.user.bot:
 	        return 
-	    if not total_slot:
-	    	return await interaction.response.send_message("**Please Enter the Total Slot Of The Tournament**")
-	    if not mentions:
-	    	return await interaction.response.send_message("**Please Enter Required Mention for The Tournament**")
-	    if not name:
-	    	return await interaction.response.send_message("**Please Enter the Name Of The Tournament**")
-	    if not front:
-	    	front=""
 	    try:
 	        await interaction.response.send_message("**Processing...**")
 	        prefix = front
