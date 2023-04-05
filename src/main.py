@@ -229,7 +229,7 @@ async def on_command_error(ctx, error):
         elif "Unknown Role" in str(error):
             return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
         elif "Cannot delete a channel required for community servers" in str(error):
-            return await ctx.send(embed=discord.Embed(description="**Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=discord.Embed(description="**I Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
         elif "error code: 50001" in str(error):
             return await ctx.send(embed=discord.Embed(description="**I don't have access to do this**", color=0xff0000), delete_after=30)
         elif "error code: 30005" in str(error):
