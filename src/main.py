@@ -61,14 +61,14 @@ async def on_ready():
     await node_connect()
     st_log = bot.get_channel(1020027121231462400)
     await bot.tree.sync()
-    status = ['&help', "You", "Sprucebot.ml/invite", "210k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
+    status = ['&help', "You", "Sprucebot.ml/invite", "231k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
     print(stmsg)
     while True:
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-            await sleep(180)
+            await sleep(120)
 
 
 
