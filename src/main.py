@@ -231,7 +231,7 @@ async def on_command_error(ctx, error):
         elif "Cannot delete a channel required for community servers" in str(error):
             return await ctx.send(embed=discord.Embed(description="**Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
         elif "error code: 50001" in str(error):
-            return await ctx.send(embed=discord.Embed(description="**Missing Access! Maybe A Hidden Channel Which I Can't See.**", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=discord.Embed(description="**I don't have access to do this**", color=0xff0000), delete_after=30)
         elif "error code: 30005" in str(error):
             return await ctx.send(embed=discord.Embed(description="Maximum number of guild roles reached (250)", color=0xff0000))
         elif "error code: 30007" in str(error):
