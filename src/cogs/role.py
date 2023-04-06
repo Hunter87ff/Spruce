@@ -39,12 +39,16 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, description="Use ',' To Seperate Names")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def create_roles(self, ctx, *Names):
+	async def create_roles(self, ctx, Names:str):
+		if ctx.author.bot:
+			return
 		await ctx.defer(ephemeral=True)
-		for role in Names:
+		if "," not in Names:
+			return await ctx.reply("Use ',' To Seperate Names")
+		for role in Names.split(","):
 			await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
 			await ctx.channel.purge(limit=1)
 			await ctx.send(f'**<:vf:947194381172084767> {role} Created by {ctx.author}**', delete_after=5)
@@ -57,6 +61,8 @@ class Roles(commands.Cog):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def del_roles(self, ctx, *roles : discord.Role):
 		await ctx.defer(ephemeral=True)
+		if ctx.author.bot:
+			return
 		bt = ctx.guild.get_member(self.bot.user.id)
 		msg = await ctx.send(f"{config.loading} Processing...")
 		for role in roles:
