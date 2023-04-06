@@ -257,7 +257,7 @@ class Roles(commands.Cog):
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
-		await ctx.defer(ephemeral=True)
+	async def add_roles(self, ctx, * roles:discord.Role):
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
