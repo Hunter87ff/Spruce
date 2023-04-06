@@ -90,16 +90,20 @@ class Channel(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command=True, description="Enter Names With ',' to separate them")
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
-	async def create_channel(self, ctx, category, *names):
+	async def create_channel(self, ctx, category:discord.CategoryChannel, names:str):
 		await ctx.defer(ephemeral=True)
+		if ctx.author.bot:
+			return
+		if "," not in names:
+			return await ctx.reply("Please separate names with ',' ")
 		try:
 			ms = await ctx.send("Processing...")
 		except:
 			return
-		for name in names:
+		for name in names.split(","):
 			category = await discord.utils.get(ctx.guild.categories, category)
 			await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
 		try:

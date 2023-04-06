@@ -286,28 +286,28 @@ class Utility(commands.Cog):
 	@commands.bot_has_permissions(send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
 		await ctx.defer(ephemeral=True)
-	    if member == None:
-	        member = ctx.author
-	    else:
-	        member = member
-	    user = await self.bot.fetch_user(member.id)
+		if member == None:
+		    member = ctx.author
+		else:
+		    member = member
+		user = await self.bot.fetch_user(member.id)
 
-	    desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}'
+		desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}'
 
-	    embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
-	    embed.set_author(name=member, icon_url=member.avatar)
-	    embed.set_thumbnail(url=member.avatar)
-	    if len(member.roles) <= 8:
-	        embed.add_field(name=f"Roles ({len(member.roles)-1})", value=" ".join([role.mention for role in member.roles][1:8]))
-	    if len(member.roles) > 8:
-	        embed.add_field(name=f"Roles ({len(roles)})", value="Too Much Roles To Show Here")  
+		embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
+		embed.set_author(name=member, icon_url=member.avatar)
+		embed.set_thumbnail(url=member.avatar)
+		if len(member.roles) <= 8:
+		    embed.add_field(name=f"Roles ({len(member.roles)-1})", value=" ".join([role.mention for role in member.roles][1:8]))
+		if len(member.roles) > 8:
+		    embed.add_field(name=f"Roles ({len(roles)})", value="Too Much Roles To Show Here")  
 
-	    if user.banner:
-	        embed.set_image(url=str(user.banner))
-	    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-	    await ctx.send(embed=embed)
+		if user.banner:
+		    embed.set_image(url=str(user.banner))
+		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+		await ctx.send(embed=embed)
 
-		
+
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 10, commands.BucketType.user)

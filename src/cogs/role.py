@@ -348,14 +348,14 @@ class Roles(commands.Cog):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_roles(self, ctx, *roles : discord.Role):
 		await ctx.defer(ephemeral=True)
-	    msg = await ctx.send(f'{config.loading}** Processing..**')
-	    for role in roles:
-	        if role.position < ctx.author.top_role.position:
-	            try:
-	                await role.edit(hoist=True)
-	            except:
-	                pass
-	    await msg.edit(content=f"{config.vf} Done", delete_after=10)
+		msg = await ctx.send(f'{config.loading}** Processing..**')
+		for role in roles:
+		    if role.position < ctx.author.top_role.position:
+		        try:
+		            await role.edit(hoist=True)
+		        except:
+		            pass
+		await msg.edit(content=f"{config.vf} Done", delete_after=10)
 
 
 
