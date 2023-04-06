@@ -273,25 +273,26 @@ class Utility(commands.Cog):
 	@cmd.command(aliases=['ui'])
 	@commands.bot_has_permissions(send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
-		if member == None:
-			member = ctx.author
-		else:
-			member = member
-			
-		roles = list(sorted(member.roles, key=lambda role: role.position))
-		embed = discord.Embed(colour=member.colour.purple(), timestamp=ctx.message.created_at)
-		embed.set_author(name=f"{member}")
-		embed.set_thumbnail(url=member.avatar)
-		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-		embed.add_field(name="User Name:", value=f"{member.name}")
-		embed.add_field(name="ID:", value=member.id)
-		embed.add_field(name="Server name:", value=member.display_name)
-		embed.add_field(name="Created at:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %p"))
-		embed.add_field(name="Joined at:", value=member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p"))
-		embed.add_field(name=f"Roles ({len(roles)})", value=" ".join([role.mention for role in roles][1:]))
-		embed.add_field(name="Top role:", value=member.top_role.mention)
-		embed.add_field(name="Bot?", value=member.bot)
-		await ctx.send(embed=embed)
+	    if member == None:
+	        member = ctx.author
+	    else:
+	        member = member
+
+	    desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}'
+
+	    embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
+	    embed.set_author(name=member, icon_url=member.avatar)
+	    embed.set_thumbnail(url=member.avatar)
+	    if len(member.roles) <= 8:
+	        embed.add_field(name=f"Roles ({len(member.roles)-1})", value=" ".join([role.mention for role in member.roles][1:8]))
+	    if len(member.roles) > 8:
+	        embed.add_field(name=f"Roles ({len(roles)})", value="Too Much Roles To Show Here")  
+
+	    if member.banner:
+	        embed.set_image(url=str(member.banner))
+	    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+	    await ctx.send(embed=embed)
+
 		
 
 	@cmd.command()
