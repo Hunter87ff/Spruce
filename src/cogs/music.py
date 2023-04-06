@@ -70,12 +70,6 @@ class Music(commands.Cog):
 
 
 
-	@cmd.command(aliases=["+pp"])
-	async def pplay(self, ctx, *, Query):
-		return await ctx.send("Music Module Is Currently Paused")
-
-
-
 	@cmd.command()
 	async def loop(self, ctx):
 		if ctx.author.voice != None:
@@ -99,7 +93,7 @@ class Music(commands.Cog):
 
 
 #, wavelink.SoundCloudTrack
-	@cmd.command(aliases=["p", "P"])
+	@cmd.command(enabled=False, aliases=["p", "P"])
 	async def play(self, ctx: commands.Context, *, search: typing.Union[spotify.SpotifyTrack, wavelink.SoundCloudTrack]):
 
 		next_btn = Button(emoji="<:Skip:1019218793597243462>", custom_id="next_btn")

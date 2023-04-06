@@ -58,7 +58,7 @@ asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
-    await node_connect()
+    #await node_connect()
     st_log = bot.get_channel(1020027121231462400)
     await bot.tree.sync()
     status = ['&help', "You", "Sprucebot.ml/invite", "231k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
