@@ -64,10 +64,11 @@ class Channel(commands.Cog):
 
 
 
-	@cmd.command(aliases=['dc'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def delete_category(self, ctx, category: discord.CategoryChannel):
+		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
 		bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="dcd_btn")
@@ -94,10 +95,11 @@ class Channel(commands.Cog):
 
 
 
-	@cmd.command(aliases=['cch'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def create_channel(self, ctx, category, *names):
+		await ctx.defer(ephemeral=True)
 		try:
 			ms = await ctx.send("Processing...")
 		except:

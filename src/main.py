@@ -250,13 +250,14 @@ async def on_command_error(ctx, error):
         await brp.edit(content=f"Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
 
 
-@bot.command()
+@cmd.hybrid_command(with_app_command = True)
 @commands.dm_only()
 async def cdm(ctx,amount:int):
-  dmchannel = await ctx.author.create_dm()
-  async for message in dmchannel.history(limit=amount):
-    if message.author == bot.user:
-      await message.delete()
+    await ctx.defer(ephemeral=True)
+    dmchannel = await ctx.author.create_dm()
+    async for message in dmchannel.history(limit=amount):
+        if message.author == bot.user:
+            await message.delete()
 
 
 
@@ -277,8 +278,9 @@ async def il(id):
 
 #dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
 
-@bot.command()
+@cmd.hybrid_command(with_app_command = True)
 async def tourneys(ctx):
+    await ctx.defer(ephemeral=True)
     dbc = maindb["tourneydb"]["tourneydbc"]
     dta = dbc.find()
     emb = discord.Embed(title="Tournaments", color=0x00ff00)
@@ -300,11 +302,12 @@ async def tourneys(ctx):
 
 
 
-@bot.command()
+@cmd.hybrid_command(with_app_command = True)
 @commands.bot_has_permissions(create_instant_invite=True)
 @commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
 @commands.has_role("tourney-mod")
 async def publish(ctx, rch: discord.TextChannel, *, prize: str):
+    await ctx.defer(ephemeral=True)
     dbc = maindb["tourneydb"]["tourneydbc"]
     if len(prize) > 30:
         return await ctx.reply("Only 30 Letters Allowed ")
@@ -351,17 +354,18 @@ async def ping(ctx):
     await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
-@bot.command(aliases=["bi", "about", "info"])
+@cmd.hybrid_command(with_app_command = True)
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
-async def botinfo(ctx): 
-  emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
-  mmbs = mmbrs()
-  emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
-  emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
-  emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=gp(), inline=False)
-  emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
-  emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
-  return await ctx.send(embed=emb)
+async def botinfo(ctx):
+    await ctx.defer(ephemeral=True)
+    emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
+    mmbs = mmbrs()
+    emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
+    emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
+    emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=gp(), inline=False)
+    emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
+    emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
+    return await ctx.send(embed=emb)
 
 
 

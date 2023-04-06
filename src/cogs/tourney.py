@@ -227,10 +227,11 @@ class Esports(commands.Cog):
 
             
 
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.has_role("tourney-mod")
     async def cancel_slot(self, ctx, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
         if ctx.author.bot:
+            await ctx.defer(ephemeral=True)
             return
         if reason == None:
                 reason = "Not Provided"
@@ -278,9 +279,10 @@ class Esports(commands.Cog):
 
         
             
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.has_role("tourney-mod")
     async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
@@ -310,9 +312,10 @@ class Esports(commands.Cog):
             
             
             
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.has_role("tourney-mod")
     async def faketag(self, ctx, registration_channel: discord.TextChannel):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
@@ -354,10 +357,11 @@ class Esports(commands.Cog):
             btn1.callback = disable_ftf
 
 
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.has_any_role("tourney-mod")
     @commands.bot_has_permissions(send_messages=True)
     async def tourney(self, ctx, registration_channel: discord.TextChannel):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         rch = registration_channel
@@ -620,7 +624,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command(aliases=["t_reset"])
+    @cmd.command(enabled=False, aliases=["t_reset"])
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)

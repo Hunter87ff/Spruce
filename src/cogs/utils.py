@@ -52,8 +52,9 @@ class Utility(commands.Cog):
 		self.counter = 0
 
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	async def uptime(self, ctx):
+		await ctx.defer(ephemeral=True)
 		try:
 			sch = self.bot.get_channel(1020027121231462400)
 		except:
@@ -136,8 +137,9 @@ class Utility(commands.Cog):
 		await ctx.send(embed=embed)
 
 
-	@cmd.command(aliases=['text2speech'])
+	@cmd.hybrid_command(with_app_command = True)
 	async def tts(self, ctx, *, message):
+		await ctx.defer(ephemeral=True)
 		if len(message.split()) > 100:
 			return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
 		output = gTTS(text=message, lang="en", tld="co.in")
@@ -147,19 +149,21 @@ class Utility(commands.Cog):
 		os.remove("tts.mp3")
 
 
-	@cmd.command(aliases=['steal'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_emojis=True)
 	@commands.has_permissions(manage_emojis=True)
 	async def addemoji(self, ctx, emoji: discord.PartialEmoji):
+		await ctx.defer(ephemeral=True)
 		emoji_bytes = await emoji.read()
 		new = await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
 		return await ctx.send(f"{new} added", delete_after=10)
 
 	
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def whoiss(self, ctx, user:discord.Member=None):
+		await ctx.defer(ephemeral=True)
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
@@ -179,10 +183,11 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
 	async def toss(self, ctx):
+		await ctx.defer(ephemeral=True)
 		msg = f"https://cdn.discordapp.com/emojis/{random.choice(coin)}.png"
 		emb = discord.Embed(color=yellow)
 		emb.set_image(url=msg)
@@ -190,10 +195,11 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
 	async def invite(self, ctx):
+		await ctx.defer(ephemeral=True)
 		invbtn = Button(label="Invite Now", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
 		view = View()
 		view.add_item(invbtn)
@@ -203,10 +209,11 @@ class Utility(commands.Cog):
 			return
 
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
 	async def vote(self, ctx):
+		await ctx.defer(ephemeral=True)
 		invbtn = Button(label="Vote Now", url="https://top.gg/bot/931202912888164474/vote")
 		view = View()
 		view.add_item(invbtn)
@@ -216,10 +223,11 @@ class Utility(commands.Cog):
 			return
 
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 8, commands.BucketType.user)
 	async def support(self, ctx):
+		await ctx.defer(ephemeral=True)
 		invbtn = Button(label="Support", url="https://discord.gg/vMnhpAyFZm")
 		view = View()
 		view.add_item(invbtn)
@@ -229,11 +237,12 @@ class Utility(commands.Cog):
 			return
 
 
-	@cmd.command(aliases=['em'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def embed_img(self, ctx, image, *, message):
+		await ctx.defer(ephemeral=True)
 		emb = discord.Embed(description=message, color=blue)
 		emb.set_image(url=image)
 		await ctx.channel.purge(limit=1)
@@ -252,27 +261,30 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def prefix(self, ctx):
+		await ctx.defer(ephemeral=True)
 		await ctx.send(config.prefix)
 
 
 
-	@cmd.command(aliases=['mc'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
+		await ctx.defer(ephemeral=True)
 		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=teal)
 		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
 
 		
-	@cmd.command(aliases=['ui'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
+		await ctx.defer(ephemeral=True)
 	    if member == None:
 	        member = ctx.author
 	    else:
@@ -296,10 +308,11 @@ class Utility(commands.Cog):
 
 		
 
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
 	async def nick(self, ctx, user:discord.Member,  *, Nick):
+		await ctx.defer(ephemeral=True)
 		bt = ctx.guild.get_member(self.bot.user.id)
 
 		if ctx.author.top_role < user.top_role:
@@ -311,7 +324,10 @@ class Utility(commands.Cog):
 		else:
 			return await user.edit(nick=Nick)
 
-	@cmd.command()
+
+
+
+	@cmd.command(enabled=False)
 	@commands.has_permissions(manage_webhooks=True)
 	@commands.bot_has_permissions(manage_webhooks=True)
 	async def nitro(self, ctx):
@@ -329,10 +345,11 @@ class Utility(commands.Cog):
 		
 		
 		
-	@cmd.command(aliases=['si'])
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def serverinfo(self, ctx, user: discord.Member=None):
+		await ctx.defer(ephemeral=True)
 		if user == None:
 			user = ctx.author
 			
