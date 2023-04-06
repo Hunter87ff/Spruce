@@ -56,11 +56,10 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def del_roles(self, ctx, *roles : discord.Role):
-		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
@@ -81,11 +80,10 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
-		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
 		try:
@@ -229,11 +227,10 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role(self, ctx, role:discord.Role, *user: discord.Member):
-		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
@@ -257,10 +254,9 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def give_roles(self, ctx, user: discord.Member, *roles: discord.Role):
 		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
@@ -349,11 +345,12 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_roles(self, ctx, *roles : discord.Role):
-		await ctx.defer(ephemeral=True)
+		if ctx.author.bot:
+			return
 		msg = await ctx.send(f'{config.loading}** Processing..**')
 		for role in roles:
 		    if role.position < ctx.author.top_role.position:
