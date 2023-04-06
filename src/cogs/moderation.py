@@ -14,12 +14,12 @@ class Moderation(commands.Cog):
 
 	#start commands
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	async def lock(self, ctx, role: discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		#await ctx.defer(ephemeral=True)
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
 			return
