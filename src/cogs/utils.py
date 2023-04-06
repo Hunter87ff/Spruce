@@ -277,7 +277,7 @@ class Utility(commands.Cog):
 	        member = ctx.author
 	    else:
 	        member = member
-	    user = self.bot.fetch_user(member.id)
+	    user = await self.bot.fetch_user(member.id)
 
 	    desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}'
 
