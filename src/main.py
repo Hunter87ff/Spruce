@@ -26,11 +26,11 @@ from discord.ext.commands.converter import (MemberConverter, RoleConverter, Text
 onm = message_handel
 ochd = channel_handel
 intents = discord.Intents.default()
-intents.message_content = True
-intents.reactions = True
-intents.members = True
-intents.voice_states = True
-intents.guilds = True
+#intents.message_content = True
+#intents.reactions = True
+#intents.members = True
+#intents.voice_states = True
+#intents.guilds = True
 pref = os.environ["prefix"]
 
 
