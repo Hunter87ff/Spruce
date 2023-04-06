@@ -5,6 +5,7 @@ gbr = "https://raw.githubusercontent.com/Hunter87ff/atomic-8/main/Game_roles/sta
 
 
 
+
 # Raw
 ffemb = discord.Embed(title="FREE FIRE", description="**Garena Free Fire is a battle royal game. Played by millions of people. Developed by 111 dots studio and published by Garena. React on the emoji to access this game!**", color=discord.Color.blurple())
 ffemb.set_thumbnail(url="https://raw.githubusercontent.com/Hunter87ff/atomic-8/main/Game_roles/freefire.png")

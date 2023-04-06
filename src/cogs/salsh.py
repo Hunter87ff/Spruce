@@ -10,6 +10,7 @@ gtadbc = gtamountdbc
 
 
 
+
 async def lc_ch(channel:discord.TextChannel, role:discord.Role=None):
     if role == None:
         role = channel.guild.default_role

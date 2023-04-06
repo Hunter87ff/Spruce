@@ -14,6 +14,7 @@ from gtts import gTTS
 
 
 
+
 blurple = 0x7289da
 greyple = 0x99aab5
 d_grey = 0x546e7a

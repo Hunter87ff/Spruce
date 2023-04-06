@@ -12,11 +12,6 @@ from discord.ui import Button, View
 
 
 
-
-
-
-
-
 class Channel(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot

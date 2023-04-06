@@ -23,6 +23,10 @@ d_green = 0x1f8b4c
 cyan = 0x1abc9c
 d_dcyan = 0x11806a
 
+
+
+
+
 class Roles(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot

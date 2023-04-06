@@ -426,5 +426,4 @@ async def leaveg(ctx, member:int, guild_id:int=None):
             await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
 
-
 bot.run(os.environ['TOKEN'])
