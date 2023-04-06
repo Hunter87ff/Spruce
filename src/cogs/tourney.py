@@ -280,10 +280,10 @@ class Esports(commands.Cog):
 
         
             
-    @cmd.hybrid_command(with_app_command = True)
+    #@cmd.hybrid_command(with_app_command = True)
+    @cmd.command()
     @commands.has_role("tourney-mod")
-    async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name):
-        await ctx.defer(ephemeral=True)
+    async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name:str):
         if ctx.author.bot:
             return
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")

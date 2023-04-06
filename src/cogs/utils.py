@@ -309,11 +309,12 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
-	async def nick(self, ctx, user:discord.Member,  *, Nick):
-		await ctx.defer(ephemeral=True)
+	async def nick(self, ctx, user:discord.Member,  *, Nick:str):
+		if ctx.author.bot:
+			return
 		bt = ctx.guild.get_member(self.bot.user.id)
 
 		if ctx.author.top_role < user.top_role:
@@ -323,7 +324,8 @@ class Utility(commands.Cog):
 			return await ctx.send("I don't have enough permission")
 
 		else:
-			return await user.edit(nick=Nick)
+			await user.edit(nick=Nick)
+			await ctx.send("Done")
 
 
 

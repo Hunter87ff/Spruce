@@ -39,15 +39,12 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True, description="Use ',' To Seperate Names")
+	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def create_roles(self, ctx, Names:str):
 		if ctx.author.bot:
 			return
-		await ctx.defer(ephemeral=True)
-		if "," not in Names:
-			return await ctx.reply("Use ',' To Seperate Names")
 		for role in Names.split(","):
 			await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
 			await ctx.channel.purge(limit=1)
