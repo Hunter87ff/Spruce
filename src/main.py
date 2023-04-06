@@ -250,7 +250,7 @@ async def on_command_error(ctx, error):
         await brp.edit(content=f"Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
 
 
-@cmd.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True)
 @commands.dm_only()
 async def cdm(ctx,amount:int):
     await ctx.defer(ephemeral=True)
@@ -278,7 +278,7 @@ async def il(id):
 
 #dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
 
-@cmd.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True)
 async def tourneys(ctx):
     await ctx.defer(ephemeral=True)
     dbc = maindb["tourneydb"]["tourneydbc"]
@@ -302,7 +302,7 @@ async def tourneys(ctx):
 
 
 
-@cmd.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True)
 @commands.bot_has_permissions(create_instant_invite=True)
 @commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
 @commands.has_role("tourney-mod")
@@ -354,7 +354,7 @@ async def ping(ctx):
     await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
-@cmd.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True)
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
     await ctx.defer(ephemeral=True)
