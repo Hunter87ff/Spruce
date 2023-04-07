@@ -91,11 +91,11 @@ class Channel(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command=True, description="Enter Names With ',' to separate them")
+	@cmd.command()
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def create_channel(self, ctx, category:discord.CategoryChannel, names:str):
-		await ctx.defer(ephemeral=True)
+		#await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
 		if "," not in names:
