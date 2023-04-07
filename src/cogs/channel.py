@@ -76,7 +76,7 @@ class Channel(commands.Cog):
 		async def dc_confirmed(interaction):
 		    if not interaction.user.bot:
 		        await interaction.response.send_message("<a:loading:969894982024568856>**Processing...**", ephemeral=True)
-		        await interaction.message.delete()
+		        #await interaction.message.delete()
 		        for channel in category.channels:
 		            await channel.delete(reason=f'Deleted by {ctx.author.name}')
 
