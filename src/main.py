@@ -27,10 +27,10 @@ onm = message_handel
 ochd = channel_handel
 intents = discord.Intents.default()
 intents.message_content = True
-#intents.reactions = True
+intents.reactions = True
 #intents.members = True
-#intents.voice_states = True
-#intents.guilds = True
+intents.voice_states = True
+intents.guilds = True
 pref = os.environ["prefix"]
 
 
@@ -250,7 +250,7 @@ async def on_command_error(ctx, error):
         await brp.edit(content=f"Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
 
 
-@bot.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True, hidden=True)
 @commands.dm_only()
 async def cdm(ctx,amount:int):
     await ctx.defer(ephemeral=True)
@@ -279,6 +279,7 @@ async def il(id):
 #dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
 
 @bot.hybrid_command(with_app_command = True)
+@commands.guild_only()
 async def tourneys(ctx):
     await ctx.defer(ephemeral=True)
     dbc = maindb["tourneydb"]["tourneydbc"]
@@ -302,10 +303,11 @@ async def tourneys(ctx):
 
 
 
-@bot.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True, aliases=["pub"])
 @commands.bot_has_permissions(create_instant_invite=True)
 @commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
 @commands.has_role("tourney-mod")
+@commands.guild_only()
 async def publish(ctx, rch: discord.TextChannel, *, prize: str):
     await ctx.defer(ephemeral=True)
     dbc = maindb["tourneydb"]["tourneydbc"]
@@ -354,7 +356,7 @@ async def ping(ctx):
     await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
-@bot.hybrid_command(with_app_command = True)
+@bot.hybrid_command(with_app_command = True, aliases=["bi", "about", "info"])
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
     await ctx.defer(ephemeral=True)
@@ -370,6 +372,7 @@ async def botinfo(ctx):
 
 
 @bot.command()
+@commands.guild_only()
 async def owners(ctx):
     if ctx.guild.id != 947443790053015623:
         return
@@ -388,6 +391,7 @@ async def owners(ctx):
 
 
 @bot.command(hidden=True)
+@commands.guild_only()
 async def sdm(ctx, member: discord.User, *, message):
     if ctx.author.id == 885193210455011369:
         try:
@@ -403,6 +407,7 @@ async def sdm(ctx, member: discord.User, *, message):
 
 
 @bot.command(hidden=True)
+@commands.guild_only()
 async def leaveg(ctx, member:int, guild_id:int=None):
     if ctx.author.bot:
         return

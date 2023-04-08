@@ -42,6 +42,7 @@ class Roles(commands.Cog):
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+
 	async def create_roles(self, ctx, Names:str):
 		if ctx.author.bot:
 			return
@@ -53,7 +54,7 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases=["droles"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def del_roles(self, ctx, *roles : discord.Role):
@@ -77,7 +78,7 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases="role")
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
@@ -150,6 +151,7 @@ class Roles(commands.Cog):
 
 	@cmd.command(aliases=["ra_role"])
 	@commands.has_permissions(administrator=True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role_members(self, ctx, role: discord.Role, reason=None):
 		if ctx.author.bot:
@@ -166,9 +168,10 @@ class Roles(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
 	async def inrole(self, ctx, role: discord.Role):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 		msg = ""
@@ -197,8 +200,9 @@ class Roles(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def port(self, ctx, role1: discord.Role, role2: discord.Role, reason=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
@@ -227,6 +231,7 @@ class Roles(commands.Cog):
 	@cmd.command()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def remove_role(self, ctx, role:discord.Role, *user: discord.Member):
 		if ctx.author.bot:
 			return
@@ -252,9 +257,10 @@ class Roles(commands.Cog):
 
 
 	@cmd.command()
+	@commands.guild_only()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def add_roles(self, ctx, * roles:discord.Role):
+	async def add_roles(self, ctx, user:discord.Member, * roles:discord.Role):
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
@@ -279,10 +285,13 @@ class Roles(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.guild_only()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def role_all_human(self, ctx, role: discord.Role):
-		await ctx.defer(ephemeral=True)
+		if ctx.author.bot:
+			return
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 		prs = await ctx.send("Processing...")
@@ -291,6 +300,8 @@ class Roles(commands.Cog):
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
 			return await ctx.send("I can't manage This role")
+		if len(ctx.guild.members) != ctx.guild.member_count:
+			return await ctx.send("**I'm unable to see anyone! i don't know why. please contact support team!**")
 		for member in ctx.guild.members:
 			if not member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
@@ -301,10 +312,11 @@ class Roles(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.guild_only()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def role_all_bot(self, ctx, role: discord.Role):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 		prs = await ctx.send("Processing...")
@@ -313,6 +325,10 @@ class Roles(commands.Cog):
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
 			return await ctx.send("I can't manage This role")
+			
+		if len(ctx.guild.members) != ctx.guild.member_count:
+			return await ctx.send("**I'm unable to see anyone! i don't know why. please contact support team!**")
+
 		for member in ctx.guild.members:
 			if member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
@@ -323,10 +339,11 @@ class Roles(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.guild_only()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide_roles(self, ctx):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 		msg = await ctx.send(f'{config.loading}** Processing..**')
@@ -343,6 +360,7 @@ class Roles(commands.Cog):
 
 
 	@cmd.command()
+	@commands.guild_only()
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_roles(self, ctx, *roles : discord.Role):

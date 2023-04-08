@@ -18,8 +18,9 @@ class Moderation(commands.Cog):
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
+	@commands.guild_only()
 	async def lock(self, ctx, role: discord.Role=None):
-		#await ctx.defer(ephemeral=True)
+		#await ctx.defer()
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
 			return
@@ -39,19 +40,21 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
-	async def unlock(self, ctx, role: discord.Role=None):
-		await ctx.defer(ephemeral=True)
+	async def unlock(self, ctx, role: discord.Role=None, channel:discord.TextChannel=None):
+		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not channel:
+			channel = ctx.channel
 		if role == None:
 			role = ctx.guild.default_role
-		overwrite = ctx.channel.overwrites_for(role)
+		overwrite = channel.overwrites_for(role)
 		overwrite.update(send_messages=True)
-		await ctx.channel.set_permissions(role, overwrite=overwrite)
+		await channel.set_permissions(role, overwrite=overwrite)
 		try:
-			return await ctx.send(f'**<:vf:947194381172084767> Channel has been unlocked from `{role.name}`**', delete_after=5)
+			return await ctx.send(f'**<:vf:947194381172084767> {channel.mention} has been unlocked from `{role.name}`**', delete_after=5)
 		except:
 			return
 
@@ -59,9 +62,10 @@ class Moderation(commands.Cog):
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide(self, ctx, role: discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -79,14 +83,12 @@ class Moderation(commands.Cog):
 
 
 
-
-
-
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def clear_perms(self, ctx, role: discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		bt = ctx.guild.get_member(self.bot.user.id)
 
 		if ctx.author.bot:
@@ -115,8 +117,9 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def unhide(self, ctx, role:discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -132,11 +135,12 @@ class Moderation(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["lc"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def lock_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -155,11 +159,12 @@ class Moderation(commands.Cog):
 			
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["ulc"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def unlock_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -178,11 +183,12 @@ class Moderation(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["hc"])
 	@commands.has_permissions(manage_roles=True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -203,11 +209,12 @@ class Moderation(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["uhc"])
 	@commands.has_permissions(manage_roles=True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_category(self, ctx, category: discord.CategoryChannel, role :discord.Role = None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -233,10 +240,11 @@ class Moderation(commands.Cog):
 	#clear command
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_messages=True)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def clear(self, ctx, amount:int=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 
 		if ctx.author.bot:
 			return
@@ -257,8 +265,9 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(moderate_members=True)
 	@commands.bot_has_permissions(moderate_members=True)
+	@commands.guild_only()
 	async def unmute(self, ctx, member: discord.Member, *, reason=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if reason == None:
 			reason = 'No reason provided'
@@ -278,10 +287,11 @@ class Moderation(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.guild_only()
 	@commands.has_permissions(moderate_members=True)
 	@commands.bot_has_permissions(moderate_members=True, send_messages=True)
 	async def mute(self, ctx, member: discord.Member, time=None, *, reason=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if time == None:
 			time = "5m"
@@ -315,8 +325,9 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(kick_members=True)
 	@commands.bot_has_permissions(kick_members=True)
+	@commands.guild_only()
 	async def kick(self, ctx, member: discord.Member, reason=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 
@@ -352,8 +363,9 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(ban_members=True)
 	@commands.has_permissions(ban_members=True)
+	@commands.guild_only()
 	async def ban(self, ctx, member: discord.Member, reason=None):
-		await ctx.defer(ephemeral=True)
+		await ctx.defer()
 		if ctx.author.bot:
 			return
 

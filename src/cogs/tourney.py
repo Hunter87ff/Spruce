@@ -65,6 +65,7 @@ class Esports(commands.Cog):
 
     @commands.command(aliases=['ts','tourneysetup','setup'])
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
+    @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
     async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
         if ctx.author.bot:
@@ -157,6 +158,7 @@ class Esports(commands.Cog):
 
     @cmd.command(aliases=["girlslobby"])
     @commands.has_role("tourney-mod")
+    @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
     async def girls_lobby(self, ctx, vc_amount : int):
@@ -194,6 +196,7 @@ class Esports(commands.Cog):
 
 
     @cmd.command()
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def start_tourney(self, ctx, registration_channel : discord.TextChannel):
         if ctx.author.bot:
@@ -211,6 +214,7 @@ class Esports(commands.Cog):
 
             
     @cmd.command(aliases=['pt'])
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
         if ctx.author.bot:
@@ -229,6 +233,7 @@ class Esports(commands.Cog):
             
 
     @cmd.hybrid_command(with_app_command = True)
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def cancel_slot(self, ctx, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
         if ctx.author.bot:
@@ -282,6 +287,7 @@ class Esports(commands.Cog):
             
     #@cmd.hybrid_command(with_app_command = True)
     @cmd.command()
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name:str):
         if ctx.author.bot:
@@ -314,6 +320,7 @@ class Esports(commands.Cog):
             
             
     @cmd.hybrid_command(with_app_command = True)
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def faketag(self, ctx, registration_channel: discord.TextChannel):
         await ctx.defer(ephemeral=True)
@@ -359,6 +366,7 @@ class Esports(commands.Cog):
 
 
     @cmd.hybrid_command(with_app_command = True)
+    @commands.guild_only()
     @commands.has_any_role("tourney-mod")
     @commands.bot_has_permissions(send_messages=True)
     async def tourney(self, ctx, registration_channel: discord.TextChannel):
@@ -563,8 +571,9 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command(aliases=['gsetup'], help="&group_setup FFMC 1 16 ")
+    @cmd.command(aliases=['gsetup'])
     @commands.has_role("tourney-mod")
+    @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def group_setup(self, ctx, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
@@ -598,6 +607,7 @@ class Esports(commands.Cog):
 
     @cmd.command(aliases=["cs"])
     @commands.has_any_role("tourney-mod")
+    @commands.guild_only()
     @commands.bot_has_permissions(send_messages=True)
     @commands.has_permissions(manage_messages=True)
     async def change_slot(self, ctx, *, slot:str):
@@ -626,6 +636,7 @@ class Esports(commands.Cog):
 
 
     @cmd.command(enabled=False, aliases=["t_reset"])
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
@@ -660,6 +671,7 @@ class Esports(commands.Cog):
 
 
     @cmd.command()
+    @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
