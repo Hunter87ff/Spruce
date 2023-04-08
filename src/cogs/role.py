@@ -78,7 +78,7 @@ class Roles(commands.Cog):
 
 
 
-	@cmd.command(aliases="role")
+	@cmd.command(aliases=["role"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
@@ -325,7 +325,7 @@ class Roles(commands.Cog):
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
 			return await ctx.send("I can't manage This role")
-			
+
 		if len(ctx.guild.members) != ctx.guild.member_count:
 			return await ctx.send("**I'm unable to see anyone! i don't know why. please contact support team!**")
 
