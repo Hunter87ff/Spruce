@@ -238,7 +238,7 @@ class Moderation(commands.Cog):
 
 
 	#clear command
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(aliases=['purge'], with_app_command = True)
 	@commands.has_permissions(manage_messages=True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_messages=True)
