@@ -6,15 +6,13 @@ import pymongo
 from pymongo import MongoClient
 import re
 import datetime
-from modules import config, checker
 import os
 from discord.utils import get
 from discord.ui import Button, View
 cmd = commands
+from modules import config, checker
 
-
-
-maindb = MongoClient(os.environ["mongo_url"]) 
+maindb = config.maindb
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
 
@@ -59,6 +57,28 @@ class Esports(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.counter = 0
+
+
+
+    @commands.Cog.listener()
+    async def on_guild_role_delete(self, role):
+        members = []
+        if dbc.find_one({"crole":role.id}):
+            db = dbc.find_one({"crole":role.id})
+            cch = discord.utils.get(role.guild.channels,id=db["cch"])
+            messages = [message async for message in cch.history(limit=int(db["tslot"])+50)]
+            for msg in messages:
+                for m in role.guild.members:
+                    if m.mention in msg.content:
+                        members.append(m)
+            newr = await role.guild.create_role(name=f"{db['prefix']} Confirm", reason="[Recovering] If You Want To Delete This Ro use &tourney command")
+            dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
+            for i in members:
+                await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
+
+
+
+
 
 
 
@@ -276,11 +296,11 @@ class Esports(commands.Cog):
                 for message in messages:
                     if member.mention in message.content:
                         if message.author.id == 931202912888164474:
-                            emb = discord.Embed(color=0xffff00, description=f"**{reged}) SLOT CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
+                            emb = discord.Embed(color=0xffff00, description=f"**{reged}) {message.content} CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
                             emb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             emb.timestamp = datetime.datetime.utcnow()
-                            await message.edit(embed=emb)
-                            canemb = discord.Embed(title=f"{member.mention}'s Slot Canceled with reason of {reason}", color=0xffff00)
+                            await message.edit(content=None, embed=emb)
+                            canemb = discord.Embed(title=f"{member}'s Slot Canceled with reason of {reason}", color=0xffff00)
                             await ctx.send(embed=canemb, delete_after=60)
 
         
