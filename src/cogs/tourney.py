@@ -70,7 +70,7 @@ class Esports(commands.Cog):
                 for m in role.guild.members:
                     if m.mention in msg.content:
                         members.append(m)
-            newr = await role.guild.create_role(name=f"{db['prefix']} Confirm", reason="[Recovering] If You Want To Delete This Ro use &tourney command")
+            newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Ro use &tourney command")
             dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
             for i in members:
                 await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
