@@ -20,7 +20,6 @@ gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
 
 
-
 async def get_input(ctx, check=None, timeout=30):
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
     try:

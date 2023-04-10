@@ -26,7 +26,6 @@ d_dcyan = 0x11806a
 
 
 
-
 class Roles(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
