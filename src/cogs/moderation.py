@@ -241,7 +241,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(aliases=['purge'], with_app_command = True)
 	@commands.has_permissions(manage_messages=True)
 	@commands.guild_only()
-	@commands.bot_has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
 	@commands.cooldown(2, 20, commands.BucketType.user)
 	async def clear(self, ctx, amount:int=None):
 		await ctx.defer()
@@ -256,7 +256,10 @@ class Moderation(commands.Cog):
 		try:
 			return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
 		except:
-			return
+			try:
+			  await ctx.author.send(f'I dont Have Permission To Send Message In This Channel{ctx.channel.mention}')
+			except:
+			  return
 
 
 
