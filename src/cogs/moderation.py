@@ -253,14 +253,8 @@ class Moderation(commands.Cog):
 			amount = 10
 
 		await ctx.channel.purge(limit=amount)
-		try:
-			return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
-		except:
-			try:
-			  await ctx.author.send(f'I dont Have Permission To Send Message In This Channel{ctx.channel.mention}')
-			except:
-			  return
-
+		return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
+		
 
 
 
