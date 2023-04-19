@@ -146,7 +146,8 @@ class Esports(commands.Cog):
                         "faketag": "no",
                         "pub" : "no",
                         "prize" : "No Data",
-                        "auto_grp":"yes"
+                        "auto_grp":"yes",
+                        "spg":12
                         }
                 
                 gtadbcds = gtadbc.find_one({"guild" : gid})
