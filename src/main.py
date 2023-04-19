@@ -290,7 +290,7 @@ async def tourneys(ctx):
         rch = bot.get_channel(i["rch"])
         if i["pub"] == "yes":
             if i["reged"]/i["tslot"]*100 < 99:
-                if i["reged"] >= i["tslot"]*0.1:
+                if i["reged"]/i["tslot"]*100 >= 10:
                     invite = await il(id=i["rch"])
                     emb.add_field(name=rch.category.name.upper(), value=f'Prize : {i["prize"]}\n[Register]({invite})\n----------------')
 
