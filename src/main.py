@@ -279,7 +279,7 @@ async def il(id):
 #dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
 
 @bot.hybrid_command(with_app_command = True)
-@commands.guild_only()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def tourneys(ctx):
     await ctx.defer(ephemeral=True)
     dbc = maindb["tourneydb"]["tourneydbc"]
@@ -289,10 +289,9 @@ async def tourneys(ctx):
     for i in dta:
         rch = bot.get_channel(i["rch"])
         if i["pub"] == "yes":
-            if i["reged"]/i["tslot"]*100 <= 99:
-                if 1 == 1:
-                    invite = await il(id=i["rch"])
-                    emb.add_field(name=rch.category.name.upper(), value=f'Prize : {i["prize"]}\n[Register]({invite})\n----------------')
+            if i["reged"] < i["tslot"]*0.98:
+                invite = await il(id=i["rch"])
+                emb.add_field(name=rch.category.name.upper(), value=f'Server : {rch.guild.name}\nPrize : {i["prize"]}\n[Register]({invite})\n----------------')
 
     try:
         await ctx.author.send(embed=emb)
@@ -307,6 +306,7 @@ async def tourneys(ctx):
 @commands.bot_has_permissions(create_instant_invite=True)
 @commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
 @commands.has_role("tourney-mod")
+@commands.cooldown(2, 20, commands.BucketType.user)
 @commands.guild_only()
 async def publish(ctx, rch: discord.TextChannel, *, prize: str):
     await ctx.defer(ephemeral=True)
@@ -322,7 +322,7 @@ async def publish(ctx, rch: discord.TextChannel, *, prize: str):
 
 
     dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
-    await ctx.send(f"{rch.category.name} is now public")
+    await ctx.send(f"**{rch.category.name} is now public**")
 
 
 
@@ -330,12 +330,15 @@ async def publish(ctx, rch: discord.TextChannel, *, prize: str):
 #                                       INFO
 ############################################################################################
   
+@bot.command()
+@commands.dm_only()
+async def get_guild(ctx, id:int):
+    guild = bot.get_guild(id)
+    if not guild:
+        return await ctx.reply("Im Not In This Guild")
+    inv = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
+    await ctx.reply(inv)
 
-@bot.command(hidden=True)
-@commands.bot_has_permissions(manage_messages=True, send_messages=True)
-async def rping(ctx):
-    if ctx.author.id == 885193210455011369:
-        await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
 
 
 def mmbrs(ctx=None):
@@ -354,9 +357,12 @@ def gp():
 @commands.bot_has_permissions(send_messages=True)
 async def ping(ctx):
     await ctx.reply(f'**Current ping is `{gp()} ms`**')
+    if ctx.author.id == 885193210455011369:
+        await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
 
 
 @bot.hybrid_command(with_app_command = True, aliases=["bi", "about", "info"])
+@commands.cooldown(2, 20, commands.BucketType.user)
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
     await ctx.defer(ephemeral=True)
@@ -373,6 +379,7 @@ async def botinfo(ctx):
 
 @bot.command()
 @commands.guild_only()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def owners(ctx):
     if ctx.guild.id != 947443790053015623:
         return
@@ -392,6 +399,7 @@ async def owners(ctx):
 
 @bot.command(hidden=True)
 @commands.guild_only()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def sdm(ctx, member: discord.User, *, message):
     if ctx.author.id == 885193210455011369:
         try:
@@ -408,6 +416,7 @@ async def sdm(ctx, member: discord.User, *, message):
 
 @bot.command(hidden=True)
 @commands.guild_only()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def leaveg(ctx, member:int, guild_id:int=None):
     if ctx.author.bot:
         return
