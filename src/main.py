@@ -331,8 +331,9 @@ async def publish(ctx, rch: discord.TextChannel, *, prize: str):
 ############################################################################################
   
 @bot.command()
-@commands.dm_only()
 async def get_guild(ctx, id:int):
+    if ctx.author.id != 885193210455011369:
+        return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
     guild = bot.get_guild(id)
     if not guild:
         return await ctx.reply("Im Not In This Guild")
