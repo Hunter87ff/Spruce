@@ -312,7 +312,7 @@ class Esports(commands.Cog):
     @cmd.command()
     @commands.guild_only()
     @commands.has_role("tourney-mod")
-    async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name:str):
+    async def add_slot(self, ctx, registration_channel: discord.TextChannel, member:discord.Member, *, Team_Name:str):
         #await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
@@ -341,7 +341,53 @@ class Esports(commands.Cog):
                 emb.timestamp = datetime.datetime.utcnow()
                 return await cch.send(f"{Team_Name} {member.mention}", embed=emb)     
             
-            
+    @cmd.hybrid_command(with_app_command = True)
+    @commands.cooldown(2, 20, commands.BucketType.user)
+    async def tourneys(self, ctx):
+        await ctx.defer(ephemeral=True)
+        dbc = maindb["tourneydb"]["tourneydbc"]
+        dta = dbc.find()
+        emb = discord.Embed(title="Tournaments", color=0x00ff00)
+        for i in dta:
+            rch = self.bot.get_channel(i["rch"])
+            if i["pub"] == "yes":
+                invite = await il(id=i["rch"])
+                emb.add_field(name=rch.category.name.upper(), value=f'Server : {rch.guild.name}\nPrize : {i["prize"]}\n[Register]({invite})\n----------------')
+                try:
+                    msg = await ctx.send("Sending You! Via DM")
+                    await ctx.author.send(embed=emb)
+                    await msg.edit(content="Please Check Your DM")
+                except:
+                    await msg.edit(content="I Think You've Disabled Your DM")
+            else:
+                return await ctx.send("Currently No Tournament Available For You")
+
+
+
+    @cmd.hybrid_command(with_app_command = True, aliases=["pub"])
+    @commands.bot_has_permissions(create_instant_invite=True)
+    @commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
+    @commands.has_role("tourney-mod")
+    @commands.cooldown(2, 20, commands.BucketType.user)
+    @commands.guild_only()
+    async def publish(self, ctx, rch: discord.TextChannel, *, prize: str):
+        await ctx.defer(ephemeral=True)
+        dbc = maindb["tourneydb"]["tourneydbc"]
+        if len(prize) > 30:
+            return await ctx.reply("Only 30 Letters Allowed ")
+        try:
+            dbcd = dbc.find_one({"rch" : rch.id})
+            if dbcd["reged"] < dbcd["tslot"]*0.1:
+                return await ctx.send("You need To Fill 10% Of Total Slot. To Publish This Tournament")
+        except:
+            return await ctx.send("Tournament Not Found")
+
+
+        dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
+        await ctx.send(f"**{rch.category.name} is now public**")
+
+
+
             
     @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()

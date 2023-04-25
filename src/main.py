@@ -138,6 +138,8 @@ async def on_message(message):
     await onm.tourney(message)
     await onm.auto_grp(message)
 	
+
+
 @bot.event
 async def on_guild_channel_delete(channel):
     await ochd.ch_handel(channel)
@@ -162,18 +164,6 @@ async def on_guild_remove(guild):
 ##########################################################################################
 #                                          TEXT COMMANDS
 ############################################################################################
-"""
-class Nhelp(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        for page in self.paginator.pages:
-            emby = discord.Embed(description=page, color = discord.Color.blurple())
-            emby.add_field(name="Links", value="[Support Server](https://discord.gg/vMnhpAyFZm) | [Invite Link](https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)")
-#           emby.add_field(name='Support Server', value='[join](https://discord.gg/FXbRZHz3cG)', inline = False)
-            await destination.send(embed=emby)
-bot.help_command = Nhelp(no_category = 'Commands')
-
-"""
 
 
 @bot.event
@@ -279,26 +269,6 @@ async def il(id):
 
 
 #dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
-
-@bot.hybrid_command(with_app_command = True)
-@commands.cooldown(2, 20, commands.BucketType.user)
-async def tourneys(ctx):
-    await ctx.defer(ephemeral=True)
-    dbc = maindb["tourneydb"]["tourneydbc"]
-    dta = dbc.find()
-    emb = discord.Embed(title="Tournaments", color=0x00ff00)
-    for i in dta:
-        rch = bot.get_channel(i["rch"])
-        if i["pub"] == "yes":
-            invite = await il(id=i["rch"])
-            emb.add_field(name=rch.category.name.upper(), value=f'Server : {rch.guild.name}\nPrize : {i["prize"]}\n[Register]({invite})\n----------------')
-
-    try:
-        msg = await ctx.send("Sending You! Via DM")
-        await ctx.author.send(embed=emb)
-        await msg.edit(content="Please Check Your DM")
-    except:
-        await msg.edit(content="I Think You've Disabled Your DM")
 
 
 
