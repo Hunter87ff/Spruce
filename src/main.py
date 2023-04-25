@@ -59,9 +59,9 @@ asyncio.run(load_extensions())
 @bot.event
 async def on_ready():
     #await node_connect()
-    st_log = bot.get_channel(1020027121231462400)
+    st_log = bot.get_channel(config.stl)
     await bot.tree.sync()
-    status = ['&help', "You", "Sprucebot.ml/invite", "231k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
+    status = ['&help', "You", "Sprucebot.ml/invite", "241k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
     print(stmsg)
@@ -145,15 +145,15 @@ async def on_guild_channel_delete(channel):
 
 @bot.event
 async def on_guild_join(guild):
-    ch = bot.get_channel(1028673206850179152)
-    link = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
+    ch = bot.get_channel(config.gjoin)
+    link = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
     msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
     return await ch.send(msg)
 
 
 @bot.event
 async def on_guild_remove(guild):
-    ch = bot.get_channel(1028673254606508072)
+    ch = bot.get_channel(config.gleave)
     #link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
     msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
     return await ch.send(msg)
@@ -178,8 +178,8 @@ bot.help_command = Nhelp(no_category = 'Commands')
 
 @bot.event
 async def on_command_error(ctx, error):
-    erl = bot.get_channel(1015166083050766366)
-    cmdnf = bot.get_channel(1020698810625826846)
+    erl = bot.get_channel(config.erl)
+    cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.send(embed=discord.Embed(color=0xff0000, description="Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `&help <this_command>` to get Instructions"))
@@ -251,7 +251,9 @@ async def on_command_error(ctx, error):
 
 
 @bot.hybrid_command(with_app_command = True, hidden=True)
+@commands.is_owner()
 @commands.dm_only()
+@commands.cooldown(2, 20, commands.BucketType.user)
 async def cdm(ctx,amount:int):
     await ctx.defer(ephemeral=True)
     dmchannel = await ctx.author.create_dm()
@@ -285,15 +287,14 @@ async def tourneys(ctx):
     dbc = maindb["tourneydb"]["tourneydbc"]
     dta = dbc.find()
     emb = discord.Embed(title="Tournaments", color=0x00ff00)
-    msg = await ctx.send("Sending You! Via DM")
     for i in dta:
         rch = bot.get_channel(i["rch"])
         if i["pub"] == "yes":
-            if i["reged"] < i["tslot"]*0.98:
-                invite = await il(id=i["rch"])
-                emb.add_field(name=rch.category.name.upper(), value=f'Server : {rch.guild.name}\nPrize : {i["prize"]}\n[Register]({invite})\n----------------')
+            invite = await il(id=i["rch"])
+            emb.add_field(name=rch.category.name.upper(), value=f'Server : {rch.guild.name}\nPrize : {i["prize"]}\n[Register]({invite})\n----------------')
 
     try:
+        msg = await ctx.send("Sending You! Via DM")
         await ctx.author.send(embed=emb)
         await msg.edit(content="Please Check Your DM")
     except:
@@ -356,10 +357,12 @@ def gp():
 @bot.command()
 @commands.cooldown(2, 20, commands.BucketType.user)
 @commands.bot_has_permissions(send_messages=True)
+@commands.cooldown(2, 60, commands.BucketType.user)
 async def ping(ctx):
-    await ctx.reply(f'**Current ping is `{gp()} ms`**')
     if ctx.author.id == 885193210455011369:
         await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
+    else:
+        await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
 @bot.hybrid_command(with_app_command = True, aliases=["bi", "about", "info"])

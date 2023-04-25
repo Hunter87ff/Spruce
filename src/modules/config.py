@@ -1,25 +1,34 @@
-import discord
 import pymongo
 import os
 from pymongo import MongoClient
 
 
 
-version = "1.9.4"
+version = "2.0.4"
+
 owner_id = 885193210455011369
 owner_tag = "hunter#6967"
+
 bot_id = 931202912888164474
+
 support_server = "https://discord.gg/vMnhpAyFZm"
 support_server_id = 947443790053015623
 prefix = "&"
+
 maindb = MongoClient(os.environ["mongo_url"])
+
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
-m_host = 'node1.kartadharta.xyz'           #os.environ["m_host"]
-m_host_psw =  "kdlavalink"    #os.environ["m_host_psw"]
+m_host = 'node1.kartadharta.xyz'        
+m_host_psw =  "kdlavalink"    
+################## LOG ####################
 
-
-#emojis
+erl = 1015166083050766366
+stl = 1020027121231462400
+cmdnf = 1020698810625826846
+gjoin = 1028673206850179152
+gleave = 1028673254606508072
+################# emojis ####################
 vf = "<:vf:959508659153535016>"
 cross = "<:cross1:975460389565399141>"
 owner = "<:owner:968371297744744448>"

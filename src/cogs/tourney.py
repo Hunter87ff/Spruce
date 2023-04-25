@@ -82,7 +82,7 @@ class Esports(commands.Cog):
 
 
 
-    @commands.command(aliases=['ts','tourneysetup','setup'])
+    @commands.hybrid_command(with_app_command = True, aliases=['ts','tourneysetup','setup'])
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
@@ -176,12 +176,13 @@ class Esports(commands.Cog):
             return
 
 
-    @cmd.command(aliases=["girlslobby"])
+    @cmd.hybrid_command(with_app_command = True, aliases=["girlslobby"])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
     async def girls_lobby(self, ctx, vc_amount : int):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         male_rs = ["male", "boys", "boy", "men", "MALE", "BOY", "BOYS"]
@@ -215,10 +216,11 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def start_tourney(self, ctx, registration_channel : discord.TextChannel):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
@@ -233,10 +235,11 @@ class Esports(commands.Cog):
             await ctx.send("Started", delete_after=10)
 
             
-    @cmd.command(aliases=['pt'])
+    @cmd.hybrid_command(with_app_command = True, aliases=['pt'])
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def pause_tourney(self, ctx, registration_channel : discord.TextChannel):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
@@ -256,8 +259,8 @@ class Esports(commands.Cog):
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def cancel_slot(self, ctx, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
-            await ctx.defer(ephemeral=True)
             return
         if reason == None:
                 reason = "Not Provided"
@@ -306,10 +309,11 @@ class Esports(commands.Cog):
         
             
     #@cmd.hybrid_command(with_app_command = True)
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def add_slot(self, ctx, registration_channel: discord.TextChannel, member : discord.Member, *, Team_Name:str):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
@@ -591,12 +595,13 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command(aliases=['gsetup'])
+    @cmd.hybrid_command(with_app_command = True, aliases=['gsetup'])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def group_setup(self, ctx, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
+        await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
         if start < 1:
@@ -625,12 +630,13 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command(aliases=["cs"])
+    @cmd.hybrid_command(with_app_command = True, aliases=["cs"])
     @commands.has_any_role("tourney-mod")
     @commands.guild_only()
     @commands.bot_has_permissions(send_messages=True)
     @commands.has_permissions(manage_messages=True)
     async def change_slot(self, ctx, *, slot:str):
+        await ctx.defer(ephemeral=True)
         if ctx.message.reference:
             msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
             if slot in msg.content:
@@ -690,13 +696,15 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.command()
+    @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def auto_group(self, ctx, reg: discord.TextChannel):
-
+        await ctx.defer(ephemeral=True)
+        if ctx.author.bot:
+            return
         try:
             td = dbc.find_one({"rch":int(reg.id)})
         except:
