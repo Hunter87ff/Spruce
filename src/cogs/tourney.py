@@ -355,7 +355,7 @@ class Esports(commands.Cog):
             rch = self.bot.get_channel(int(i["rch"]))
             if rch != None and i["reged"] < i["tslot"]*0.98 and i["reged"] >= i["tslot"]*0.1 and i["status"]=="started":
                 link = await rch.create_invite(reason=None,max_age=360000,max_uses=0,temporary=False,unique=False,target_type=None,target_user=None,target_application_id=None)
-                emb.add_field(name=f'{i["t_name"].upper()}', value=f"Prize: {i['prize'].upper()}\nServer: {rch.guild.name[0:10]}\n[Register]({link})\n---------------- ")
+                emb.add_field(name=f'{i["t_name"].upper()}', value=f"Prize: {i['prize'].upper()}\nServer: {rch.guild.name[0:20]}\n[Register]({link})\n---------------- ")
             if not rch:
                 pass
         if len(emb.fields) > 0:
