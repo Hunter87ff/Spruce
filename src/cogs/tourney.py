@@ -435,7 +435,7 @@ class Esports(commands.Cog):
 
             btn.callback = enable_ftf
             btn1.callback = disable_ftf
-
+    
     
     @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()
@@ -540,10 +540,19 @@ class Esports(commands.Cog):
             async def publish(interaction):
                 if tdb["pub"] == "no":
                     if tdb["reged"] >= tdb["tslot"]*0.1:
-                        dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes"}})
+                        await interaction.response.defer(ephemeral=True)
+                        ms = await ctx.send("Enter The Prize Under 15 characters")
+                        prize = str(await get_input(ctx))
+                        print(len(prize))
+                        if len(prize) > 15:
+                            await ms.edit("Word Limit Reached. Try Again Under 15 Characters")
+                        if len(prize) <= 15:
+                            dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
+                            await ms.delete()
+                            await ctx.send("Tournament Is Now Public", delete_after=5)
                     if tdb["reged"] < tdb["tslot"]*0.1:
-                        return await interaction.response.send_message("**You Need To Fill 10% Slot To Publish**", ephemeral=True, delete_after=10)
-                    await interaction.response.send_message("Tournament Is Now Public", ephemeral=True, delete_after=5)
+                        return await ctx.send("**You Need To Fill 10% Slot To Publish**", ephemeral=True, delete_after=10)
+                    
                     
                 if tdb["pub"] == "yes":
                     dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "no"}})
@@ -607,7 +616,7 @@ class Esports(commands.Cog):
     
                 try:
                     if int(mns) > 20:
-                        return await ctx.send("Only Number upto 20", delete_after=5)
+                        await ctx.send("Only Number upto 20", delete_after=5)
     
                     if int(mns) == 20 or int(mns) < 20:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"mentions" : int(mns)}})
@@ -663,6 +672,7 @@ class Esports(commands.Cog):
             bt10.callback = delete_tourney_confirm
             bt11.callback = delete_t_confirmed
             bt12.callback = publish
+    
     
     
     

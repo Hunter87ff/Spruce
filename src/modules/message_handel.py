@@ -35,10 +35,10 @@ def gp(info):
             return "Not Data"
 
 
-async def get_prize(cch:discord.TextChannel):
-    i = cch.category.channels[0]
+async def get_prize(cch):
+    info = cch.category.channels[0]
     finder = ["Prize", "prize", "PRIZE", "POOL", "Pool", "PrizE"]
-    messages = [message async for message in i.history(limit=123)]
+    messages = [message async for message in info.history(limit=123)]
     
     if len(messages) == 0:
         return "No Data"
@@ -165,6 +165,7 @@ async def tourney(message):
                             femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                             femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             femb.timestamp = datetime.datetime.utcnow()
+                            femb.set_thumbnail(url=message.author.display_avatar)
                             await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             await message.author.add_roles(crole)
                             if rgs >= tslot*0.1 and td["pub"] == "no":
@@ -189,6 +190,7 @@ async def tourney(message):
                             femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                             femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                             femb.timestamp = datetime.datetime.utcnow()
+                            femb.set_thumbnail(url=message.author.display_avatar)
                             if rgs >= tslot*0.1 and td["pub"] == "no":
                                 dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                             return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
@@ -204,6 +206,7 @@ async def tourney(message):
                     nfemb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                     nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                     nfemb.timestamp = datetime.datetime.utcnow()
+                    nfemb.set_thumbnail(url=message.author.display_avatar)
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
