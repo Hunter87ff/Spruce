@@ -26,7 +26,7 @@ async def get_input(ctx, check=None, timeout=30):
         msg = await ctx.bot.wait_for("message", check=check, timeout=timeout)
 
     except asyncio.TimeoutError:
-        return await ctx.send("Time Out! Try Again")
+        return await ctx.send("Time Out! Try Again", delete_after=5)
 
 
     else:
@@ -436,7 +436,7 @@ class Esports(commands.Cog):
             btn.callback = enable_ftf
             btn1.callback = disable_ftf
 
-
+    
     @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_any_role("tourney-mod")
@@ -445,13 +445,21 @@ class Esports(commands.Cog):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
+        pub = ""
+        pubb = ""
         rch = registration_channel
         tdb = dbc.find_one({"tid": rch.id%1000000000000})
-
+    
         if tdb == None:
             await ctx.send("Kindly Mention Registration Channel I'm Managing..", delete_after=30)
-
+    
         if tdb != None:
+            if tdb["pub"] == "no":
+                pub = "Publish"
+                pubb = config.default_cross
+            if tdb["pub"] == "yes":
+                pub = "Unpublish"
+                pubb = config.default_tick
             bt0 = Button(label="Start/Pause", style=discord.ButtonStyle.green)
             bt1 = Button(label="Fake Tag", style=discord.ButtonStyle.green)
             bt2 = Button(label="Total Slot", style=discord.ButtonStyle.green) 
@@ -462,45 +470,45 @@ class Esports(commands.Cog):
             bt7 = Button(label="Add Slots")
             bt8 = Button(label="Cancle Slots")
             bt9 = Button(label="Confirm Role")
-
             bt10 = Button(label="Delete Tournament", style=discord.ButtonStyle.danger)
             bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
-
-            buttons = [bt0, bt1, bt2, bt3, bt4, bt6, bt9, bt10]
+            bt12 = Button(label=pub, style=discord.ButtonStyle.blurple)
+    
+            buttons = [bt0, bt1, bt2, bt3, bt4, bt6, bt9, bt10, bt12]
             view = View()
             ftf = None
             if tdb["faketag"] == "yes":
                 ftf = "Disabled"
             if tdb["faketag"] == "no":
                 ftf = "Enabled"
-
+    
             cch = get(ctx.guild.channels, id=int(tdb["cch"]))
             tcat = rch.category
-
+    
             if tcat != None:
                 tname = tcat.name
             if tcat == None:
                 tname = ctx.guild.name
             crole = get(ctx.guild.roles, id=int(tdb["crole"]))
-            emb = discord.Embed(title=tname, description=f'Status : {tdb["status"].upper()}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]-1}\nFake Tag Filter : {ftf}\nRegistration Channel : <#{tdb["rch"]}>\nConfirmation Channel : <#{tdb["cch"]}>\nConfirm Role : <@&{tdb["crole"]}>', 
+            emb = discord.Embed(title=tname.upper(), description=f'**Status : {tdb["status"].upper()}\nMentions : {tdb["mentions"]}\nTotal Slot : {tdb["tslot"]}\nRegistered : {tdb["reged"]-1}\nFake Tag Filter : {ftf}\nRegistration Channel : <#{tdb["rch"]}>\nConfirmation Channel : <#{tdb["cch"]}>\nConfirm Role : <@&{tdb["crole"]}>\nPublished : {pubb}\nPrize : {tdb["prize"].upper()}**', 
                 color=0x00ff00)
-
+    
             for button in buttons:
                 view.add_item(button)
             msg1 = await ctx.send(embed=emb, view=view)
-
-
-
-
+    
+    
+    
+    
             async def save_delete(interaction):
                 await msg1.delete()
-
-
+    
+    
             async def delete_tourney_confirm(interaction):
                 view = View().add_item(bt11)
                 del_t_con = await interaction.response.send_message("**Are You Sure To Delete The Tournament?**", view=view)
-
-
+    
+    
             async def delete_t_confirmed(interaction):
                 await interaction.message.edit(content=f"**{config.loading} Processing...**")
                 gtad = gtadbc.find_one({"guild" : registration_channel.guild.id%1000000000000})
@@ -510,56 +518,72 @@ class Esports(commands.Cog):
                 dbc.delete_one({"tid" : registration_channel.id%1000000000000 })
                 await save_delete(interaction)
                 await interaction.message.delete()
-
-
-
-
+    
+    
+    
+    
             async def r_ch(interaction):
                 await interaction.response.send_message("Mention Registration Channel", ephemeral=True)
                 channel = await checker.channel_input(ctx)
                 ach = dbc.find_one({"tid" : channel.id%1000000000000})
-
+    
                 if channel.id%1000000000000 == tdb["tid"] or ach != None:
                     return await ctx.send("A Tournament Already Running In This channel", delete_after=15)
-
+    
                 else:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tid": channel.id%1000000000000}})
                     await ctx.send("Registration Channel Updated", delete_after=5)
 
 
 
+            
+            async def publish(interaction):
+                if tdb["pub"] == "no":
+                    if tdb["reged"] >= tdb["tslot"]*0.1:
+                        dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes"}})
+                    if tdb["reged"] < tdb["tslot"]*0.1:
+                        return await interaction.response.send_message("**You Need To Fill 10% Slot To Publish**", ephemeral=True, delete_after=10)
+                    await interaction.response.send_message("Tournament Is Now Public", ephemeral=True, delete_after=5)
+                    
+                if tdb["pub"] == "yes":
+                    dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "no"}})
+                    await interaction.response.send_message("Tournament Unpublished", ephemeral=True, delete_after=5)
 
+
+
+            
+    
             async def c_ch(interaction):
                 await interaction.response.send_message("Mention Confiration Channel", ephemeral=True)
                 cchannel = await checker.channel_input(ctx)
                 acch = dbc.find_one({"cch" : cchannel.id})
-
+    
                 if cchannel.id == cch.id or acch != None:
-                    return await ctx.send("A Tournament Already Running In This channel", delete_after=15)
+                    return await ctx.send("A Tournament Already Running In This channel", delete_after=10)
                     
                 else:
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"cch": cchannel.id}})
                     await ctx.send("Confirm Channel Updated", delete_after=5)
-
-
-
-
+    
+    
+    
+    
             async def ft(interaction):
                 if tdb["faketag"] == "yes":
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "no"}})
                     bt1.disabled = True
                     await interaction.response.edit_message(view=view)
                     await ctx.send("Enabled", delete_after=10)
-
+    
                 if tdb["faketag"] == "no":
                     dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"faketag" : "yes"}})
                     bt1.disabled = True
                     await interaction.response.edit_message(view=view)
                     await ctx.send("Disabled", delete_after=10)
-
-
-
-
+    
+    
+    
+    
             async def ttl_slot(interaction):
                 await interaction.response.send_message("Enter Number Between 2 and 20000", ephemeral=True)
                 tsl = await checker.ttl_slots(ctx)
@@ -570,32 +594,32 @@ class Esports(commands.Cog):
                     if int(tsl) == 20000 or int(tsl) < 20000:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"tslot" : int(tsl)}})
                         await ctx.send("Total Slots Updated", delete_after=5)
-
+    
                 except ValueError:
                     return await ctx.send("Numbers Only", delete_after=20)
-
-
-
-
+    
+    
+    
+    
             async def mnts(interaction):
                 await interaction.response.send_message("Enter Number Between 1 and 20", ephemeral=True)
                 mns = await checker.ttl_slots(ctx)
-
+    
                 try:
                     if int(mns) > 20:
-                        return await ctx.send("Only Number upto 20", delete_after=15)
-
+                        return await ctx.send("Only Number upto 20", delete_after=5)
+    
                     if int(mns) == 20 or int(mns) < 20:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"mentions" : int(mns)}})
-                        await ctx.send("Mentions Updated")
-
+                        await ctx.send("Mentions Updated", delete_after=5)
+    
                 except ValueError:
-                    return await ctx.send("Numbers Only", delete_after=15)
-
-
-
-
-
+                    return await ctx.send("Numbers Only", delete_after=5)
+    
+    
+    
+    
+    
             async def strtps(interaction):
                 if interaction.user == ctx.author:
                     if tdb["status"] == "started":
@@ -604,30 +628,30 @@ class Esports(commands.Cog):
                         bt0.disabled = True
                         await interaction.response.edit_message(view=view)
                         await ctx.send("Tournament Paused", delete_after=5)
-
+    
                     if tdb["status"] == "paused":
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"status" : "started"}})
                         await rch.send("**Tournament Statred**")
                         bt0.disabled = True
                         await interaction.response.edit_message(view=view)
                         await ctx.send("Tournament Started", delete_after=5)
-
-
-
-
+    
+    
+    
+    
             async def conro(interaction):
                 if interaction.user == ctx.author:
                     await interaction.response.send_message("Mention The Confirm Role", ephemeral=True)
                     con_role = await checker.check_role(ctx)
                     cndb = dbc.find_one({"crole" : str(con_role.id)})
-
+    
                     if cndb == None:
                         dbc.update_one({"tid": rch.id%1000000000000}, {"$set":{"crole" : con_role.id}})
                         await ctx.send("Confirm Role Updated", delete_after=5)
                     if cndb != None:
                         return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
-
-
+    
+    
             #bt5.callback = r_ch
             bt6.callback = c_ch
             bt4.callback = save_delete
@@ -638,10 +662,10 @@ class Esports(commands.Cog):
             bt9.callback = conro
             bt10.callback = delete_tourney_confirm
             bt11.callback = delete_t_confirmed
-
-
-
-
+            bt12.callback = publish
+    
+    
+    
 
     @cmd.hybrid_command(with_app_command = True, aliases=['gsetup'])
     @commands.has_role("tourney-mod")
