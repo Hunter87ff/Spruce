@@ -273,30 +273,6 @@ async def il(id):
 
 
 
-@bot.hybrid_command(with_app_command = True, aliases=["pub"])
-@commands.bot_has_permissions(create_instant_invite=True)
-@commands.has_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
-@commands.has_role("tourney-mod")
-@commands.cooldown(2, 20, commands.BucketType.user)
-@commands.guild_only()
-async def publish(ctx, rch: discord.TextChannel, *, prize: str):
-    await ctx.defer(ephemeral=True)
-    dbc = maindb["tourneydb"]["tourneydbc"]
-    if len(prize) > 30:
-        return await ctx.reply("Only 30 Letters Allowed ")
-    try:
-        dbcd = dbc.find_one({"rch" : rch.id})
-        if dbcd["reged"] < dbcd["tslot"]*0.1:
-            return await ctx.send("You've To Fill 10% Slot. To Publish This Tournament")
-    except:
-        return await ctx.send("Tournament Not Found")
-
-
-    dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
-    await ctx.send(f"**{rch.category.name} is now public**")
-
-
-
 ############################################################################################
 #                                       INFO
 ############################################################################################
