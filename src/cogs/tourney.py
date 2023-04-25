@@ -341,27 +341,29 @@ class Esports(commands.Cog):
                 emb.timestamp = datetime.datetime.utcnow()
                 return await cch.send(f"{Team_Name} {member.mention}", embed=emb)     
             
+
+
     @cmd.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 20, commands.BucketType.user)
+    @commands.guild_only()
     async def tourneys(self, ctx):
         await ctx.defer(ephemeral=True)
-        dbc = maindb["tourneydb"]["tourneydbc"]
-        dta = dbc.find()
-        emb = discord.Embed(title="Tournaments", color=0x00ff00)
-        for i in dta:
-            rch = self.bot.get_channel(i["rch"])
-            if i["pub"] == "yes":
-                invite = await il(id=i["rch"])
-                emb.add_field(name=rch.category.name.upper(), value=f'Server : {rch.guild.name}\nPrize : {i["prize"]}\n[Register]({invite})\n----------------')
-                try:
-                    msg = await ctx.send("Sending You! Via DM")
-                    await ctx.author.send(embed=emb)
-                    await msg.edit(content="Please Check Your DM")
-                except:
-                    await msg.edit(content="I Think You've Disabled Your DM")
-            else:
-                return await ctx.send("Currently No Tournament Available For You")
-
+        ms = await ctx.send("Processing...")
+        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=config.invite_url, color=0x00ff00)
+        data  = dbc.find({"pub" : "yes"})
+        for i in data:
+            rch = self.bot.get_channel(int(i["rch"]))
+            if rch != None and i["reged"] < i["tslot"]*0.98 and i["reged"] >= i["tslot"]*0.1 and i["status"]=="started":
+                link = await rch.create_invite(reason=None,max_age=360000,max_uses=0,temporary=False,unique=False,target_type=None,target_user=None,target_application_id=None)
+                emb.add_field(name=f'{i["t_name"].upper()}', value=f"Prize: {i['prize'].upper()}\nServer: {rch.guild.name[0:10]}\n[Register]({link})\n---------------- ")
+            if not rch:
+                pass
+        if len(emb.fields) > 0:
+            await ctx.author.send(embed=emb)
+            await ms.edit(content="Please Check Your DM")
+        else:
+            await ms.edit(content="Currently Unavailable")
+        
 
 
     @cmd.hybrid_command(with_app_command = True, aliases=["pub"])

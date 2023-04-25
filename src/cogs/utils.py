@@ -54,17 +54,23 @@ class Utility(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def uptime(self, ctx):
+		if ctx.author.bot:
+			return
 		await ctx.defer(ephemeral=True)
 		try:
-			sch = self.bot.get_channel(1020027121231462400)
+			sch = self.bot.get_channel(config.stl)
 		except:
 			return
 		messages = [message async for message in sch.history(limit=3)]
 		uptime = ctx.message.created_at - messages[0].created_at
 		upt = str(uptime).split(".")[0]
+		msg = f"**Current Uptime Is : `{upt}`**"
+		emb = discord.Embed(title="Uptime", color=0x00ff00, description=msg, timestamp=ctx.message.created_at)
+		emb.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar)
 		try:
-			await ctx.send(f"**Current Uptime Is - `{upt} h`**")
+			await ctx.send(embed=emb)
 		except:
 			return
 
@@ -72,11 +78,12 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command(aliases=['av', "pfp"])
+	@cmd.hybrid_command(with_app_command = True, aliases=['av', "pfp"])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def avatar(self, ctx, user: discord.User = None):
-
-
+		if ctx.author.bot:
+			return
+		await ctx.defer(ephemeral=True)
 		if user == None:
 			user = ctx.author
 			
@@ -97,9 +104,10 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command(aliases=['sav'])
+	@cmd.hybrid_command(with_app_command = True, aliases=['sav'])
 	@commands.bot_has_permissions(embed_links=True)
 	async def server_av(self, ctx, guild:discord.Guild=None):
+		await ctx.defer(ephemeral=True)
 		if guild == None:
 			guild = ctx.guild
 
