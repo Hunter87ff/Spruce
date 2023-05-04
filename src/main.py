@@ -214,7 +214,7 @@ async def botinfo(ctx):
     mmbs = mmbrs()
     emb.add_field(name=f"{config.servers}__Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
     emb.add_field(name=f"{config.dev} __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
-    emb.add_field(name=f"{config.latency} __Current Ping__", value=gp(), inline=False)
+    emb.add_field(name=f"{config.ping} __Current Ping__", value=gp(), inline=False)
     emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {pref}help, prefix: {pref}  ", inline=False)
     emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
