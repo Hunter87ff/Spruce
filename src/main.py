@@ -171,8 +171,7 @@ async def il(id):
 async def get_guild(ctx, id):
     if ctx.author.bot:
         return
-    if type(id) != int:
-        return
+
     if ctx.author.id != config.owner_id:
         return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
     guild = bot.get_guild(id)
