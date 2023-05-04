@@ -236,12 +236,12 @@ async def prc(group,  grpc , msg, tsl):
 
     for ms in messages:
         if len(messages) <3:
-            if ms.author.id != 931202912888164474:
+            if ms.author.id != config.bot_id:
                 if f"**__GROUP__ {str(group)} **" not in ms.content:
                     await grpc.send(f"**__GROUP__ {group} ** \n{get_slot(ms)} {msg}")
 
 
-        if ms.author.id == 931202912888164474:
+        if ms.author.id == config.bot_id:
             if f"**__GROUP__ {str(group)} **" in ms.content:
                 if "12)" not in ms.content.split():
                     cont = f"{ms.content}\n{get_slot(ms)} {msg}"
@@ -279,7 +279,12 @@ async def auto_grp(message):
 
     if td:
         if td["auto_grp"] == "yes":
-            if message.author.id == 931202912888164474:
+            if message.author.id == config.bot_id:
+                if not message.embeds:
+                    return
+                if message.embeds:
+                    if "TEAM NAME" not in message.embeds[0].description:
+                        return
                 reged = td["reged"]-1
                 grpch = discord.utils.get(message.guild.channels, id=int(td["gch"]))
                 group = get_group(reged=reged)
@@ -361,3 +366,56 @@ async def error_handle(ctx, error, bot):
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
         brp = await ctx.reply(f"Processing...")
         await brp.edit(content=f"Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
+
+
+
+
+
+
+
+
+
+
+################# NITROF ######################
+
+nitrodbc = maindb["nitrodb"]["nitrodbc"]
+async def nitrof(message):
+    if message.author.bot:
+        return
+    try:
+        gnitro = nitrodbc.find_one({"guild" : message.guild.id})
+    except:
+        return
+
+    if gnitro != None and gnitro["nitro"] == "enabled":
+        try:
+            webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
+
+        except:
+            await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
+
+        if webhook == None:
+            try:
+                webhook = await message.channel.create_webhook(name="Spruce")
+
+            except:
+                await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+       
+                
+        words = message.content.split()
+        for word in words:
+            if word[0] == ":" and word[-1] == ":":
+                emjn = word.replace(":", "")
+                emoji = discord.utils.get(bot.emojis, name=emjn)
+                if emoji != None:
+                    if emoji.name in message.content:
+                        msg1 = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
+                        allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
+                        nick = message.author.nick
+                        if message.author.nick == None:
+                            nick = message.author.name
+                        await message.delete()
+                        return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
+    else:
+        return
+                        
