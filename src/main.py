@@ -58,7 +58,7 @@ asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
-    await node_connect()
+    #await node_connect()
     st_log = bot.get_channel(config.stl)
     await bot.tree.sync()
     status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
