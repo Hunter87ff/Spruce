@@ -58,14 +58,13 @@ class Channel(commands.Cog):
 
 
 
-
-	@cmd.hybrid_command(with_app_command=True ,aliases=['dc'])
+	@cmd.hybrid_command(with_app_commands=True, aliases=['dc'])
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def delete_category(self, ctx, category: discord.CategoryChannel):
+		await ctx.defer()
 		if ctx.author.bot:
 			return
-		await ctx.defer(ephemeral=True)
 		bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="dcd_btn")
 		bt12 = Button(label="Cancel", style=discord.ButtonStyle.green, custom_id="dcc_btn")
 		view = View()
@@ -75,16 +74,17 @@ class Channel(commands.Cog):
 
 		async def dc_confirmed(interaction):
 			if not interaction.user.bot:
-				await del_t_con.edit(content=None, embed=discord.Embed(color=0x00ff00, description=f"**{config.Loading} | Deleting __{category.name}__ Category**"), view=None)
+				emb = discord.Embed(color=0x00ff00, description=f"**{config.loading} | Deleting `{category.name}` Category**")
+				await del_t_con.edit(content=None, embed=emb, view=None)
 				#await interaction.message.delete()
 				for channel in category.channels:
 					await channel.delete(reason=f'Deleted by {ctx.author.name}')
 
 					if len(category.channels) == 0:
 						await category.delete()
-						return await del_t_con.edit(embed=discord.Embed(description=f"**{config.default_tick} | Successfully Deleted __{category.name}__ Category**"))
+						return await del_t_con.edit(embed=discord.Embed(description=f"**{config.tick} | Successfully Deleted ~~{category.name}~~ Category**"))
 		async def del_msg(interaction):
-			await del_t_con.delete()
+			await interaction.message.delete()
 
 		bt11.callback = dc_confirmed
 		bt12.callback = del_msg
