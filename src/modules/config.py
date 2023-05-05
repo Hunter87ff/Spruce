@@ -6,10 +6,11 @@ from pymongo import MongoClient
 
 version = "2.0.4"
 
+
+bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter#6967"
 
-bot_id = 931202912888164474
 
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify"
@@ -17,9 +18,10 @@ support_server_id = 947443790053015623
 prefix = "&"
 
 maindb = MongoClient(os.environ["mongo_url"])
-
+token = os.environ['TOKEN']
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
+
 m_host = 'node1.kartadharta.xyz'        
 m_host_psw =  "kdlavalink"    
 ################## LOG ####################

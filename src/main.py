@@ -31,19 +31,19 @@ intents.reactions = True
 intents.members = True
 intents.voice_states = True
 intents.guilds = True
-pref = os.environ["prefix"]
+
 
 
 #Configuring db
-dburl = os.environ["mongo_url"]
-maindb = MongoClient(dburl)
+pref = config.prefix
+maindb = config.maindb
 startTime = time.time()
 
 
 
 
 
-bot = commands.Bot(command_prefix= commands.when_mentioned_or("&"), intents=intents ) 
+bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents ) 
 #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 bot.remove_command("help")
 
@@ -61,7 +61,7 @@ async def on_ready():
     #await node_connect()
     st_log = bot.get_channel(config.stl)
     await bot.tree.sync()
-    status = ['&help', "You", "Sprucebot.ml/invite", "241k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
+    status = ['&help', "You", "Sprucebot.ml/invite", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
     print(stmsg)
@@ -69,8 +69,6 @@ async def on_ready():
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
             await sleep(120)
-
-
 
 
 @bot.event
@@ -81,53 +79,6 @@ async def node_connect():
     await bot.wait_until_ready()
     await wavelink.NodePool.create_node(bot = bot, host=config.m_host, port=443, password=config.m_host_psw, https=True, spotify_client=spotify.SpotifyClient(client_id=config.spot_id, client_secret=config.spot_secret))
 
-
-
-nitrodbc = maindb["nitrodb"]["nitrodbc"]
-async def nitrof(message):
-    if message.author.bot:
-        return
-    try:
-        gnitro = nitrodbc.find_one({"guild" : message.guild.id})
-    except:
-        return
-
-    if gnitro != None and gnitro["nitro"] == "enabled":
-        try:
-            webhook = discord.utils.get(await message.channel.webhooks(), name="Spruce")
-
-        except:
-            await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
-
-        if webhook == None:
-            try:
-                webhook = await message.channel.create_webhook(name="Spruce")
-
-            except:
-                await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
-       
-                
-        words = message.content.split()
-        for word in words:
-            if word[0] == ":" and word[-1] == ":":
-                emjn = word.replace(":", "")
-                emoji = discord.utils.get(bot.emojis, name=emjn)
-                if emoji != None:
-                    if emoji.name in message.content:
-                        msg1 = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
-                        allowed_mentions = discord.AllowedMentions(everyone = False, roles=False, users=True)
-                        nick = message.author.nick
-                        if message.author.nick == None:
-                            nick = message.author.name
-                        await message.delete()
-                        return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
-    else:
-        return
-                        
-
-
-
-    
 
 @bot.event
 async def on_message(message):
@@ -156,21 +107,25 @@ async def on_guild_join(guild):
 @bot.event
 async def on_guild_remove(guild):
     ch = bot.get_channel(config.gleave)
+    support_server = bot.get_guild(config.support_server_id)
+    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
     #link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
     msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
-    return await ch.send(msg)
+    for i in support_server.members:
+        if i.id == guild.owner.id:
+            if orole in i.roles:
+                await i.remove_roles(orole, reason="Kicked Spruce")
 
-	
-##########################################################################################
-#                                          TEXT COMMANDS
-############################################################################################
+    return await ch.send(msg)
 
 
 @bot.event
 async def on_command_error(ctx, error):
     await onm.error_handle(ctx, error, bot)
 
-
+##########################################################################################
+#                                          TEXT COMMANDS
+############################################################################################
 
 
 
@@ -213,8 +168,11 @@ async def il(id):
 
 @bot.hybrid_command(with_app_command=True)
 @commands.is_owner()
-async def get_guild(ctx, id:int):
-    if ctx.author.id != 885193210455011369:
+async def get_guild(ctx, id):
+    if ctx.author.bot:
+        return
+
+    if ctx.author.id != config.owner_id:
         return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
     guild = bot.get_guild(id)
     if not guild:
@@ -231,7 +189,7 @@ def mmbrs(ctx=None):
     return i
 
 def gp():
-    plst = [23, 19, 21, 22, 21, 20, 21, 23, 19, 18, 24,28]
+    plst = [23, 19, 21, 22, 21, 32, 43, 20, 21, 23, 19, 18, 24,28]
     ping = random.choice(plst)
     return ping
 
@@ -240,7 +198,7 @@ def gp():
 @commands.bot_has_permissions(send_messages=True)
 @commands.cooldown(2, 60, commands.BucketType.user)
 async def ping(ctx):
-    if ctx.author.id == 885193210455011369:
+    if ctx.author.id == config.owner_id:
         await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
     else:
         await ctx.reply(f'**Current ping is `{gp()} ms`**')
@@ -253,10 +211,10 @@ async def botinfo(ctx):
     await ctx.defer(ephemeral=True)
     emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
     mmbs = mmbrs()
-    emb.add_field(name="<:servers:1018845797556703262> __Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
-    emb.add_field(name="<:dev:1020696239689433139> __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
-    emb.add_field(name="<:g_latency:968371843335610408> __Current Ping__", value=gp(), inline=False)
-    emb.add_field(name="<:setting:968374105961300008> __Command Prefix__", value="prefix: & , command: &help", inline=False)
+    emb.add_field(name=f"{config.servers}__Servers Info__", value=f"Total server : {len(bot.guilds)}\nTotal Members : {mmbs}", inline=False)
+    emb.add_field(name=f"{config.dev} __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
+    emb.add_field(name=f"{config.ping} __Current Ping__", value=gp(), inline=False)
+    emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {pref}help, prefix: {pref}  ", inline=False)
     emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
 
@@ -266,10 +224,10 @@ async def botinfo(ctx):
 @commands.guild_only()
 @commands.cooldown(2, 20, commands.BucketType.user)
 async def owners(ctx):
-    if ctx.guild.id != 947443790053015623:
+    if ctx.guild.id != config.support_server_id:
         return
-    ms = await ctx.send("Processing...")
-    ofcg = bot.get_guild(947443790053015623)
+    ms = await ctx.send(f"{config.loading} Processing...")
+    ofcg = bot.get_guild(config.support_server_id)
     owner_role = ofcg.get_role(1043134410029019176)
     for i in bot.guilds:
         if i.owner in ofcg.members:
@@ -286,14 +244,14 @@ async def owners(ctx):
 @commands.guild_only()
 @commands.cooldown(2, 20, commands.BucketType.user)
 async def sdm(ctx, member: discord.User, *, message):
-    if ctx.author.id == 885193210455011369:
+    if ctx.author.id == config.owner_id:
         try:
             await member.send(message)
             return await ctx.reply("Done")
         except:
             return
 
-    if ctx.author.id != 885193210455011369:
+    if ctx.author.id != config.owner_id:
         return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
 
@@ -325,4 +283,4 @@ async def leaveg(ctx, member:int, guild_id:int=None):
             await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
 
-bot.run(os.environ['TOKEN'])
+bot.run(config.token)
