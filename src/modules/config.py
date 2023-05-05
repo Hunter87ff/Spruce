@@ -1,10 +1,6 @@
 import pymongo
 import os
 from pymongo import MongoClient
-<<<<<<< HEAD
-=======
-
->>>>>>> 2c999832a036656f3316f540abb9d64a656275a7
 
 
 version = "2.0.4"
