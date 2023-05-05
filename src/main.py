@@ -58,10 +58,10 @@ asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
-    #await node_connect()
+    await node_connect()
     st_log = bot.get_channel(config.stl)
     await bot.tree.sync()
-    status = ['&help', "You", "Sprucebot.ml/invite", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech"]
+    status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
     stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
     await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
     print(stmsg)
@@ -168,17 +168,18 @@ async def il(id):
 
 @bot.hybrid_command(with_app_command=True)
 @commands.is_owner()
-async def get_guild(ctx, id):
+async def get_guild(ctx, id:int):
     if ctx.author.bot:
         return
 
     if ctx.author.id != config.owner_id:
         return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
     guild = bot.get_guild(id)
+    if  guild:
+        inv = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
+        return await ctx.reply(inv)
     if not guild:
         return await ctx.reply("Im Not In This Guild")
-    inv = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
-    await ctx.reply(inv)
 
 
 

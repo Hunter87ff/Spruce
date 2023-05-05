@@ -21,8 +21,8 @@ token = os.environ['TOKEN']
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
 
-m_host = 'node1.kartadharta.xyz'        
-m_host_psw =  "kdlavalink"    
+m_host = "ssl.freelavalink.ga"
+m_host_psw = "www.freelavalink.ga" 
 ################## LOG ####################
 
 erl = 1015166083050766366
