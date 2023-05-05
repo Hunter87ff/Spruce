@@ -3,7 +3,7 @@ from discord.ext import commands
 from asyncio import sleep
 cmd = commands
 from discord.ui import Button, View
-
+from modules import config
 
 
 
@@ -59,13 +59,13 @@ class Channel(commands.Cog):
 
 
 
-	@cmd.command(aliases=['dc'])
+	@cmd.hybrid_command(with_app_command=True ,aliases=['dc'])
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def delete_category(self, ctx, category: discord.CategoryChannel):
-		#await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
+		await ctx.defer(ephemeral=True)
 		bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="dcd_btn")
 		bt12 = Button(label="Cancel", style=discord.ButtonStyle.green, custom_id="dcc_btn")
 		view = View()
@@ -74,17 +74,17 @@ class Channel(commands.Cog):
 		del_t_con = await ctx.reply("**Are You Sure To Delete The Category?**", view=view)
 
 		async def dc_confirmed(interaction):
-		    if not interaction.user.bot:
-		        await interaction.message.edit(content="<a:loading:969894982024568856>**Processing...**", view=None)
-		        #await interaction.message.delete()
-		        for channel in category.channels:
-		            await channel.delete(reason=f'Deleted by {ctx.author.name}')
+			if not interaction.user.bot:
+				await del_t_con.edit(content=None, embed=discord.Embed(color=0x00ff00, description=f"**{config.Loading} | Deleting __{category.name}__ Category**"), view=None)
+				#await interaction.message.delete()
+				for channel in category.channels:
+					await channel.delete(reason=f'Deleted by {ctx.author.name}')
 
-		            if len(category.channels) == 0:
-		                await category.delete()
-		                return await interaction.message.edit(content=f'**<:vf:947194381172084767>Successfully Deleted**')
+					if len(category.channels) == 0:
+						await category.delete()
+						return await del_t_con.edit(embed=discord.Embed(description=f"**{config.default_tick} | Successfully Deleted __{category.name}__ Category**"))
 		async def del_msg(interaction):
-			await interaction.message.delete()
+			await del_t_con.delete()
 
 		bt11.callback = dc_confirmed
 		bt12.callback = del_msg
