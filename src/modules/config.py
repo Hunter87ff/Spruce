@@ -1,7 +1,14 @@
 import pymongo
 import os
 from pymongo import MongoClient
-
+os.environ = {
+  "TOKE": "OTQ5MzYxMDU4NzI2OTY1Mjg4.GQt1WI.zmz28IZ_kPFsFV9VVQXNQU7fmS46z1PgoboT1Q",
+  "TOKEN" : "MTAwMzMxMzY5NTAxNjg4NjM5Mw.GBOPyg.4DfNia7_EACrX2fxfA_9yjUUHceu8wLbmr5Ksw",
+  "mongo_url": "mongodb+srv://hunter87:214587ab@sprucedb.5bnuk.mongodb.net/?retryWrites=true&w=majority",
+  "prefix": "&",
+  "spot_id": "9eeb8308e8e143a5bef93cd2b272c348",
+  "spot_secret": "cd3f79611bee4806bb38c4a8f5c3e8d1"
+}
 
 
 version = "2.0.4"

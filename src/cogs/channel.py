@@ -15,7 +15,6 @@ from modules import config
 class Channel(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.counter = 0
 
 
 
@@ -34,7 +33,7 @@ class Channel(commands.Cog):
 
 		if ms:
 			try:
-				await ms.edit(content=f'**<:vf:947194381172084767>All channels Created.**')
+				await ms.edit(content=f'**<:vf:947194381172084767> All channels Created.**')
 			except:
 				return
 
@@ -91,26 +90,18 @@ class Channel(commands.Cog):
 
 
 
-	@cmd.command()
+	@cmd.command(aliases=["cch"])
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
-	async def create_channel(self, ctx, category:discord.CategoryChannel, names:str):
+	async def create_channel(self, ctx, category:discord.CategoryChannel, *names):
 		#await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
-		if "," not in names:
-			return await ctx.reply("Please separate names with ',' ")
-		try:
-			ms = await ctx.send("Processing...")
-		except:
-			return
-		for name in names.split(","):
-			category = await discord.utils.get(ctx.guild.categories, category)
+		ms = await ctx.send(embed=discord.Embed(description=f"**{config.loading} | Creating Channels...**"))
+		for name in names:
 			await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-		try:
-			await ms.edit(content="Channels Created.")
-		except:
-			return
+		await ms.edit(embed=discord.Embed(description=f"**{config.default_tick} | All Channels Created**", color=0x00ff00))
+
 
 
 
