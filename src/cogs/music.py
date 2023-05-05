@@ -50,7 +50,7 @@ class Music(commands.Cog):
 
 
 	@commands.Cog.listener()
-	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[spotify.SpotifyTrack] , reason):
+	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack] , reason):
 	    btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
 	    view = View()
 	    for btn in btns:
@@ -131,7 +131,7 @@ class Music(commands.Cog):
 
 #, wavelink.SoundCloudTrack
 	@cmd.command(aliases= ['p','P'])
-	async def play(self, ctx, *, search: typing.Union[spotify.SpotifyTrack]):
+	async def play(self, ctx, *, search: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack]):
 		if ctx.author.bot:
 			return
 		btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
