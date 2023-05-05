@@ -130,7 +130,7 @@ class Music(commands.Cog):
 
 
 #, wavelink.SoundCloudTrack
-	@cmd.command(aliases= ['p','P'])
+	@cmd.command(enabled=False, aliases= ['p','P'])
 	async def play(self, ctx, *, search: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack]):
 		if ctx.author.bot:
 			return
