@@ -176,9 +176,7 @@ class Music(commands.Cog):
 		    image_url = get_img(search=search.title)
 		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=image_url)
 		    ms = await ctx.send(embed=em, view=view)
-		    #pref_ms.apppend(ms.id)
-		    #print(pref_ms)
-		            
+          
 		else:
 		    await vc.queue.put_wait(search)
 		    await ctx.send('Added to the queue...', delete_after=5)

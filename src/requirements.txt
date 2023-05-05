@@ -8,5 +8,6 @@ pymongo[srv]
 wavelink
 lavalink
 bs4
+html5lib
 humanfriendly
 gtts
