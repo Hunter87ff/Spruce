@@ -168,7 +168,7 @@ async def il(id):
 
 @bot.hybrid_command(with_app_command=True)
 @commands.is_owner()
-async def get_guild(ctx, id:int):
+async def get_guild(ctx, id):
     if ctx.author.bot:
         return
 
