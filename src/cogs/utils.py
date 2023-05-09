@@ -305,9 +305,9 @@ class Utility(commands.Cog):
 		embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
 		embed.set_author(name=member, icon_url=member.avatar)
 		embed.set_thumbnail(url=member.avatar)
-		if len(member.roles) <= 8:
+		if len(member.roles) <= 6:
 		    embed.add_field(name=f"Roles ({len(member.roles)-1})", value=" ".join([role.mention for role in member.roles][1:8]))
-		if len(member.roles) > 8:
+		if len(member.roles) > 6:
 		    embed.add_field(name=f"Roles ({len(roles)})", value="Too Much Roles To Show Here")  
 
 		if user.banner:
@@ -356,7 +356,7 @@ class Utility(commands.Cog):
 		
 		
 		
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["si", "server_info"])
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def serverinfo(self, ctx, user: discord.Member=None):
