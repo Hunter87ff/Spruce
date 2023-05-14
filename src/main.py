@@ -1,24 +1,16 @@
 import os 
-import json
 import time
 import random
-import typing
-import pymongo
 import discord
 import asyncio
-import datetime
-import requests
+#import requests
 import wavelink
-import gtts
-from gtts import gTTS
 from asyncio import sleep
-from pymongo import MongoClient
 from wavelink.ext import spotify
 from discord.ext import commands
-from discord.ui import Button, View
-from datetime import datetime, timedelta
-from modules import (message_handel, channel_handel, checker, config, color)
-from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
+#from discord.ui import Button, View
+from modules import (message_handel, channel_handel, config)
+#from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
 
 
@@ -37,7 +29,7 @@ intents.guilds = True
 #Configuring db
 pref = config.prefix
 maindb = config.maindb
-startTime = time.time()
+
 
 
 
@@ -82,7 +74,7 @@ async def node_connect():
 
 @bot.event
 async def on_message(message):
-    if message.webhook_id != None:
+    if message.webhook_id:
         return
     await bot.process_commands(message)
     #await nitrof(message)
