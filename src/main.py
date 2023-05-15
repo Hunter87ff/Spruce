@@ -160,7 +160,7 @@ async def il(id):
 
 @bot.hybrid_command(with_app_command=True)
 @commands.is_owner()
-async def get_guild(ctx, id):
+async def get_guild(ctx, id: int):
     if ctx.author.bot:
         return
 
@@ -227,7 +227,7 @@ async def owners(ctx):
             if i.member_count > 100:
                 onr = ofcg.get_member(i.owner.id)
                 await onr.add_roles(owner_role)
-    return ms.delete()
+    return ms.edit(content="Done")
 
 
 
