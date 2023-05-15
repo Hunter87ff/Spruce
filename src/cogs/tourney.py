@@ -225,11 +225,12 @@ class Esports(commands.Cog):
             return
         dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
         t_mod = discord.utils.get(ctx.guild.roles, name="tourney-mod")
-
+        if not dbcd:
+          return await ctx.send("**No Tournament Running In This Channel**")
         if t_mod not in ctx.author.roles:
             return await ctx.send(f"You don't have `tourney-mod` role")
 
-        if t_mod in ctx.author.roles:
+        if dbcd and  t_mod in ctx.author.roles:
             dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"status" : "started"}})
             await registration_channel.send("Registration Started")
             await ctx.send("Started", delete_after=10)
