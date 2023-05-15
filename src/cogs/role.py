@@ -294,18 +294,18 @@ class Roles(commands.Cog):
 			return
 		prs = await ctx.send("Processing...")
 		if role.permissions.administrator:
-			return await ctx.reply("**Sorry but i can not do this with a role with admin perms.**", delete_after=5)
+			return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**", delete_after=5)
 		if ctx.author.top_role.position <= role.position:
-			return await ctx.send("You Can't Manage This Role")
+			return await prs.edit(content=f"**{config.cross}You Can't Manage This Role | The role should be higher than your top role.**")
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
-			return await ctx.send("I can't manage This role")
+			return await prs.edit(content="I can't manage This role")
 		if len(ctx.guild.members) != ctx.guild.member_count:
-			return await ctx.send("**I'm unable to see anyone! i don't know why. please contact support team!**")
+			return await prs.edit(content="**I'm unable to see anyone! i don't know why. please contact support team!**")
 		for member in ctx.guild.members:
 			if not member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-		await prs.edit(content="Role Given To All Members")
+		await prs.edit(content=None, embed=discord.Embed(color=0x00ff00, description=f"**{config.tick} | {role.mention} Given To All These Humans**"))
 
 
 
@@ -321,20 +321,20 @@ class Roles(commands.Cog):
 			return
 		prs = await ctx.send("Processing...")
 		if role.permissions.administrator:
-			return await ctx.reply("**Sorry but i can not do this with a role with admin perms.**", delete_after=5)
+			return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
 		if ctx.author.top_role.position <= role.position:
-			return await ctx.send("You Can't Manage This Role")
+			return await prs.edit(content="You Can't Manage This Role")
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
-			return await ctx.send("I can't manage This role")
+			return await prs.edit(content="I can't manage This role")
 
 		if len(ctx.guild.members) != ctx.guild.member_count:
-			return await ctx.send("**I'm unable to see anyone! i don't know why. please contact support team!**")
+			return await prs.edit(content="**I'm unable to see anyone! i don't know why. please contact support team!**")
 
 		for member in ctx.guild.members:
 			if member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-		await prs.edit(content="Role Given To All Members")
+		await prs.edit(content=None, embed=discord.Embed(color=0x000fff, description=f"**{config.tick} | {role.mention} Given To All These Humans**"))
 
 
 
