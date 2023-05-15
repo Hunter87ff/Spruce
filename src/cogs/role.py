@@ -82,31 +82,30 @@ class Roles(commands.Cog):
 	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
 		if ctx.author.bot:
 			return
-		try:
-			ms = await ctx.send("Processing...")
-		except:
-			return
+		ms = await ctx.send("Processing...")
 		bt = ctx.guild.get_member(self.bot.user.id)
 		given = []
 		if bt.top_role.position <= role.position:
 			if ms:
 				await ms.edit(content="My Top Role position Is not higher enough")
-		if not ctx.author.top_role.position > role.position:
+		if not ctx.author.top_role.position >= role.position:
 			if ms:
 				return await ms.edit(content="You can Not manage that role")
 
 
 		if users:
+			if len(users) >=1 and role.permission.administrator:
+				return await ms.edit(content="**I can't give admin role to more than 1 person. at a time**")
 			for user in users:
-				if user.top_role.position > ctx.author.top_role.position:
+				if user.top_role.position >= ctx.author.top_role.position:
 					try:
-						await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+						await ms.edit(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
 					except:
 						return
 
 				if bt.top_role.position < user.top_role.position:
 					try:
-						await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+						await ms.edit(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
 					except:
 						return
 
@@ -121,16 +120,16 @@ class Roles(commands.Cog):
 			message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
 			for user in ctx.guild.members:
 				if user.mention in message.content.split():
-					if user.top_role.position > ctx.author.top_role.position:
+					if user.top_role.position >= ctx.author.top_role.position:
 						try:
-							await ctx.send(f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+							await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
 						except:
 							return
 
 
-					if bt.top_role.position < user.top_role.position:
+					if bt.top_role.position <= user.top_role.position:
 						try:
-							await ctx.send(f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+							await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
 						except:
 							return
 
