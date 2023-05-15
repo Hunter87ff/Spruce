@@ -293,7 +293,9 @@ class Roles(commands.Cog):
 		if ctx.author.bot:
 			return
 		prs = await ctx.send("Processing...")
-		if ctx.author.top_role.position < role.position:
+		if role.permissions.administrator:
+			return await ctx.reply("**Sorry but i can not do this with a role with admin perms.**", delete_after=5)
+		if ctx.author.top_role.position <= role.position:
 			return await ctx.send("You Can't Manage This Role")
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
@@ -318,7 +320,9 @@ class Roles(commands.Cog):
 		if ctx.author.bot:
 			return
 		prs = await ctx.send("Processing...")
-		if ctx.author.top_role.position < role.position:
+		if role.permissions.administrator:
+			return await ctx.reply("**Sorry but i can not do this with a role with admin perms.**", delete_after=5)
+		if ctx.author.top_role.position <= role.position:
 			return await ctx.send("You Can't Manage This Role")
 	
 		if discord.utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
