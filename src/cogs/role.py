@@ -294,7 +294,7 @@ class Roles(commands.Cog):
 			return
 		prs = await ctx.send("Processing...")
 		if role.permissions.administrator:
-			return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**", delete_after=5)
+			return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
 		if ctx.author.top_role.position <= role.position:
 			return await prs.edit(content=f"**{config.cross}You Can't Manage This Role | The role should be higher than your top role.**")
 	
