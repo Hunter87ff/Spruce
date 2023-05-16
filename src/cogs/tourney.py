@@ -526,7 +526,7 @@ class Esports(commands.Cog):
     
     
             async def r_ch(interaction):
-                await interaction.response.send_message("Mention Registration Channel", ephemeral=True)
+                await interaction.response.send_message("Mention Registration Channel")
                 channel = await checker.channel_input(ctx)
                 ach = dbc.find_one({"tid" : channel.id%1000000000000})
     
@@ -566,7 +566,7 @@ class Esports(commands.Cog):
             
     
             async def c_ch(interaction):
-                await interaction.response.send_message("Mention Confiration Channel", ephemeral=True)
+                await interaction.response.send_message("Mention Confiration Channel")
                 cchannel = await checker.channel_input(ctx)
                 acch = dbc.find_one({"cch" : cchannel.id})
     
@@ -597,7 +597,7 @@ class Esports(commands.Cog):
     
     
             async def ttl_slot(interaction):
-                await interaction.response.send_message("Enter Number Between 2 and 20000", ephemeral=True)
+                await interaction.response.send_message("Enter Number Between 2 and 20000")
                 tsl = await checker.ttl_slots(ctx)
                 
                 try:
@@ -614,7 +614,7 @@ class Esports(commands.Cog):
     
     
             async def mnts(interaction):
-                await interaction.response.send_message("Enter Number Between 1 and 20", ephemeral=True)
+                await interaction.response.send_message("Enter Number Between 1 and 20")
                 mns = await checker.ttl_slots(ctx)
     
                 try:
@@ -653,7 +653,7 @@ class Esports(commands.Cog):
     
             async def conro(interaction):
                 if interaction.user == ctx.author:
-                    await interaction.response.send_message("Mention The Confirm Role", ephemeral=True)
+                    await interaction.response.send_message("Mention The Confirm Role")
                     con_role = await checker.check_role(ctx)
                     cndb = dbc.find_one({"crole" : str(con_role.id)})
     
