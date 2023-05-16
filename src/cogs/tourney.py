@@ -559,7 +559,7 @@ class Esports(commands.Cog):
                     
                 if tdb["pub"] == "yes":
                     dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "no"}})
-                    await interaction.response.send_message("Tournament Unpublished", ephemeral=True, delete_after=5)
+                    await interaction.response.send_message("Tournament Unpublished",  delete_after=5)
 
 
 
@@ -567,10 +567,15 @@ class Esports(commands.Cog):
     
             async def c_ch(interaction):
                 await interaction.response.send_message("Mention Confiration Channel")
-                cchannel = await checker.channel_input(ctx)
+                try:
+                    cchannel = await checker.channel_input(ctx)
+                    if not cchannel:
+                        return await ctx.send("Kindly Mention A Channel `-_-`", delete_after=5)
+                except:
+                    return await ctx.send("Kindly Mention A Channel `-_-`", delete_after=5)
                 acch = dbc.find_one({"cch" : cchannel.id})
     
-                if cchannel.id == cch.id or acch != None:
+                if cchannel.id == tdb["cch"] or acch != None:
                     return await ctx.send("A Tournament Already Running In This channel", delete_after=10)
                     
                 else:
@@ -654,7 +659,12 @@ class Esports(commands.Cog):
             async def conro(interaction):
                 if interaction.user == ctx.author:
                     await interaction.response.send_message("Mention The Confirm Role")
-                    con_role = await checker.check_role(ctx)
+                    try:
+                        con_role = await checker.check_role(ctx)
+                        if not con_role:
+                            return await ctx.send("Kindly Mention A Role `-_-`", delete_after=5)
+                    except:
+                        return await ctx.send("Kindly Mention A Role `-_-`", delete_after=5)
                     cndb = dbc.find_one({"crole" : str(con_role.id)})
     
                     if cndb == None:
