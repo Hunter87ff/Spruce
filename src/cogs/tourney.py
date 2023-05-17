@@ -89,9 +89,10 @@ class Esports(commands.Cog):
     async def tourney_setup(self, ctx, total_slot:int, mentions:int, *, name:str):
         if ctx.author.bot:
             return
+        front = ""
         for i in name.split(" ")[0:2]:
           front += i
-          front = front+"-"
+          front = front + "-"
         try:
             ms = await ctx.send("Processing...")
             prefix = front
