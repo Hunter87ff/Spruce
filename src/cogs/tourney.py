@@ -86,9 +86,12 @@ class Esports(commands.Cog):
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
-    async def tourney_setup(self, ctx, front:str, total_slot:int, mentions:int, *, name:str):
+    async def tourney_setup(self, ctx, total_slot:int, mentions:int, *, name:str):
         if ctx.author.bot:
             return
+        for i in name.split(" ")[0:2]:
+          front += i
+          front = front+"-"
         try:
             ms = await ctx.send("Processing...")
             prefix = front
