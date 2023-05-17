@@ -10,7 +10,7 @@
 
 ## Notice:
 
-![cc-by-nc-sa-shield](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg) <br>
+![cc-by-shield](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg) <br>
 If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/hunter-bot/blob/main/LICENSE)
 
 
