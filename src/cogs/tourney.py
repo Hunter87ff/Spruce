@@ -92,7 +92,7 @@ class Esports(commands.Cog):
         front = ""
         for i in name.split(" ")[0:2]:
           front += i[0]
-          front = front + "-"
+        front = front + "-"
         try:
             ms = await ctx.send("Processing...")
             prefix = front
