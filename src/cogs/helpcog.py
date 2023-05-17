@@ -360,7 +360,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['ts', "tsetup", "setup"])
     async def tourney_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <front> <total_slot> <mentions> <name>`\nExample : `&tourney_setup WS 360 4 WEEKLY SCRIM`\nNote : You Must Have @tourney-mod Role\n\n**[Watch Tutorial](https://youtu.be/R9UmQ_NJD7M)**", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <total_slot> <mentions> <tournament_name>`\nExample : `&ts 144 4 WEEKLY SCRIM`\nNote : You must have @tourney-mod Role to manage the tournament\n\n**[Watch Tutorial](https://youtu.be/R9UmQ_NJD7M)**", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['st_tourney', "tourney_start"])
