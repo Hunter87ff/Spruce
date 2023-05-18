@@ -7,7 +7,7 @@ from pymongo import MongoClient
 import re
 from modules import config
 import datetime
-
+import openai
 
 
 
@@ -17,6 +17,112 @@ tourneydbc=dbc
 
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
+openai.api_key = config.openai_key
+bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn"]
+
+
+
+#########################################################
+################ CHAT SYSTEM ###########################
+#########################################################
+
+
+
+async def ask(message, bot):
+    ctx = await bot.get_context(message)
+    if message.author.bot:
+        return 
+    if message.guild and  bot.user.mention in message.content or message.guild==None:
+        await ctx.typing()
+        for i in bws:
+            if i in message.content:
+                ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
+                await asyncio.sleep(5)
+                return await ms.delete()
+                
+        query = message.content.replace(f"<@{bot.id}>", " ")
+        response = openai.Completion.create(model="text-davinci-003",prompt=query,temperature=0.7,max_tokens=500,top_p=1,frequency_penalty=0,presence_penalty=0)
+        #print(response)
+        opt = str(response["choices"][0]["text"])
+        for i in bws:
+            if i in opt:
+                ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
+                await asyncio.sleep(5)
+                return await ms.delete()
+        await message.reply(opt)
+
+
+#########################################################
+################ GROUP SYSTEM ###########################
+#########################################################
+
+
+
+def get_slot(ms):
+    for i in range(1, 13):
+        if f"{i})" not in ms.content:
+            return f"{i})"
+
+
+async def prc(group,  grpc , msg, tsl):
+    messages = [message async for message in grpc.history(limit=tsl)]
+
+    for ms in messages:
+        if len(messages) <3:
+            if ms.author.id != config.bot_id:
+                if f"**__GROUP__ {str(group)} **" not in ms.content:
+                    await grpc.send(f"**__GROUP__ {group} ** \n{get_slot(ms)} {msg}")
+
+
+        if ms.author.id == config.bot_id:
+            if f"**__GROUP__ {str(group)} **" in ms.content:
+                if "12)" not in ms.content.split():
+                    cont = f"{ms.content}\n{get_slot(ms)} {msg}"
+                    return await ms.edit(content=cont)
+                if "12)" in ms.content.split():
+                    pass
+
+            if f"**__GROUP__ {str(group)} **" not in ms.content:
+                ms = await grpc.send(f"**__GROUP__ {group} ** \n")
+                cont = f"{ms.content}\n{get_slot(ms=ms)} {msg}"
+                return await ms.edit(content=cont)
+
+
+    if len(messages) < 1:
+        ms = await grpc.send(f"**__GROUP__ {group} ** \n")
+        cont = f"{ms.content}\n{get_slot(ms)} {msg}"
+        return await ms.edit(content=cont)
+
+
+
+
+
+def get_group(reged):
+    grp = reged/12
+    if grp > int(grp):
+        grp = grp + 1
+    return str(int(grp))
+
+
+async def auto_grp(message):
+    try:
+        td = dbc.find_one({"cch":message.channel.id})
+    except:
+        return
+
+    if td:
+        if td["auto_grp"] == "yes":
+            if message.author.id == config.bot_id:
+                if not message.embeds:
+                    return
+                if message.embeds:
+                    if "TEAM NAME" not in message.embeds[0].description:
+                        return
+                reged = td["reged"]-1
+                grpch = discord.utils.get(message.guild.channels, id=int(td["gch"]))
+                group = get_group(reged=reged)
+                return await prc(group=group, grpc=grpch, msg=message.content, tsl=td["tslot"])
+
 
 
 
@@ -218,78 +324,7 @@ async def tourney(message):
             await message.delete()
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
-
-#########################################################
-################ GROUP SYSTEM ###########################
-#########################################################
-
-
-
-def get_slot(ms):
-    for i in range(1, 13):
-        if f"{i})" not in ms.content:
-            return f"{i})"
-
-
-async def prc(group,  grpc , msg, tsl):
-    messages = [message async for message in grpc.history(limit=tsl)]
-
-    for ms in messages:
-        if len(messages) <3:
-            if ms.author.id != config.bot_id:
-                if f"**__GROUP__ {str(group)} **" not in ms.content:
-                    await grpc.send(f"**__GROUP__ {group} ** \n{get_slot(ms)} {msg}")
-
-
-        if ms.author.id == config.bot_id:
-            if f"**__GROUP__ {str(group)} **" in ms.content:
-                if "12)" not in ms.content.split():
-                    cont = f"{ms.content}\n{get_slot(ms)} {msg}"
-                    return await ms.edit(content=cont)
-                if "12)" in ms.content.split():
-                    pass
-
-            if f"**__GROUP__ {str(group)} **" not in ms.content:
-                ms = await grpc.send(f"**__GROUP__ {group} ** \n")
-                cont = f"{ms.content}\n{get_slot(ms=ms)} {msg}"
-                return await ms.edit(content=cont)
-
-
-    if len(messages) < 1:
-        ms = await grpc.send(f"**__GROUP__ {group} ** \n")
-        cont = f"{ms.content}\n{get_slot(ms)} {msg}"
-        return await ms.edit(content=cont)
-
-
-
-
-
-def get_group(reged):
-    grp = reged/12
-    if grp > int(grp):
-        grp = grp + 1
-    return str(int(grp))
-
-
-async def auto_grp(message):
-    try:
-        td = dbc.find_one({"cch":message.channel.id})
-    except:
-        return
-
-    if td:
-        if td["auto_grp"] == "yes":
-            if message.author.id == config.bot_id:
-                if not message.embeds:
-                    return
-                if message.embeds:
-                    if "TEAM NAME" not in message.embeds[0].description:
-                        return
-                reged = td["reged"]-1
-                grpch = discord.utils.get(message.guild.channels, id=int(td["gch"]))
-                group = get_group(reged=reged)
-                return await prc(group=group, grpc=grpch, msg=message.content, tsl=td["tslot"])
-
+        await auto_grp(message)
 
 
 ############## ERROR HANDEL ################
