@@ -17,6 +17,7 @@ support_server_id = 947443790053015623
 prefix = "&"
 
 maindb = MongoClient(os.environ["mongo_url"])
+spdb = MongoClient(os.environ["spdb"])
 token = os.environ['TOKEN']
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
