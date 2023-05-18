@@ -17,6 +17,10 @@ tourneydbc=dbc
 
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
+
+sdb = config.spdb
+sdbc = sdb["qna"]["query"]
+
 openai.api_key = config.openai_key
 bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn"]
 
@@ -27,11 +31,11 @@ bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'b
 #########################################################
 
 
-
 async def ask(message, bot):
     ctx = await bot.get_context(message)
     if message.author.bot:
-        return 
+        return
+    opt = ""
     if message.guild and  bot.user.mention in message.content or message.guild==None:
         await ctx.typing()
         for i in bws:
@@ -40,17 +44,19 @@ async def ask(message, bot):
                 await asyncio.sleep(5)
                 return await ms.delete()
                 
-        query = message.content.replace(f"<@{bot.id}>", " ")
-        response = openai.Completion.create(model="text-davinci-003",prompt=query,temperature=0.7,max_tokens=500,top_p=1,frequency_penalty=0,presence_penalty=0)
-        #print(response)
-        opt = str(response["choices"][0]["text"])
+        query = message.content.replace(f"<@{bot.user.id}>", " ")
+        rsp = sdbc.find_one({"q" : query})
+        if rsp != None:
+            opt = rsp["a"]
+        if rsp==None:
+            response = openai.Completion.create(model="text-davinci-003",prompt=query,temperature=0.7,max_tokens=500,top_p=1,frequency_penalty=0,presence_penalty=0)
+            opt = str(response["choices"][0]["text"])
         for i in bws:
             if i in opt:
                 ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
                 await asyncio.sleep(5)
                 return await ms.delete()
         await message.reply(opt)
-
 
 #########################################################
 ################ GROUP SYSTEM ###########################
