@@ -22,7 +22,7 @@ sdb = config.spdb
 sdbc = sdb["qna"]["query"]
 
 openai.api_key = config.openai_key
-bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn"]
+bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn", "Mother Fucker", "Fucker"]
 
 
 
