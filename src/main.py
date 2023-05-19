@@ -134,7 +134,23 @@ async def cdm(ctx,amount:int):
             await message.delete()
 
 
-
+@bot.hybrid_command(with_app_command = True, hidden=True)
+@commands.is_owner()
+async def edm(ctx, channel:discord.TextChannel, msg_id, *, msg):
+  if ctx.author.bot:
+    return
+  await ctx.defer(ephemeral=True)
+  if ctx.author.id != config.owner_id:
+    return await ctx.send('This is a owner only command.')
+  try:
+    ms = await channel.fetch_message(int(msg_id))
+    print(type(ms))
+    if ms.author.id == bot.user.id:
+      await ms.edit(content=msg)
+      await ctx.send('done')
+  except:
+    return await ctx.send('Something went wrong...')
+  
 
 async def il(id):
     try:
