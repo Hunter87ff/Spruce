@@ -280,8 +280,10 @@ async def tourney(message):
                             femb.set_thumbnail(url=message.author.display_avatar)
                             await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             await message.author.add_roles(crole)
+                            return await auto_grp(message)
                             if rgs >= tslot*0.1 and td["pub"] == "no":
                                 dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                                
 
 
                     if fmsg.author.id != ctx.author.id:
@@ -305,7 +307,8 @@ async def tourney(message):
                             femb.set_thumbnail(url=message.author.display_avatar)
                             if rgs >= tslot*0.1 and td["pub"] == "no":
                                 dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                            return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                            await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                            return await auto_grp(message)
                         
 #IF FAKE TAG ALLOWED
 ####################
@@ -321,7 +324,8 @@ async def tourney(message):
                     nfemb.set_thumbnail(url=message.author.display_avatar)
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                    return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
+                    await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
+                    return await auto_grp(message)
 
 
         elif len(message.mentions) < ments:
@@ -330,7 +334,7 @@ async def tourney(message):
             await message.delete()
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
-        await auto_grp(message)
+        
 
 
 ############## ERROR HANDEL ################
