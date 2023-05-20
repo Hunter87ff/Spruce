@@ -177,10 +177,10 @@ async def il(id):
 
 @bot.hybrid_command(with_app_command=True)
 @commands.is_owner()
-async def get_guild(ctx, id: int):
+async def get_guild(ctx, id):
     if ctx.author.bot:
         return
-
+    id = int(id)
     if ctx.author.id != config.owner_id:
         return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
     guild = bot.get_guild(id)
@@ -248,6 +248,22 @@ async def owners(ctx):
 
 
 
+@bot.hybrid_command(with_app_command=True)
+@commands.guild_only()
+async def dlm(ctx, channel:discord.TextChannel, msg_id):
+    await ctx.defer(ephemeral=True)
+    if ctx.author.bot:
+        return
+    if ctx.author.id != config.owner_id:
+        return
+    try:
+        ms = await channel.fetch_message(msg_id)
+        if ms.author.id == bot.user.id:
+            await ms.delete()
+        else:
+            return await ctx.send("I didn't sent the mesage")
+    except:
+        return await ctx.send("Not Possible")
 
 
 @bot.command(hidden=True)
