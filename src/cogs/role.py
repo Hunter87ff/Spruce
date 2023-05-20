@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 cmd = commands
+import asyncio
 from modules import config
 
 blurple = 0x7289da
@@ -304,6 +305,7 @@ class Roles(commands.Cog):
 		for member in ctx.guild.members:
 			if not member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+				await asyncio.sleep(3)
 		await prs.edit(content=None, embed=discord.Embed(color=0x00ff00, description=f"**{config.tick} | {role.mention} Given To All These Humans**"))
 
 
@@ -333,6 +335,7 @@ class Roles(commands.Cog):
 		for member in ctx.guild.members:
 			if member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+				await asyncio.sleep(3)
 		await prs.edit(content=None, embed=discord.Embed(color=0x000fff, description=f"**{config.tick} | {role.mention} Given To All These Bots**"))
 
 

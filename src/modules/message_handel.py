@@ -22,7 +22,7 @@ sdb = config.spdb
 sdbc = sdb["qna"]["query"]
 
 openai.api_key = config.openai_key
-bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn"]
+bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn", "Mother Fucker", "Fucker"]
 
 
 
@@ -280,8 +280,10 @@ async def tourney(message):
                             femb.set_thumbnail(url=message.author.display_avatar)
                             await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             await message.author.add_roles(crole)
+                            
                             if rgs >= tslot*0.1 and td["pub"] == "no":
                                 dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                                
 
 
                     if fmsg.author.id != ctx.author.id:
@@ -306,6 +308,7 @@ async def tourney(message):
                             if rgs >= tslot*0.1 and td["pub"] == "no":
                                 dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                             return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                            
                         
 #IF FAKE TAG ALLOWED
 ####################
@@ -322,6 +325,7 @@ async def tourney(message):
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
+                    
 
 
         elif len(message.mentions) < ments:
@@ -330,7 +334,7 @@ async def tourney(message):
             await message.delete()
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
-        await auto_grp(message)
+        
 
 
 ############## ERROR HANDEL ################
