@@ -41,7 +41,7 @@ bot = commands.Bot(command_prefix= pref, intents=intents )
 bot.remove_command("help")
 
 async def load_extensions():
-    for filename in os.listdir("./cogs"):
+    for filename in os.listdir(config.cogs_path):
         if filename.endswith(".py"):
             await bot.load_extension(f"cogs.{filename[:-3]}")
 asyncio.run(load_extensions())
