@@ -1,13 +1,13 @@
 import os
 import discord
-from discord.ext import commands
-from asyncio import sleep
-import pymongo
-from pymongo import MongoClient
 import re
-from modules import config
+import random
+import asyncio
 import datetime
 import openai
+from asyncio import sleep
+from modules import config
+
 
 
 
