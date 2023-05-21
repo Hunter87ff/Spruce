@@ -22,7 +22,10 @@ sdb = config.spdb
 sdbc = sdb["qna"]["query"]
 
 openai.api_key = config.openai_key
-bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'bitch', 'boob', ' bsdk', ' bsdke', 'carding', 'chumt', 'chut', 'chutia', 'chutiya', 'comdon', 'condom', 'faggot', 'fuck', 'fucker', 'gamd', 'gamdu', 'gand', 'hentai', 'idiot', 'khanki', 'kutta', 'lauda', 'lawde', 'lund', 'maderchod', 'motherchod', 'nigg', 'p0rn', 'nude', 'penis', 'pepe', 'porn', 'pornhub', 'pussy', 'ramdi', 'sex', 'sexy', 'titt', 'vagina', 'xhamster', 'xnxx', 'xvideos', 'खनकी', 'vagina', 'गांडू', 'चुटिया', 'छूट', 'छोड़', 'छोड़ू', 'बेटीछोद', 'भोसडीके', 'मदरचोड', 'मादरचोद', 'लुंड', "behnchod", "lundura", "madrchod", "bhn ki lodi", "randi", "bhnchod", "fuk", "lodi", "lowda", "btichod", "chod", "fuddi", "wtf", "adult content", "18+ content", "Pornhub", "RedTube", "YouPorn.", "Porn", "Mother Fucker", "Fucker"]
+
+
+
+bws = ['xvideos', ' bsdke', 'भोसडीके', 'randi', "https://", 'लुंड', "लन्ड", "Lund","lunD", 'behnchod', 'chut', 'fuck', 'गांडू', 'fuddi', 'chutia', 'chumt', 'madrchod', 'bhos', 'carding', 'kutta', 'lauda', 'asshole', 'छोड़', 'xhamster', 'sex', 'penis', 'bitch', 'betichod', 'nude', 'Pornhub', 'gand', 'faggot', 'Porn', 'lundura', 'xnxx', 'maderchod', '18+ content', 'vagina', 'Mother Fucker', 'bhnchod', 'asses', 'chutiya', 'lodi', 'behenchod', 'bhn ki lodi', 'gamd', 'खनकी', 'मदरचोड', 'fucker', 'छोड़ू', 'lund', 'adult content', 'hentai', 'motherchod', 'ramdi', 'छूट', 'RedTube', 'p0rn', 'pussy', 'chod', 'sexy', 'bhenchod', 'condom', 'YouPorn.', 'चुटिया', 'comdon', 'khanki', 'nigg', 'porn', 'boob', 'titt', 'btichod', 'pepe', 'pornhub', 'lowda','redwap', 'मादरचोद', 'idiot', 'gamdu', ' bsdk', 'bc', 'बेटीछोद', 'wtf', 'lawde', 'fuk', 'Fucker']
 
 
 
@@ -30,33 +33,78 @@ bws = ['asses', 'asshole', 'bc', 'behenchod', 'betichod', 'bhenchod', 'bhos', 'b
 ################ CHAT SYSTEM ###########################
 #########################################################
 
+cod = [
+  {"q":"function","a":"js"},
+  {"q":"def","a":"py"},
+  {"q":"print","a":"py"},
+  {"q":"console","a":"js"},
+  {"q":"python","a":"py"},
+  {"q":"py","a":"py"},
+  {"q":"js","a":"js"},
+  {"q":"<script>","a":"js"},
+]
+dmm = ["send me", "dm me", "mujhe bhejo", "pm me", "amake send koro", " mujhe dm karo"]
+tim = ["what is the date","abhi tarikh kya hai?", "aj kosa tarikh hai", "abhi kitna baja hai", "what is the time", "abhi kitna baja hai"]
+
+
 
 async def ask(message, bot):
     ctx = await bot.get_context(message)
     if message.author.bot:
         return
     opt = ""
-    if message.guild and  bot.user.mention in message.content or message.guild==None:
-        await ctx.typing()
-        for i in bws:
-            if i in message.content:
-                ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
-                await asyncio.sleep(5)
-                return await ms.delete()
-                
-        query = message.content.replace(f"<@{bot.user.id}>", " ")
-        rsp = sdbc.find_one({"q" : query})
-        if rsp != None:
-            opt = rsp["a"]
-        if rsp==None:
-            response = openai.Completion.create(model="text-davinci-003",prompt=query,temperature=0.7,max_tokens=500,top_p=1,frequency_penalty=0,presence_penalty=0)
-            opt = str(response["choices"][0]["text"])
-        for i in bws:
-            if i in opt:
-                ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
-                await asyncio.sleep(5)
-                return await ms.delete()
-        await message.reply(opt)
+    try:
+        if message.guild and  bot.user.mention in message.content or message.guild==None:
+            await ctx.typing()
+            for i in bws:
+                if i in message.content:
+                    ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
+                    await asyncio.sleep(5)
+                    return await ms.delete()
+                    
+            query = message.content.replace(f"<@{bot.user.id}>", " ")
+            print(query)
+            for i in cod:
+                if i["q"] in query:
+                    query = query + f"quote the code with ```{i['a']}"
+            response = openai.Completion.create(model="text-davinci-003",prompt=query,temperature=0.7,max_tokens=998,top_p=1,frequency_penalty=0,presence_penalty=0)
+            #print(response["choices"][0]["text"])
+            liss = []
+            rsp = sdbc.find_one({"q" : query})
+            if rsp is not None:
+                if int(rsp["rating"]) >= 5:
+                    opt = rsp["a"]
+                if int(rsp["rating"]) <5:
+                    liss.append(rsp['a'])
+                    liss.append(response["choices"][0]["text"])
+                    opt = random.choice(liss)
+            if rsp is None:
+                opt = str(response["choices"][0]["text"])
+        
+            for i in bws:
+                if i in opt:
+                    ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
+                    await asyncio.sleep(5)
+                    return await ms.delete()
+        
+    
+            for i in dmm:
+                if i in query:
+                    try:
+                        await message.author.send(opt)
+                        return await message.reply("check dm")
+                    except:
+                        return await message.reply("please check your dm configuration.")
+            for i in tim:
+                if i in query:
+                    print(message.created_at)
+                    date = str(message.created_at).split(' ')[0]  
+                    return await message.reply(f'Current Date : {"-".join(date.split("-")[::-1])}')
+    
+            await message.reply(opt)
+    except Exception as e:
+        return print(f"error ask feature: {e}")
+    
 
 #########################################################
 ################ GROUP SYSTEM ###########################
