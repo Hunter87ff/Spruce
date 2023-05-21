@@ -40,6 +40,7 @@ bot = commands.Bot(command_prefix= pref, intents=intents )
 #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 bot.remove_command("help")
 
+
 async def load_extensions():
     for filename in os.listdir(config.cogs_path):
         if filename.endswith(".py"):
