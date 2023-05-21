@@ -63,7 +63,7 @@ async def ask(message, bot):
                     return await ms.delete()
                     
             query = message.content.replace(f"<@{bot.user.id}>", " ")
-            print(query)
+            #print(query)
             for i in cod:
                 if i["q"] in query:
                     query = query + f"quote the code with ```{i['a']}"
@@ -97,7 +97,7 @@ async def ask(message, bot):
                         return await message.reply("please check your dm configuration.")
             for i in tim:
                 if i in query:
-                    print(message.created_at)
+                    #print(message.created_at)
                     date = str(message.created_at).split(' ')[0]  
                     return await message.reply(f'Current Date : {"-".join(date.split("-")[::-1])}')
     
