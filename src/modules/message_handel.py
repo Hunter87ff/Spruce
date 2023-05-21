@@ -82,7 +82,7 @@ async def ask(message, bot):
                 opt = str(response["choices"][0]["text"])
         
             for i in bws:
-                if i in opt:
+                if i in opt.split(" "):
                     ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
                     await asyncio.sleep(5)
                     return await ms.delete()
