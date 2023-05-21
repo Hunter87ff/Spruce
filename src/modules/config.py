@@ -22,6 +22,7 @@ token = os.environ['TOKEN']
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
 openai_key = os.environ["openai_key"]
+cogs_path = os.environ["cogs"]
 
 m_host = "ssl.freelavalink.ga"
 m_host_psw = "www.freelavalink.ga" 
