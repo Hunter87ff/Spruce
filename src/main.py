@@ -35,7 +35,8 @@ maindb = config.maindb
 
 
 
-bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents ) 
+#bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents ) 
+bot = commands.Bot(command_prefix= pref, intents=intents ) 
 #allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
 bot.remove_command("help")
 
