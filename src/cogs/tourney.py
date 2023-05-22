@@ -1,17 +1,18 @@
-from random import random
+import random
 import discord
 from discord.ext import commands
 from asyncio import sleep
-import pymongo
-from pymongo import MongoClient
 import re
+import asyncio
 import datetime
-import os
 from discord.utils import get
 from discord.ui import Button, View
-cmd = commands
 from modules import config, checker
 
+
+
+
+cmd = commands
 maindb = config.maindb
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
@@ -123,19 +124,23 @@ class Esports(commands.Cog):
                 await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
                 await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
-                await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
-                await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
-                r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    #registration Channel
+                await ctx.guild.create_text_channel(str(front)+"schedule", category=category,reason=reason)
+                roadmap = await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
+                rdmm = await roadmap.send("Processing...")
+                await ctx.guild.create_text_channel(str(front)+"point-system", category=category,reason=reason)
+                htrc = await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
+                r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    
                 await unlc_ch(channel=r_ch)
-                #await r_ch.set_permissions(ctx.guild.default_role, send_messages=True)
-                c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)    #confirmation_channel
+                c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)    
                 g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
                 quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
                 await unlc_ch(channel=quer)
-                #await quer.set_permissions(ctx.guild.default_role, send_messages=True)
-                c_role = await ctx.guild.create_role(name=front + "Confirmed", reason=f"Created by {ctx.author}") #role
-                await r_ch.send(embed=discord.Embed(color=0x00ff00, description=f"**REGISTRATION STARTED\nTOTAL SLOT : `{total_slot}`\nMENTION REQUIRED: {mentions}**"))
-                
+                c_role = await ctx.guild.create_role(name=front + "Confirmed", reason=f"Created by {ctx.author}")
+                rchm = await r_ch.send(embed=discord.Embed(color=config.cyan, description=f"**{config.cup} | REGISTRATION STARTED | {config.cup}\n{config.tick} | TOTAL SLOT : {total_slot}\n{config.tick} | REQUIRED MENTIONS : {mentions}\n{config.cross} | FAKE TAGS NOT ALLOWED**"))
+                htrm = await htrc.send("**REGISTRATION FORM**", embed=discord.Embed(color=config.cyan, description=f"**TEAM NAME : YOUR TEAM NAME\n\nPLAYER 1:\nUID: PLAYER ID\nIGN : PLAYER NAME\n\nPLAYER 2:\nUID: PLAYER ID\nIGN : PLAYER NAME\n\nPLAYER 3:\nUID: PLAYER ID\nIGN : PLAYER NAME\n\nPLAYER 4:\nUID: PLAYER ID\nIGN : PLAYER NAME\n\nSUBSTITUTE PLAYER IF EXIST\nMENTION YOUR {mentions} TEAMMATES**"))
+                await rdmm.edit(content="https://tenor.com/view/coming-soon-coming-soon-its-coming-shortly-gif-21517225")
+                await htrm.add_reaction(config.tick)
+                await rchm.add_reaction(config.tick)
                 tour = {"tid" : int(r_ch.id%1000000000000), 
                         "guild" : int(ctx.guild.id),
                         "t_name" : str(name), 
