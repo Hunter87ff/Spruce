@@ -85,6 +85,7 @@ class Esports(commands.Cog):
     @commands.hybrid_command(with_app_command = True, aliases=['ts','tourneysetup','setup'])
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.guild_only()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
     async def tourney_setup(self, ctx, total_slot:int, mentions:int, *, name:str):
         if ctx.author.bot:
@@ -183,6 +184,7 @@ class Esports(commands.Cog):
     @cmd.hybrid_command(with_app_command = True, aliases=["girlslobby"])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.has_permissions(manage_channels=True, manage_roles=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
     async def girls_lobby(self, ctx, vc_amount : int):

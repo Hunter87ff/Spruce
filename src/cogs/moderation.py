@@ -4,8 +4,8 @@ from discord.ext import commands
 cmd = commands
 import datetime
 import humanfriendly
-
-
+from modules import config
+import typing
 
 class Moderation(commands.Cog):
 	def __init__(self, bot):
@@ -15,7 +15,7 @@ class Moderation(commands.Cog):
 	#start commands
 	
 	@cmd.hybrid_command(with_app_command = True)
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	@commands.guild_only()
@@ -23,7 +23,7 @@ class Moderation(commands.Cog):
 		if ctx.author.bot:
 			return
 		await ctx.defer()
-		bt = ctx.guild.get_member(self.bot.user.id)
+		#bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
 			return
 
@@ -37,7 +37,7 @@ class Moderation(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
@@ -60,18 +60,22 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def hide(self, ctx, role: discord.Role=None):
+	async def hide(self, ctx, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
 
 		if role == None:
 			role = ctx.guild.default_role
+		if channel is None:
+			channel = ctx.channel
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(view_channel=False)
-		await ctx.send(f'**<:vf:947194381172084767>This channel is hidden from `{role.name}`**')
-		await ctx.channel.set_permissions(role, overwrite=overwrite)
+		await channel.set_permissions(role, overwrite=overwrite)
+		return await ctx.send(embed=discord.Embed(description=f'{config.tick} | This channel is now hidden to {role.mention}'), delete_after=30)
+		
 		
 
 
@@ -79,6 +83,7 @@ class Moderation(commands.Cog):
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
+	@commands.cooldown(1, 60, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def clear_perms(self, ctx, role: discord.Role=None):
@@ -91,44 +96,48 @@ class Moderation(commands.Cog):
 			return
 
 		if role == None:
-			ms = await ctx.send("**Processing...**")
+			ms = await ctx.send(f"**{config.loading} Processing...**")
 			for role in ctx.guild.roles:
 				if role.position < bt.top_role.position:
 					await role.edit(permissions=discord.Permissions(permissions=0))
-			return await ctx.send(f'**<:vf:947194381172084767>All Permissions Removed from `{role.name}`**')
+					await sleep(2)
+			emb = discord.Embed(descriptio=f'{config.default_tick} | All permissions removed from all role below {bt.top_role.mention}')
+			return await ms.edit(content=None, embed=emb)
 
 
 
 		if role != None:
 			if role.position < bt.top_role.position:
 				await role.edit(permissions=discord.Permissions(permissions=0))
-				return await ms.edit(content=f'**<:vf:947194381172084767>All Permissions Removed from `{role.name}`**')
-
+				emb = discord.Embed(description=f'{config.default_tick} | All Permissions Removed from {role.mention}')
+				return await ms.edit(content=None, embed=emb)
 
 
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
-	@commands.bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def unhide(self, ctx, role:discord.Role=None):
+	@commands.cooldown(2, 30, commands.BucketType.user)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def unhide(self, ctx, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
 
 		if role == None:
 			role = ctx.guild.default_role
+		if channel is None:
+			channel = ctx.channel
 		overwrite = ctx.channel.overwrites_for(role)
 		overwrite.update(view_channel=True)
-		await ctx.channel.set_permissions(role, overwrite=overwrite)
-		try:
-			return await ctx.send(f'**<:vf:947194381172084767>This channel is visible to `{role.name}`**')
-		except:
-			return
-
+		await channel.set_permissions(role, overwrite=overwrite)
+		return await ctx.send(embed=discord.Embed(description=f'{config.tick} | This channel is now visible to {role.mention}'), delete_after=30)
+		
+		
 
 
 	@cmd.hybrid_command(with_app_command = True, aliases=["lc"])
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
@@ -144,7 +153,7 @@ class Moderation(commands.Cog):
 		  overwrite = hchannel.overwrites_for(role)
 		  overwrite.update(send_messages=False)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
-
+		  await sleep(2)
 		try:
 			await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From `{role.name}`**')
 		except:
@@ -155,6 +164,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True, aliases=["ulc"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.guild_only()
 	async def unlock_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
 		await ctx.defer()
@@ -168,7 +178,7 @@ class Moderation(commands.Cog):
 		  overwrite = hchannel.overwrites_for(role)
 		  overwrite.update(send_messages=True, add_reactions=True)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
-
+		  await sleep(2)
 		try:
 			await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**')
 		except:
@@ -179,6 +189,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True, aliases=["hc"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide_category(self, ctx,category: discord.CategoryChannel, role:discord.Role=None):
 		await ctx.defer()
@@ -193,6 +204,7 @@ class Moderation(commands.Cog):
 		  overwrite = hchannel.overwrites_for(role)
 		  overwrite.update(view_channel=False)
 		  await hchannel.set_permissions(role, overwrite=overwrite)
+		  await sleep(2)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from `{role.name}`**', color=0x00ff00)
 		try:
 			await ctx.send(embed=em)
@@ -205,6 +217,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True, aliases=["uhc"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
+	@commands.cooldown(1, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_category(self, ctx, category: discord.CategoryChannel, role :discord.Role = None):
 		await ctx.defer()
@@ -213,13 +226,12 @@ class Moderation(commands.Cog):
 
 		if role == None:
 			role = ctx.guild.default_role
-			
 
-		
 		for uhchannel in category.channels:
 		  overwrite = uhchannel.overwrites_for(role)
 		  overwrite.update(view_channel=True)
 		  await uhchannel.set_permissions(role, overwrite=overwrite)
+		  await sleep(2)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to `{role.name}`**', color=0x00ff00)
 		try:
 			await ctx.send(embed=em, delete_after=5)
@@ -235,7 +247,7 @@ class Moderation(commands.Cog):
 	@commands.has_permissions(manage_messages=True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 40, commands.BucketType.user)
 	async def clear(self, ctx, amount:int=None):
 		await ctx.defer()
 
@@ -256,6 +268,7 @@ class Moderation(commands.Cog):
 	@commands.has_permissions(moderate_members=True)
 	@commands.bot_has_permissions(moderate_members=True)
 	@commands.guild_only()
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	async def unmute(self, ctx, member: discord.Member, *, reason=None):
 		await ctx.defer()
 		if ctx.author.bot:
@@ -281,6 +294,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.guild_only()
 	@commands.has_permissions(moderate_members=True)
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(moderate_members=True, send_messages=True)
 	async def mute(self, ctx, member: discord.Member, time=None, *, reason=None):
 		await ctx.defer()
@@ -319,6 +333,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(kick_members=True)
 	@commands.bot_has_permissions(kick_members=True)
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.guild_only()
 	async def kick(self, ctx, member: discord.Member, reason=None):
 		await ctx.defer()
@@ -357,6 +372,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(ban_members=True)
 	@commands.has_permissions(ban_members=True)
+	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.guild_only()
 	async def ban(self, ctx, member: discord.Member, reason=None):
 		await ctx.defer()
