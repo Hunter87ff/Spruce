@@ -122,16 +122,19 @@ class Esports(commands.Cog):
                 category = await ctx.guild.create_category(name, reason=f"{ctx.author.name} created")
                 await category.set_permissions(bt, overwrite=overwrite)
                 await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
+                await asyncio.sleep(1)  #sleep
                 await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"schedule", category=category,reason=reason)
                 roadmap = await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
                 rdmm = await roadmap.send("Processing...")
                 await ctx.guild.create_text_channel(str(front)+"point-system", category=category,reason=reason)
+                await asyncio.sleep(2) #sleep
                 htrc = await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
                 r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    
                 await unlc_ch(channel=r_ch)
-                c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)    
+                c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)  
+                await asyncio.sleep(1)  #sleep
                 g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
                 quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
                 await unlc_ch(channel=quer)
@@ -141,6 +144,7 @@ class Esports(commands.Cog):
                 await rdmm.edit(content="https://tenor.com/view/coming-soon-coming-soon-its-coming-shortly-gif-21517225")
                 await htrm.add_reaction(config.tick)
                 await rchm.add_reaction(config.tick)
+                await asyncio.sleep(1)  #sleep
                 tour = {"tid" : int(r_ch.id%1000000000000), 
                         "guild" : int(ctx.guild.id),
                         "t_name" : str(name), 
@@ -164,22 +168,17 @@ class Esports(commands.Cog):
 
                 if gtadbcds == None:
                     gtadbc.insert_one({"guild" : gid, "gta" : 1})
-                    await sleep(8)
-                   
-                   
-                 
+                    await asyncio.sleep(1)
+ 
                 gtadbcdf = gtadbc.find_one({"guild" : gid})
                 if gtadbcdf["gta"] > 5:
                     return await ctx.send("Tournament Limit Reached, You can buy premium to increase limit with more features")
 
-                 
                 gtadbcd = gtadbc.find_one({"guild" : gid})
                 if gtadbcd != None:
                     gta = gtadbcd["gta"]
                     gtadbc.update_one({"guild" : gid}, {"$set":{"gta" : gta + 1}})
 
-         
-                
                 dbc.insert_one(tour)
                 return await ms.edit(content='**<:vf:947194381172084767>Successfully Created**',delete_after=5)
         except:
@@ -200,7 +199,7 @@ class Esports(commands.Cog):
         female_rs = ["female", "girls", "girl", "women", "FEMALE", "GIRL", "GIRLS", "WOMEN"]
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
         cat = await ctx.guild.create_category(name="GIRLS LOBBY")
-        crl = await ctx.guild.create_role(name=f"GIRLS LOBBY", color=0xD02090)
+        crl = await ctx.guild.create_role(name="GIRLS LOBBY", color=0xD02090)
         await cat.set_permissions(ctx.guild.default_role, connect=False, send_messages=False, add_reactions=False)
         overwrite = cat.overwrites_for(crl)
         overwrite.update(send_messages=True, connect=True, speak=True, stream=True, use_voice_activation=True)
@@ -208,22 +207,11 @@ class Esports(commands.Cog):
         amt = vc_amount + 1
         for i in range(1, amt):
             await cat.create_voice_channel(name=f"SLOT {i}", user_limit=6)
+            await asyncio.sleep(2)
             if len(cat.channels) == vc_amount:
                 await ctx.message.delete()
                 await snd.delete()
-                for author_role in ctx.author.roles:
-
-                    if author_role.name in male_rs:
-                        msg = f"**{ctx.author.mention} Sir,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
-
-                    if author_role.name in female_rs:
-                        msg = f"**{ctx.author.mention} Mam,\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
-
-                    else:
-                        msg = f"**{ctx.author.mention}\nI've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `role <role> [players...]` command, it can help you!\nThanks :heart:**"
-
-
-                await ctx.send(msg)
+                return await ctx.send(embed=discord.Embed(color=config.cyan, description=f"{config.tick} | I've Created All Essential Things.\nA little request to you to give the {crl.mention} role to the players. You can use `{config.prefix}role {crl.mention} [players...]` command, it can help you!**"))
 
 
 
@@ -358,7 +346,7 @@ class Esports(commands.Cog):
 
 
     @cmd.hybrid_command(with_app_command = True)
-    @commands.cooldown(2, 20, commands.BucketType.user)
+    @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.guild_only()
     async def tourneys(self, ctx):
         await ctx.defer(ephemeral=True)
@@ -704,6 +692,7 @@ class Esports(commands.Cog):
     @cmd.hybrid_command(with_app_command = True, aliases=['gsetup'])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
+    @commands.cooldown(1, 60, commands.BucketType.guild)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def group_setup(self, ctx, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
@@ -725,10 +714,10 @@ class Esports(commands.Cog):
         for i in range(start, end+1):
             role = await ctx.guild.create_role(name=f"{prefix.upper()} G{i}", color=0x4bd6af)
             channel = await ctx.guild.create_text_channel(name=f"{prefix}-group-{i}", category=category)
-
             overwrite = ctx.channel.overwrites_for(role)
             overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
             await channel.set_permissions(role, overwrite=overwrite)
+            await asyncio.sleep(2)
         await ms.edit(content=f"{config.vf}Successfully Created")
 
 

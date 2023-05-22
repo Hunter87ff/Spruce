@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
-cmd = commands
 import asyncio
 from modules import config
 
+
+cmd = commands
 blurple = 0x7289da
 greyple = 0x99aab5
 d_grey = 0x546e7a
@@ -30,15 +31,9 @@ d_dcyan = 0x11806a
 class Roles(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.counter = 0
 
 
-
-
-
-
-
-
+	
 	@cmd.command(aliases=["croles"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
@@ -47,8 +42,8 @@ class Roles(commands.Cog):
 			return
 		for role in Names:
 			await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
-			await ctx.channel.purge(limit=1)
-			await ctx.send(f'**<:vf:947194381172084767> {role} Created by {ctx.author}**', delete_after=5)
+			await asyncio.sleep(2)
+		await ctx.send(embed=discord.Embed(description=f"{config.tick} | All roles created"), delete_after=5)
 
 
 
@@ -70,8 +65,8 @@ class Roles(commands.Cog):
 
 			else:
 				await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
-
-		await msg.edit(content=f"{config.vf}Roles Successfully Deleted", delete_after=10)
+				await asyncio.sleep(2)
+		await msg.edit(content=None, embed=discord.Embed(color=config.cyan, description=f"{config.tick} | Roles Successfully Deleted", delete_after=30))
 
 
 
@@ -93,7 +88,6 @@ class Roles(commands.Cog):
 			if ms:
 				return await ms.edit(content="You can Not manage that role")
 
-
 		if users:
 			if len(users) >=1 and role.permission.administrator:
 				return await ms.edit(content="**I can't give admin role to more than 1 person. at a time**")
@@ -113,6 +107,7 @@ class Roles(commands.Cog):
 				else:
 					await user.add_roles(role)
 					given.append(user)
+					await asyncio.sleep(2)
 
 			if ms:
 				await ms.edit(content=f"{role.mention} given To {len(given)} Members")
@@ -139,6 +134,7 @@ class Roles(commands.Cog):
 					else:
 						await user.add_roles(role)
 						given.append(user)
+						await asyncio.sleep(2)
 
 			if ms:
 				await ms.edit(content=f"Role Added To - {len(given)} Members")
@@ -160,8 +156,9 @@ class Roles(commands.Cog):
 			
 		for member in role.members:
 			await member.remove_roles(role, reason=reason)
+			await asyncio.sleep(2)
 			
-		return await prs.edit(content="**:white_check_mark: Role Removed from everyone**", delete_after=30)
+		return await prs.edit(content="**:white_check_mark: | Role Removed from everyone**", delete_after=30)
 
 
 
@@ -181,13 +178,13 @@ class Roles(commands.Cog):
 			except:
 				return
 
-		if len(role.members) > 15 and len(role.members) < 1000000:
+		if len(role.members) > 15 and len(role.members) <= 1000000:
 			for i in role.members:
 				msg = msg + f"\n{i} : {i.id}"
 			file = open("members.txt", "w", encoding="utf-8")
 			file.write(msg)
 			file.close()
-			await ctx.send(file=discord.File("members.txt"))
+			await ctx.send(f"total members : `{len(role.members)}`",file=discord.File("members.txt"))
 		if len(role.members) > 1000000:
 			try:
 				return await ctx.send("Too Many Members To Show!")
@@ -221,6 +218,7 @@ class Roles(commands.Cog):
 		for m in role1.members:
 			if m.top_role.position < bt.top_role.position:
 				await m.add_roles(role2, reason=reason)
+				await asyncio.sleep(1)
 
 		await msg.edit(content=f"{config.vf} **Role Added Successfully.**", delete_after=30)
 
@@ -235,22 +233,19 @@ class Roles(commands.Cog):
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
 		for user in users:
-			if ctx.author.top_role < user.top_role:
-				return await ctx.channel.purge(limit=1)
-				return await ctx.send("**You don't have enough permission**", delete_after=5)
+			if ctx.author.top_role.position < user.top_role.position:
+				return await ctx.send(f"**You don't have enough permission to manage {user}'s role'**", delete_after=15)
 
 
 			if bt.top_role.position < user.top_role.position:
-				return await ctx.channel.purge(limit=1)
-				return await ctx.send("**I don't have enough permission**", delete_after=5)
+				return await ctx.send(f"**I can't manage {user}'r role'**", delete_after=15)
 
 			if bt.top_role.position < role.position:
-				return await ctx.channel.purge(limit=1)
-				return await ctx.send("**I don't have enough permission**", delete_after=5)
+				return await ctx.send("**I don't have enough permission to manage this role**", delete_after=15)
 
 			else:
 				await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
-				return await ctx.send(f"**{role.name} removed from {user}**")
+		return await ctx.send(f"**{role.name} removed from these members**")
 
 
 
@@ -336,7 +331,7 @@ class Roles(commands.Cog):
 			if member.bot:
 				await member.add_roles(role, reason=f"role all command used by {ctx.author}")
 				await asyncio.sleep(3)
-		await prs.edit(content=None, embed=discord.Embed(color=0x000fff, description=f"**{config.tick} | {role.mention} Given To All These Bots**"))
+		await prs.edit(content=None, embed=discord.Embed(color=0x000fff, description=f"**{config.tick} | {role.mention} Given To All Bots**"))
 
 
 
