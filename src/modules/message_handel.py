@@ -7,7 +7,7 @@ import datetime
 import openai
 from asyncio import sleep
 from modules import config
-
+from discord.ext import commands
 
 
 
