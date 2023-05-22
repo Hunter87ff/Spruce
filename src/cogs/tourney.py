@@ -49,6 +49,12 @@ async def unlc_ch(channel:discord.TextChannel, role:discord.Role=None):
     await channel.set_permissions(role, overwrite=overwrite)
 
 
+def get_front(name):
+  li = []
+  for i in name.split()[0:2]:
+    li.append(i[0])
+  return str("".join(li) + "-")
+
 
 
 
@@ -91,13 +97,9 @@ class Esports(commands.Cog):
     async def tourney_setup(self, ctx, total_slot:int, mentions:int, *, name:str):
         if ctx.author.bot:
             return
-        front = ""
-        for i in name.split(" ")[0:2]:
-          front += i[0]
-        front = front + "-"
+        front = get_front(name)
         try:
             ms = await ctx.send("Processing...")
-            prefix = front
             bt = ctx.guild.get_member(self.bot.user.id)
             tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
             gid = ctx.guild.id%1000000000000
@@ -148,7 +150,7 @@ class Esports(commands.Cog):
                 tour = {"tid" : int(r_ch.id%1000000000000), 
                         "guild" : int(ctx.guild.id),
                         "t_name" : str(name), 
-                        "prefix" : str(prefix),
+                        "prefix" : str(front),
                         "rch" : int(r_ch.id),
                         "cch" : int(c_ch.id),
                         "gch" : int(g_ch.id),
