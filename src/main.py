@@ -65,6 +65,8 @@ async def on_ready():
             await sleep(120)
 
 
+
+"""
 @bot.event
 async def on_wavelink_node_ready(node: wavelink.Node):
     print(f"Node {node.identifier} is ready")
@@ -72,7 +74,7 @@ async def on_wavelink_node_ready(node: wavelink.Node):
 async def node_connect():
     await bot.wait_until_ready()
     await wavelink.NodePool.create_node(bot = bot, host=config.m_host, port=443, password=config.m_host_psw, https=True, spotify_client=spotify.SpotifyClient(client_id=config.spot_id, client_secret=config.spot_secret))
-
+"""
 
 @bot.event
 async def on_message(message):
@@ -104,7 +106,6 @@ async def on_guild_remove(guild):
     ch = bot.get_channel(config.gleave)
     support_server = bot.get_guild(config.support_server_id)
     orole = discord.utils.get(support_server.roles, id=1043134410029019176)
-    #link = await guild.channels[0].create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
     msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
     for i in support_server.members:
         if i.id == guild.owner.id:
@@ -180,19 +181,26 @@ async def il(id):
 @bot.hybrid_command(with_app_command=True)
 @commands.is_owner()
 async def get_guild(ctx, id):
-    if ctx.author.bot:
-        return
-    id = int(id)
-    if ctx.author.id != config.owner_id:
-        return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
-    guild = bot.get_guild(id)
-    if  guild:
-        inv = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=True, target_type=None, target_user=None, target_application_id=None)
-        return await ctx.reply(inv)
-    if not guild:
-        return await ctx.reply("Im Not In This Guild")
+	if ctx.author.bot:
+		return
+	await ctx.defer()
+	id = int(id)
+	if ctx.author.id != config.owner_id:
+		return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
+	guild = bot.get_guild(id)
+	if  guild:
+		inv = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
+		return await ctx.reply(inv)
+	if not guild:
+		return await ctx.reply("Im Not In This Guild")
 
 
+
+
+#
+#return await ctx.send("Vote Spruce To Unlock This Command.", view=discord.ui.View.add_item(vbtn = discord.ui.Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")))
+					
+	
 
 def mmbrs(ctx=None):
     i = 0
@@ -241,6 +249,7 @@ async def owners(ctx):
     ms = await ctx.send(f"{config.loading} Processing...")
     ofcg = bot.get_guild(config.support_server_id)
     owner_role = ofcg.get_role(1043134410029019176)
+	
     for i in bot.guilds:
         if i.owner in ofcg.members:
             if i.member_count > 100:

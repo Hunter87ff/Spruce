@@ -58,6 +58,8 @@ class Utility(commands.Cog):
 	async def uptime(self, ctx):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		await ctx.defer(ephemeral=True)
 		try:
 			sch = self.bot.get_channel(config.stl)
@@ -83,6 +85,8 @@ class Utility(commands.Cog):
 	async def avatar(self, ctx, user: discord.User = None):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		await ctx.defer(ephemeral=True)
 		if user == None:
 			user = ctx.author
@@ -108,6 +112,8 @@ class Utility(commands.Cog):
 	@commands.bot_has_permissions(embed_links=True)
 	async def server_av(self, ctx, guild:discord.Guild=None):
 		await ctx.defer(ephemeral=True)
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if guild == None:
 			guild = ctx.guild
 
@@ -121,10 +127,12 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.command(aliases=["bnr"])
+	@cmd.hybrid_command(with_app_command = True, aliases=["bnr"])
 	async def banner(self, ctx, user:discord.User=None):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if user == None:
 			user = ctx.author
 		usr = await self.bot.fetch_user(user.id)
@@ -139,8 +147,13 @@ class Utility(commands.Cog):
 
 	@cmd.command(aliases=['emb'])
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True)
-	@commands.cooldown(2, 20, commands.BucketType.user)
+	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def embed(self, ctx, *, message):
+		await ctx.defer()
+		if ctx.author.bot:
+			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		embed = discord.Embed(description=message, color=blue)
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=embed)
@@ -149,10 +162,14 @@ class Utility(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	async def tts(self, ctx, *, message):
 		await ctx.defer(ephemeral=True)
+		if ctx.author.bot:
+			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if len(message.split()) > 100:
 			return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
 		output = gTTS(text=message, lang="en", tld="co.in")
-		output.save(f"tts.mp3")
+		output.save("tts.mp3")
 		#fl = open("tts.mp3", r).read()
 		await ctx.send(ctx.author.mention, file=discord.File("tts.mp3"))
 		os.remove("tts.mp3")
@@ -285,6 +302,8 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
 		await ctx.defer(ephemeral=True)
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=teal)
 		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)

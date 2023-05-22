@@ -40,6 +40,8 @@ class Roles(commands.Cog):
 	async def create_roles(self, ctx, *Names:str):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		for role in Names:
 			await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
 			await asyncio.sleep(2)
@@ -54,6 +56,9 @@ class Roles(commands.Cog):
 	async def del_roles(self, ctx, *roles : discord.Role):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
+			
 		bt = ctx.guild.get_member(self.bot.user.id)
 		msg = await ctx.send(f"{config.loading} Processing...")
 		for role in roles:
@@ -78,6 +83,9 @@ class Roles(commands.Cog):
 	async def give_role(self, ctx, role: discord.Role, *users: discord.Member):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
+			
 		ms = await ctx.send("Processing...")
 		bt = ctx.guild.get_member(self.bot.user.id)
 		given = []
@@ -169,6 +177,9 @@ class Roles(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
+			
 		msg = ""
 		if len(role.members) < 15:
 			for i in role.members:
@@ -200,6 +211,9 @@ class Roles(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
+			
 		bt = ctx.guild.get_member(self.bot.user.id)
 
 		if role2.position > bt.top_role.position:
@@ -231,6 +245,8 @@ class Roles(commands.Cog):
 	async def remove_role(self, ctx, role:discord.Role, *user: discord.Member):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		bt = ctx.guild.get_member(self.bot.user.id)
 		for user in users:
 			if ctx.author.top_role.position < user.top_role.position:
@@ -256,6 +272,8 @@ class Roles(commands.Cog):
 	async def add_roles(self, ctx, user:discord.Member, * roles:discord.Role):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		bt = ctx.guild.get_member(self.bot.user.id)
 		for role in roles:
 			if bt.top_role.position > role.position:

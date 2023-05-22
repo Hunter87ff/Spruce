@@ -24,18 +24,21 @@ class Channel(commands.Cog):
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def channel_make(self, ctx, *names):
+		if ctx.author.bot:
+			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		try:
 			ms = await ctx.send("Processing...")
 		except:
 			pass
 		for name in names:
-			await ctx.guild.create_text_channel(name)
+			await ctx.guild.create_text_channel(name, reason=f"created by : {ctx.author}")
+			await sleep(1)
 
 		if ms:
-			try:
-				await ms.edit(content=f'**<:vf:947194381172084767> All channels Created.**')
-			except:
-				return
+			await ms.edit(content=f'**<:vf:947194381172084767> All channels Created.**')
+
 
 
 
@@ -48,12 +51,11 @@ class Channel(commands.Cog):
 		except:
 			pass
 		for ch in channels:
-			await ch.delete()
+			await ch.delete(reason=f"deleted by: {ctx.author}")
+			await sleep(1)
 		if ms:
-			try:
-				await ms.edit(content=f'**<:vf:947194381172084767>`Channels deleted Successfully**')
-			except:
-				return
+			await ms.edit(content=f'**<:vf:947194381172084767>`Channels deleted Successfully**')
+
 
 
 
@@ -64,6 +66,9 @@ class Channel(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
+			
 		bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="dcd_btn")
 		bt12 = Button(label="Cancel", style=discord.ButtonStyle.green, custom_id="dcc_btn")
 		view = View()
@@ -78,7 +83,7 @@ class Channel(commands.Cog):
 				#await interaction.message.delete()
 				for channel in category.channels:
 					await channel.delete(reason=f'Deleted by {ctx.author.name}')
-
+					await sleep(1)
 					if len(category.channels) == 0:
 						await category.delete()
 						return await del_t_con.edit(embed=discord.Embed(description=f"**{config.tick} | Successfully Deleted ~~{category.name}~~ Category**"))
@@ -97,9 +102,12 @@ class Channel(commands.Cog):
 		#await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		ms = await ctx.send(embed=discord.Embed(description=f"**{config.loading} | Creating Channels...**"))
 		for name in names:
 			await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
+			await sleep(1)
 		await ms.edit(embed=discord.Embed(description=f"**{config.default_tick} | All Channels Created**", color=0x00ff00))
 
 

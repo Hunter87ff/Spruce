@@ -1,9 +1,10 @@
 import pymongo
 import os
+import discord
 from pymongo import MongoClient
+from discord.ui import Button, View
 
-
-version = "2.0.4"
+version = "2.0.5"
 
 
 bot_id = 931202912888164474
@@ -30,9 +31,11 @@ m_host_psw = "www.freelavalink.ga"
 
 erl = 1015166083050766366
 stl = 1020027121231462400
+dml = os.environ["dml"]
 cmdnf = 1020698810625826846
 gjoin = 1028673206850179152
 gleave = 1028673254606508072
+votel = 1099588071986573362
 ################# emojis ####################
 vf = "<:vf:959508659153535016>"
 cross = "<:cross1:975460389565399141>"
@@ -85,3 +88,23 @@ teal = 0x1abc9c
 cyan = 0x1abc9c
 d_teal = 0x11806a
 yellow = 0xffff00
+
+#functions
+async def voted(ctx, bot):
+	vtl = bot.get_channel(votel)
+	messages = [message async for message in vtl.history(limit=1000)]
+	for i in messages:
+		if str(i.created_at).split(" ")[0] == str(ctx.message.created_at).split(" ")[0]:
+			if i.author.id == 1096272690211471421:
+				#print(i.content)
+				if f"<@{ctx.author.id}>" in i.content:
+					return "yes"
+				else:
+					return None
+		else:
+			return None
+
+
+async def vtm(ctx):
+	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
+	await ctx.send(embed=discord.Embed(color=cyan, description="Vote Now To Unlock This Command"), view=View().add_item(btn))

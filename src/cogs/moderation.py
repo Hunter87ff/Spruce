@@ -22,6 +22,8 @@ class Moderation(commands.Cog):
 	async def lock(self, ctx, role: discord.Role=None):
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		await ctx.defer()
 		#bt = ctx.guild.get_member(self.bot.user.id)
 		if ctx.author.bot:
@@ -45,6 +47,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if not channel:
 			channel = ctx.channel
 		if role == None:
@@ -66,7 +70,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if role == None:
 			role = ctx.guild.default_role
 		if channel is None:
@@ -91,7 +96,8 @@ class Moderation(commands.Cog):
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if ctx.author.bot:
 			return
 
@@ -120,6 +126,8 @@ class Moderation(commands.Cog):
 	@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide(self, ctx, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		await ctx.defer()
 		if ctx.author.bot:
 			return
@@ -145,7 +153,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if role == None:
 			role = ctx.guild.default_role
 
@@ -170,7 +179,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if role == None:
 			role = ctx.guild.default_role
 
@@ -195,7 +205,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if role == None:
 			role = ctx.guild.default_role
 
@@ -223,7 +234,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if role == None:
 			role = ctx.guild.default_role
 
@@ -253,7 +265,8 @@ class Moderation(commands.Cog):
 
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if amount == None:
 			amount = 10
 
@@ -273,6 +286,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if reason == None:
 			reason = 'No reason provided'
@@ -300,6 +315,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		bt = ctx.guild.get_member(self.bot.user.id)
 		if time == None:
 			time = "5m"
@@ -339,7 +356,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if reason == None:
 			reason = f"{member} kicked by {ctx.author}"
 
@@ -378,7 +396,8 @@ class Moderation(commands.Cog):
 		await ctx.defer()
 		if ctx.author.bot:
 			return
-
+		if not await config.voted(ctx, bot=self.bot):
+			return await config.vtm(ctx)
 		if reason == None:
 			reason = f"{member} banned by {ctx.author}"
 
