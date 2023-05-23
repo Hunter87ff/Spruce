@@ -44,7 +44,7 @@ cod = [
   {"q":"js","a":"js"},
   {"q":"<script>","a":"js"},
 ]
-dmm = ["send me", "dm me", "mujhe bhejo", "pm me", "amake send koro", " mujhe dm karo"]
+dmm = ["send me", "dm me", "mujhe bhejo", "pm me", "amake send koro", " mujhe dm karo", "dm karo"]
 tim = ["what is the date","abhi tarikh kya hai?", "aj kosa tarikh hai", "abhi kitna baja hai", "what is the time", "abhi kitna baja hai"]
 
 
