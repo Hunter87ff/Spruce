@@ -94,10 +94,10 @@ async def voted(ctx, bot):
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
-		if "day" not in str(ctx.message.created_at - i.created_at):
-			if i.author.id == 1096272690211471421:
+		if i.author.id == 1096272690211471421:
+			if f"<@{ctx.author.id}>" in i.content:
 				#print(i.content)
-				if f"<@{ctx.author.id}>" in i.content:
+				if "day" not in str(ctx.message.created_at - i.created_at):
 					return "yes"
 				else:
 					return None
