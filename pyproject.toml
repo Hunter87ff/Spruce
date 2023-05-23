@@ -12,7 +12,7 @@ gTTS = "^2.3.2"
 humanfriendly = "^10.0"
 openai = "^0.27.7"
 pymongo = "^4.3.3"
-requests = "^2.30.0"
+requests = "^2.31.0"
 Wavelink = "^2.3.1"
 
 [tool.poetry.dev-dependencies]
