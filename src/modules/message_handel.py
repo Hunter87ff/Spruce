@@ -59,7 +59,7 @@ async def ask(message, bot):
 		
         if message.guild and  bot.user.mention in message.content or message.guild==None:
             await ctx.typing()
-            req.post(url=config.dml, json={'content':f"sent by : {message.author}\nmessage: ```\n{message.content[0:1980]}\n```"})
+            req.post(url=config.dml, json={'content':f"{message.author}\n```\n{message.content[0:1980]}\n```"})
             for i in bws:
                 if i in message.content:
                     ms = await message.channel.send("Sorry can't reply to a message which contains restricted words")
