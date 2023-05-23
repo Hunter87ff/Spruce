@@ -100,9 +100,9 @@ async def voted(ctx, bot):
 				if f"<@{ctx.author.id}>" in i.content:
 					return "yes"
 				else:
-					return "yes"
+					return None
 		else:
-			return "yes"
+			return None
 
 
 async def vtm(ctx):
