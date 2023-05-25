@@ -43,6 +43,12 @@ cod = [
   {"q":"py","a":"py"},
   {"q":"js","a":"js"},
   {"q":"<script>","a":"js"},
+  {"q":"#include", "a":"js"},
+  {"q":"int main()","a":"js"},
+  {"q":"typescript","a":"js"},
+  {"q":"cpp","a":"js"},
+  {"q":"c#","a":"js"},
+  {"q":"c++","a":"js"},
 ]
 dmm = ["send me", "dm me", "mujhe bhejo", "pm me", "amake send koro", " mujhe dm karo", "dm karo"]
 tim = ["what is the date","abhi tarikh kya hai?", "aj kosa tarikh hai", "abhi kitna baja hai", "what is the time", "abhi kitna baja hai"]
