@@ -311,11 +311,11 @@ class Esports(commands.Cog):
 
                 for message in messages:
                     if member.mention in message.content:
-                        if message.author.id == 931202912888164474:
-                            emb = discord.Embed(color=0xffff00, description=f"**{reged}) {message.content} CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
-                            emb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                            emb.timestamp = datetime.datetime.utcnow()
-                            await message.edit(content=None, embed=emb)
+                        if message.author.id == self.bot.user.id:
+                            #emb = discord.Embed(color=0xffff00, description=f"**{reged}) {message.content} CANCELLED BY {ctx.author.mention}\nReason : {reason}**")
+                            #emb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                            #emb.timestamp = datetime.datetime.utcnow()
+                            await message.delete() #.edit(content=None, embed=emb)
                             canemb = discord.Embed(title=f"{member}'s Slot Canceled with reason of {reason}", color=0xffff00)
                             await ctx.send(embed=canemb, delete_after=60)
 
