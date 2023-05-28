@@ -94,7 +94,7 @@ async def on_message(message):
 
 @bot.event
 async def on_guild_channel_delete(channel):
-    await ochd.ch_handel(channel)
+    await ochd.ch_handel(channel, bot)
 	
 
 @bot.event
