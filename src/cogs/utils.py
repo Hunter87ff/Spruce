@@ -263,7 +263,7 @@ class Utility(commands.Cog):
 			return
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command=True, aliases=["em"])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
@@ -297,7 +297,7 @@ class Utility(commands.Cog):
 
 
 
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["mc"])
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
@@ -309,25 +309,23 @@ class Utility(commands.Cog):
 		await ctx.send(embed=emb)
 
 		
-	@cmd.hybrid_command(with_app_command = True)
+	@cmd.hybrid_command(with_app_command = True, aliases=["ui"])
 	@commands.bot_has_permissions(send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
 		await ctx.defer(ephemeral=True)
 		if member == None:
 		    member = ctx.author
-		else:
-		    member = member
+		roles = ", ".join([role.mention for role in member.roles][0:10])
+		if len(member.roles) > 10:
+			roles = "Too Many Roles To Show"
+			
 		user = await self.bot.fetch_user(member.id)
 
-		desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}'
+		desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}\n**Roles:**\n{roles} '
 
 		embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
 		embed.set_author(name=member, icon_url=member.avatar)
 		embed.set_thumbnail(url=member.avatar)
-		if len(member.roles) <= 6:
-		    embed.add_field(name=f"Roles ({len(member.roles)-1})", value=" ".join([role.mention for role in member.roles][1:8]))
-		if len(member.roles) > 6:
-		    embed.add_field(name=f"Roles ({len(roles)})", value="Too Much Roles To Show Here")  
 
 		if user.banner:
 		    embed.set_image(url=str(user.banner))
@@ -378,15 +376,20 @@ class Utility(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True, aliases=["si", "server_info"])
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
-	async def serverinfo(self, ctx, user: discord.Member=None):
+	async def serverinfo(self, ctx):
 		await ctx.defer(ephemeral=True)
-		if user == None:
-			user = ctx.author
-			
+		user = ctx.author
 		guild = ctx.guild
+		roles = ', '.join([role.mention for role in guild.roles[0:8]])
+		if len(roles) > 12:
+			roles = "Too Many Role To Show Here"
 		emb = discord.Embed(title=f"{ctx.guild.name}'s Information",
-                        description=f"**__About__**\n**Name** : {ctx.guild.name}\n**Id** : {ctx.guild.id}\n**Owner** : <@{ctx.guild.owner_id}>\n**Members** : {ctx.guild.member_count}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}",
+                        description=f"**__About__**\n**Name** : {guild.name}\n**Id** : {guild.id}\n**Owner** : <@{guild.owner_id}>\n**Members** : {guild.member_count}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {guild.premium_tier}\n**Emojis** : {len(guild.emojis)}/{guild.emoji_limit}\n**Stickers** : {len(guild.stickers)}/{guild.sticker_limit}\n\n**__Server Roles__ [{len(guild.roles)}]** :\n{roles}\n\n**__Description__**\n{guild.description}",
                        color=0xf1c40f)
+		emb.set_thumbnail(url=guild.icon.url)
+		if ctx.guild.banner:
+			emb.set_image(url=ctx.guild.banner.url)
+		emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
 
 

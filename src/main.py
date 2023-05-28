@@ -231,7 +231,7 @@ async def ping(ctx):
         await ctx.reply(f'**Current ping is `{gp()} ms`**')
 
 
-@bot.hybrid_command(with_app_command = True, aliases=["bi", "about", "info"])
+@bot.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info"])
 @commands.cooldown(2, 20, commands.BucketType.user)
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
@@ -242,7 +242,7 @@ async def botinfo(ctx):
     emb.add_field(name=f"{config.dev} __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
     emb.add_field(name=f"{config.ping} __Current Ping__", value=gp(), inline=False)
     emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {pref}help, prefix: {pref}  ", inline=False)
-    emb.set_footer(text=f"Made with ❤️ | By hunter#6967")
+    emb.set_footer(text="Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
 
 
