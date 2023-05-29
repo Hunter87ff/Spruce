@@ -73,7 +73,7 @@ async def ask(message, bot):
                     return await ms.delete()
                     
             query = message.content.replace(f"<@{bot.user.id}>", "")
-            if query.isspace():
+            if query.isspace() or len(query) < 1:
               return await message.reply("?")
             #print(query)
             for i in cod:
