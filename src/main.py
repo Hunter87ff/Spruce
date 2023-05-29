@@ -112,6 +112,7 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_guild_remove(guild):
+    support_server = bot.get_guild(config.support_server_id)
     ch = bot.get_channel(config.gleave)
     orole = discord.utils.get(support_server.roles, id=1043134410029019176)
     msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
