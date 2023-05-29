@@ -72,7 +72,9 @@ async def ask(message, bot):
                     await asyncio.sleep(5)
                     return await ms.delete()
                     
-            query = message.content.replace(f"<@{bot.user.id}>", "hey ")
+            query = message.content.replace(f"<@{bot.user.id}>", "")
+            if query.isspace():
+              return await message.reply("?")
             #print(query)
             for i in cod:
                 if i["q"] in query:
