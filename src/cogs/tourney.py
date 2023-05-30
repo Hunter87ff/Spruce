@@ -101,6 +101,9 @@ class Esports(commands.Cog):
             return await config.vtm(ctx)
             
         front = get_front(name)
+        atg = "yes"
+        if slot_per_group != 12:
+        	atg = "no"
         try:
             ms = await ctx.send("Processing...")
             bt = ctx.guild.get_member(self.bot.user.id)
@@ -165,7 +168,7 @@ class Esports(commands.Cog):
                         "faketag": "no",
                         "pub" : "no",
                         "prize" : "No Data",
-                        "auto_grp":"yes",
+                        "auto_grp":atg,
                         "spg":slot_per_group,
 						"cgp":0
                         }
@@ -215,16 +218,22 @@ class Esports(commands.Cog):
             cgp = db["cgp"]
     
             messages = [message async for message in cch.history(limit=tslot+100)]
-            for msg in messages:
-            	print(msg.embeds[0])
+            for msg in messages[::-1]:
+            	#print(msg.embeds[0])
             	if msg.author.id == self.bot.user.id and msg.embeds != None:
             		if "TEAM" in msg.embeds[0].description:
             			teams.append(msg)
+            	else:
+            		pass
 			
-            print(len(teams))
+            if len(teams) < 1:
+            	return await ctx.send("Minimum Number Of Teams Is't Reached!!")
+				
             group = int(len(teams)/spg)
             if len(teams)/spg > group:
                 group = group+1
+            if len(teams)/spg < 1:
+            	group = 1
                 
             for i in range(1, group+1):
                 ms = f"**__GROUP__ {i}\n"
@@ -240,7 +249,7 @@ class Esports(commands.Cog):
                 cgp = cgp+spg
                 msg = await gch.send(f"{ms}**")
                 await msg.add_reaction(config.tick)
-            await ctx.send(f"chech{gch.mention}")
+            await ctx.send(f"check this channel {gch.mention}")
         else:
         	return await ctx.send("Tournament Not Found", delete_after=10)
 				
