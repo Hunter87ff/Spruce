@@ -130,17 +130,17 @@ def get_slot(ms):
             return f"{i})"
 
 
-async def prc(group,  grpc , msg, tsl):
+async def prc(group,  grpc, bot, msg, tsl):
     messages = [message async for message in grpc.history(limit=tsl)]
 
     for ms in messages:
         if len(messages) <3:
-            if ms.author.id != config.bot_id:
+            if ms.author.id != bot.user.id:
                 if f"**__GROUP__ {str(group)} **" not in ms.content:
                     await grpc.send(f"**__GROUP__ {group} ** \n{get_slot(ms)} {msg}")
 
 
-        if ms.author.id == config.bot_id:
+        if ms.author.id == bot.user.id:
             if f"**__GROUP__ {str(group)} **" in ms.content:
                 if "12)" not in ms.content.split():
                     cont = f"{ms.content}\n{get_slot(ms)} {msg}"
@@ -170,7 +170,7 @@ def get_group(reged):
     return str(int(grp))
 
 
-async def auto_grp(message):
+async def auto_grp(message, bot):
     try:
         td = dbc.find_one({"cch":message.channel.id})
     except:
@@ -178,7 +178,7 @@ async def auto_grp(message):
 
     if td:
         if td["auto_grp"] == "yes":
-            if message.author.id == config.bot_id:
+            if message.author.id == bot.user.id:
                 if not message.embeds:
                     return
                 if message.embeds:
@@ -187,7 +187,7 @@ async def auto_grp(message):
                 reged = td["reged"]-1
                 grpch = discord.utils.get(message.guild.channels, id=int(td["gch"]))
                 group = get_group(reged=reged)
-                return await prc(group=group, grpc=grpch, msg=message.content, tsl=td["tslot"])
+                return await prc(group=group, grpc=grpch, bot=bot, msg=message.content, tsl=td["tslot"])
 
 
 
@@ -250,35 +250,32 @@ def reg_update(message):
 #Fake Tag Check
 async def ft_ch(message):
     ctx = message
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
+    #td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
     messages = [message async for message in ctx.channel.history(limit=123)]  #messages = await message.channel.history(limit=td["tslot"]).flatten()
 
 
     for fmsg in messages:
         if fmsg.author.id != ctx.author.id:
             for mnt in fmsg.mentions:
-
                 if mnt not in message.mentions:
-                    pass
-
+                    return None
                 if mnt in message.mentions:
-                    return True
+                    return mnt
 
 
 
 async def tourney(message):
+    if message.author.bot:
+        return
     if not message.guild:
         return
     ctx = message
     guild = message.guild
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
     tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
-    if message.author.bot:
-        return
-      
     if tmrole in ctx.author.roles:
       return
-
+		
+    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
     if td is None:
         return
     
@@ -316,57 +313,51 @@ async def tourney(message):
             await message.delete()
             return await rch.send("**Registration Closed**")
         
-        elif len(message.mentions) == ments or len(message.mentions) > ments:
-            
+        elif len(message.mentions) >= ments:
             for fmsg in messages:
-                tk = len(set(ctx.mentions) & set(fmsg.mentions))
 
 
 #IF FAKE TAG NOT ALLOWED
 ########################
 
                 if td["faketag"] == "no":
-
- 
                     if fmsg.author.id == ctx.author.id and len(messages) == 1:
-
-                        if len(messages) == 1:
-                            await message.add_reaction("✅")
-                            reg_update(message)
-                            team_name = find_team(message)
-                            femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                            femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                            femb.timestamp = datetime.datetime.utcnow()
-                            femb.set_thumbnail(url=message.author.display_avatar)
-                            await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
-                            await message.author.add_roles(crole)
-                            
-                            if rgs >= tslot*0.1 and td["pub"] == "no":
-                                dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                                
+                    	await message.add_reaction("✅")
+                    	reg_update(message)
+                    	team_name = find_team(message)
+                    	femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                    	femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                    	femb.timestamp = datetime.datetime.utcnow()
+                    	femb.set_thumbnail(url=message.author.display_avatar)
+                    	await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                    	await message.author.add_roles(crole)
+						
+                    	if rgs >= tslot*0.1 and td["pub"] == "no":
+                    		dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+							
 
 
-                    if fmsg.author.id != ctx.author.id and fmsg.author.bot==False:
+                    if fmsg.author.id != ctx.author.id:
                         ftch = await ft_ch(message)
-                        if ftch == True:
-                            fakeemb = discord.Embed(title=f"The Member You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
+                        if ftch != None:
+                            fakeemb = discord.Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
                             fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
                             fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar)
                             await message.delete()
                             return await ctx.channel.send(embed=fakeemb, delete_after=60)
                                 
 
-                        if ftch != True:
+                        if ftch == None:
                             await message.author.add_roles(crole)
                             await message.add_reaction("✅")
                             reg_update(message)
                             team_name = find_team(message)
                             femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                             femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                            femb.timestamp = datetime.datetime.utcnow()
+                            femb.timestamp = message.created_at   #datetime.datetime.utcnow()
                             femb.set_thumbnail(url=message.author.display_avatar)
                             if rgs >= tslot*0.1 and td["pub"] == "no":
-                                dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                                dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                             return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             
                         
@@ -383,7 +374,7 @@ async def tourney(message):
                     nfemb.timestamp = datetime.datetime.utcnow()
                     nfemb.set_thumbnail(url=message.author.display_avatar)
                     if rgs >= tslot*0.1 and td["pub"] == "no":
-                        dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                        dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
                     
 

@@ -94,12 +94,12 @@ class Esports(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
-    async def tourney_setup(self, ctx, total_slot:int, mentions:int, *, name:str):
+    async def tourney_setup(self, ctx, total_slot:int, mentions:int, slot_per_group:int,  *, name:str):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
-			
+            return await config.vtm(ctx)
+            
         front = get_front(name)
         try:
             ms = await ctx.send("Processing...")
@@ -166,7 +166,8 @@ class Esports(commands.Cog):
                         "pub" : "no",
                         "prize" : "No Data",
                         "auto_grp":"yes",
-                        "spg":12
+                        "spg":slot_per_group,
+						"cgp":0
                         }
                 
                 gtadbcds = gtadbc.find_one({"guild" : gid})
@@ -190,6 +191,62 @@ class Esports(commands.Cog):
             return
 
 
+    
+    @cmd.hybrid_command(with_app_command = True)
+    @commands.has_role("tourney-mod")
+    @commands.guild_only()
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.has_permissions(manage_channels=True, manage_roles=True)
+    @commands.bot_has_permissions(manage_channels=True, manage_roles=True, send_messages=True)
+    async def _gsetup(self, ctx, registration_channel:discord.TextChannel):
+        if ctx.author.bot:
+        	return
+        rch = registration_channel
+        await ctx.defer(ephemeral=True)
+        dbc.update_one({"rch":rch.id},{"$set":{"cgp":0}})
+        db = dbc.find_one({"rch":rch.id})
+    
+        if db is not None:
+            teams = []
+            cch = self.bot.get_channel(int(db["cch"]))
+            gch = self.bot.get_channel(int(db["gch"]))
+            tslot = db["tslot"]
+            spg = db["spg"]
+            cgp = db["cgp"]
+    
+            messages = [message async for message in cch.history(limit=tslot+100)]
+            for msg in messages:
+            	print(msg.embeds[0])
+            	if msg.author.id == self.bot.user.id and msg.embeds != None:
+            		if "TEAM" in msg.embeds[0].description:
+            			teams.append(msg)
+			
+            print(len(teams))
+            group = int(len(teams)/spg)
+            if len(teams)/spg > group:
+                group = group+1
+                
+            for i in range(1, group+1):
+                ms = f"**__GROUP__ {i}\n"
+    
+                
+                grp = teams[cgp:cgp+spg]
+                for p in grp:
+                    ms = ms + f"{grp.index(p)+1}) {p.content}" + "\n"
+    
+                grp.clear()
+                ncgp = cgp+spg
+                dbc.update_one({"rch":rch.id},{"$set":{"cgp":ncgp}})
+                cgp = cgp+spg
+                msg = await gch.send(f"{ms}**")
+                await msg.add_reaction(config.tick)
+            await ctx.send(f"chech{gch.mention}")
+        else:
+        	return await ctx.send("Tournament Not Found", delete_after=10)
+				
+                
+    
+
     @cmd.hybrid_command(with_app_command = True, aliases=["girlslobby"])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
@@ -201,8 +258,8 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
-			
+            return await config.vtm(ctx)
+            
         #male_rs = ["male", "boys", "boy", "men", "MALE", "BOY", "BOYS"]
         #female_rs = ["female", "girls", "girl", "women", "FEMALE", "GIRL", "GIRLS", "WOMEN"]
         snd = await ctx.send("<a:loading:969894982024568856>Processing...")
@@ -273,8 +330,8 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
-			
+            return await config.vtm(ctx)
+            
         if reason == None:
                 reason = "Not Provided"
        
@@ -330,7 +387,7 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
         if tmrole == None:
@@ -363,9 +420,9 @@ class Esports(commands.Cog):
     @commands.guild_only()
     async def tourneys(self, ctx):
         if ctx.author.bot:
-        	return 
+            return 
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         await ctx.defer(ephemeral=True)
         ms = await ctx.send("Processing...")
         emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=config.invite_url, color=0x00ff00)
@@ -394,9 +451,9 @@ class Esports(commands.Cog):
     async def publish(self, ctx, rch: discord.TextChannel, *, prize: str):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:
-        	return
+            return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         dbc = maindb["tourneydb"]["tourneydbc"]
         if len(prize) > 30:
             return await ctx.reply("Only 30 Letters Allowed ")
@@ -469,7 +526,7 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         pub = ""
         pubb = ""
         rch = registration_channel
@@ -723,7 +780,7 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         if start < 1:
             return await ctx.reply("Starting Number Should Not Be Lower Than 1")
 
@@ -757,7 +814,7 @@ class Esports(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def change_slot(self, ctx, *, slot:str):
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         await ctx.defer(ephemeral=True)
         if ctx.message.reference:
             msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
@@ -792,7 +849,7 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return 
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         td = dbc.find_one({"rch" : channel.id})
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 
@@ -829,7 +886,7 @@ class Esports(commands.Cog):
         if ctx.author.bot:
             return
         if not await config.voted(ctx, bot=self.bot):
-        	return await config.vtm(ctx)
+            return await config.vtm(ctx)
         try:
             td = dbc.find_one({"rch":int(reg.id)})
         except:
