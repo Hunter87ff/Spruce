@@ -346,7 +346,7 @@ async def tourney(message):
                                 
 
 
-                    if fmsg.author.id != ctx.author.id and fmsg.author.bot=False:
+                    if fmsg.author.id != ctx.author.id and fmsg.author.bot==False:
                         ftch = await ft_ch(message)
                         if ftch == True:
                             fakeemb = discord.Embed(title=f"The Member You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
