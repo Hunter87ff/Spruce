@@ -2,11 +2,7 @@ import discord
 from discord.ext import commands
 cmd = commands
 import random
-import datetime
-import json
 import os
-import pymongo
-from pymongo import MongoClient
 from modules import config
 from discord.ui import Button, View
 import gtts
@@ -100,13 +96,12 @@ class Utility(commands.Cog):
 			user = ctx.author
 			
 		if "a_" in str(user.avatar):
-			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", color=0xfff00f)			#eemb.timestamp = datetime.datetime.utcnow()
+			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", color=0xfff00f)			
 			eemb.set_image(url=user.avatar)
 			eemb.set_footer(text=f"Requested By {ctx.author}")
 			return await ctx.send(embed=eemb)
 		else:
 			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')})", color=0x00fff0)
-			#eemb.timestamp = datetime.datetime.utcnow()
 			eemb.set_image(url=user.display_avatar)
 			eemb.set_footer(text=f"Requested By {ctx.author}")
 			return await ctx.send(embed=eemb)
