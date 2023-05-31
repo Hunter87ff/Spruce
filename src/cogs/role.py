@@ -242,7 +242,7 @@ class Roles(commands.Cog):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def remove_role(self, ctx, role:discord.Role, *user: discord.Member):
+	async def remove_role(self, ctx, role:discord.Role, *users: discord.Member):
 		if ctx.author.bot:
 			return
 		if not await config.voted(ctx, bot=self.bot):
