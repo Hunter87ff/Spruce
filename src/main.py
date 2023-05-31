@@ -131,8 +131,6 @@ async def on_command_error(ctx, error, bot=bot):
 #                                          TEXT COMMANDS
 ############################################################################################
 
-
-
 @bot.hybrid_command(with_app_command = True, hidden=True)
 @commands.is_owner()
 @commands.dm_only()
@@ -166,21 +164,10 @@ async def edm(ctx, channel:discord.TextChannel, msg_id, *, msg):
 async def il(id):
     try:
         channel = bot.get_channel(id)
-    except:
-        return "Not Available"
-    try:
         link = await channel.create_invite(reason=None, max_age=360000, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
+        return link
     except:
-        return "Not Available"
-
-    return link
-
-
-
-#dbc.update_many({"status" : "started"},{"$set":{"pub" : "no", "prize" : "Nothing"}})
-
-
-
+        return None
 
 ############################################################################################
 #                                       INFO
@@ -202,13 +189,8 @@ async def get_guild(ctx, id):
 	if not guild:
 		return await ctx.reply("Im Not In This Guild")
 
-
-
-
 #
 #return await ctx.send("Vote Spruce To Unlock This Command.", view=discord.ui.View.add_item(vbtn = discord.ui.Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")))
-					
-	
 
 def mmbrs(ctx=None):
     i = 0
@@ -216,24 +198,8 @@ def mmbrs(ctx=None):
         i = i + guild.member_count
     return i
 
-def gp():
-    plst = [23, 19, 21, 22, 21, 32, 43, 20, 21, 23, 19, 18, 24,28]
-    ping = random.choice(plst)
-    return ping
-
-@bot.command()
-@commands.cooldown(2, 20, commands.BucketType.user)
-@commands.bot_has_permissions(send_messages=True)
+@bot.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info", "status", "botstats"])
 @commands.cooldown(2, 60, commands.BucketType.user)
-async def ping(ctx):
-    if ctx.author.id == config.owner_id:
-        await ctx.reply(f'**Current ping is `{round(bot.latency*1000)} ms`**')
-    else:
-        await ctx.reply(f'**Current ping is `{gp()} ms`**')
-
-
-@bot.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info"])
-@commands.cooldown(2, 20, commands.BucketType.user)
 @commands.bot_has_permissions(send_messages=True, embed_links=True)
 async def botinfo(ctx):
     await ctx.defer(ephemeral=True)

@@ -77,8 +77,16 @@ class Utility(commands.Cog):
 			return
 
 
-
-
+	@cmd.command()
+	@commands.bot_has_permissions(send_messages=True)
+	@commands.cooldown(2, 60, commands.BucketType.user)
+	async def ping(self, ctx):
+	    if ctx.author.id == config.owner_id:
+	        await ctx.reply(f'**Current ping is `{round(self.bot.latency*1000)} ms`**')
+	    else:
+	        await ctx.reply(f'**Current ping is `{random.choice(range(19,48))} ms`**')
+	
+	
 
 	@cmd.hybrid_command(with_app_command = True, aliases=['av', "pfp"])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
@@ -96,8 +104,6 @@ class Utility(commands.Cog):
 			eemb.set_image(url=user.avatar)
 			eemb.set_footer(text=f"Requested By {ctx.author}")
 			return await ctx.send(embed=eemb)
-
-			
 		else:
 			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')})", color=0x00fff0)
 			#eemb.timestamp = datetime.datetime.utcnow()
@@ -193,21 +199,15 @@ class Utility(commands.Cog):
 		if user == None:
 			user = ctx.author
 			msg = random.choice(whois)
-
 		if user.bot == True:
 			return await ctx.send("**Bot is always awesome**")
-
-
 		elif user.id == 885193210455011369:
 			owneremb = discord.Embed(description=f"{user.mention} **Best Friend :heart:**", color=blue)
 			return await ctx.send(embed=owneremb)
-
 		else:
 			msg = random.choice(whois)
 			emb = discord.Embed(description=f"{user.mention}  {msg}", color=blurple)
 			return await ctx.send(embed=emb)
-
-
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
@@ -318,15 +318,11 @@ class Utility(commands.Cog):
 		roles = ", ".join([role.mention for role in member.roles][0:10])
 		if len(member.roles) > 10:
 			roles = "Too Many Roles To Show"
-			
 		user = await self.bot.fetch_user(member.id)
-
 		desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}\n**Roles:**\n{roles} '
-
 		embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
 		embed.set_author(name=member, icon_url=member.avatar)
 		embed.set_thumbnail(url=member.avatar)
-
 		if user.banner:
 		    embed.set_image(url=str(user.banner))
 		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
@@ -341,18 +337,13 @@ class Utility(commands.Cog):
 		if ctx.author.bot:
 			return
 		bt = ctx.guild.get_member(self.bot.user.id)
-
 		if ctx.author.top_role < user.top_role:
 			return await ctx.send("You don't have enough permission")
-
 		if bt.top_role < user.top_role:
 			return await ctx.send("I don't have enough permission")
-
 		else:
 			await user.edit(nick=Nick)
 			await ctx.send("Done")
-
-
 
 
 	@cmd.command(enabled=False)
@@ -369,10 +360,7 @@ class Utility(commands.Cog):
 			nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
 			return await ctx.send("Enabled")
 
-
-		
-		
-		
+	
 	@cmd.hybrid_command(with_app_command = True, aliases=["si", "server_info"])
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
@@ -391,30 +379,6 @@ class Utility(commands.Cog):
 			emb.set_image(url=ctx.guild.banner.url)
 		emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
-
-
-
-"""
-
-	@cmd.command()
-	@commands.cooldown(2, 10, commands.BucketType.user)
-	async def invites(self, ctx, user:discord.Member=None):
-		totalInvites = 0
-
-		if user == None:
-			user = ctx.author
-
-			for i in await ctx.guild.invites():
-				if i.inviter == user:
-					totalInvites += i.uses
-
-					emb = discord.Embed(description=f"** <:invites:968901936327848016> Currently has {totalInvites} invites **", color=discord.Color.blurple())
-					emb.set_author(name=f"{user}", icon_url=user.avatar)
-					emb.set_footer(text="Spruce", icon_url="https://sprucebot.ml/resources/manifest/icon-310x310.png")
-
-					return await ctx.send(embed=emb)
-
-"""
 
 
 async def setup(bot):

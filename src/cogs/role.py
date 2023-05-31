@@ -32,8 +32,6 @@ class Roles(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-
-	
 	@cmd.command(aliases=["croles"])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
@@ -158,7 +156,7 @@ class Roles(commands.Cog):
 	async def remove_role_members(self, ctx, role: discord.Role, reason=None):
 		if ctx.author.bot:
 			return
-		prs = await ctx.send("<a:loading:969894982024568856> Processing...")
+		prs = await ctx.send("<a:loading:969894982024568856> | Processing...")
 		if reason == None:
 			reason = f"{role} removed by {ctx.author}"
 			
@@ -166,7 +164,7 @@ class Roles(commands.Cog):
 			await member.remove_roles(role, reason=reason)
 			await asyncio.sleep(2)
 			
-		return await prs.edit(content="**:white_check_mark: | Role Removed from everyone**", delete_after=30)
+		return await prs.edit(content=f"**:white_check_mark: | {role} Removed from everyone**", delete_after=30)
 
 
 

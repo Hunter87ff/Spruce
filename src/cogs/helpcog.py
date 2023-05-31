@@ -78,7 +78,7 @@ class Helper(commands.Cog):
         self.bot = bot
 
 
-    @bot.group(invoke_without_command=True)
+    @bot.group(invoke_without_command=True,aliases=['commands', 'hel', "h"])
     async def help(self, ctx):
         if ctx.author.bot:
             return
@@ -167,7 +167,7 @@ class Helper(commands.Cog):
 
     @help.command()
     async def hide(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `hide [role=None]`\nExample : `&hide`\n", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `hide role(optional) channel(optional)`\nExample : `&hide`\n", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
@@ -235,7 +235,6 @@ class Helper(commands.Cog):
 
 
 #role Related
-
     @help.command()
     async def inrole(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `inrole`\nExample : `&inrole`", color=0x00ff00)
@@ -290,7 +289,7 @@ class Helper(commands.Cog):
         await ctx.send(embed=em)
 
 
-    @help.command(aliases=["perms"])
+    @help.command(aliases=["cperms"])
     async def clear_perms(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `clear_perms [role=None]`\nExample : `&clear_perms @public`\nDescription : Use this command to remove all permissions from roles", color=0x00ff00)
         await ctx.send(embed=em)
@@ -308,10 +307,8 @@ class Helper(commands.Cog):
 
 
 
-
-
+	
 #Esports Related
-
     @help.command(aliases=["cs"])
     async def change_slot(self, ctx):
         em = discord.Embed(description="Aliases : `cs`\nUsage : `change_slot <exact_teame> <mention>`\nExample : `&change_slot HG ESPORTS @hunter `\nDescription: Use This Command By Replying The Group Message! And Use The Exact Slot Detail Otherwise It'll Not Work", color=0x00ff00)
@@ -330,7 +327,7 @@ class Helper(commands.Cog):
 
     @help.command()
     async def auto_group(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command! you can enable/disable auto group system", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command it'll create total group system of the tournament\nNote: Make sure no one should send messages in  confirm channel. else it'll not work", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["add"])
@@ -360,7 +357,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['ts', "tsetup", "setup"])
     async def tourney_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <total_slot> <mentions> <tournament_name>`\nExample : `&ts 144 4 WEEKLY SCRIM`\nNote : You must have @tourney-mod Role to manage the tournament\n\n**[Watch Tutorial](https://youtu.be/R9UmQ_NJD7M)**", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <total_slot> <mentions> <number_of_slot_per_group> <tournament_name>`\nExample : `&ts 144 4 WEEKLY SCRIM`\nNote : You must have @tourney-mod Role to manage the tournament\n\n**[Watch Tutorial](https://youtu.be/R9UmQ_NJD7M)**", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['st_tourney', "tourney_start"])
