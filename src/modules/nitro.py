@@ -22,7 +22,7 @@ nitrodbc = maindb["nitrodb"]["nitrodbc"]
 ################# NITROF ######################
 
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
-async def nitrof(message):
+async def nitrof(message, bot):
     if message.author.bot:
         return
     try:
