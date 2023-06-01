@@ -59,6 +59,8 @@ async def ask(message, bot):
     ctx = await bot.get_context(message)
     if message.author.bot:
         return
+    if message.author.id != config.owner_id:
+      return
     #dmc = bot.get_channel(config.dml)
     opt = ""
     try:
