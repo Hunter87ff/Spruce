@@ -125,7 +125,7 @@ class Esports(commands.Cog):
                 await htrm.add_reaction(config.tick)
                 await rchm.add_reaction(config.tick)
                 await asyncio.sleep(1)  #sleep
-                tour = {"tid" : int(r_ch.id%1000000000000), "guild" : int(ctx.guild.id), "t_name" : str(name), "prefix" : str(front),"rch" : int(r_ch.id), "cch" : int(c_ch.id), "gch" : int(g_ch.id), "crole" : int(c_role.id), "tslot" : int(total_slot), "reged" : 1, "mentions" : int(mentions), "status" : "started", "faketag": "no", "pub" : "no", "prize" : "No Data", "auto_grp":atg, "spg":slot_per_group, "cgp":0}
+                tour = {"tid" : int(r_ch.id%1000000000000), "guild" : int(ctx.guild.id), "t_name" : str(name), "prefix" : str(front),"rch" : int(r_ch.id), "cch" : int(c_ch.id), "gch" : int(g_ch.id), "crole" : int(c_role.id), "tslot" : int(total_slot), "reged" : 1, "mentions" : int(mentions), "status" : "started", "faketag": "no", "pub" : "no", "prize" : "No Data", "auto_grp":"no", "spg":slot_per_group, "cgp":0}
                 gtadbcds = gtadbc.find_one({"guild" : gid})
                 if gtadbcds == None:
                     gtadbc.insert_one({"guild" : gid, "gta" : 1})
