@@ -13,9 +13,6 @@ from discord.ext import commands
 from modules import (message_handel, channel_handel, config)
 #from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
-
-
- 
 onm = message_handel
 ochd = channel_handel
 intents = discord.Intents.default()
@@ -25,16 +22,9 @@ intents.members = True
 intents.voice_states = True
 intents.guilds = True
 
-
-
 #Configuring db
 pref = config.prefix
 maindb = config.maindb
-
-
-
-
-
 
 bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents) 
 #bot = commands.Bot(command_prefix= pref, intents=intents ) 
@@ -42,18 +32,11 @@ bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=int
 bot.remove_command("help")
 support_server = bot.get_guild(config.support_server_id)
 
-
-
-
-
 async def load_extensions():
     for filename in os.listdir(config.cogs_path):
         if filename.endswith(".py"):
             await bot.load_extension(f"cogs.{filename[:-3]}")
 asyncio.run(load_extensions())
-
-
-
 
 @bot.event
 async def on_ready():
@@ -68,8 +51,6 @@ async def on_ready():
         for st in status:
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
             await sleep(120)
-
-
 
 """
 @bot.event
@@ -91,13 +72,10 @@ async def on_message(message):
     await onm.auto_grp(message, bot)
     await onm.ask(message, bot=bot)
 	
-
-
 @bot.event
 async def on_guild_channel_delete(channel):
     await ochd.ch_handel(channel, bot)
 	
-
 @bot.event
 async def on_guild_join(guild):
     support_server = bot.get_guild(config.support_server_id)
@@ -110,8 +88,6 @@ async def on_guild_join(guild):
         m = discord.utils.get(support_server.members, id=guild.owner.id)
         await m.add_roles(orole)
     await ch.send(msg)
-
-
 
 @bot.event
 async def on_guild_remove(guild):
@@ -134,10 +110,6 @@ async def on_command_error(ctx, error, bot=bot):
 #                                          TEXT COMMANDS
 ############################################################################################
 
-
-
-
-
 async def il(id):
     try:
         channel = bot.get_channel(id)
@@ -149,10 +121,6 @@ async def il(id):
 ############################################################################################
 #                                       INFO
 ############################################################################################
-
-
-#
-#return await ctx.send("Vote Spruce To Unlock This Command.", view=discord.ui.View.add_item(vbtn = discord.ui.Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")))
 
 def mmbrs(ctx=None):
     i = 0
@@ -173,11 +141,5 @@ async def botinfo(ctx):
     emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {pref}help, prefix: {pref}  ", inline=False)
     emb.set_footer(text="Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
-
-
-
-
-
-
 
 bot.run(config.token)
