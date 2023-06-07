@@ -8,22 +8,7 @@ class dev(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	
-	@cmd.command(hidden=True)
-	@cmd.guild_only()
-	@config.dev()
-	@cmd.cooldown(2, 20, commands.BucketType.user)
-	async def sdm(self, ctx, member: discord.User, *, message):
-		if ctx.author.id == config.owner_id:
-			erl  = self.bot.get_channel(config.erl)
-			try:
-				await member.send(message)
-				return await ctx.reply("Done")
-			except Exception as e:
-				return await erl.send(e)
-		if ctx.author.id != config.owner_id:
-			return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
-	
+
 	@cmd.command(hidden=True)
 	@commands.guild_only()
 	@config.dev()
@@ -47,20 +32,6 @@ class dev(commands.Cog):
 	        if gld:
 	            await gld.leave()
 	            await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
-				
-	@cmd.hybrid_command(with_app_command=True)
-	@commands.guild_only()
-	@config.dev()
-	async def dlm(self, ctx, msg:discord.Message):
-		await ctx.defer(ephemeral=True)
-		if ctx.author.bot:
-			return
-		try:
-			await msg.delete()
-			return await ctx.send("deleted", delete_after=2)
-		except:
-			return await ctx.send("Not Possible")
-	
 
 	
 	@cmd.hybrid_command(with_app_command=True)
@@ -80,6 +51,19 @@ class dev(commands.Cog):
 			return await ctx.send("guild not found")						  
 
 	
+	@cmd.hybrid_command(with_app_command=True)
+	@commands.guild_only()
+	@config.dev()
+	async def dlm(self, ctx, msg:discord.Message):
+		await ctx.defer(ephemeral=True)
+		if ctx.author.bot:
+			return
+		try:
+			await msg.delete()
+			return await ctx.send("deleted", delete_after=2)
+		except:
+			return await ctx.send("Not Possible")
+	
 	@cmd.hybrid_command(with_app_command = True, hidden=True)
 	@config.dev()
 	@commands.dm_only()
@@ -91,7 +75,56 @@ class dev(commands.Cog):
 			if message.author == self.bot.user:
 				await message.delete()
 		return await ctx.send("deleted", delete_after=3)
+
+
+	@cmd.hybrid_command(with_app_command = True, hidden=True)
+	@commands.is_owner()
+	@config.dev()
+	async def edm(self, ctx, msg:discord.Message, *, content):
+		if ctx.author.bot:
+			return
+		await ctx.defer(ephemeral=True)
+		if msg.author.id == self.bot.user.id:
+		  await msg.edit(content=content)
+		  await ctx.send('done')
+		else:
+			return await ctx.send("i didn't sent")
+		
 	
+	@cmd.command(hidden=True)
+	@cmd.guild_only()
+	@config.dev()
+	@cmd.cooldown(2, 20, commands.BucketType.user)
+	async def sdm(self, ctx, member: discord.User, *, message):
+		if ctx.author.id == config.owner_id:
+			erl  = self.bot.get_channel(config.erl)
+			try:
+				await member.send(message)
+				return await ctx.reply("Done")
+			except Exception as e:
+				return await erl.send(e)
+		if ctx.author.id != config.owner_id:
+			return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
+
+
+
+
+	@cmd.command()
+	@commands.guild_only()
+	@config.dev()
+	@commands.cooldown(2, 20, commands.BucketType.user)
+	async def owners(self, ctx):
+	    ms = await ctx.send(f"{config.loading} Processing...")
+	    ofcg = self.bot.get_guild(config.support_server_id)
+	    owner_role = ofcg.get_role(1043134410029019176)
+		
+	    for i in self.bot.guilds:
+	        if i.owner in ofcg.members:
+	            if i.member_count > 1000:
+	                onr = ofcg.get_member(i.owner.id)
+	                await onr.add_roles(owner_role)
+	    return await ms.edit(content="Done")
 	
+
 async def setup(bot):
 	await bot.add_cog(dev(bot))

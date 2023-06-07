@@ -136,23 +136,7 @@ async def on_command_error(ctx, error, bot=bot):
 
 
 
-@bot.hybrid_command(with_app_command = True, hidden=True)
-@commands.is_owner()
-async def edm(ctx, channel:discord.TextChannel, msg_id, *, msg):
-  if ctx.author.bot:
-    return
-  await ctx.defer(ephemeral=True)
-  if ctx.author.id != config.owner_id:
-    return await ctx.send('This is a owner only command.')
-  try:
-    ms = await channel.fetch_message(int(msg_id))
-    print(type(ms))
-    if ms.author.id == bot.user.id:
-      await ms.edit(content=msg)
-      await ctx.send('done')
-  except:
-    return await ctx.send('Something went wrong...')
-  
+
 
 async def il(id):
     try:
@@ -191,23 +175,6 @@ async def botinfo(ctx):
     return await ctx.send(embed=emb)
 
 
-
-@bot.command()
-@commands.guild_only()
-@commands.cooldown(2, 20, commands.BucketType.user)
-async def owners(ctx):
-    if ctx.guild.id != config.support_server_id:
-        return
-    ms = await ctx.send(f"{config.loading} Processing...")
-    ofcg = bot.get_guild(config.support_server_id)
-    owner_role = ofcg.get_role(1043134410029019176)
-	
-    for i in bot.guilds:
-        if i.owner in ofcg.members:
-            if i.member_count > 100:
-                onr = ofcg.get_member(i.owner.id)
-                await onr.add_roles(owner_role)
-    return ms.edit(content="Done")
 
 
 
