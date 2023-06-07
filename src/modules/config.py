@@ -1,6 +1,7 @@
 import pymongo
 import os
 import discord
+from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
 
@@ -110,3 +111,10 @@ async def voted(ctx, bot):
 async def vtm(ctx):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
 	await ctx.send(embed=discord.Embed(color=cyan, description="Vote Now To Unlock This Command"), view=View().add_item(btn))
+
+
+
+def dev():
+    def predicate(ctx):
+        return ctx.message.author.id == owner_id
+    return commands.check(predicate)

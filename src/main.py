@@ -6,6 +6,7 @@ import asyncio
 #import requests
 import wavelink
 from asyncio import sleep
+from discord import app_commands
 from wavelink.ext import spotify
 from discord.ext import commands
 #from discord.ui import Button, View
@@ -110,6 +111,8 @@ async def on_guild_join(guild):
         await m.add_roles(orole)
     await ch.send(msg)
 
+
+
 @bot.event
 async def on_guild_remove(guild):
     support_server = bot.get_guild(config.support_server_id)
@@ -131,16 +134,6 @@ async def on_command_error(ctx, error, bot=bot):
 #                                          TEXT COMMANDS
 ############################################################################################
 
-@bot.hybrid_command(with_app_command = True, hidden=True)
-@commands.is_owner()
-@commands.dm_only()
-@commands.cooldown(2, 20, commands.BucketType.user)
-async def cdm(ctx,amount:int):
-    await ctx.defer(ephemeral=True)
-    dmchannel = await ctx.author.create_dm()
-    async for message in dmchannel.history(limit=amount):
-        if message.author == bot.user:
-            await message.delete()
 
 
 @bot.hybrid_command(with_app_command = True, hidden=True)
@@ -173,21 +166,6 @@ async def il(id):
 #                                       INFO
 ############################################################################################
 
-@bot.hybrid_command(with_app_command=True)
-@commands.is_owner()
-async def get_guild(ctx, id):
-	if ctx.author.bot:
-		return
-	await ctx.defer()
-	id = int(id)
-	if ctx.author.id != config.owner_id:
-		return await ctx.send(embed=discord.Embed(description="This Is A Owner Only Command", color=0xff0000))
-	guild = bot.get_guild(id)
-	if  guild:
-		inv = await random.choice(guild.channels).create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
-		return await ctx.reply(inv)
-	if not guild:
-		return await ctx.reply("Im Not In This Guild")
 
 #
 #return await ctx.send("Vote Spruce To Unlock This Command.", view=discord.ui.View.add_item(vbtn = discord.ui.Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")))
@@ -233,65 +211,6 @@ async def owners(ctx):
 
 
 
-@bot.hybrid_command(with_app_command=True)
-@commands.guild_only()
-async def dlm(ctx, channel:discord.TextChannel, msg_id):
-    await ctx.defer(ephemeral=True)
-    if ctx.author.bot:
-        return
-    if ctx.author.id != config.owner_id:
-        return
-    try:
-        ms = await channel.fetch_message(msg_id)
-        if ms.author.id == bot.user.id:
-            await ms.delete()
-        else:
-            return await ctx.send("I didn't sent the mesage")
-    except:
-        return await ctx.send("Not Possible")
-
-
-@bot.command(hidden=True)
-@commands.guild_only()
-@commands.cooldown(2, 20, commands.BucketType.user)
-async def sdm(ctx, member: discord.User, *, message):
-    if ctx.author.id == config.owner_id:
-        try:
-            await member.send(message)
-            return await ctx.reply("Done")
-        except:
-            return
-
-    if ctx.author.id != config.owner_id:
-        return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
-
-
-
-
-@bot.command(hidden=True)
-@commands.guild_only()
-@commands.cooldown(2, 20, commands.BucketType.user)
-async def leaveg(ctx, member:int, guild_id:int=None):
-    if ctx.author.bot:
-        return
-
-    if ctx.author.id != config.owner_id:
-        return
-
-    if not guild_id:
-        for guild in bot.guilds:
-            if guild.member_count < member:
-                gname = guild.name
-                await guild.leave()
-                await ctx.send(f"Leaved From {gname}, Members: {guild.member_count}")
-    if guild_id:
-        try:
-            gld = bot.get_guild(guild_id)
-        except:
-            return
-        if gld:
-            await gld.leave()
-            await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
 
 bot.run(config.token)
