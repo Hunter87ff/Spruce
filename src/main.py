@@ -1,15 +1,9 @@
 import os 
-import time
 import random
 import discord
 import asyncio
-#import requests
-import wavelink
 from asyncio import sleep
-from discord import app_commands
-from wavelink.ext import spotify
 from discord.ext import commands
-#from discord.ui import Button, View
 from modules import (message_handel, channel_handel, config)
 #from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
@@ -40,28 +34,17 @@ asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
-    #await node_connect()
-    st_log = bot.get_channel(config.stl)
-    await bot.tree.sync()
-    status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
-    stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
-    await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
-    print(stmsg)
-    while True:
-        for st in status:
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-            await sleep(120)
-
-"""
-@bot.event
-async def on_wavelink_node_ready(node: wavelink.Node):
-    print(f"Node {node.identifier} is ready")
-
-async def node_connect():
-    await bot.wait_until_ready()
-    await wavelink.NodePool.create_node(bot = bot, host=config.m_host, port=443, password=config.m_host_psw, https=True, spotify_client=spotify.SpotifyClient(client_id=config.spot_id, client_secret=config.spot_secret))
-"""
-
+	st_log = bot.get_channel(config.stl)
+	await bot.tree.sync()
+	status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
+	stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
+	await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+	print(stmsg)
+	while True:
+		for st in status:
+			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
+			await sleep(120)
+	
 @bot.event
 async def on_message(message):
     if message.webhook_id:
@@ -100,7 +83,6 @@ async def on_guild_remove(guild):
             if orole in i.roles:
                 await i.remove_roles(orole, reason="Kicked Spruce")
     return await ch.send(msg)
-
 
 @bot.event
 async def on_command_error(ctx, error, bot=bot):

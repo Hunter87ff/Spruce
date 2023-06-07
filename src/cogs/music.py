@@ -11,9 +11,6 @@ from bs4 import BeautifulSoup
 from modules import config
 import typing   
 
-
-
-
 def get_img(search):
     if " " in search:
         search = search.replace(" ", "+")
@@ -43,12 +40,6 @@ class Music(commands.Cog):
 		self.bot = bot
 		self.pref_ms = []
 
-
-
-
-
-
-
 	@commands.Cog.listener()
 	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack] , reason):
 	    btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
@@ -58,18 +49,14 @@ class Music(commands.Cog):
 	    try:
 	        ctx = player.ctx
 	        vc: player = ctx.voice_client
-	        
 	    except discord.HTTPException:
 	        interaction = player.interaction
 	        vc: player = interaction.guild.voice_client
-	    
 	    if vc.loop:
 	        return await vc.play(track)
-	    
 	    if vc.queue.is_empty:
 	        return
 	        #return await vc.disconnect()
-
 	    next_song = vc.queue.get()
 	    image_url = get_img(search=next_song.title)
 	    await vc.play(next_song)
@@ -89,8 +76,6 @@ class Music(commands.Cog):
 	        #msg = await ms.channel.fetch_message(pref_ms[0])
 	        #await msg.delete()
 	        #pref_ms.remove(pref_ms[0])
-	        
-
 	    except discord.HTTPException:
 	        await interaction.send("E",embed=next_song_emb, view=view)
 
@@ -110,18 +95,13 @@ class Music(commands.Cog):
 					if vc.loop ==False:
 						vc.loop = True
 						lemb = discord.Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
-						
 					if vc.loop == True:
 						vc.loop =False 
 						lemb = discord.Embed(title="Loop Music", description=f"**{config.default_tick} Loop Cancelled**", color=config.orange)
-						
 					await ctx.send(embed=lemb, delete_after=5)
-						
-	
 		if ctx.author.voice == None:
 			em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
 			await ctx.reply(embed=em)
-	
 		if ctx.voice_client == None:
 			return await ctx.reply(embed=discord.Embed(description="**I'm Not Connected To Vc!!**"))
 	
@@ -131,43 +111,31 @@ class Music(commands.Cog):
 
 #, wavelink.SoundCloudTrack
 	@cmd.command(enabled=False, aliases= ['p','P'])
-	async def play(self, ctx, *, search: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack]):
+	@config.dev()
+	async def play(self, ctx, *, search : wavelink.YouTubeMusicTrack):
 		if ctx.author.bot:
 			return
 		btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
 		view = View()
 		for btn in btns:
 		    view.add_item(btn)
-
 		if ctx.author.bot:
 			return
-
-
 		if not ctx.author.voice:
 			return await ctx.send("Please Join a vc")
-
-
-
 		if ctx.voice_client is not None:
 			if ctx.author.voice is not None:
 				if ctx.voice_client.channel != ctx.author.voice.channel:
 					await ctx.voice_client.disconnect()
 					vc: wavelink.Player = await ctx.author.voice.channel.connect(self_deaf=True, reconnect=True, cls=wavelink.Player)
-					
-					
 				if ctx.voice_client.channel == ctx.author.voice.channel:
 					vc: wavelink.Player = ctx.voice_client
-
-
 		if not ctx.voice_client:
 			try:
 				vc: wavelink.Player = await ctx.author.voice.channel.connect(self_deaf=True, reconnect=True, cls=wavelink.Player)#reconnect=True, self_deaf=True,
 			except:
 				return await ctx.send("Please Join a vc")
-
-
-
-
+				
 		if vc.queue.is_empty and not vc.is_playing():
 		    await vc.play(search)
 		    tm = "%H:%M:%S"
@@ -176,21 +144,15 @@ class Music(commands.Cog):
 		    image_url = get_img(search=search.title)
 		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=image_url)
 		    ms = await ctx.send(embed=em, view=view)
-          
 		else:
 		    await vc.queue.put_wait(search)
 		    await ctx.send('Added to the queue...', delete_after=5)
 		vc.ctx = ctx
-
 		try:
 		    if vc.loop: 
 		    	return
-
 		except Exception:
 		    setattr(vc, "loop", False)
-
-
-
 
 	@cmd.hybrid_command(with_app_command=True)
 	async def spotify(self, ctx, spotify_url: str):
@@ -202,10 +164,6 @@ class Music(commands.Cog):
 		async for partial in spotify.SpotifyTrack.iterator(query=spotify_url):
 			player.queue.put(partial)
 		await ms.edit(content="Playlist Loaded.", delete_after=20)
-
-
-
-
 
 	@cmd.hybrid_command(with_app_command=True, aliases= ['next'])
 	async def skip(self, ctx):
@@ -221,10 +179,6 @@ class Music(commands.Cog):
 			await vc.stop()
 			await ctx.send(embed=discord.Embed(title=f"{config.tick} | Skipped"), delete_after=2)
 
-
-
-
-
 	@cmd.hybrid_command(with_app_command=True)
 	async def pause(self, ctx):
 	    await ctx.defer()
@@ -233,7 +187,6 @@ class Music(commands.Cog):
 
 	    if ctx.voice_client != None:
 	        vc : wavelink.Player = ctx.voice_client
-
 
 	        if vc.is_playing:
 	            await vc.pause()
@@ -245,11 +198,8 @@ class Music(commands.Cog):
 	    await ctx.defer()
 	    if not ctx.author.voice:
 	        return await ctx.reply("Please Join VC")
-
 	    if ctx.voice_client != None:
 	        vc : wavelink.Player = ctx.voice_client
-
-
 	        if vc.is_paused:
 	            await vc.resume()
 	            await ctx.send(embed=discord.Embed(title=f"{config.tick} | Resumed"), delete_after=2)
@@ -260,16 +210,12 @@ class Music(commands.Cog):
 	    await ctx.defer()
 	    if not ctx.voice_client:
 	        return await ctx.send("im not even in a vc...")
-
 	    elif not getattr(ctx.author.voice, "channel", None):
 	        return await ctx.send("join a voice channel first lol")
-
-
 	    vc: wavelink.Player = ctx.voice_client
 	    if vc.queue.is_empty:
 	        return await ctx.send("the queue is empty")
 	    em = discord.Embed(title="Queue", color=config.blurple)
-	    
 	    queue = vc.queue.copy()
 	    songCount = 0
 	    for song in queue:
@@ -277,11 +223,7 @@ class Music(commands.Cog):
 	        em.add_field(name=f"Song Position {str(songCount)}", value=f"`{song}`")
 	    await ctx.send(embed=em)
 
-
-
-
-
-
+	
 	@cmd.Cog.listener()
 	async def on_interaction(self, interaction):
 		if "custom_id" not in interaction.data:
