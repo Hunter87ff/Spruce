@@ -5,7 +5,7 @@ from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
 
-version = "2.0.5"
+version = "2.1.9"
 
 
 bot_id = 931202912888164474

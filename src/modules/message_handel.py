@@ -171,7 +171,6 @@ def get_group(reged):
         grp = grp + 1
     return str(int(grp))
 
-
 async def auto_grp(message, bot):
     try:
         td = dbc.find_one({"cch":message.channel.id})
@@ -191,9 +190,6 @@ async def auto_grp(message, bot):
                 group = get_group(reged=reged)
                 return await prc(group=group, grpc=grpch, bot=bot, msg=message.content, tsl=td["tslot"])
 
-
-
-
 ##########################################################################
 ########################### SLOT CONFIRM SYSTEM ##########################
 ##########################################################################
@@ -207,7 +203,6 @@ def gp(info):
             return f"{ad} {i}"
         else:
             return "Not Data"
-
 
 async def get_prize(cch):
     info = cch.category.channels[0]
@@ -223,8 +218,6 @@ async def get_prize(cch):
             else:
                 return "No Data"
 
-
-
 def find_team(message):
     content = message.content.lower()
     teamname = re.search(r"team.*", content)
@@ -235,27 +228,17 @@ def find_team(message):
     teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
 
-
-
-
-
-
 def reg_update(message):
     df = dbc.find_one({"tid" : message.channel.id%1000000000000})
     rgd = df["reged"] 
     dbc.update_one({"tid" : message.channel.id%1000000000000}, {"$set":{"reged": rgd + 1}})
 
 
-
-
-
 #Fake Tag Check
 async def ft_ch(message):
     ctx = message
     #td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
-    messages = [message async for message in ctx.channel.history(limit=123)]  #messages = await message.channel.history(limit=td["tslot"]).flatten()
-
-
+    messages = [message async for message in ctx.channel.history(limit=123)]  
     for fmsg in messages:
         if fmsg.author.id != ctx.author.id:
             for mnt in fmsg.mentions:
@@ -276,23 +259,19 @@ async def tourney(message):
     tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
     if tmrole in ctx.author.roles:
       return
-		
-    td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
+    td = dbc.find_one({"rch" : message.channel.id})
     if td is None:
         return
-    
     if td["status"] == "paused":
         await message.author.send("Registration Paused")
-
     if td is not None and message.channel.id  == int(td["rch"]) and td["status"] == "started":
-        messages = [message async for message in ctx.channel.history(limit=2000)]     #messages = await message.channel.history(limit=td["tslot"]).flatten()
+        messages = [message async for message in ctx.channel.history(limit=2000)]
         crole = discord.utils.get(guild.roles, id=int(td["crole"]))
         cch = discord.utils.get(guild.channels, id = int(td["cch"]))
         rch = discord.utils.get(guild.channels, id = int(td["rch"]))
         ments = td["mentions"]
         rgs = td["reged"]
         tslot = td["tslot"]
-
         if not crole:
             try:
                 await message.author.send("Registration Paused")
@@ -300,28 +279,23 @@ async def tourney(message):
                 pass
             await ctx.reply("Confirm Role Not Found")
             return dbc.update_one({"tid" : td["rch"]}, {"$set" : {"status" : "paused"}})
-
-
-            
         if crole in message.author.roles:
-            await message.delete()
+            try:
+            	await message.delete()
+            except:
+            	pass
             return await message.channel.send("**Already Registered**", delete_after=5)
-            
-
         if rgs > tslot:
             overwrite = rch.overwrites_for(message.guild.default_role)
             overwrite.update(send_messages=False)
             await rch.set_permissions(guild.default_role, overwrite=overwrite)
             await message.delete()
             return await rch.send("**Registration Closed**")
-        
         elif len(message.mentions) >= ments:
             for fmsg in messages:
-
-
-#IF FAKE TAG NOT ALLOWED
-########################
-
+				
+				#IF FAKE TAG NOT ALLOWED
+				########################
                 if td["faketag"] == "no":
                     if fmsg.author.id == ctx.author.id and len(messages) == 1:
                     	await message.add_reaction("✅")
@@ -333,12 +307,8 @@ async def tourney(message):
                     	femb.set_thumbnail(url=message.author.display_avatar)
                     	await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                     	await message.author.add_roles(crole)
-						
                     	if rgs >= tslot*0.1 and td["pub"] == "no":
                     		dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-							
-
-
                     if fmsg.author.id != ctx.author.id:
                         ftch = await ft_ch(message)
                         if ftch != None:
@@ -347,8 +317,6 @@ async def tourney(message):
                             fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar)
                             await message.delete()
                             return await ctx.channel.send(embed=fakeemb, delete_after=60)
-                                
-
                         if ftch == None:
                             await message.author.add_roles(crole)
                             await message.add_reaction("✅")
@@ -363,9 +331,8 @@ async def tourney(message):
                             return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             
                         
-#IF FAKE TAG ALLOWED
-####################
-
+				#IF FAKE TAG ALLOWED
+				####################
                 if td["faketag"] == "yes":
                     await message.author.add_roles(crole)
                     await message.add_reaction("✅")
@@ -378,21 +345,16 @@ async def tourney(message):
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
-                    
-
-
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
             meb = discord.Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
             await message.delete()
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
-        
 
 
 ############## ERROR HANDEL ################
-
-
+############################################
 async def error_handle(ctx, error, bot):
     erl = bot.get_channel(config.erl)
     cmdnf = bot.get_channel(config.cmdnf)
@@ -462,6 +424,5 @@ async def error_handle(ctx, error, bot):
     except:
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
-        brp = await ctx.reply(f"Processing...")
-        await brp.edit(content=f"Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
+        await ctx.reply("Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
 
