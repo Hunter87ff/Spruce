@@ -4,6 +4,7 @@ import discord
 import asyncio
 from asyncio import sleep
 from discord.ext import commands
+from discord.ui import View, Button
 from modules import (message_handel, channel_handel, config)
 #from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
@@ -20,9 +21,7 @@ intents.guilds = True
 pref = config.prefix
 maindb = config.maindb
 
-bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents) 
-#bot = commands.Bot(command_prefix= pref, intents=intents ) 
-#allowed_mentions = discord.AllowedMentions(roles=True, users=True, everyone=True),
+bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents)
 bot.remove_command("help")
 support_server = bot.get_guild(config.support_server_id)
 
@@ -38,7 +37,7 @@ async def on_ready():
 	await bot.tree.sync()
 	status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
 	stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
-	await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+	#await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
 	print(stmsg)
 	while True:
 		for st in status:
@@ -89,19 +88,7 @@ async def on_command_error(ctx, error, bot=bot):
     await onm.error_handle(ctx, error, bot=bot)
 
 ##########################################################################################
-#                                          TEXT COMMANDS
-############################################################################################
-
-async def il(id):
-    try:
-        channel = bot.get_channel(id)
-        link = await channel.create_invite(reason=None, max_age=360000, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
-        return link
-    except:
-        return None
-
-############################################################################################
-#                                       INFO
+#                                       COMMANDS
 ############################################################################################
 
 def mmbrs(ctx=None):
@@ -123,5 +110,6 @@ async def botinfo(ctx):
     emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {pref}help, prefix: {pref}  ", inline=False)
     emb.set_footer(text="Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
+
 
 bot.run(config.token)
