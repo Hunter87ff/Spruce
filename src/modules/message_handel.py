@@ -75,11 +75,11 @@ async def ask(message, bot):
 		matches = []
 		if not lang_model(query):
 			for a in response:
-				a1 = np.array([a["q"].split()])
-				a2 = np.array([query.split()])
+				a1 = np.array([a["q"].lower().split()])
+				a2 = np.array([query.lower().split()])
 				same = np.intersect1d(a1, a2)
 				#print(same)
-				if len(same) >= len(query.split())/1.3:
+				if len(same) >= len(query.split())/1.9:
 					matches.append(a["a"])
 					if int(a["rating"]) > 4:
 						return await ctx.reply(f'{a["a"]}')
