@@ -52,7 +52,7 @@ async def on_message(message):
     #await nitrof(message)
     await onm.tourney(message)
     await onm.auto_grp(message, bot)
-    #await onm.ask(message, bot=bot)
+    await onm.ask(message, bot=bot)
 	
 @bot.event
 async def on_guild_channel_delete(channel):

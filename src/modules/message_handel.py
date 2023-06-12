@@ -5,11 +5,10 @@ import random
 import requests as req
 import asyncio
 import datetime
-import openai
 from asyncio import sleep
 from modules import config
 from discord.ext import commands
-
+import numpy as np
 
 
 maindb = config.maindb #MongoClient(os.environ["mongo_url"])
@@ -22,8 +21,6 @@ gtadbc = gtamountdbc
 sdb = config.spdb
 sdbc = sdb["qna"]["query"]
 
-openai.api_key = config.openai_key
-
 
 
 bws = ['xvideos', ' bsdke', 'भोसडीके', 'randi', "https://", 'लुंड', "लन्ड", "Lund","lunD", 'behnchod', 'chut', 'fuck', 'गांडू', 'fuddi', 'chutia', 'chumt', 'madrchod', 'bhos', 'carding', 'kutta', 'lauda', 'asshole', 'छोड़', 'xhamster', 'sex', 'penis', 'bitch', 'betichod', 'nude', 'pornhub', 'gand', 'faggot', 'Porn', 'lundura', 'xnxx', 'maderchod', '18+ content', 'vagina', 'mother fucker', 'bhnchod', 'asses', 'chutiya', 'lodi', 'behenchod', 'bhn ki lodi', 'gamd', 'खनकी', 'मदरचोड', 'fucker', 'छोड़ू', 'lund', 'adult content', 'hentai', 'motherchod', 'ramdi', 'छूट', 'redtube', 'p0rn', 'pussy', 'chod', 'sexy', 'bhenchod', 'condom', 'youporn.', 'चुटिया', 'comdon', 'khanki', 'nigg', 'porn', 'boob', 'titt', 'btichod', 'pepe', 'pornhub', 'lowda','redwap', 'मादरचोद', 'idiot', 'gamdu', ' bsdk', 'bc', 'बेटीछोद', 'wtf', 'lawde', 'fuk', 'fucker']
@@ -34,91 +31,67 @@ bws = ['xvideos', ' bsdke', 'भोसडीके', 'randi', "https://", 'ल�
 ################ CHAT SYSTEM ###########################
 #########################################################
 
-cod = [
-  {"q":"function","a":"js"},
-  {"q":"def","a":"py"},
-  {"q":"print","a":"py"},
-  {"q":"console","a":"js"},
-  {"q":"python","a":"py"},
-  {"q":"py","a":"py"},
-  {"q":"js","a":"js"},
-  {"q":"<script>","a":"js"},
-  {"q":"#include", "a":"js"},
-  {"q":"int main()","a":"js"},
-  {"q":"typescript","a":"js"},
-  {"q":"cpp","a":"js"},
-  {"q":"c#","a":"js"},
-  {"q":"c++","a":"js"},
-]
-dmm = ["send me", "dm me", "mujhe bhejo", "pm me", "amake send koro", " mujhe dm karo", "dm karo"]
-tim = ["what is the date","abhi tarikh kya hai?", "aj kosa tarikh hai", "abhi kitna baja hai", "what is the time", "abhi kitna baja hai"]
-
-
+say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
+name = ["name", "inka nam kya hai", "ye kon hai", "what is his name", "his name", "her name"]
+unfair = ["me harami", "me hamina", "me useless", "mein harami", "i am a dog"]
+def lang_model(query:str):
+	#do something
+	for i in say:
+		if i in query:
+			ms = query.replace(i, "")
+			return ms
+	for i in name:
+		if i in query:
+			return "Click on profile you'll able to see the name"
+	if "yes" in query:
+		return ":eyes:"
+			
+		
+			
+	
+	
 
 async def ask(message, bot):
-    ctx = await bot.get_context(message)
-    if message.author.bot:
-        return
-    if message.author.id != config.owner_id:
-      return
-    #dmc = bot.get_channel(config.dml)
-    opt = ""
-    try:
+	ctx = await bot.get_context(message)
+	if message.author.bot:
+		return
+	if message.author.id != config.owner_id:
+	  return
+	for i in bws:
+		if i in message.content.split():
+			return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
+	response = sdbc.find()
+	
+	if f"<@{bot.user.id}>" in message.content or message.reference and message.reference.cached_message.author.id == bot.user.id or message.guild == None:
+		query = message.content.replace(f"<@{bot.user.id}>", "")
+		await ctx.typing()
+		#await asyncio.sleep(4)
+		#print(lang_model(query=query))
 		
-        if message.guild and  bot.user.mention in message.content or message.guild==None:
-            await ctx.typing()
-            req.post(url=config.dml, json={'content':f"{message.author}\n```\n{message.content[0:1980]}\n```"})
-            for i in bws:
-                if i.lower() in str(message.content).lower():
-                    ms = await message.reply("Sorry can't reply to a message which contains restricted words")
-                    await asyncio.sleep(5)
-                    return await ms.delete()
-                    
-            query = message.content.replace(f"<@{bot.user.id}>", "")
-            if query.isspace() or len(query) < 1:
-              return await message.reply("?")
-            #print(query)
-            for i in cod:
-                if i["q"] in query:
-                    query = query + f"quote the code with ```{i['a']}"
-            response = openai.Completion.create(model="text-davinci-003",prompt=query,temperature=0.7,max_tokens=998,top_p=1,frequency_penalty=0,presence_penalty=0)
-            #print(response["choices"][0]["text"])
-            liss = []
-            rsp = sdbc.find_one({"q" : query})
-            if rsp is not None:
-                if int(rsp["rating"]) >= 5:
-                    opt = rsp["a"]
-                if int(rsp["rating"]) <5:
-                    liss.append(rsp['a'])
-                    liss.append(response["choices"][0]["text"])
-                    opt = random.choice(liss)
-            if rsp is None:
-                opt = str(response["choices"][0]["text"])
-        
-            for i in bws:
-                if i.lower() in opt.lower():
-                    ms = await message.reply("Sorry can't reply to a message which contains restricted words")
-                    await asyncio.sleep(5)
-                    return await ms.delete()
-        
-    
-            for i in dmm:
-                if i in query:
-                    try:
-                        await message.author.send(opt)
-                        return await message.reply("check dm")
-                    except:
-                        return await message.reply("please check your dm configuration.")
-            for i in tim:
-                if i in query:
-                    #print(message.created_at)
-                    date = str(message.created_at).split(' ')[0]  
-                    return await message.reply(f'Current Date : {"-".join(date.split("-")[::-1])}')
-    
-            await message.reply(opt)
-    except Exception as e:
-        return print(f"error ask feature: {e}")
-    
+		if lang_model(query) != None:
+			mallow = discord.AllowedMentions(everyone=False, roles=False)
+			return await ctx.reply(lang_model(query), allowed_mentions=mallow)
+			
+		matches = []
+		if not lang_model(query):
+			for a in response:
+				a1 = np.array([a["q"].split()])
+				a2 = np.array([query.split()])
+				same = np.intersect1d(a1, a2)
+				#print(same)
+				if len(same) >= len(query.split())/1.3:
+					matches.append(a["a"])
+					if int(a["rating"]) > 4:
+						return await ctx.reply(f'{a["a"]}')
+					if int(a["rating"]) < 5:
+						matches.append(a["a"])
+			if len(matches) > 1:
+				return await ctx.reply(f"{random.choice(matches)}")
+	
+		if len(matches)==0:
+			req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
+			return await ctx.reply("As an underdevelopment program currently im learning.. and i don't know what to say to tour query. because im currently like a child and learning from others..")
+		
 
 #########################################################
 ################ GROUP SYSTEM ###########################

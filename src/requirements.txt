@@ -11,4 +11,3 @@ bs4
 html5lib
 humanfriendly
 gtts
-openai
