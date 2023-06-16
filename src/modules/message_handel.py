@@ -55,6 +55,8 @@ async def ask(message, bot):
 	ctx = await bot.get_context(message)
 	if message.author.bot:
 		return
+	if message.author.id != config.owner_id:
+	return
 		if i in message.content.split():
 			return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
 	response = sdbc.find()
