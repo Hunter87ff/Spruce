@@ -50,15 +50,14 @@ def lang_model(query:str):
 def check_send(message, bot):
     if f"<@{bot.user.id}>" in message.content:
         return True
-    if message.reference != None:
-        if message.reference.cached_message.author.id == bot.user.id:
-            return True
-    if message.guild == None:
+    if message.guild is None:
         return True
     else:
         return None
 
-
+"""    if message.reference != None:
+        if message.reference.cached_message.author.id == bot.user.id:
+            return True"""
 	
 
 async def ask(message, bot):
@@ -74,8 +73,7 @@ async def ask(message, bot):
 	if check_send(message, bot) != None:
 		query = message.content.replace(f"<@{bot.user.id}>", "")
 		await ctx.typing()
-		#await asyncio.sleep(4)
-		#print(lang_model(query=query))
+		await asyncio.sleep(4)
 		if lang_model(query) != None:
 			mallow = discord.AllowedMentions(everyone=False, roles=False)
 			return await ctx.reply(lang_model(query), allowed_mentions=mallow)
@@ -119,8 +117,6 @@ async def prc(group,  grpc, bot, msg, tsl):
             if ms.author.id != bot.user.id:
                 if f"**__GROUP__ {str(group)} **" not in ms.content:
                     await grpc.send(f"**__GROUP__ {group} ** \n{get_slot(ms)} {msg}")
-
-
         if ms.author.id == bot.user.id:
             if f"**__GROUP__ {str(group)} **" in ms.content:
                 if "12)" not in ms.content.split():
@@ -128,21 +124,14 @@ async def prc(group,  grpc, bot, msg, tsl):
                     return await ms.edit(content=cont)
                 if "12)" in ms.content.split():
                     pass
-
             if f"**__GROUP__ {str(group)} **" not in ms.content:
                 ms = await grpc.send(f"**__GROUP__ {group} ** \n")
                 cont = f"{ms.content}\n{get_slot(ms=ms)} {msg}"
                 return await ms.edit(content=cont)
-
-
     if len(messages) < 1:
         ms = await grpc.send(f"**__GROUP__ {group} ** \n")
         cont = f"{ms.content}\n{get_slot(ms)} {msg}"
         return await ms.edit(content=cont)
-
-
-
-
 
 def get_group(reged):
     grp = reged/12
@@ -155,7 +144,6 @@ async def auto_grp(message, bot):
         td = dbc.find_one({"cch":message.channel.id})
     except:
         return
-
     if td:
         if td["auto_grp"] == "yes":
             if message.author.id == bot.user.id:
@@ -187,7 +175,6 @@ async def get_prize(cch):
     info = cch.category.channels[0]
     finder = ["Prize", "prize", "PRIZE", "POOL", "Pool", "PrizE"]
     messages = [message async for message in info.history(limit=123)]
-    
     if len(messages) == 0:
         return "No Data"
     for i in messages:
@@ -202,7 +189,6 @@ def find_team(message):
     teamname = re.search(r"team.*", content)
     if teamname is None:
         return f"{message.author}'s team"
-
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
     teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
