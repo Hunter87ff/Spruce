@@ -47,43 +47,38 @@ def lang_model(query:str):
 		return ":eyes:"
 			
 		
-			
-	
+def check_send(message, bot):
+    if f"<@{bot.user.id}>" in message.content:
+        return True
+    if message.reference != None:
+        if message.reference.cached_message.author.id == bot.user.id:
+            return True
+    if message.guild == None:
+        return True
+    else:
+        return None
+
+
 	
 
 async def ask(message, bot):
 	ctx = await bot.get_context(message)
 	if message.author.bot:
 		return
-
-    def check_send():
-        if f"<@{bot.user.id}>" in message.content:
-            return True
-        if message.reference != None:
-            if message.reference.cached_message.author.id == bot.user.id:
-                return True
-        if message.guild == None:
-            return True
-        else:
-            return None
-
 	if message.author.id != config.owner_id:
 		pass
 	for i in bws:
 		if i in message.content.split():
 			return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
 	response = sdbc.find()
-	
-	if check_send() != None:
+	if check_send(message, bot) != None:
 		query = message.content.replace(f"<@{bot.user.id}>", "")
 		await ctx.typing()
 		#await asyncio.sleep(4)
 		#print(lang_model(query=query))
-		
 		if lang_model(query) != None:
 			mallow = discord.AllowedMentions(everyone=False, roles=False)
 			return await ctx.reply(lang_model(query), allowed_mentions=mallow)
-			
 		matches = []
 		if not lang_model(query):
 			for a in response:
@@ -99,7 +94,6 @@ async def ask(message, bot):
 						matches.append(a["a"])
 			if len(matches) > 1:
 				return await ctx.reply(f"{random.choice(matches)}")
-	
 		if len(matches)==0:
 			req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
 			return await ctx.reply("As an underdevelopment program currently im learning.. and i don't know what to say to tour query. because im currently like a child and learning from others..")
