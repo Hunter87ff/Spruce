@@ -55,6 +55,18 @@ async def ask(message, bot):
 	ctx = await bot.get_context(message)
 	if message.author.bot:
 		return
+
+    def check_send():
+        if f"<@{bot.user.id}>" in message.content:
+            return True
+        if message.reference != None:
+            if message.reference.cached_message.author.id == bot.user.id:
+                return True
+        if message.guild == None:
+            return True
+        else:
+            return None
+
 	if message.author.id != config.owner_id:
 		pass
 	for i in bws:
@@ -62,7 +74,7 @@ async def ask(message, bot):
 			return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
 	response = sdbc.find()
 	
-	if f"<@{bot.user.id}>" in message.content or message.reference.cached_message != None and message.reference.cached_message.author.id == bot.user.id or message.guild == None:
+	if check_send() != None:
 		query = message.content.replace(f"<@{bot.user.id}>", "")
 		await ctx.typing()
 		#await asyncio.sleep(4)
