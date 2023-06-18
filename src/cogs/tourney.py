@@ -209,8 +209,7 @@ class Esports(commands.Cog):
             return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
-            
-
+ 
         snd = await ctx.send(f"{config.loading} | Processing...")
         cat = await ctx.guild.create_category(name="GIRLS LOBBY")
         crl = await ctx.guild.create_role(name="GIRLS LOBBY", color=0xD02090)
@@ -786,20 +785,20 @@ class Esports(commands.Cog):
     
 	
     @cmd.hybrid_command(with_app_command = True)
-    @config.dev()
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def set_manager(self, ctx, channel:discord.TextChannel):
+    async def set_manager(self, ctx, registration_channel:discord.TextChannel):
     	if ctx.author.bot:
     		return
     	view = View()
+    	channel = registration_channel
     	db = dbc.find_one({"rch":channel.id})
     	if not db:
     		return await ctx.send("Tournament Not Found")
     	rch = self.bot.get_channel(db["rch"])
-    	mch = await rch.category.create_text_channel(name=f"manage-slot")
+    	mch = await rch.category.create_text_channel(name="manage-slot")
     	emb = discord.Embed(title=rch.category.name, description=f"{config.arow} **Cancel Slot** : To Cancel Your Slot\n{config.arow} **My Slot** : To Get Details Of Your Slot\n{config.arow} **Team Name** : To Change Your Team Name", color=config.cyan)
     	buttons = [Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id="Cslot"),
 				   Button(label='My Slot', style=discord.ButtonStyle.blurple, custom_id="Mslot"),
@@ -818,6 +817,9 @@ class Esports(commands.Cog):
 	
     @cmd.Cog.listener()
     async def on_interaction(self, interaction):
+    	if interaction.user.bot:
+    		return
+    	ctx = await self.bot.get_context(interaction.message)
     	if "custom_id" in interaction.data:
     		db = dbc.find_one({"mch":interaction.channel.id})
     		view = View()
@@ -838,15 +840,16 @@ class Esports(commands.Cog):
     			return await interaction.response.send_message("You Aren't Registered!!", ephemeral=True)
     		cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
     		view.add_item(cslotlist)
-			
+		
     		if interaction.data["custom_id"] == "Cslot":
     			await interaction.response.send_message(view=view, ephemeral=True)
 
 		    	async def confirm(interaction):
+		    		#await interaction.response.defer()
 		    		conf = Button(label="Confirm", style=discord.ButtonStyle.red)
 		    		canc = Button(label="Cancel", style=discord.ButtonStyle.green)
 		    		v2 = View()
-		    		for i in [conf, canc]:
+		    		for i in [conf]:
 		    			v2.add_item(i)
 		    		await interaction.response.send_message(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
 		    		async def cnf(interaction):
@@ -865,13 +868,43 @@ class Esports(commands.Cog):
 		    		canc.callback = cnc
 		    	cslotlist.callback = confirm
     		if interaction.data["custom_id"] == "Mslot":
-    		 	for i in teams:
-    		 		if i.embeds and "TEAM" in i.embeds[0].description:
-    		 			if f"<@{interaction.user.id}>" in i.embeds[0].description:
-    		 				emb = discord.Embed(title="Your Team Details", description=f"{i.embeds[0].description}\n[Confirmation Message]({i.jump_url})")
-    		 	await interaction.response.send_message(embed=emb, ephemeral=True)
-						
+    		 	await interaction.response.send_message(view=view, ephemeral=True)
+    		 	async def myteam(interaction):
+    		 		ms = await cch.fetch_message(cslotlist.values[0])
+    		 		emb = ms.embeds[0].copy()
+    		 		await interaction.response.send_message(embed=emb, ephemeral=True)
+    		 	cslotlist.callback = myteam
+    		 				
 
-		
+            
+    		if interaction.data["custom_id"] == "Tname":
+    		    await interaction.response.send_message(view=view, ephemeral=True)
+    		    async def change_teamname(interaction):
+        		    inp = discord.ui.Modal(title="Team Name", timeout=30)
+        		    text = (discord.ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="teamname"))
+        		    inp.add_item(text)
+        		    await interaction.response.send_modal(inp)
+        		    async def tname(interaction):
+        		         nme = inp.children[0].value.upper()
+        		         print(nme)
+        		         ms = await cch.fetch_message(cslotlist.values[0])
+        		         pem = ms.embeds[0]
+        		         st = pem.description.find("[")+1
+        		         en = pem.description.find("]")
+        		         team = pem.description[st:en]
+        		         desc = pem.description.replace(team, nme)
+        		         emb = discord.Embed(color=pem.color, description=desc)
+        		         emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon)
+        		         emb.set_thumbnail(url=interaction.user.display_avatar)
+        		         emb.timestamp = ms.created_at
+        		         try:
+        		         	 await ms.edit(content = f"{nme} {interaction.user.mention}",embed=emb)
+        		         except Exception as e:
+        		         	 return await interaction.response.send_message(f'Unable To Change Team Name At This Time!!\nReason : {e}', ephemeral=True)
+        		         return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
+        		    inp.on_submit = tname
+    		    cslotlist.callback = change_teamname
+    		    
+    
 async def setup(bot):
     await bot.add_cog(Esports(bot))

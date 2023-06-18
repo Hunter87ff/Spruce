@@ -379,6 +379,11 @@ class Helper(commands.Cog):
     async def _gsetup(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `_gsetup <registration_channel>`\nExample : `&_gsetup #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
         await ctx.send(embed=em)
+
+    @help.command()
+    async def set_manager(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `set_manager <registration_channel>`\nExample : `&set_manager #register-here`\nNote : You Can Also Use registration channel_id", color=0x00ff00)
+        await ctx.send(embed=em)
 #Utils Related
     @help.command()
     async def tts(self, ctx):
