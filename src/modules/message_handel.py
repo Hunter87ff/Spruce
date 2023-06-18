@@ -62,7 +62,7 @@ async def ask(message, bot):
 			return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
 	response = sdbc.find()
 	
-	if f"<@{bot.user.id}>" in message.content or message.reference.cached_message and message.reference.cached_message.author.id == bot.user.id or message.guild == None:
+	if f"<@{bot.user.id}>" in message.content or message.reference != None and message.reference.cached_message.author.id == bot.user.id or message.guild == None:
 		query = message.content.replace(f"<@{bot.user.id}>", "")
 		await ctx.typing()
 		#await asyncio.sleep(4)
