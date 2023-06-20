@@ -50,7 +50,7 @@ def lang_model(query:str):
 def check_send(message, bot):
     if f"<@{bot.user.id}>" in message.content:
         return True
-    if message.guild is None:
+    if message.guild == None:
         return True
     else:
         return None
@@ -66,11 +66,11 @@ async def ask(message, bot):
 		return
 	if message.author.id != config.owner_id:
 		pass
-	for i in bws:
-		if i in message.content.split():
-			return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
 	response = sdbc.find()
 	if check_send(message, bot) != None:
+		for i in bws:
+			if i in message.content.split():
+				return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
 		query = message.content.replace(f"<@{bot.user.id}>", "")
 		await ctx.typing()
 		await asyncio.sleep(4)

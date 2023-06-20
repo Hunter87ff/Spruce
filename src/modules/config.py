@@ -27,8 +27,8 @@ spot_secret = os.environ["spot_secret"]
 openai_key = os.environ["openai_key"]
 cogs_path = os.environ["cogs"]
 
-m_host = "ssl.freelavalink.ga"
-m_host_psw = "www.freelavalink.ga" 
+m_host = "lavalink.lexnet.cc"
+m_host_psw = "lexn3tl@val!nk" 
 ################## LOG ####################
 
 erl = 1015166083050766366
@@ -68,6 +68,12 @@ loading = "<a:loading:969894982024568856>"
 default_tick = "✅"
 default_cross = "❌"
 heart = "❤️"
+next_btn = "<:next:1120742875450310796>"
+play_btn = "<:play_btn:1019504469299441674>"
+pause_btn = "<:Pause:1019217055712559195>"
+stop_btn = "<:stop:1019218566475681863>"  
+loop_btn = "<:loop_btn:1019219071046258708>"
+queue_btn = "<:queue:1019219174070951967>"
 
 #colors
 blurple = 0x7289da

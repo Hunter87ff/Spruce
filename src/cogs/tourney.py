@@ -819,7 +819,10 @@ class Esports(commands.Cog):
     async def on_interaction(self, interaction):
     	if interaction.user.bot:
     		return
-    	ctx = await self.bot.get_context(interaction.message)
+    	if interaction.message.embeds != None:
+    		if "<a:music_disk:1020370054665207888>" in interaction.message.embeds[0].title:
+    			return
+    	#ctx = await self.bot.get_context(interaction.message)
     	if "custom_id" in interaction.data:
     		db = dbc.find_one({"mch":interaction.channel.id})
     		view = View()

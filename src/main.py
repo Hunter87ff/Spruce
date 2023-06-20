@@ -4,7 +4,9 @@ import discord
 import asyncio
 from asyncio import sleep
 from discord.ext import commands
-from discord.ui import View, Button
+#from discord.ui import View, Button
+import wavelink
+from wavelink.ext import spotify
 from modules import (message_handel, channel_handel, config)
 #from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
@@ -33,17 +35,33 @@ asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
+	try:
+		await node_connect()
+	except:
+		pass
 	st_log = bot.get_channel(config.stl)
 	await bot.tree.sync()
 	status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
 	stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
-	#await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+	await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
 	print(stmsg)
 	while True:
 		for st in status:
 			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
 			await sleep(120)
-	
+
+async def node_connect():
+	await bot.wait_until_ready()
+	await wavelink.NodePool.create_node(bot=bot,
+	                                    host=config.m_host,
+	                                    port=443,
+	                                    password=config.m_host_psw,
+	                                    https=True,
+	                                    spotify_client=spotify.SpotifyClient(
+	                                     client_id=config.spot_id,
+	                                     client_secret=config.spot_secret))
+
+
 @bot.event
 async def on_message(message):
     if message.webhook_id:

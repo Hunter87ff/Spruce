@@ -1,6 +1,6 @@
 import discord
 import wavelink
-from wavelink.ext import spotify
+from wavelink.ext import spotify as spt
 from time import gmtime
 from time import strftime
 from discord.ui import Button, View
@@ -14,7 +14,7 @@ import typing
 def get_img(search):
     if " " in search:
         search = search.replace(" ", "+")
-    word = f"{search}+youtube"
+    word = f"{search}+song+youtube"
     url = f'https://www.google.com/search?q={word}&tbm=isch'.format(word)
     content = requests.get(url).content
     soup = BeautifulSoup(content, features="html5lib")
@@ -25,12 +25,12 @@ def get_img(search):
         	return img_url
 
 
-next_btn = Button(label="Skip", custom_id="next_btn")
-pause_btn = Button(label="Pause", custom_id="pause_btn")
-stop_btn = Button(label="Stop", style=ButtonStyle.danger, custom_id="stop_btn")
-queue_btn = Button(label="Queue", style=ButtonStyle.blurple, custom_id="queue_btn")
-play_btn = Button(label="Play", custom_id="play_btn")
-loop_btn = Button(label="Loop", custom_id="loop_btn")
+next_btn = Button(emoji=config.next_btn, custom_id="next_btn")
+pause_btn = Button(emoji=config.pause_btn, custom_id="pause_btn")
+stop_btn = Button(emoji=config.stop_btn, style=ButtonStyle.danger, custom_id="stop_btn")
+queue_btn = Button(emoji=config.queue_btn, style=ButtonStyle.blurple, custom_id="queue_btn")
+play_btn = Button(emoji=config.play_btn, custom_id="play_btn")
+loop_btn = Button(emoji=config.loop_btn, custom_id="loop_btn")
 
 pref_ms = []
 
@@ -41,7 +41,7 @@ class Music(commands.Cog):
 		self.pref_ms = []
 
 	@commands.Cog.listener()
-	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack] , reason):
+	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.SoundCloudTrack] , reason):
 	    btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
 	    view = View()
 	    for btn in btns:
@@ -72,49 +72,20 @@ class Music(commands.Cog):
 	        		if ":music_disk:" in i.embeds[0].title:
 	        			await i.delete()
 			
-	        ms = await ctx.send(embed=next_song_emb, view=view)
+	        await ctx.send(embed=next_song_emb, view=view)
 	        #msg = await ms.channel.fetch_message(pref_ms[0])
 	        #await msg.delete()
 	        #pref_ms.remove(pref_ms[0])
 	    except discord.HTTPException:
-	        await interaction.send("E",embed=next_song_emb, view=view)
-
-
-
-	@cmd.hybrid_command(with_app_command=True)
-	async def loop(self, ctx):
-		if ctx.author.bot:
-			return
-		await ctx.defer()
-		if ctx.author.voice != None:
-			if ctx.voice_client != None:
-				vc: wavelink.Player = ctx.voice_client
-				if vc.is_playing == False:
-					return await ctx.reply(embed=discord.Embed(description="No Audio Available For Loop...", color=0xff0000))
-				else:
-					if vc.loop ==False:
-						vc.loop = True
-						lemb = discord.Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
-					if vc.loop == True:
-						vc.loop =False 
-						lemb = discord.Embed(title="Loop Music", description=f"**{config.default_tick} Loop Cancelled**", color=config.orange)
-					await ctx.send(embed=lemb, delete_after=5)
-		if ctx.author.voice == None:
-			em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
-			await ctx.reply(embed=em)
-		if ctx.voice_client == None:
-			return await ctx.reply(embed=discord.Embed(description="**I'm Not Connected To Vc!!**"))
-	
-	
-
-
+	        await interaction.send(embed=next_song_emb, view=view)
 
 #, wavelink.SoundCloudTrack
-	@cmd.command(enabled=False, aliases= ['p','P'])
+	@cmd.command(enabled=True, aliases= ['p','P'])
 	@config.dev()
-	async def play(self, ctx, *, search : wavelink.YouTubeMusicTrack):
+	async def play(self, ctx, *, search:wavelink.SoundCloudTrack):
 		if ctx.author.bot:
 			return
+
 		btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
 		view = View()
 		for btn in btns:
@@ -204,6 +175,29 @@ class Music(commands.Cog):
 	            await vc.resume()
 	            await ctx.send(embed=discord.Embed(title=f"{config.tick} | Resumed"), delete_after=2)
 
+	@cmd.hybrid_command(with_app_command=True)
+	async def loop(self, ctx):
+		if ctx.author.bot:
+			return
+		await ctx.defer()
+		if ctx.author.voice != None:
+			if ctx.voice_client != None:
+				vc: wavelink.Player = ctx.voice_client
+				if vc.is_playing == False:
+					return await ctx.reply(embed=discord.Embed(description="No Audio Available For Loop...", color=0xff0000))
+				else:
+					if vc.loop ==False:
+						vc.loop = True
+						lemb = discord.Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
+					if vc.loop == True:
+						vc.loop =False 
+						lemb = discord.Embed(title="Loop Music", description=f"**{config.default_tick} Loop Cancelled**", color=config.orange)
+					await ctx.send(embed=lemb, delete_after=5)
+		if ctx.author.voice == None:
+			em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
+			await ctx.reply(embed=em)
+		if ctx.voice_client == None:
+			return await ctx.reply(embed=discord.Embed(description="**I'm Not Connected To Vc!!**"))
 
 	@cmd.hybrid_command(with_app_command=True)
 	async def queue(self, ctx):
@@ -313,6 +307,7 @@ class Music(commands.Cog):
 
 		        if vc.is_playing:
 		            await vc.pause()
+					
 		            return await interaction.response.send_message("Paused", ephemeral=True)
 
 
