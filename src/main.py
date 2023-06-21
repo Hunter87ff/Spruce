@@ -28,49 +28,46 @@ bot.remove_command("help")
 support_server = bot.get_guild(config.support_server_id)
 
 async def load_extensions():
-    for filename in os.listdir(config.cogs_path):
-        if filename.endswith(".py"):
-            await bot.load_extension(f"cogs.{filename[:-3]}")
+	for filename in os.listdir(config.cogs_path):
+		if filename.endswith(".py"):
+			await bot.load_extension(f"cogs.{filename[:-3]}")
 asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
 	try:
 		await node_connect()
-	except:
-		pass
-	st_log = bot.get_channel(config.stl)
-	await bot.tree.sync()
-	status = ['&help', "You", "dsc.gg/spruce", "250k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
-	stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
-	await st_log.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
-	print(stmsg)
-	while True:
-		for st in status:
-			await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-			await sleep(120)
+		await bot.tree.sync()
+		stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
+		print(stmsg)
+		await bot.get_channel(config.stl).send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+		while True:
+			for st in config.status:
+				await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
+				await sleep(120)
+	except Exception as ex:
+		print(ex)
 
 async def node_connect():
-	await bot.wait_until_ready()
-	await wavelink.NodePool.create_node(bot=bot,
-	                                    host=config.m_host,
-	                                    port=443,
-	                                    password=config.m_host_psw,
-	                                    https=True,
-	                                    spotify_client=spotify.SpotifyClient(
-	                                     client_id=config.spot_id,
-	                                     client_secret=config.spot_secret))
+	try:
+		await bot.wait_until_ready()
+		await wavelink.NodePool.create_node(bot=bot,host=config.m_host,port=443,password=config.m_host_psw,https=True,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
+	except Exception as e:
+		print(e)
 
 
 @bot.event
 async def on_message(message):
-    if message.webhook_id:
-        return
-    await bot.process_commands(message)
-    #await nitrof(message)
-    await onm.tourney(message)
-    await onm.auto_grp(message, bot)
-    await onm.ask(message, bot=bot)
+	if message.author.bot:
+		return
+	if message.webhook_id:
+		return
+	await bot.process_commands(message)
+	#await nitrof(message)
+	await onm.tourney(message)
+	await sleep(2)
+	await onm.auto_grp(message, bot)
+	await onm.ask(message, bot=bot)
 	
 @bot.event
 async def on_guild_channel_delete(channel):

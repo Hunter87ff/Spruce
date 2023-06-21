@@ -1,6 +1,6 @@
 import discord
 import wavelink
-from wavelink.ext import spotify as spt
+from wavelink.ext import spotify
 from time import gmtime
 from time import strftime
 from discord.ui import Button, View
@@ -41,7 +41,7 @@ class Music(commands.Cog):
 		self.pref_ms = []
 
 	@commands.Cog.listener()
-	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[wavelink.SoundCloudTrack] , reason):
+	async def on_wavelink_track_end(self, player: wavelink.Player, track: typing.Union[spotify.SpotifyTrack ,wavelink.YouTubeMusicTrack] , reason):
 	    btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
 	    view = View()
 	    for btn in btns:
@@ -82,7 +82,7 @@ class Music(commands.Cog):
 #, wavelink.SoundCloudTrack
 	@cmd.command(enabled=True, aliases= ['p','P'])
 	@config.dev()
-	async def play(self, ctx, *, search:wavelink.SoundCloudTrack):
+	async def play(self, ctx, *, search: typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack]):
 		if ctx.author.bot:
 			return
 
@@ -114,7 +114,7 @@ class Music(commands.Cog):
 		        tm = "%M:%S"
 		    image_url = get_img(search=search.title)
 		    em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=image_url)
-		    ms = await ctx.send(embed=em, view=view)
+		    await ctx.send(embed=em, view=view)
 		else:
 		    await vc.queue.put_wait(search)
 		    await ctx.send('Added to the queue...', delete_after=5)
