@@ -1,5 +1,5 @@
 import os 
-import random
+import random, requests
 import discord
 import asyncio
 from asyncio import sleep
@@ -40,7 +40,8 @@ async def on_ready():
 		await bot.tree.sync()
 		stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
 		print(stmsg)
-		await bot.get_channel(config.stl).send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+		#await bot.get_channel(config.stl).send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
+		requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
 		while True:
 			for st in config.status:
 				await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))

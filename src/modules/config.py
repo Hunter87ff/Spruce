@@ -32,6 +32,7 @@ m_host_psw = "lexn3tl@val!nk"
 ################## LOG ####################
 
 erl = 1015166083050766366
+stwbh = "https://discord.com/api/webhooks/1120961505433763971/N1n2CHfqZzjJ1LZj2YsM53VyxpM_i8ZmTwnKTQwpoHNSrQ4Lispxw4iEFvNrSTarybX6"
 stl = 1020027121231462400
 dml = os.environ["dml"]
 cmdnf = 1020698810625826846
