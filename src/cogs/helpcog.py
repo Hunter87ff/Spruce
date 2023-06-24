@@ -327,7 +327,7 @@ class Helper(commands.Cog):
 
     @help.command()
     async def auto_group(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command it'll create total group system of the tournament\nNote: Make sure no one should send messages in  confirm channel. else it'll not work", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command it'll create total group system of the tournament\n\nNote: Make sure no one should send messages in  confirm channel. else it'll not work\nAnd Only use this command if the registration if end or you want to start the tournament\n\n[Watch Tutorial](https://www.youtube.com/watch?v=13AeFynyZ6Q)", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["add"])
