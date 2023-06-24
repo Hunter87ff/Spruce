@@ -66,7 +66,6 @@ async def on_message(message):
 	await bot.process_commands(message)
 	#await nitrof(message)
 	await onm.tourney(message)
-	await sleep(2)
 	await onm.auto_grp(message, bot)
 	await onm.ask(message, bot=bot)
 	

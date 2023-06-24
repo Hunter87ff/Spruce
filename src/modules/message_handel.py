@@ -32,21 +32,32 @@ bws = ['xvideos', ' bsdke', 'भोसडीके', 'randi', "https://", 'ल�
 #########################################################
 
 say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
-name = ["name", "inka nam kya hai", "ye kon hai", "what is his name", "his name", "her name"]
+name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
 unfair = ["me harami", "me hamina", "me useless", "mein harami", "i am a dog"]
-def lang_model(query:str):
+def lang_model(ctx, query:str, response):
 	#do something
 	for i in say:
 		if i in query:
 			ms = query.replace(i, "")
 			return ms
-	for i in name:
-		if i in query:
-			return "Click on profile you'll able to see the name"
+
 	if "yes" in query:
 		return ":eyes:"
-			
 		
+	for i in name:
+		if i in query:
+			return ctx.author.name
+
+"""	
+
+			
+	for i in response:
+		if i["q"].lower() in query.lower():
+			return i["a"]
+
+"""
+
+
 def check_send(message, bot):
     if f"<@{bot.user.id}>" in message.content:
         return True
@@ -71,30 +82,34 @@ async def ask(message, bot):
 		for i in bws:
 			if i in message.content.split():
 				return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
-		query = message.content.replace(f"<@{bot.user.id}>", "")
+		query = message.content.replace(f"<@{bot.user.id}>", "").lower()
 		await ctx.typing()
 		await asyncio.sleep(4)
-		if lang_model(query) != None:
+		if lang_model(ctx, query, response) != None:
 			mallow = discord.AllowedMentions(everyone=False, roles=False)
-			return await ctx.reply(lang_model(query), allowed_mentions=mallow)
+			return await ctx.reply(lang_model(ctx, query, response), allowed_mentions=mallow)
 		matches = []
-		if not lang_model(query):
+		if not lang_model(ctx, query, response):
 			for a in response:
 				a1 = np.array([a["q"].lower().split()])
 				a2 = np.array([query.lower().split()])
 				same = np.intersect1d(a1, a2)
 				#print(same)
-				if len(same) >= len(query.split())/1.9:
-					matches.append(a["a"])
-					if int(a["rating"]) > 4:
-						return await ctx.reply(f'{a["a"]}')
-					if int(a["rating"]) < 5:
-						matches.append(a["a"])
-			if len(matches) > 1:
-				return await ctx.reply(f"{random.choice(matches)}")
+				#print(same)
+				if len(same) >= len(query.split())/2:
+					#if int(a["rating"]) > 4:
+					#	return await ctx.reply(f'{a["a"]}')
+					matches.append({"a" : a["a"], "r" : len(same)})
+
+			if len(matches) > 0:
+				#print(matches)
+				mt = max(matches, key=lambda x: x['r'])
+				print(mt)
+				return await ctx.reply(mt["a"])
+				#return await ctx.reply(f"{random.choice(matches)}")
 		if len(matches)==0:
 			req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
-			return await ctx.reply("As an underdevelopment program currently im learning.. and i don't know what to say to tour query. because im currently like a child and learning from others..")
+			return await ctx.reply("As an underdevelopment program currently im learning.. and i don't know what to say to your query. because im currently learning from others..")
 		
 
 #########################################################
