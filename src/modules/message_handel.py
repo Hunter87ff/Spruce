@@ -298,19 +298,22 @@ async def tourney(message):
                             await message.delete()
                             return await ctx.channel.send(embed=fakeemb, delete_after=60)
                         if ftch == None:
-                            await message.author.add_roles(crole)
-                            await message.add_reaction("✅")
-                            reg_update(message)
-                            team_name = find_team(message)
-                            femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                            femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                            femb.timestamp = message.created_at   #datetime.datetime.utcnow()
-                            femb.set_thumbnail(url=message.author.display_avatar)
-                            if rgs >= tslot*0.1 and td["pub"] == "no":
-                                dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                            return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
-                            
-                        
+                            try:
+                            	await message.author.add_roles(crole)
+                            	await message.add_reaction("✅")
+                            	reg_update(message)
+                            	team_name = find_team(message)
+                            	femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                            	femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                            	femb.timestamp = message.created_at   #datetime.datetime.utcnow()
+                            	femb.set_thumbnail(url=message.author.display_avatar)
+                            	if rgs >= tslot*0.1 and td["pub"] == "no":
+	                                dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                            	return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                            except Exception as e:
+                            	print(e)
+	                            
+	                        
 				#IF FAKE TAG ALLOWED
 				####################
                 if td["faketag"] == "yes":
@@ -328,7 +331,10 @@ async def tourney(message):
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
             meb = discord.Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
-            await message.delete()
+            try:
+            	await message.delete()
+            except Exception as e:
+            	print(f"line No 335, error: {e}")
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
 

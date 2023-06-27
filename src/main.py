@@ -75,17 +75,20 @@ async def on_guild_channel_delete(channel):
 	
 @bot.event
 async def on_guild_join(guild):
-    support_server = bot.get_guild(config.support_server_id)
-    ch = bot.get_channel(config.gjoin)
-    channel = random.choice(guild.channels)
-    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
-    link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
-    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
-    if guild.member_count >= 100 and guild.owner in support_server.members:
-        m = discord.utils.get(support_server.members, id=guild.owner.id)
-        await m.add_roles(orole)
-    await ch.send(msg)
-
+	try:
+	    support_server = bot.get_guild(config.support_server_id)
+	    ch = bot.get_channel(config.gjoin)
+	    channel = random.choice(guild.channels)
+	    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
+	    link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
+	    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
+	    if guild.member_count >= 100 and guild.owner in support_server.members:
+	        m = discord.utils.get(support_server.members, id=guild.owner.id)
+	        await m.add_roles(orole)
+	    await ch.send(msg)
+	except Exception as e:
+		print(f"on_guild_join : {e}")
+	
 @bot.event
 async def on_guild_remove(guild):
     support_server = bot.get_guild(config.support_server_id)
