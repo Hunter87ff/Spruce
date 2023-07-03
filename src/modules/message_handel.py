@@ -59,8 +59,6 @@ def lang_model(ctx, query:str, response):
 
 
 def check_send(message, bot):
-    if f"<@{bot.user.id}>" in message.content:
-        return True
     if message.guild == None:
         return True
     else:
