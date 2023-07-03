@@ -350,8 +350,8 @@ async def error_handle(ctx, error, bot):
         elif isinstance(error, commands.DisabledCommand):
             return await ctx.send(embed=discord.Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
         elif isinstance(error, commands.CommandNotFound):
-            return await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
-            #return await ctx.send(embed=discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
+            await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
         elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
             return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
         elif isinstance(error, commands.UserInputError):
