@@ -8,6 +8,8 @@ from discord.ext import commands
 import wavelink
 from wavelink.ext import spotify
 from modules import (message_handel, channel_handel, config)
+from flask import Flask
+from threading import Thread
 #from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
 onm = message_handel
@@ -129,5 +131,17 @@ async def botinfo(ctx):
     emb.set_footer(text="Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
 
+app = Flask('')
 
+@app.route('/')
+def home():
+    return f"bot : {bot.user.name}"
+
+def run():
+  app.run(host='0.0.0.0',port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+keep_alive()
 bot.run(config.token)
