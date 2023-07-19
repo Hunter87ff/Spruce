@@ -92,16 +92,16 @@ async def ask(message, bot):
         matches = []
         if not lang_model(ctx, query, response):
             for a in response:
-                a2 = np.array([x.lower() for x in a["q"]])
-                a1 = np.array([x.lower() for x in query])
+                a2 = np.array([x.lower() for x in a["q"].split()])
+                a1 = np.array([x.lower() for x in query.split()])
                 same = len(np.intersect1d(a1, a2))
-                if query in i["q"] or i["q"] in query:
+                if int(same/len(a1)*100) >= 95:
                     await ctx.typing()
                     await asyncio.sleep(4)
-                    return await ctx.reply(i["a"])
+                    return await ctx.reply(a["a"])
                 if same >= len(query.split())/2:
-                    if int(same/len(a1)*100) >= 50:
-                        matches.append({"a" : i["a"], "r": int(same/len(a1)*100)})
+                    if int(same/len(a1)*100) >= 1:
+                        matches.append({"a" : a["a"], "r": int(same/len(a1)*100)})
             if len(matches) > 0:
                 mt = max(matches, key=lambda x: x['r'])
                 await ctx.typing()
