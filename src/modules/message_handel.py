@@ -89,8 +89,8 @@ async def ask(message, bot):
 		matches = []
 		if not lang_model(ctx, query, response):
 			for a in response:
-				a1 = np.array([a["q"].lower().split()])
-				a2 = np.array([query.lower().split()])
+				a1 = np.array([a["q"].lower()])
+				a2 = np.array([query.lower()])
 				same = np.intersect1d(a1, a2)
 				#print(same)
 				#print(same)
