@@ -33,20 +33,23 @@ bws = ['xvideos', ' bsdke', 'भोसडीके', 'randi', "https://", 'ल�
 
 say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
 name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
-unfair = ["me harami", "me hamina", "me useless", "mein harami", "i am a dog"]
+unfair = [{"q":"me harami", "a":"aap harami ho"}, {"q":"me useless", "a":"me really useful yes i know"}, {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}]
+repl_yes = ["ohh", "okey", "hm"]
 def lang_model(ctx, query:str, response):
-	#do something
-	for i in say:
-		if i in query:
-			ms = query.replace(i, "")
-			return ms
+    for i in say:
+        if i in query:
+            ms = query.replace(i, "")
+            for j in unfair:
+                if j["q"] in ms:
+                    ms = ms.replace(j["q"], j["a"])
+            return ms
 
-	if "yes" in query:
-		return ":eyes:"
-		
-	for i in name:
-		if i in query:
-			return ctx.author.name
+    if "yes" in query:
+        return random.choice(repl_yes)
+
+    for i in name:
+        if i in query:
+            return ctx.author.name
 
 """	
 
@@ -70,45 +73,44 @@ def check_send(message, bot):
 	
 
 async def ask(message, bot):
-	ctx = await bot.get_context(message)
-	if message.author.bot:
-		return
-	if message.author.id != config.owner_id:
-		pass
-	response = sdbc.find()
-	if check_send(message, bot) != None:
-		for i in bws:
-			if i in message.content.split():
-				return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
-		query = message.content.replace(f"<@{bot.user.id}>", "").lower()
-		await ctx.typing()
-		await asyncio.sleep(4)
-		if lang_model(ctx, query, response) != None:
-			mallow = discord.AllowedMentions(everyone=False, roles=False)
-			return await ctx.reply(lang_model(ctx, query, response), allowed_mentions=mallow)
-		matches = []
-		if not lang_model(ctx, query, response):
-			for a in response:
-				a1 = np.array([a["q"].lower()])
-				a2 = np.array([query.lower()])
-				same = np.intersect1d(a1, a2)
-				#print(same)
-				#print(same)
-				if len(same) >= len(query.split())/2:
-					#if int(a["rating"]) > 4:
-					#	return await ctx.reply(f'{a["a"]}')
-					matches.append({"a" : a["a"], "r" : len(same)})
-
-			if len(matches) > 0:
-				#print(matches)
-				mt = max(matches, key=lambda x: x['r'])
-				print(mt)
-				return await ctx.reply(mt["a"])
-				#return await ctx.reply(f"{random.choice(matches)}")
-		if len(matches)==0:
-			req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
-			return await ctx.reply("As an underdevelopment program currently im learning.. and i don't know what to say to your query. because im currently learning from others..")
-		
+    ctx = await bot.get_context(message)
+    if message.author.bot:
+        return
+    if message.author.id != config.owner_id:
+        pass
+    response = sdbc.find()
+    if check_send(message, bot) != None:
+        for i in bws:
+            if i in message.content.split():
+                return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
+        query = message.content.replace(f"<@{bot.user.id}>", "").lower()
+        if lang_model(ctx, query, response) != None:
+            await ctx.typing()
+            await asyncio.sleep(4)
+            mallow = discord.AllowedMentions(everyone=False, roles=False)
+            return await ctx.reply(lang_model(ctx, query, response), allowed_mentions=mallow)
+        matches = []
+        if not lang_model(ctx, query, response):
+            for a in response:
+                a2 = np.array([x.lower() for x in a["q"]])
+                a1 = np.array([x.lower() for x in query])
+                same = len(np.intersect1d(a1, a2))
+                if query in i["q"] or i["q"] in query:
+                    await ctx.typing()
+                    await asyncio.sleep(4)
+                    return await ctx.reply(i["a"])
+                if same >= len(query.split())/2:
+                    if int(same/len(a1)*100) >= 50:
+                        matches.append({"a" : i["a"], "r": int(same/len(a1)*100)})
+            if len(matches) > 0:
+                mt = max(matches, key=lambda x: x['r'])
+                await ctx.typing()
+                await asyncio.sleep(4)
+                return await ctx.reply(mt["a"])
+        if len(matches)==0:
+            req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
+            return 
+    	
 
 #########################################################
 ################ GROUP SYSTEM ###########################
@@ -259,9 +261,9 @@ async def tourney(message):
             return dbc.update_one({"tid" : td["rch"]}, {"$set" : {"status" : "paused"}})
         if crole in message.author.roles:
             try:
-            	await message.delete()
+                await message.delete()
             except:
-            	pass
+                pass
             return await message.channel.send("**Already Registered**", delete_after=5)
         if rgs > tslot:
             overwrite = rch.overwrites_for(message.guild.default_role)
@@ -276,17 +278,17 @@ async def tourney(message):
 				########################
                 if td["faketag"] == "no":
                     if fmsg.author.id == ctx.author.id and len(messages) == 1:
-                    	await message.add_reaction("✅")
-                    	reg_update(message)
-                    	team_name = find_team(message)
-                    	femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                    	femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                    	femb.timestamp = datetime.datetime.utcnow()
-                    	femb.set_thumbnail(url=message.author.display_avatar)
-                    	await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
-                    	await message.author.add_roles(crole)
-                    	if rgs >= tslot*0.1 and td["pub"] == "no":
-                    		dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                        await message.add_reaction("✅")
+                        reg_update(message)
+                        team_name = find_team(message)
+                        femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                        femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                        femb.timestamp = datetime.datetime.utcnow()
+                        femb.set_thumbnail(url=message.author.display_avatar)
+                        await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                        await message.author.add_roles(crole)
+                        if rgs >= tslot*0.1 and td["pub"] == "no":
+                            dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     if fmsg.author.id != ctx.author.id:
                         ftch = await ft_ch(message)
                         if ftch != None:
@@ -297,23 +299,23 @@ async def tourney(message):
                             return await ctx.channel.send(embed=fakeemb, delete_after=60)
                         if ftch == None:
                             try:
-                            	await message.author.add_roles(crole)
-                            	await message.add_reaction("✅")
-                            	reg_update(message)
-                            	team_name = find_team(message)
-                            	femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                            	femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                            	femb.timestamp = message.created_at   #datetime.datetime.utcnow()
-                            	femb.set_thumbnail(url=message.author.display_avatar)
-                            	if rgs >= tslot*0.1 and td["pub"] == "no":
-	                                dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                            	return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                                await message.author.add_roles(crole)
+                                await message.add_reaction("✅")
+                                reg_update(message)
+                                team_name = find_team(message)
+                                femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                                femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                                femb.timestamp = message.created_at   #datetime.datetime.utcnow()
+                                femb.set_thumbnail(url=message.author.display_avatar)
+                                if rgs >= tslot*0.1 and td["pub"] == "no":
+                                    dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                                return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                             except Exception as e:
-                            	print(e)
-	                            
-	                        
-				#IF FAKE TAG ALLOWED
-				####################
+                                print(e)
+                                
+                            
+                #IF FAKE TAG ALLOWED
+                ####################
                 if td["faketag"] == "yes":
                     await message.author.add_roles(crole)
                     await message.add_reaction("✅")
@@ -330,9 +332,9 @@ async def tourney(message):
             #await bot.process_commands(message)
             meb = discord.Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
             try:
-            	await message.delete()
+                await message.delete()
             except Exception as e:
-            	print(f"line No 335, error: {e}")
+                print(f"line No 335, error: {e}")
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
 
