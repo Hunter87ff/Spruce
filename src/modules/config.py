@@ -17,7 +17,7 @@ support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify"
 support_server_id = 947443790053015623
 prefix = os.environ["prefix"]
-status = ['&help', "You", "dsc.gg/spruce", "270k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
+status = ['&help', "You", "dsc.gg/spruce", "320k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music"]
 maindb = MongoClient(os.environ["mongo_url"])
 dbc = maindb["tourneydb"]["tourneydbc"]
 spdb = MongoClient(os.environ["spdb"])
