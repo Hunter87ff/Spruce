@@ -126,3 +126,12 @@ def dev():
     def predicate(ctx):
         return ctx.message.author.id == owner_id
     return commands.check(predicate)
+
+
+def notuser(message):
+	if message.author.bot:
+		return True
+	if message.webhook_id:
+		return True
+	else:
+		return None

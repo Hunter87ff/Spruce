@@ -25,7 +25,7 @@ intents.guilds = True
 pref = config.prefix
 maindb = config.maindb
 
-bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents)
+bot = commands.AutoShardedBot(command_prefix= commands.when_mentioned_or(pref), intents=intents)
 bot.remove_command("help")
 support_server = bot.get_guild(config.support_server_id)
 
@@ -61,14 +61,12 @@ async def node_connect():
 
 @bot.event
 async def on_message(message):
-	if message.author.bot:
-		return
-	if message.webhook_id:
+	if config.notuser(message):
 		return
 	await bot.process_commands(message)
 	#await nitrof(message)
 	await onm.tourney(message)
-	await onm.auto_grp(message, bot)
+	#await onm.auto_grp(message, bot)
 	await onm.ask(message, bot=bot)
 	
 @bot.event
