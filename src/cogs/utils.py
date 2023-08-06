@@ -161,6 +161,7 @@ class Utility(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
+	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def tts(self, ctx, *, message):
 		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
@@ -375,6 +376,38 @@ class Utility(commands.Cog):
 		emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
 
+
+
+	
+	
+	@commands.Cog.listener()
+	async def on_guild_join(self, guild):
+		try:
+		    support_server = self.bot.get_guild(config.support_server_id)
+		    ch = self.bot.get_channel(config.gjoin)
+		    channel = random.choice(guild.channels)
+		    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
+		    link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
+		    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
+		    if guild.member_count >= 100 and guild.owner in support_server.members:
+		        m = discord.utils.get(support_server.members, id=guild.owner.id)
+		        await m.add_roles(orole)
+		    await ch.send(msg)
+		except Exception as e:
+			print(f"on_guild_join : {e}")
+		
+	@commands.Cog.listener()
+	async def on_guild_remove(self, guild): 
+	    support_server = self.bot.get_guild(config.support_server_id)
+	    ch = self.bot.get_channel(config.gleave)
+	    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
+	    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
+	    for i in support_server.members:
+	        if i.id == guild.owner.id:
+	            if orole in i.roles:
+	                await i.remove_roles(orole, reason="Kicked Spruce")
+	    return await ch.send(msg)
+	
 
 async def setup(bot):
 	await bot.add_cog(Utility(bot))

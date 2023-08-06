@@ -25,24 +25,25 @@ intents.guilds = True
 pref = config.prefix
 maindb = config.maindb
 
-bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents) #AutoSharded
+bot = commands.AutoShardedBot(command_prefix= commands.when_mentioned_or(pref), intents=intents) #AutoSharded
 bot.remove_command("help")
-support_server = bot.get_guild(config.support_server_id)
+#support_server = bot.get_guild(config.support_server_id)
 
 async def load_extensions():
 	for filename in os.listdir(config.cogs_path):
 		if filename.endswith(".py"):
 			await bot.load_extension(f"cogs.{filename[:-3]}")
-asyncio.run(load_extensions())
+#asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
+	await bot.wait_until_ready()
+	await load_extensions()
 	try:
 		await node_connect()
 		await bot.tree.sync()
 		stmsg = f'{bot.user} is ready with {len(bot.commands)} commands'
 		print(stmsg)
-		#await bot.get_channel(config.stl).send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0x00ff00))
 		requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
 		while True:
 			for st in config.status:
@@ -59,48 +60,20 @@ async def node_connect():
 		print(e)
 
 
+#await nitrof(message)
+#await onm.auto_grp(message, bot)
 @bot.event
 async def on_message(message):
 	if config.notuser(message):
 		return
 	await bot.process_commands(message)
-	#await nitrof(message)
 	await onm.tourney(message)
-	#await onm.auto_grp(message, bot)
 	await onm.ask(message, bot=bot)
 	
 @bot.event
 async def on_guild_channel_delete(channel):
     await ochd.ch_handel(channel, bot)
 	
-@bot.event
-async def on_guild_join(guild):
-	try:
-	    support_server = bot.get_guild(config.support_server_id)
-	    ch = bot.get_channel(config.gjoin)
-	    channel = random.choice(guild.channels)
-	    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
-	    link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
-	    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
-	    if guild.member_count >= 100 and guild.owner in support_server.members:
-	        m = discord.utils.get(support_server.members, id=guild.owner.id)
-	        await m.add_roles(orole)
-	    await ch.send(msg)
-	except Exception as e:
-		print(f"on_guild_join : {e}")
-	
-@bot.event
-async def on_guild_remove(guild):
-    support_server = bot.get_guild(config.support_server_id)
-    ch = bot.get_channel(config.gleave)
-    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
-    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
-    for i in support_server.members:
-        if i.id == guild.owner.id:
-            if orole in i.roles:
-                await i.remove_roles(orole, reason="Kicked Spruce")
-    return await ch.send(msg)
-
 @bot.event
 async def on_command_error(ctx, error, bot=bot):
     await onm.error_handle(ctx, error, bot=bot)
@@ -133,7 +106,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return f"bot : spruce#6967"
+    return "bot : spruce#6967"
 
 def run():
   app.run(host='0.0.0.0',port=8080)
@@ -142,4 +115,5 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 keep_alive()
+
 bot.run(config.token)
