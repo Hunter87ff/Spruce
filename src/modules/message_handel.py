@@ -346,7 +346,7 @@ async def error_handle(ctx, error, bot):
     cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `&help <this_command>` to get Instructions"))
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `**&help {ctx.command.name}**` to get Instructions"))
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.send(embed=discord.Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
         elif isinstance(error, commands.DisabledCommand):

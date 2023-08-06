@@ -25,7 +25,7 @@ intents.guilds = True
 pref = config.prefix
 maindb = config.maindb
 
-bot = commands.AutoShardedBot(command_prefix= commands.when_mentioned_or(pref), intents=intents)
+bot = commands.Bot(command_prefix= commands.when_mentioned_or(pref), intents=intents) #AutoSharded
 bot.remove_command("help")
 support_server = bot.get_guild(config.support_server_id)
 
@@ -133,7 +133,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return f"bot : {bot.user.name}"
+    return f"bot : spruce#6967"
 
 def run():
   app.run(host='0.0.0.0',port=8080)

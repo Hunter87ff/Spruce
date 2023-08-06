@@ -14,17 +14,18 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("&"), intents=inten
 
 
 
-invbtn = Button(label="Invite", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
+invbtn = Button(label="Invite", url="https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot")
 votebtn = Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")
 support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhpAyFZm")
+donate_btn = Button(label="Donate", url="https://discord.gg/x4sUyxttnf")
 hel_p = "• Prefix - `&`\n• Total Commands - `85` | Usable - `80`\n• Type `&help <command | category>` for more info\n\n"
-helpemb  = discord.Embed(title=f"Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
+helpemb  = discord.Embed(title="Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
-espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `_gsetup`", color=0xf0ff0f)
+espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`,`auto_group` , `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `group_setup`", color=0xf0ff0f)
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`, `uptime`, `vote`, `support`, `invite`", color=0xf0ff0f)
-buttons =[invbtn, votebtn, support_serverbtn]
+buttons =[invbtn, votebtn, support_serverbtn, donate_btn]
 
 
 def get_thum(ctx):
@@ -64,14 +65,10 @@ class Dropdown(discord.ui.Select):
         if self.values[0] == "Role":
             await interaction.response.edit_message(embed=roleemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
 
-
-
-
 class DropdownView(discord.ui.View):
     def __init__(self):
         super().__init__()
         self.add_item(Dropdown())
-
 
 class Helper(commands.Cog):
     def __init__(self, bot):
@@ -86,7 +83,7 @@ class Helper(commands.Cog):
         view = DropdownView()
         for opt in buttons:
             view.add_item(opt)
-        msg = await ctx.send(embed=helpemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
+        await ctx.send(embed=helpemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
 
