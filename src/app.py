@@ -28,6 +28,7 @@ HYPERLINK = '<a href="{}">{}</a>'
 
 
 
+
 def welcome_user(user):
 	dm_channel = discord.bot_request("/users/@me/channels",
 	                                 "POST",
@@ -60,8 +61,12 @@ def dashboard():
 		return redirect(url_for("login"))
 	try:
 		user = discord.fetch_user()
+		glds = []
 		guilds = discord.fetch_guilds()
-		return render_template("dash.html", avatar=user.avatar_url, leng=len(guilds))
+		for g in guilds:
+			if g.permissions.administrator:
+				glds.append(g)
+		return render_template("dash.html", avatar=user.avatar_url, leng=len(guilds), title="Spruce Bot -Dashboard", guilds=glds, user=user)
 	except Exception as e:
 		return "Something Went Wrong", print(e)
 
@@ -93,8 +98,8 @@ def invite_oauth():
 @app.route("/callback/")
 def callback():
 	data = discord.callback()
-	redirect_to = data.get("redirect", "/dashboard")
-	user = discord.fetch_user()
+	redirect_to = data.get("redirect", "/dashboard/")
+	#user = discord.fetch_user()
 	#welcome_user(user)
 	return redirect(redirect_to)
 
@@ -245,7 +250,7 @@ def payu():
 #################  pages   #################
 @app.route("/refund")
 def refund():
-	return render_template("pages/refund.html")
+	return render_template("pages/refund.html", title="Refund Policy")
 
 
 @app.route("/refund_application")
@@ -255,14 +260,14 @@ def refund_app():
 		#print(dir(user))
 		guilds = discord.fetch_guilds()
 		if guilds != None:
-			return render_template("pages/refund_app.html", guilds=guilds, user=user)
+			return render_template("pages/refund_app.html", guilds=guilds, user=user, title="Refund Application")
 	except:
 		return "<script>window.location.href='/login'></script>"
 
 
 @app.route('/prime')
 def prime():
-	return render_template("prime.html")
+	return render_template("prime.html", title="Spruce Prime")
 
 
 @app.route('/vote')
@@ -282,17 +287,17 @@ def support():
 
 @app.route("/terms")
 def terms():
-	return render_template("pages/toc.html")
+	return render_template("pages/toc.html", title="Terms And Conditions")
 
 
 @app.route("/privacy")
 def privacy():
-	return render_template("pages/privacy.html")
+	return render_template("pages/privacy.html", title="Privacy Policy")
 
 
 @app.route("/about")
 def about():
-	return render_template("pages/about.html")
+	return render_template("pages/about.html", title="About Us - Spruce")
 
 
 @app.route("/contact")
