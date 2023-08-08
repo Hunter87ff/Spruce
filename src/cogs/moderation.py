@@ -15,7 +15,7 @@ class Moderation(commands.Cog):
 	#start commands
 	
 	@cmd.hybrid_command(with_app_command = True)
-	@commands.cooldown(2, 30, commands.BucketType.user)
+	#@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True, send_messages=True)
 	@commands.guild_only()
@@ -39,7 +39,7 @@ class Moderation(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True)
-	@commands.cooldown(2, 30, commands.BucketType.user)
+	#@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
@@ -64,7 +64,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
-	@commands.cooldown(2, 30, commands.BucketType.user)
+	#@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def hide(self, ctx, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
 		await ctx.defer()
@@ -123,7 +123,7 @@ class Moderation(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_permissions(manage_roles=True)
 	@commands.guild_only()
-	@commands.cooldown(2, 30, commands.BucketType.user)
+	#@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide(self, ctx, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
 		if not await config.voted(ctx, bot=self.bot):
@@ -145,7 +145,7 @@ class Moderation(commands.Cog):
 
 
 	@cmd.hybrid_command(with_app_command = True, aliases=["lc"])
-	@commands.cooldown(2, 30, commands.BucketType.user)
+	#@commands.cooldown(2, 30, commands.BucketType.user)
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
@@ -259,7 +259,7 @@ class Moderation(commands.Cog):
 	@commands.has_permissions(manage_messages=True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_messages=True, send_messages=True)
-	@commands.cooldown(2, 40, commands.BucketType.user)
+	#@commands.cooldown(2, 40, commands.BucketType.user)
 	async def clear(self, ctx, amount:int=None):
 		await ctx.defer()
 

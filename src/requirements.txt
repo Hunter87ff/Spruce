@@ -1,3 +1,4 @@
+pip
 discord.py==2.3.0
 requests==2.30.0
 PyNaCl
@@ -9,4 +10,4 @@ html5lib
 humanfriendly==10.0
 gtts==2.3.2
 numpy==1.24.1
-pip
+flask-discord

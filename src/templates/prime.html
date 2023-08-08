@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--[ Meta for browser ]-->
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1' name='viewport'/>
+    <meta content='IE=edge' http-equiv='X-UA-Compatible'/>
+
+    <title>Spruce Bot</title>
+    <!-- META DETAILS, SEO CONFIGURATION -->
+    <!-- LINK RESOURCES -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins&&family=PT+Sans+Narrow&family=Hind+Madurai&family=Pacifico&family=Bree+Serif&family=Bebas+Neue&display=swap">
+    <link rel="shortcut icon" href="static/img/icn.png" type="image/x-icon">
+    <noscript>Please Enable Javascript For This Site! Else It'll Not Work Properly!!</noscript>
+
+</head>
+<body>
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+    <header class="header">
+        <h2 class="logo" onclick="theme_change()">SPRUCE</h2>
+        <div class="menu-button" id="menu-btn" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </div>
+        <!--<i id="menu-btn" onclick="menu_toggle()" class="fa-solid fa-bars"></i>-->
+        <ul class="nav">
+            <!-- <img src="static/img/icn.png" /> --> 
+            <h2 class="navlogo">SPRUCE</h2><br>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/prime"><i class="fa-solid fa-crown" style="color: #f5e056;"></i>Prime</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/invite">Invite</a></li>
+            <li><a href="/support">Support</a></li>
+            <li class="btn-br6"><a href="/dashboard">Dashboard</a></li>
+            <div class="menu-social">
+                <i class="fa-brands fa-discord" style="color: #1465f0;"></i>
+                <i class="fa-brands fa-youtube-square" style="color:#fc0101 ;"></i>
+                <i class="fa-brands fa-facebook-square" style="color:#0176fc;"></i>
+                <i class="fa-brands fa-instagram-square" style="color:#fc016a;"></i>
+                
+            </div>
+        </ul>
+    </header>
+
+    <section class="cont">
+    
+<link rel="stylesheet" href="static/css/style.css" />
+<style>
+   .cont{
+    background: #464646;
+    color: rgb(253, 253, 253);
+    font-family: poppins, sans-serif;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding-left: 5px;
+	padding-right: 5px;
+   } 
+.features{
+    background: linear-gradient(#42038a, #02026e);
+    padding: 1px;
+    list-style: none;
+    margin: 10px;
+    border-radius: 6px;
+    text-align: left;
+    width: fit-content;
+    cursor: pointer;
+    word-wrap: break-word;
+}
+.features li{
+    padding: 1px;
+    margin: 10px;
+    font-size: 20px;
+}
+.prices{
+    /* border: solid 3px cyan; */
+    border-radius: 6px;
+    display: flex;
+    width: fit-content;
+    justify-content: center;
+    transform: translateX(15px);
+    cursor: pointer;
+}
+.prices div{
+    text-align: left;
+    font-family: poppins, sans-serif;
+    padding-left: 5px;
+    padding:5px;
+    width: fit-content;
+    margin: 10px;
+    background: linear-gradient(#08089b, #440bad);
+    border-radius: 6px;
+    transition: all .5s ease-in-out;
+
+}
+
+.prices div button{
+    background: #0783f7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px;
+    margin:2px;
+    font-size: 20px;
+    font-family: poppins, sans-serif;
+    cursor: pointer;
+}
+.border{
+    height: 1px;
+    width: 100%;
+    background: white;
+    margin: 10px;
+}
+
+
+.sub:hover{
+    background: linear-gradient(#02026e, #42038a);
+    transition: .5s;
+} 
+
+
+
+@media screen and (max-width: 600px){
+    .prime-cont{
+        justify-content: center;
+        text-align: center;
+    }
+    .features li{
+        font-size: 16px;
+    }
+    .prices{
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+        width: 90%;
+    }
+    .prices div{
+        width: 90%;
+        padding: 10px;
+        word-wrap: break-word;
+    }
+    .prices div h4{
+        margin: 20px;
+        margin-left: 0px;
+
+    }
+}
+@media screen and (min-width: 600px){
+
+    .feature-con{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        place-content: center;
+        place-items: center;
+    }
+
+    .prices{
+        flex-direction: row;
+        display: flex;
+        word-wrap: break-word;
+    }
+    .prices div{
+        width: 30%;
+        padding: 10px;
+        word-wrap: break-word;
+    }
+    .prices div p{
+        margin: 20px;
+        margin-left: 0px;
+    }
+}
+del{
+    font-size: 15px;
+    color: red;
+    font-weight: 100;
+}
+</style>
+<div class="prime-cont">
+    <div class="feature-con">
+        <ul class="features">
+            <li>Faketag Filter</li>
+            <li>Enable Music Module</li>
+            <li>Auto Grouping(group system)</li>
+            <li>Unlimited tournaments (1 for free)</li>
+            <li>Unlimited tagcheck and easytag channels.</li>
+            <li>Premium role in our server + several other benefits...</li>
+        </ul>
+    </div>
+
+    <div class="border"></div>
+    <div class="prices">
+
+        <div class="sub animate">
+            <h2>Rs. 19<sup><del>20</del></sup></h2>
+            <h4>Weekly Subscription</h4>
+            <p>This subscription is valid for 7 days. after that the subscription will be expired</p>
+            <button value="7dsub" onclick="sub(this)">Subscribe</button>
+        </div>
+        <div class="sub">
+            <h2>Rs. 59<sup><del>76</del></sup></h2>
+            <h4>Monthly Subscription</h4>
+            <p>This subscription is valid for 30 days. after that the subscription will be expired</p>
+            <button value="1msub" onclick="sub(this)">Subscribe</button>
+        </div>
+        <div class="sub">
+            <h2>Rs. 159<sup><del>228</del></sup></h2>
+            <h4>3 Month Subscription</h4>
+            <p>This subscription is valid for 90 days. after that the subscription will be expired</p>
+            <button value="3msub" onclick="sub(this)">Subscribe</button>
+        </div>
+        </div>
+        <div class="prices">
+        <br>
+
+        <div class="sub animate">
+            <h2>Rs. 279<sup><del>456</del></sup></h2>
+            <h4>6 Month Subscription</h4>
+            <p>This subscription is valid for 6 Months. after that the subscription will be expired</p>
+            <button value="6msub" onclick="sub(this)">Subscribe</button>
+        </div>
+        <div class="sub">
+            <h2>Rs. 559<sup><del>912</del></sup></h2>
+            <h4>Yearly Subscription</h4>
+            <p>This subscription is valid for 1 Year. after that the subscription will be expired</p>
+            <button value="1yrsub" onclick="sub(this)">Subscribe</button>
+        </div>
+        <div class="sub">
+            <h2>Rs. 4599<sup><del>12000</del></sup></h2>
+            <h4>Lifetime Subscription</h4>
+            <p>This subscription is valid for lifetime. it'll not expire anymore</p>
+            <button value="infsub" onclick="sub(this)">Subscribe</button>
+        </div>
+    </div>
+</div>
+<script>
+    function sub(This){
+        console.log(This.value);
+		alert("This Page Is Under Mainatanance!!")
+    }
+
+</script>
+
+    </section>
+
+    <!-- Footer Start -->
+    <footer>
+        <div class="row">
+        <div class="col about">
+            <h3>Spruce Bot</h3>
+            <p style="max-width: 200px;">Spruce Is An Esports Tournament Management Bot, With Some Rare Features. It Can Also Manage Server Little Bit! Like Moderation, Role, Utility, Music etc.</p>
+            <div class="social" style="font-size: 40px;">
+                <i class="fa-brands fa-discord" style="color: #1465f0;"></i>
+                <i class="fa-brands fa-instagram-square" style="color:#fc016a;"></i>
+                <i class="fa-brands fa-linkedin" style="color: #005eff;"></i>
+                <i class="fa-brands fa-youtube-square" style="color:#fc0101 ;"></i>
+                <i class="fa-brands fa-github-square" style="color:#797979 ;"></i>
+            </div>
+        </div>
+        <div  class="col links" style="order:2;">
+            <h3>Useful Links</h3>
+            <ul>
+                <li><a href="#">Blog</a></li>
+                <li><a href="/support">Support</a></li>
+                <li><a href="#">Partnership</a></li>
+                <li><a href="#">Advertisement</a></li>
+            </ul>
+        </div>
+        <div class="col links" style="order:3;">
+            <h3>Site Pages</h3>
+            <ul>
+                <li><a href="#faq">F.A.Q</a></li>
+                <li><a href="/refund">Refund Policy</a></li>
+                <li><a href="/terms">Terms Of Service</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+            </ul>
+        </div>
+        <div class="col subscribe" style="order:4 ;">
+            <h3>Newsletter</h3>
+            <div>
+                <input id="email" required type="email" placeholder="Your email id here" />
+                <button type="submit" id="sub-btn" onclick="subscribe()">Subscribe</button>
+            </div>
+        </div>
+        </div>
+    </div>
+        <div class="row copyright">
+            <div class="footer-menu">  
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+                <a href="#">Blog</a>
+                <a href="/support">Social</a>
+            </div>
+            <p>Copyright &copy; 2021 SpruceBot</p>
+    </footer>
+    
+    <script src="static/js/script.js"></script>
+    </body>
+    </html>

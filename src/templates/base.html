@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--[ Meta for browser ]-->
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1' name='viewport'/>
+    <meta content='IE=edge' http-equiv='X-UA-Compatible'/>
+
+    <title>Spruce Bot</title>
+    <!-- META DETAILS, SEO CONFIGURATION -->
+    <!-- LINK RESOURCES -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins&&family=PT+Sans+Narrow&family=Hind+Madurai&family=Pacifico&family=Bree+Serif&family=Bebas+Neue&display=swap">
+    <link rel="shortcut icon" href="static/img/icn.png" type="image/x-icon">
+    <noscript>Please Enable Javascript For This Site! Else It'll Not Work Properly!!</noscript>
+
+</head>
+<body>
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+    <header class="header">
+        <h2 class="logo" onclick="theme_change()">SPRUCE</h2>
+        <div class="menu-button" id="menu-btn" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </div>
+        <!--<i id="menu-btn" onclick="menu_toggle()" class="fa-solid fa-bars"></i>-->
+        <ul class="nav">
+            <!-- <img src="static/img/icn.png" /> --> 
+            <h2 class="navlogo">SPRUCE</h2><br>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/prime"><i class="fa-solid fa-crown" style="color: #f5e056;"></i>Prime</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/invite">Invite</a></li>
+            <li><a href="/support">Support</a></li>
+            <li class="btn-br6"><a href="/dashboard">Dashboard</a></li>
+            <div class="menu-social">
+                <i class="fa-brands fa-discord" style="color: #1465f0;"></i>
+                <i class="fa-brands fa-youtube-square" style="color:#fc0101 ;"></i>
+                <i class="fa-brands fa-facebook-square" style="color:#0176fc;"></i>
+                <i class="fa-brands fa-instagram-square" style="color:#fc016a;"></i>
+                
+            </div>
+        </ul>
+    </header>
+
+    <section class="cont">
+    {% block content %}
+        {# Template inserted here #}
+    {% endblock %}
+    </section>
+
+    <!-- Footer Start -->
+    <footer>
+        <div class="row">
+        <div class="col about">
+            <h3>Spruce Bot</h3>
+            <p style="max-width: 200px;">Spruce Is An Esports Tournament Management Bot, With Some Rare Features. It Can Also Manage Server Little Bit! Like Moderation, Role, Utility, Music etc.</p>
+            <div class="social" style="font-size: 40px;">
+                <i class="fa-brands fa-discord" style="color: #1465f0;"></i>
+                <i class="fa-brands fa-instagram-square" style="color:#fc016a;"></i>
+                <i class="fa-brands fa-linkedin" style="color: #005eff;"></i>
+                <i class="fa-brands fa-youtube-square" style="color:#fc0101 ;"></i>
+                <i class="fa-brands fa-github-square" style="color:#797979 ;"></i>
+            </div>
+        </div>
+        <div  class="col links" style="order:2;">
+            <h3>Useful Links</h3>
+            <ul>
+                <li><a href="#">Blog</a></li>
+                <li><a href="/support">Support</a></li>
+                <li><a href="#">Partnership</a></li>
+                <li><a href="#">Advertisement</a></li>
+            </ul>
+        </div>
+        <div class="col links" style="order:3;">
+            <h3>Site Pages</h3>
+            <ul>
+                <li><a href="#faq">F.A.Q</a></li>
+                <li><a href="/refund">Refund Policy</a></li>
+                <li><a href="/terms">Terms Of Service</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+            </ul>
+        </div>
+        <div class="col subscribe" style="order:4 ;">
+            <h3>Newsletter</h3>
+            <div>
+                <input id="email" required type="email" placeholder="Your email id here" />
+                <button type="submit" id="sub-btn" onclick="subscribe()">Subscribe</button>
+            </div>
+        </div>
+        </div>
+    </div>
+        <div class="row copyright">
+            <div class="footer-menu">  
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+                <a href="#">Blog</a>
+                <a href="/support">Social</a>
+            </div>
+            <p>Copyright &copy; 2021 SpruceBot</p>
+    </footer>
+    
+    <script src="static/js/script.js"></script>
+    </body>
+    </html>

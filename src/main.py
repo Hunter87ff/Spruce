@@ -1,17 +1,10 @@
-import os 
-import random, requests
-import discord
-import asyncio
+import os, app,discord, random, requests, wavelink
 from asyncio import sleep
 from discord.ext import commands
-#from discord.ui import View, Button
-import wavelink
 from wavelink.ext import spotify
 from modules import (message_handel, channel_handel, config)
-from flask import Flask
-from threading import Thread
 #from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
-
+from modules.bot import bot
 onm = message_handel
 ochd = channel_handel
 intents = discord.Intents.default()
@@ -25,19 +18,16 @@ intents.guilds = True
 pref = config.prefix
 maindb = config.maindb
 
-bot = commands.AutoShardedBot(command_prefix= commands.when_mentioned_or(pref), intents=intents) #AutoSharded
+#bot = commands.AutoShardedBot(shard_count=10, command_prefix= commands.when_mentioned_or(pref), intents=intents) #AutoSharded
 bot.remove_command("help")
-#support_server = bot.get_guild(config.support_server_id)
 
 async def load_extensions():
 	for filename in os.listdir(config.cogs_path):
 		if filename.endswith(".py"):
 			await bot.load_extension(f"cogs.{filename[:-3]}")
-#asyncio.run(load_extensions())
 
 @bot.event
 async def on_ready():
-	await bot.wait_until_ready()
 	await load_extensions()
 	try:
 		await node_connect()
@@ -102,18 +92,6 @@ async def botinfo(ctx):
     emb.set_footer(text="Made with ❤️ | By hunter#6967")
     return await ctx.send(embed=emb)
 
-app = Flask('')
 
-@app.route('/')
-def home():
-    return "bot : spruce#6967"
-
-def run():
-  app.run(host='0.0.0.0',port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-keep_alive()
-
+app.keep_alive()
 bot.run(config.token)

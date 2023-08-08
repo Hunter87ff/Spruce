@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--[ Meta for browser ]-->
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1' name='viewport'/>
+    <meta content='IE=edge' http-equiv='X-UA-Compatible'/>
+
+    <title>Lift Mobi</title>
+    <!-- META DETAILS, SEO CONFIGURATION -->
+    <meta name="description" content="Lift Mobi is a tech-driven powerhouse of thinkers and doers, crafting inspiring campaigns that convey your brand's message to your target audience across digital channels">
+    <meta content='Lift Mobi' name='Author'/>
+    <link href='https://hunter87ff.github.io/client/propaco' rel='author'/>
+    <link href='Lift Mobi' rel='publisher'/>
+    <meta content='Lift Mobi' property='article:author'/>
+    <meta content='Lift Mobi' property='article:publisher'/>
+    <meta content='https://hunter87ff.github.io/client/propaco' name='twitter:site'/>
+    <meta content='Lift Mobi' name='twitter:creator'/>
+    <meta content='https://hunter87ff.github.iostatic/img/logo.png' property='og:image'/>
+    <meta content='https://hunter87ff.github.iostatic/img/logo.png' name='twitter:image'/>
+    <meta content='Lift Mobi' property='og:image:alt'/>
+
+    <!-- LINK RESOURCES -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins&&family=PT+Sans+Narrow&family=Hind+Madurai&family=Pacifico&family=Bree+Serif&family=Bebas+Neue&display=swap">
+    <link rel="shortcut icon" href="static/img/logo.png" type="image/x-icon">
+    <noscript>Please Enable Javascript For This Site! Else It'll Not Work Properly!!</noscript>
+    <style type="text/css">
+        body{
+            background: var(--white);
+        }
+        body.dark{
+            --white:var(--grey-dark);
+            --black: var(--cyan);
+            --bright1:brightness(4.0);
+        }
+        .header{
+            background: var(--white);
+        }
+        .nav.show{
+            border-left: 1px solid var(--black);
+        }
+        .nav{
+            background:var(--white);
+        }
+        .nav img{
+            filter: var(--bright1);
+        }
+        #menu-btn span{
+            background: var(--black);
+        }
+        .nav li a{
+            color: var(--black);
+        }
+        .nav li{
+            color: var(--black);
+        }
+        .cont.row{
+            display: flex;
+            padding-top: 13%;
+            width: 100%;
+            background: var(--white);
+        }
+        .header{
+            border-bottom: 1px solid grey;
+        }
+        .dashc{
+            justify-content: space-between;
+            border-radius: 6px;
+            padding: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            box-shadow: inset 2px 2px 8px grey;
+            margin:5% ;
+            width: 20%;
+            background: var(--white);
+            color: var(--black);
+        }
+        .dashc h1{
+            color: var(--black);
+        }
+        .msg-con{
+        text-align: center;
+        display: block;
+        background: var(--white);
+    }
+
+    .msg{
+        background-image: linear-gradient(to left top, violet, cyan );
+        border-radius: 6px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        margin: 5%;
+        padding: 20px;
+        color: var(--black);
+    }
+    .msg input, .msg div{
+        background: #fff;
+        color: #000;
+        height: fit-content;
+        border-radius: 6px;
+        text-align: left;
+        padding: 5px;
+        margin: 10px;
+        word-wrap: break-word;
+    }
+
+    .msg-content button{
+        height: 40px;
+        width: auto;
+        border-radius: 6px;
+        border:none;
+        text-align: center;
+        margin-right: 10px;
+    }
+        @media screen and (max-width: 850px) {
+            .row{
+                flex-direction: column;
+                padding-top: 20%;
+            }
+            .dashc{
+                min-width: 80% ;
+                word-break: inherit;
+            }
+            .trafic{
+                margin-top: 20%;
+            }
+            .nav li{
+                border-bottom: 1px solid var(--black);
+            }
+        }
+        @media screen and (min-width: 850px){
+            .nav li:hover{
+                border-bottom: 1px solid var(--black);
+            }
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="static/js/jquery.js"></script>
+<script type="text/javascript">
+    const email = localStorage.getItem("email");
+    if (email == null) {window.location.href = "/login"}
+    const pass = localStorage.getItem("pass");
+    if(pass==null){window.location.href = "/login"}
+    const data = {"email":email, "pass":pass}
+        $.post("/api/oauth", data, function(response) {
+      //console.log(response);
+      if (response=="success") {
+        console.log("Logged in successfully!!")
+      } else {
+        window.location.href = "/login";
+      }
+    });
+</script>
+    <header class="header">
+        <img onclick="theme_change()" src="static/img/logo.png" class="logo"/>
+        <div class="menu-button" id="menu-btn" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </div>
+        <!--<i id="menu-btn" onclick="menu_toggle()" class="fa-solid fa-bars"></i>-->
+        <ul class="nav">
+            <img src="static/img/logo.png" /> <br>
+            <li><a href="#" target="_blank">Site Trafic</a></li>
+            <li><a href="#" target="_blank">Messages</a></li>
+            <li><a href="#" target="_blank">Uptime</a></li>
+            <li><a href="#" target="_blank">Members</a></li>
+            <li><a href="#" target="_blank">Chat</a></li>
+            <li><a href="#" target="_blank">Report</a></li>
+            <div class="menu-social">
+                <i class="fa-brands fa-facebook-square" style="color:#0176fc;"></i>
+                <i class="fa-brands fa-instagram-square" style="color:#fc016a;"></i>
+                <i class="fa-brands fa-twitter-square" style="color:#01b5fc ;"></i>
+                <i class="fa-brands fa-youtube-square" style="color:#fc0101 ;"></i>
+            </div>
+        </ul>
+    </header>
+
+    <section class="cont row">
+
+        <div class="dashc trafic" style="order: 1;">
+            <h1>Visiters</h1>
+            <label>{{ obj["view"] }}</label>
+        </div>
+
+        <div class="dashc message" style="order: 2;">
+            <h1>Messages</h1>
+            <label>{{ obj["lmsg"] }}</label>
+        </div>
+        <!-- <div class="dashc message" style="order: 3;">
+            <h1>Uptime</h1>
+            <label>{{ obj["uptime"] }}</label>
+        </div> -->
+        <div class="dashc message" style="order: 4;">
+            <h1>Members</h1>
+            <label>{{ obj["lmem"] }}</label>
+        </div>
+
+
+    </section>
+            <div class="msg-con" style="order: 6;">
+            {% for i in obj["messages"][0:50] %}
+                <form action="/api/delmsg" method="POST" class="msg">
+                    <input type="text"  name="name" value="{{ i[0] }}">
+                    <input type="text"  name="email" value="{{ i[1] }}">
+                    <input type="text"  name="subject" value="{{ i[2] }}">
+                    <div name="desc" style="font-size:12px;">{{ i[3] }}</div>
+                    <div class="msg-content" style="background: transparent; display:flex; flex-direction: row;">
+                        <button  type="submit" style="background:red; color: #fff;">DELETE</button>
+                        <button type="button" onclick='msg_send("mailto:{{i[1]}}?subject={{i[2]}}")'  id="msg-send" style="background: #0774f0; color: #fff;">MESSAGE</button>
+                    </div>
+                </form>
+            {% endfor %}
+        </div>
+
+
+
+    <!-- Footer Start -->
+    <footer>
+    <div class="row">
+    <div class="col about" style="order:1 ;">
+        <h3>Lift Mobi</h3>
+        <p style="max-width: 200px;">We're a tech-driven powerhouse of thinkers and doers, crafting inspiring campaigns that convey your brand's message to your target audience across digital channels</p>
+        <div class="social" style="font-size: 40px;">
+            <i class="fa-brands fa-facebook-square" style="color:#0176fc;"></i>
+            <i class="fa-brands fa-instagram-square" style="color:#fc016a;"></i>
+            <i class="fa-brands fa-twitter-square" style="color:#01b5fc ;"></i>
+            <i class="fa-brands fa-youtube-square" style="color:#fc0101 ;"></i>
+            <i class="fa-brands fa-whatsapp-square" style="color:#04a304 ;"></i>
+        </div>
+    </div>
+    <div  class="col links" style="order:2;">
+        <h3>Useful Links</h3>
+        <ul>
+            <li><a href="#">Career</a></li>
+            <li><a href="#">Partnership</a></li>
+            <li><a href="#">Support</a></li>
+            <li><a href="#">Advertisement</a></li>
+        </ul>
+    </div>
+    <div class="col links" style="order:3;">
+        <h3>Some Links</h3>
+        <ul>
+            <li><a href="#faq">F.A.Q</a></li>
+            <li><a href="#cookies-policy">Cookies Policy</a></li>
+            <li><a href="#terms-of-services">Terms Of Service</a></li>
+            <li><a href="#faq">Privacy Policy</a></li>
+        </ul>
+    </div>
+    <div class="col subscribe" style="order:4 ;">
+        <h3>Newsletter</h3>
+        <div>
+            <input id="email" required type="email" placeholder="Your email id here" />
+            <button type="submit" id="sub-btn" onclick="subscribe()">Subscribe</button>
+        </div>
+    </div>
+    </div>
+</div>
+    <div class="row copyright">
+        <div class="footer-menu">  
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            <a href="/blog">Blog</a>
+            <a href="/social">Social</a>
+        </div>
+        <p>Copyright &copy; 2023 LiftMobi</p>
+</footer>
+
+<script src="static/js/script.js"></script>
+
+
+<script type="text/javascript">
+
+document.querySelector("body").classList.toggle("dark");
+function theme_change(){
+    document.querySelector("body").classList.toggle("dark");
+}
+
+function msg_send(url){
+    window.location.href = `${url}`;
+}
+</script>
+</body>
+</html>
