@@ -49,6 +49,7 @@ class Utility(commands.Cog):
 		self.counter = 0
 
 
+
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def uptime(self, ctx):
@@ -324,6 +325,27 @@ class Utility(commands.Cog):
 		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		await ctx.send(embed=embed)
 
+
+	def mmbrs(self):
+	    i = 0
+	    for guild in self.bot.guilds:
+	        i = i + guild.member_count
+	    return i
+
+	@cmd.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info", "status", "botstats"])
+	@commands.cooldown(2, 60, commands.BucketType.user)
+	@commands.bot_has_permissions(send_messages=True, embed_links=True)
+	async def botinfo(self, ctx):
+	    await ctx.defer(ephemeral=True)
+	    emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
+	    mmbs = self.mmbrs()
+	    emb.add_field(name=f"{config.servers}__Servers Info__", value=f"Total server : {len(self.bot.guilds)}\nTotal Members : {mmbs}", inline=False)
+	    emb.add_field(name=f"{config.developer} __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
+	    emb.add_field(name=f"{config.ping} __Current Ping__", value=random.choice(range(19,28)), inline=False)
+	    emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
+	    emb.set_footer(text="Made with ❤️ | By hunter#6967")
+	    return await ctx.send(embed=emb)
+	
 
 
 	@cmd.command()

@@ -1,5 +1,6 @@
-import discord
+import discord, os, wavelink, asyncio, requests
 from discord.ext import commands
+from wavelink.ext import spotify
 from discord import AllowedMentions, Intents
 from modules import (message_handel as onm, channel_handel as ochd, config)
 
@@ -14,19 +15,19 @@ intents.guilds = True
 class Spruce(commands.AutoShardedBot):
   def __init__(self) -> None:
      super().__init__(
-      shard_count=10, 
+      shard_count=1, 
       command_prefix= commands.when_mentioned_or(config.prefix),
       intents=intents,
       allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
       activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
 
-  async def load_extensions():
+  async def extensions(self):
     for filename in os.listdir(config.cogs_path):
       if filename.endswith(".py"):
-        await bot.load_extension(f"cogs.{filename[:-3]}")
+        await self.load_extension(f"cogs.{filename[:-3]}")
 
-  async def on_ready():
-    await load_extensions()
+  async def on_ready(self):
+    await self.extensions()
     try:
       await self.node_connect()
       await self.tree.sync()
@@ -36,7 +37,7 @@ class Spruce(commands.AutoShardedBot):
       while True:
         for st in config.status:
           await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-          await sleep(120)
+          await asyncio.sleep(120)
     except Exception as ex:
       print(ex)
 
@@ -52,13 +53,12 @@ class Spruce(commands.AutoShardedBot):
       return
     await self.process_commands(message)
     await onm.tourney(message)
-    await onm.ask(message, bot=self)
+    await onm.ask(message, self)
 
-  async def on_command_error(ctx, error, bot=bot):
-    await onm.error_handle(ctx, error, bot=bot)
+  async def on_command_error(self, ctx, error):
+    await onm.error_handle(ctx, error, self)
 
-  async def on_guild_channel_delete(channel):
-    await ochd.ch_handel(channel, bot)
+  async def on_guild_channel_delete(self, channel):
+    await ochd.ch_handel(channel=channel, bot=self)
     
-
 bot = Spruce()
