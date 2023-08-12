@@ -1,17 +1,12 @@
-import pymongo
-import os
-import discord
+import pymongo, json, os, discord
 from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
 
 version = "2.2.0"
-
-
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter#6967"
-
 
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify"
@@ -102,6 +97,7 @@ yellow = 0xffff00
 
 #functions
 async def voted(ctx, bot):
+	return "yes"
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
