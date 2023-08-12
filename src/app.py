@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 import requests as req
 from threading import Thread
@@ -7,7 +7,7 @@ import datetime
 import secrets 
 from flask_discord import DiscordOAuth2Session, Unauthorized
 import discord as dc
-from modules import config
+from modules import config, bot
 
 webh = os.environ["webh"]
 
@@ -15,8 +15,7 @@ webh = os.environ["webh"]
 app = Flask(__name__)
 app.static_folder = "static"
 app.secret_key = b"%\xe0'\x01\xdeH\x8e\x85m|\xb3\xffCN\xc9g"
-os.environ[
- "OAUTHLIB_INSECURE_TRANSPORT"] = "true"  # !! Only in development environment.
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "true"  # !! Only in development environment.
 
 app.config["DISCORD_CLIENT_ID"] = 931202912888164474
 app.config["DISCORD_CLIENT_SECRET"] = os.getenv("csecret")
@@ -69,6 +68,14 @@ def dashboard():
 		return render_template("dash.html", avatar=user.avatar_url, leng=len(guilds), title="Spruce Bot -Dashboard", guilds=glds, user=user)
 	except Exception as e:
 		return "Something Went Wrong", print(e)
+
+@app.route("/<user_id>/guilds/<guild_id>/")
+def guild(user_id, guild_id):
+	if not discord.authorized:
+		return redirect(url_for("login"))
+	guild = bot.bot.get_guild(guild_id)
+	return jsonify({"guild":guild.name, "guild_id" : guild.id, "owner":guild.owner})
+	
 
 
 @app.route("/login/")

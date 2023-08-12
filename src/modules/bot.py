@@ -15,7 +15,7 @@ intents.guilds = True
 class Spruce(commands.AutoShardedBot):
   def __init__(self) -> None:
      super().__init__(
-      shard_count=10, 
+      shard_count=1, 
       command_prefix= commands.when_mentioned_or(config.prefix),
       intents=intents,
       allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
