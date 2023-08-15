@@ -23,7 +23,7 @@ helpemb  = discord.Embed(title="Spruce Help Menu", description=f"{hel_p}**__Cate
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`,`auto_group` , `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `group_setup`", color=0xf0ff0f)
-roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
+roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`, `uptime`, `vote`, `support`, `invite`", color=0xf0ff0f)
 buttons =[invbtn, votebtn, support_serverbtn, donate_btn]
 
@@ -276,19 +276,19 @@ class Helper(commands.Cog):
 
     @help.command()
     async def role_all_human(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `role_all_human`\nExample : `&role_all_human @members`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `role_all_human  <role>`\nExample : `&role_all_human @members`\nDescription : This command gives a particular role to all the humans", color=0x00ff00)
         await ctx.send(embed=em)
 
 
     @help.command()
     async def role_all_bot(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `role_all_bot`\nExample : `&role_all_bot @members`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `role_all_bot <role>`\nExample : `&role_all_bot @members`\nDescription : This command gives a particular role to all the bots", color=0x00ff00)
         await ctx.send(embed=em)
 
 
     @help.command(aliases=["cperms"])
     async def clear_perms(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `clear_perms [role=None]`\nExample : `&clear_perms @public`\nDescription : Use this command to remove all permissions from roles", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `clear_perms [role=None]`\nExample : `&clear_perms @public`\nDescription : Use this command to remove all permissions from roles\nif no role mentioned it'll remove all permissions from all roles", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["hr"])
@@ -424,24 +424,24 @@ class Helper(commands.Cog):
 
     @help.command(aliases=["mc"])
     async def member_count(self, ctx):
-        em = discord.Embed(description=f"Aliases : `mc`\nUsage : `member_count`\nExample : `&mc`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `mc`\nUsage : `member_count`\nExample : `&mc`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def support(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `support`\nExample : `&support`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `support`\nExample : `&support`", color=0x00ff00)
         await ctx.send(embed=em)
 
 
     @help.command()
     async def invite(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `invite`\nExample : `&invite`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `invite`\nExample : `&invite`", color=0x00ff00)
         await ctx.send(embed=em)
 
         
     @help.command()
     async def vote(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `vote`\nExample : `&vote`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `vote`\nExample : `&vote`", color=0x00ff00)
         await ctx.send(embed=em)
 
 
@@ -457,32 +457,32 @@ class Helper(commands.Cog):
 
     @help.command(aliases=["si"])
     async def serverinfo(self, ctx):
-        em = discord.Embed(description=f"Aliases : `si`\nUsage : `serverinfo`\nExample : `&si`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `si`\nUsage : `serverinfo`\nExample : `&si`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def whoiss(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `whoiss <member>`\nExample : `&whoiss` {ctx.author.mention}", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `whoiss <member>`\nExample : `&whoiss` {ctx.author.mention}", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def toss(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `toss`\nExample : `&toss`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `toss`\nExample : `&toss`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def nitro(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `nitro`\nExample : `&nitro`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `nitro`\nExample : `&nitro`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def prefix(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `prefix`\nExample : `&prefix`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `prefix`\nExample : `&prefix`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def react(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `react <message_id> <emoji>`\nExample : `&react 7456213462634` <:vf:947194381172084767>", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `react <message_id> <emoji>`\nExample : `&react 7456213462634` <:vf:947194381172084767>", color=0x00ff00)
         await ctx.send(embed=em)
 
 
@@ -534,6 +534,11 @@ class Helper(commands.Cog):
     @help.command()
     async def queue(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `queue`\nExample : `&queue`", color=0x00ff00)
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def spotify(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `spotify <playlist_url>`\nExample : `&spotify https://open.spotify.com/playlist/3WhVWKNAY2Y9DNU5GVPYE2`", color=0x00ff00)
         await ctx.send(embed=em)
 
 

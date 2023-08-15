@@ -1,6 +1,5 @@
-import discord
+import discord, os, asyncio
 from discord.ext import commands
-import asyncio
 from modules import config
 
 
@@ -24,8 +23,6 @@ green = 0x2ecc71
 d_green = 0x1f8b4c
 cyan = 0x1abc9c
 d_dcyan = 0x11806a
-
-
 
 
 class Roles(commands.Cog):
@@ -171,6 +168,7 @@ class Roles(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.cooldown(1, 15, commands.BucketType.user)
 	async def inrole(self, ctx, role: discord.Role):
 		await ctx.defer()
 		if ctx.author.bot:
@@ -194,7 +192,8 @@ class Roles(commands.Cog):
 			file.write(msg)
 			file.close()
 			await ctx.send(f"total members : `{len(role.members)}`",file=discord.File("members.txt"))
-		if len(role.members) > 1000000:
+			os.remove("members.txt")
+		if len(role.members) > 2000000:
 			try:
 				return await ctx.send("Too Many Members To Show!")
 			except:
