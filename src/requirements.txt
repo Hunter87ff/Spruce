@@ -1,6 +1,6 @@
 pip
 discord.py==2.3.0
-requests==2.30.0
+requests==2.31.0
 PyNaCl
 pymongo==4.2.0
 pymongo[srv]
