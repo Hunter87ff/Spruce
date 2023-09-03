@@ -1,5 +1,5 @@
 <p align="center">
-<img style="border-radius:50px;" src="https://cdn.discordapp.com/avatars/931202912888164474/f8abe122e1c7b7f84d642e44b5b2091b.png?size=1024" height="50px" width="50px"/>
+<img style="border-radius:50px;" src="https://sprucebot.tech/static/img/favicon/icon-512x512.png" height="50px" width="50px"/>
 </p>
 <h3 align="center">Spruce</h3>
 <p align="center" > 
@@ -10,7 +10,7 @@
 
 ## Notice:
 
-![cc-by-shield](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg) <br>
+![cc-by-shield](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg) ![example workflow](https://github.com/hunter87ff/spruce/actions/workflows/python_app.yml/badge.svg)<br>
 If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/hunter-bot/blob/main/LICENSE)
 
 
