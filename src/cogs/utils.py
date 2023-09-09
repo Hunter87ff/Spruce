@@ -1,13 +1,10 @@
-import discord
+import discord, os, random, requests, enum
 from discord.ext import commands
 cmd = commands
-import random
-import os
 from modules import config
-from discord.ui import Button, View
-import gtts
+from discord.ui import Button, View 
 from gtts import gTTS
-
+from discord import app_commands, Interaction
 
 
 
@@ -47,6 +44,51 @@ class Utility(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.counter = 0
+
+	class NaturalLang(enum.Enum):
+		English = "en"
+		Hindi = "hi"
+		Bengali = "bn"
+		Afrikaans = "af"
+		Arabic = "ar"
+		Assamese = "as"
+		Chinese = "zh-Hans"
+		French = "fr"
+		Greek = "el"
+		Gujarati= "gu"
+		Nepali = "ne"
+		Marathi= "mr"
+		Japanese = "Japanese"
+		Kannada= "kn"
+		Portuguese  = "pt"
+		Punjabi = "pa"
+		Polish = "pl"
+		Odia = "or"
+		Russian = "ru"
+		Spanish = "es"
+		Vietnamese = "vi"
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+	@app_commands.command()
+	async def translate(self, interaction:Interaction, fr:NaturalLang, to:NaturalLang, *, message:str):
+		# if message == None & interaction.message.reference.message_id:
+		# 	message = interaction.message.reference.cached_message
+		# if message == None & interaction.message.reference.message_id == None:
+		# 	return await interaction.response.send_message("Please enter text to translate")
+		opt = requests.get(f"https://spruceprime.sourav87.repl.co/api/translate?fr={fr.value}&to={to.value}&text={message}")
+		if opt.status_code != 200:
+			return await interaction.response.send_message("Something Went Wrong With Selected Language Model!")
+		opt = opt.text 
+		return await interaction.response.send_message(embed=discord.Embed(description=opt, color=config.blurple), ephemeral=True)
 
 
 
