@@ -142,7 +142,7 @@ class Esports(commands.Cog):
 		except:
 			return
 	
-	
+	"""
 	
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.has_role("tourney-mod")
@@ -194,7 +194,7 @@ class Esports(commands.Cog):
 		else:
 			return await ctx.send("Tournament Not Found", delete_after=10)
 				
-				
+		"""		
 	
 	
 	@cmd.hybrid_command(with_app_command = True, aliases=["girlslobby"])
@@ -298,11 +298,12 @@ class Esports(commands.Cog):
 							await ctx.send(embed=canemb, delete_after=60)
 	
 	#@cmd.hybrid_command(with_app_command = True)
-	@cmd.command()
+	@cmd.hybrid_command(with_app_command = True)
 	@commands.guild_only()
 	@commands.has_role("tourney-mod")
-	async def add_slot(self, ctx, registration_channel: discord.TextChannel, member:discord.Member, *, Team_Name:str):
-		#await ctx.defer(ephemeral=True)
+	async def add_slot(self, ctx, registration_channel: discord.TextChannel, member:discord.Member, *, team_name):
+	#async def add_slot(self, ctx, total_slot:int, mentions:int, slot_per_group:int,  *, name:str):
+		await ctx.defer(ephemeral=True)
 		if ctx.author.bot:
 			return
 		if not await config.voted(ctx, bot=self.bot):
@@ -323,10 +324,10 @@ class Esports(commands.Cog):
 			if crole not in member.roles:
 				await member.add_roles(crole)
 				dbc.update_one({"tid" : registration_channel.id%1000000000000}, {"$set" : {"reged" : reged + 1}})
-				emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {Team_Name.upper()}**\n**Added By** : {ctx.author.mention} ")
+				emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {team_name.upper()}**\n**Added By** : {ctx.author.mention} ")
 				emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
 				emb.timestamp = datetime.datetime.utcnow()
-				return await cch.send(f"{Team_Name} {member.mention}", embed=emb)     
+				return await cch.send(f"{team_name} {member.mention}", embed=emb)     
 			
 	
 	
