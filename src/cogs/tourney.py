@@ -311,8 +311,6 @@ class Esports(commands.Cog):
 		tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
 		if tmrole == None:
 			tmrole = await ctx.guild.create_role("tourney-mod")
-		if tmrole not in ctx.author.roles:
-			return await ctx.send("You don't have `tourney-mod` role", delete_after=10)
 		if ctx.author.guild_permissions.manage_channels and tmrole in ctx.author.roles:
 			dbcd = dbc.find_one({"tid" : registration_channel.id%1000000000000})
 			crole = discord.utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
