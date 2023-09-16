@@ -51,12 +51,12 @@ def lang_model(ctx, query:str, response):
         if i in query:
             return ctx.author.name
 
-"""	
+""" 
 
-			
-	for i in response:
-		if i["q"].lower() in query.lower():
-			return i["a"]
+            
+    for i in response:
+        if i["q"].lower() in query.lower():
+            return i["a"]
 
 """
 
@@ -70,7 +70,7 @@ def check_send(message, bot):
 """    if message.reference != None:
         if message.reference.cached_message.author.id == bot.user.id:
             return True"""
-	
+    
 
 async def ask(message, bot):
     ctx = await bot.get_context(message)
@@ -110,7 +110,7 @@ async def ask(message, bot):
         if len(matches)==0:
             req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
             return 
-    	
+        
 
 #########################################################
 ################ GROUP SYSTEM ###########################
@@ -209,9 +209,9 @@ def find_team(message):
     return teamname
 
 def reg_update(message):
-    df = dbc.find_one({"tid" : message.channel.id%1000000000000})
+    df = dbc.find_one({"rch" : message.channel.id})
     rgd = df["reged"] 
-    dbc.update_one({"tid" : message.channel.id%1000000000000}, {"$set":{"reged": rgd + 1}})
+    dbc.update_one({"rch" : message.channel.id}, {"$set":{"reged": rgd + 1}})
 
 
 #Fake Tag Check
@@ -273,9 +273,9 @@ async def tourney(message):
             return await rch.send("**Registration Closed**")
         elif len(message.mentions) >= ments:
             for fmsg in messages:
-				
-				#IF FAKE TAG NOT ALLOWED
-				########################
+                
+                #IF FAKE TAG NOT ALLOWED
+                ########################
                 if td["faketag"] == "no":
                     if fmsg.author.id == ctx.author.id and len(messages) == 1:
                         await message.add_reaction("✅")
@@ -346,7 +346,7 @@ async def error_handle(ctx, error, bot):
     cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use **`&help {ctx.command.name}`** to get Instructions"))
+            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `&help <this_command>` to get Instructions"))
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.send(embed=discord.Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
         elif isinstance(error, commands.DisabledCommand):
@@ -411,4 +411,3 @@ async def error_handle(ctx, error, bot):
         e = str(error)
         await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{e}```")
         await ctx.reply("Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
-
