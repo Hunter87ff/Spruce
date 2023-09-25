@@ -11,7 +11,7 @@ owner_tag = "hunter#6967"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify"
 support_server_id = 947443790053015623
-prefix = os.environ["prefix"]
+prefix = os.environ["PREFIX"]
 status = ['&help', "You", "380k+ Members", "Tournaments", "Feedbacks", "Text2Speech", "Music", "Translate"]
 maindb = MongoClient(os.environ["mongo_url"])
 dbc = maindb["tourneydb"]["tourneydbc"]
