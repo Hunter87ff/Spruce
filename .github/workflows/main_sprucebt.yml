@@ -16,6 +16,7 @@ env:
   spot_id: ${{ secrets.SPOT_ID }}
   spot_secret: ${{ secrets.SPOT_SECRET }}
   cogs: ${{ secrets.COGS }}
+  dml : ${{ secrets.DML }}
   
 jobs:
   deploy:
