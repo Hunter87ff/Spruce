@@ -10,7 +10,7 @@
 
 ## Notice:
 
-![cc-by-shield](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg) ![example workflow](https://github.com/hunter87ff/spruce/actions/workflows/python_app.yml/badge.svg)<br>
+[![Python App Deployment](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml/badge.svg)](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml)<br>
 If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/hunter-bot/blob/main/LICENSE)
 
 
