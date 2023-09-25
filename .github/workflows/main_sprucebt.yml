@@ -17,6 +17,7 @@ env:
   spot_secret: ${{ secrets.SPOT_SECRET }}
   cogs: ${{ secrets.COGS }}
   dml : ${{ secrets.DML }}
+  webh : ${{ secrets.WEBH }}
   
 jobs:
   deploy:
