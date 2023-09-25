@@ -9,9 +9,13 @@ permissions:
   contents: read
   
 env:
-  token : ${{ secrets.TOKEN }}
+  TOKEN : ${{ secrets.TOKEN }}
   prefix : ${{ secrets.PREFIX }}
-  
+  mongo_url  : ${{ secrets.MONGO_URL }}
+  spdb : ${{ secrets.SPDB }}
+  spot_id: ${{ secrets.SPOT_ID }}
+  spot_secret: ${{ secrets.SPOT_SECRET }}
+  cogs: ${{ secrets.COGS }}
   
 jobs:
   deploy:
