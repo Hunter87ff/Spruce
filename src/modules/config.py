@@ -19,7 +19,7 @@ spdb = MongoClient(os.environ["spdb"])
 token = os.environ['TOKEN']
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
-openai_key = os.environ["openai_key"]
+#openai_key = os.environ["openai_key"]
 cogs_path = os.environ["cogs"]
 
 m_host = "lavalink.lexnet.cc"
