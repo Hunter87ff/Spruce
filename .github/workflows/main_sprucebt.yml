@@ -18,6 +18,11 @@ env:
   cogs: ${{ secrets.COGS }}
   dml : ${{ secrets.DML }}
   webh : ${{ secrets.WEBH }}
+  payuwbh : ${{ secrets.PAYUWBH }}
+  csecret : ${{ secrets.CSECRET }}
+  msgh : ${{ secrets.MSGH }}
+  
+  
   
 jobs:
   deploy:
