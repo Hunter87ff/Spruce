@@ -47,4 +47,4 @@ jobs:
         # Add any deployment commands here
         # For example, to run your Python application:
         # python src/app.py
-        python src/main.py
+        python src/app.py
