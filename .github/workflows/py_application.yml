@@ -46,4 +46,4 @@ jobs:
       run: |
         # Add any deployment commands here
         # For example, to run your Python application:
-        python src/modules/color.py
+        python src/main.py
