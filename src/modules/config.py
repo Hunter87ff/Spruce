@@ -97,7 +97,7 @@ yellow = 0xffff00
 
 #functions
 async def voted(ctx, bot):
-	return "yes"
+	#return "yes"
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
