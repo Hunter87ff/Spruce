@@ -81,7 +81,7 @@ async def ask(message, bot):
     response = sdbc.find()
     if check_send(message, bot) != None:
         for i in bws:
-            if i in message.content.split():
+            if i.lower() in message.content.split().lower():
                 return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
         query = message.content.replace(f"<@{bot.user.id}>", "").lower()
         if lang_model(ctx, query, response) != None:
