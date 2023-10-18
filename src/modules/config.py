@@ -23,7 +23,7 @@ spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
 cogs_path = os.environ["cogs"]
 #openai_key = os.environ["openai_key"]
-
+bws = cfdata["bws"]
 m_host = "lavalink.lexnet.cc"
 m_host_psw = "lexn3tl@val!nk" 
 ################## LOG ####################

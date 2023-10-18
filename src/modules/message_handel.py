@@ -23,9 +23,7 @@ sdbc = sdb["qna"]["query"]
 
 
 
-bws = ['xvideos', ' bsdke', 'भोसडीके', 'randi', "https://", 'लुंड', "लन्ड", "Lund","lunD", 'behnchod', 'chut', 'fuck', 'गांडू', 'fuddi', 'chutia', 'chumt', 'madrchod', 'bhos', 'carding', 'kutta', 'lauda', 'asshole', 'छोड़', 'xhamster', 'sex', 'penis', 'bitch', 'betichod', 'nude', 'pornhub', 'gand', 'faggot', 'Porn', 'lundura', 'xnxx', 'maderchod', '18+ content', 'vagina', 'mother fucker', 'bhnchod', 'asses', 'chutiya', 'lodi', 'behenchod', 'bhn ki lodi', 'gamd', 'खनकी', 'मदरचोड', 'fucker', 'छोड़ू', 'lund', 'adult content', 'hentai', 'motherchod', 'ramdi', 'छूट', 'redtube', 'p0rn', 'pussy', 'chod', 'sexy', 'bhenchod', 'condom', 'youporn.', 'चुटिया', 'comdon', 'khanki', 'nigg', 'porn', 'boob', 'titt', 'btichod', 'pepe', 'pornhub', 'lowda','redwap', 'मादरचोद', 'idiot', 'gamdu', ' bsdk', 'bc', 'बेटीछोद', 'wtf', 'lawde', 'fuk', 'fucker']
-
-
+bws = config.bws
 
 #########################################################
 ################ CHAT SYSTEM ###########################
