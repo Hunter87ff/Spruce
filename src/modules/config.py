@@ -3,10 +3,10 @@ from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
 
-version = "2.2.0"
+version = "2.2.3"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
-owner_tag = "hunter#6967"
+owner_tag = "hunter87ff"
 
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify"
@@ -15,19 +15,21 @@ prefix = os.environ["prefix"]
 status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech", "Music", "Translate"]
 maindb = MongoClient(os.environ["mongo_url"])
 dbc = maindb["tourneydb"]["tourneydbc"]
+cfdbc = maindb["configdb"]["configdbc"]
+cfdata = cfdbc.find_one({"config_id":87})
 spdb = MongoClient(os.environ["spdb"])
 token = os.environ['TOKEN']
 spot_id = os.environ["spot_id"]
 spot_secret = os.environ["spot_secret"]
-#openai_key = os.environ["openai_key"]
 cogs_path = os.environ["cogs"]
+#openai_key = os.environ["openai_key"]
 
 m_host = "lavalink.lexnet.cc"
 m_host_psw = "lexn3tl@val!nk" 
 ################## LOG ####################
 
 erl = 1015166083050766366
-stwbh = "https://discord.com/api/webhooks/1120961505433763971/N1n2CHfqZzjJ1LZj2YsM53VyxpM_i8ZmTwnKTQwpoHNSrQ4Lispxw4iEFvNrSTarybX6"
+stwbh = cfdata["stwbh"]
 stl = 1020027121231462400
 dml = os.environ["dml"]
 cmdnf = 1020698810625826846
