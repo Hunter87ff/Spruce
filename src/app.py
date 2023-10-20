@@ -15,7 +15,7 @@ webh = os.environ["webh"]
 app = Flask(__name__)
 app.static_folder = "static"
 app.secret_key = b"%\xe0'\x01\xdeH\x8e\x85m|\xb3\xffCN\xc9g"
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "true"  # !! Only in development environment.
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "false"  # !! Only in development environment.
 
 app.config["DISCORD_CLIENT_ID"] = 931202912888164474
 app.config["DISCORD_CLIENT_SECRET"] = os.getenv("csecret")
