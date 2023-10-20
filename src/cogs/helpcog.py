@@ -87,7 +87,7 @@ class Helper(commands.Cog):
 
 
 
-    @help.group(invoke_without_command=True)
+    @help.group(invoke_without_command=True,aliases=['music'])
     async def Music(self, ctx):
         view = View()
         for bt in buttons:
@@ -96,7 +96,7 @@ class Helper(commands.Cog):
 
 
 
-    @help.group(invoke_without_command=True)
+    @help.group(invoke_without_command=True,aliases=['mod', "moderation"])
     async def Moedration(self, ctx):
         view = View()
         for bt in buttons:
@@ -105,7 +105,7 @@ class Helper(commands.Cog):
 
 
 
-    @help.group(invoke_without_command=True)
+    @help.group(invoke_without_command=True,aliases=['esp', "esports"])
     async def Esports(self, ctx):
         view = View()
         for bt in buttons:
@@ -133,9 +133,9 @@ class Helper(commands.Cog):
 
 
 
-
-#moderation Related
-
+###################
+#Moderation Related
+###################
     @help.command()
     async def ban(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `ban <member>`\nExample : `&ban @abhi`", color=0x00ff00)
@@ -183,9 +183,9 @@ class Helper(commands.Cog):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `unlock [role=None]`\nExample : `&unlock`\n", color=0x00ff00)
         await ctx.send(embed=em)
 
-
-#channel Related
-
+################
+#Channel Related
+################
     @help.command(aliases=["chd"])
     async def channel_del(self, ctx):
         em = discord.Embed(description="Aliases : `chd`\nUsage : `channel_del [channels...]`\nExample : `&channel_del #general #updates`", color=0x00ff00)
@@ -230,8 +230,9 @@ class Helper(commands.Cog):
 
 
 
-
-#role Related
+#############
+#Role Related
+#############
     @help.command()
     async def inrole(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `inrole`\nExample : `&inrole`", color=0x00ff00)
@@ -304,8 +305,9 @@ class Helper(commands.Cog):
 
 
 
-	
-#Esports Related
+######################	
+#Esports Help Commands
+######################
     @help.command(aliases=["cs"])
     async def change_slot(self, ctx):
         em = discord.Embed(description="Aliases : `cs`\nUsage : `change_slot <exact_teame> <mention>`\nExample : `&change_slot HG ESPORTS @hunter `\nDescription: Use This Command By Replying The Group Message! And Use The Exact Slot Detail Otherwise It'll Not Work", color=0x00ff00)
@@ -324,7 +326,7 @@ class Helper(commands.Cog):
 
     @help.command()
     async def auto_group(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command it'll create total group system of the tournament\n\nNote: Make sure no one should send messages in  confirm channel. else it'll not work\nAnd Only use this command if the registration if end or you want to start the tournament\n\n[Watch Tutorial](https://www.youtube.com/watch?v=13AeFynyZ6Q)", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command it'll create total group system of the tournament\n\nNote: Make sure no one should send messages in  confirm channel. else it'll not work\nAnd Only use this command if the registration if end or you want to start the tournament\n\n[Watch Tutorial](https://www.youtube.com/watch?v=_ylU69sogAU)", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["add"])
@@ -344,7 +346,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['gsetup'])
     async def group_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `gsetup`\nUsage : `group_setup <prefix> <starting group no> <end group no.> [category=None]`\nExample : `&group_setup ws 1 14`\nNote: Here 1 means group1 and 14 means group14\nIf You Already Have a Category You Can Put The Category Id At Last", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `gsetup`\nUsage : `group_setup <prefix> <starting group no> <end group no.> [category=None]`\nExample : `&group_setup ws 1 14`\nNote: To create automated groups, run `&help auto_group` command\n Here 1 means group1 and 14 means group14\nIf You Already Have a Category You Can Put The Category Id At Last", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['grls_lobby', "girls_lby"])
@@ -354,7 +356,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=['ts', "tsetup", "setup"])
     async def tourney_setup(self, ctx):
-        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <total_slot> <mentions> <number_of_slot_per_group> <tournament_name>`\nExample : `&ts 144 4 12 WEEKLY SCRIM`\nNote : You must have @tourney-mod Role to manage the tournament\n\n**[Watch Tutorial](https://youtu.be/ZvfVXZFmvZg)**", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `ts`\nUsage : `tourney_setup <total_slot> <mentions> <number_of_slot_per_group> <tournament_name>`\nExample : `&ts 144 4 12 WEEKLY SCRIM`\nNote : You must have @tourney-mod Role to manage the tournament\n\n**[Watch Tutorial](https://www.youtube.com/watch?v=bVJWdVGHxRc)**", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['st_tourney', "tourney_start"])
@@ -373,15 +375,14 @@ class Helper(commands.Cog):
         await ctx.send(embed=em)
 
     @help.command()
-    async def _gsetup(self, ctx):
-        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `_gsetup <registration_channel>`\nExample : `&_gsetup #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
-        await ctx.send(embed=em)
-
-    @help.command()
     async def set_manager(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `set_manager <registration_channel>`\nExample : `&set_manager #register-here`\nNote : You Can Also Use registration channel_id", color=0x00ff00)
         await ctx.send(embed=em)
+
+##############        
 #Utils Related
+##############
+
     @help.command()
     async def tts(self, ctx):
         em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `tts <sentense>`\nExample : `&tts hello {ctx.author.name}`", color=0x00ff00)
@@ -485,10 +486,15 @@ class Helper(commands.Cog):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `react <message_id> <emoji>`\nExample : `&react 7456213462634` <:vf:947194381172084767>", color=0x00ff00)
         await ctx.send(embed=em)
 
+    @help.command()
+    async def translate(self, ctx):
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `translate fr:<from_lang> to:<to_lang>`\nExample : `/translate ` fr:English` `to:Hindi` `message:one earth one family one future`", color=0x00ff00)
+        await ctx.send(embed=em)
 
 
-
+##############
 #Music Related
+##############
     @help.command(aliases=["p"])
     async def play(self, ctx):
         em = discord.Embed(description="Aliases : `p`\nUsage : `play <Song_name>`\nExample : `&p Faded`\nNote : You Mus Joined A VoiceChannel", color=0x00ff00)
