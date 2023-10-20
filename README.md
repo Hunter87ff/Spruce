@@ -1,22 +1,34 @@
-<p align="center">
-<img style="border-radius:50px;" src="https://sprucebot.tech/static/img/favicon/icon-512x512.png" height="50px" width="50px"/>
-</p>
-<h3 align="center">Spruce</h3>
-<p align="center" > 
-<a href="https://discord.gg/vMnhpAyFZm">Support Server</a> . <a href="https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot"> Invite Bot</a></p>
+[![Deployment](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml/badge.svg)](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml)
+![Language](https://img.shields.io/badge/lang-Python%203.10-blue)
+![Commands](https://img.shields.io/badge/87+-Commands-violet)
+![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.2.3-skyblue)
+![Db](https://img.shields.io/badge/db-MongoDB-green)
+<!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
+## Spruce Bot
 
-<p align="center"> Multi purpose Discord bot made with python</p>
+Spruce Bot is a multifunctional Discord bot designed to streamline the management of Discord tournaments and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
 
+
+## Features
+Spruce is a multi-purpose discord bot that provides various kind of features like:
+```
+- Esports Tournament Management
+- Auto Group Setup
+- Totally Free For All
+- Text To Speech
+- Vertual Assistant
+- and much much more...
+```
 
 ## Notice:
-
-[![Deployment](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml/badge.svg)](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml)<br>
+> The source here is only for educational purposes. <br>
 If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/hunter-bot/blob/main/LICENSE)
 
 
-
-## 💌 Support Server
+## Support Server
+If you're facing any kind of issues with spruce feel free to join our discord support server<br> 
 [![DiscordBanner](https://invidget.switchblade.xyz/vMnhpAyFZm)](https://discord.gg/vMnhpAyFZm)
+
 
 ## Commands
 
@@ -49,3 +61,10 @@ __**Roles**__
 __**Musics**__
 
 `play`, `pause`, `resume`, `queue`, `skip`, `stop`, `join`, `leave`
+
+
+## Contributors
+<a href="https://github.com/spruce87/Spruce-Bot/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=spruce87/Spruce-Bot" />
+</a>
+
