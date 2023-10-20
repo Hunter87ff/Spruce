@@ -12,9 +12,9 @@ from modules import config, bot
 webh = os.environ["webh"]
 
 #token = secrets.token_hex(16)
-app = Flask(__name__)
+app = Flask("Spruce")
 app.static_folder = "static"
-app.secret_key = b"%\xe0'\x01\xdeH\x8e\x85m|\xb3\xffCN\xc9g"
+app.secret_key = config.spot_secret
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "false"  # !! Only in development environment.
 
 app.config["DISCORD_CLIENT_ID"] = 931202912888164474
