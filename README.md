@@ -31,7 +31,7 @@ If you're facing any kind of issues with spruce feel free to join our discord su
 
 
 ## Commands
-
+ 
 __**Esports**__
 
 `tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`
