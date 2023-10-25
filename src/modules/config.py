@@ -9,7 +9,7 @@ owner_id = 885193210455011369
 owner_tag = "hunter87ff"
 
 support_server = "https://discord.gg/vMnhpAyFZm"
-invite_url = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify"
+invite_url = "https://sprucebot.tech/invite"
 support_server_id = 947443790053015623
 prefix = os.environ["prefix"]
 status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech", "Music", "Translate"]
@@ -103,7 +103,7 @@ async def voted(ctx, bot):
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
-		if i.author.id == 1096272690211471421:
+		if i.author.id == 1096272690211471421:   #monitoring webhook id
 			if f"<@{ctx.author.id}>" in i.content:
 				#print(i.content)
 				if "day" not in str(ctx.message.created_at - i.created_at):
