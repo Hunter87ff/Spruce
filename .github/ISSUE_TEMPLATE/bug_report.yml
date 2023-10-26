@@ -25,8 +25,8 @@ body:
     attributes:
       label: What happened?
       description: Describe the issue you are facing.
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
+      placeholder: "Tell us what you see! and you can also share attachments here"
+      # value: "A bug happened!"
     validations:
       required: true
       
@@ -43,14 +43,14 @@ body:
       required: true
 
 
-  - type: input
-    id: attachment
-    attributes:
-      label: Share Attachments
-      description: Share attachment links, such as image, vide etc.
-      placeholder: "https://example.com/image/7345927434234664/screenshot56.jpg"
-    validations:
-      required: false
+  # - type: input
+  #   id: attachment
+  #   attributes:
+  #     label: Share Attachments
+  #     description: Share attachment links, such as image, vide etc.
+  #     placeholder: "https://example.com/image/7345927434234664/screenshot56.jpg"
+  #   validations:
+  #     required: false
       
   # - type: textarea
   #   id: logs
