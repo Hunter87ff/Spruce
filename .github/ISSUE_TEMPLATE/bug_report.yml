@@ -20,16 +20,6 @@ body:
     validations:
       required: false
       
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: Describe the issue you are facing.
-      placeholder: Tell us what you see!
-      value: "Tell us what you see! and you can also share attachments here"
-    validations:
-      required: true
-      
   - type: dropdown
     id: perms
     attributes:
@@ -39,6 +29,17 @@ body:
         - "Yes"
         - "Not sure"
         - "No"
+    validations:
+      required: true
+
+      
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the issue you are facing.
+      placeholder: Tell us what you see!
+      value: "Tell us what you see! and you can also share attachments here"
     validations:
       required: true
 
