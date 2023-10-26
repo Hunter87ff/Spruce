@@ -25,8 +25,8 @@ body:
     attributes:
       label: What happened?
       description: Describe the issue you are facing.
-      placeholder: "Tell us what you see! and you can also share attachments here"
-      value: "Tell us what you see! and you can also share attachments here"
+      placeholder: Tell us what you see!
+        value: "Tell us what you see! and you can also share attachments here"
     validations:
       required: true
       
