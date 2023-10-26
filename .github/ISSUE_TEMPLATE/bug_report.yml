@@ -1,8 +1,8 @@
 name: Bug Report
 description: File a bug report
 title: "[Bug]: "
-labels: ["bug", "triage"]
-projects: ["hunter87ff/Collage"]
+labels: ["bug"]
+projects: ["hunter87ff/Spruce"]
 assignees:
   - hunter87ff
 body:
@@ -36,11 +36,21 @@ body:
       label: Does it have required permissions
       multiple: true
       options:
-        - Yes
-        - Not sure
-        - No
+        - "Yes"
+        - "Not sure"
+        - "No"
     validations:
       required: true
+
+
+  - type: input
+    id: attachment
+    attributes:
+      label: Share Attachments
+      description: Share attachment links, such as image, vide etc.
+      placeholder: https://example.com/image/7345927434234664/screenshot56.jpg
+    validations:
+      required: false
       
   # - type: textarea
   #   id: logs
