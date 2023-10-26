@@ -11,14 +11,14 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!
         
-  # - type: input
-  #   id: contact
-  #   attributes:
-  #     label: Contact Details
-  #     description: How can we get in touch with you if we need more info?
-  #     placeholder: ex. email@example.com
-  #   validations:
-  #     required: false
+  - type: input
+    id: server
+    attributes:
+      label: Discord Server Id
+      description: Enter The Discord Server Id
+      placeholder: 68135418234182387
+    validations:
+      required: false
       
   - type: textarea
     id: what-happened
@@ -31,29 +31,29 @@ body:
       required: true
       
   - type: dropdown
-    id: browsers
+    id: perms
     attributes:
-      label: What IDE are you seeing the problem on?
+      label: Does it have required permissions
       multiple: true
       options:
-        - Vim
-        - VS Code
-        - Sublime Text
-        - Online IDE
+        - Yes
+        - Not sure
+        - No
     validations:
       required: true
       
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      render: shell
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
-      options:
-        - label: I agree to follow this project's Code of Conduct
-          required: true
+  # - type: textarea
+  #   id: logs
+  #   attributes:
+  #     label: Relevant log output
+  #     description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+  #     render: shell
+      
+  # - type: checkboxes
+  #   id: terms
+  #   attributes:
+  #     label: Code of Conduct
+  #     description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
+  #     options:
+  #       - label: I agree to follow this project's Code of Conduct
+  #         required: true
