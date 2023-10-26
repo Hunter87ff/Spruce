@@ -16,7 +16,7 @@ body:
     attributes:
       label: Discord Server Id
       description: Enter The Discord Server Id
-      placeholder: 68135418234182387
+      placeholder: "68135418234182387"
     validations:
       required: false
       
@@ -48,7 +48,7 @@ body:
     attributes:
       label: Share Attachments
       description: Share attachment links, such as image, vide etc.
-      placeholder: https://example.com/image/7345927434234664/screenshot56.jpg
+      placeholder: "https://example.com/image/7345927434234664/screenshot56.jpg"
     validations:
       required: false
       
