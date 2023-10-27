@@ -1,6 +1,4 @@
 run = "python3 src/main.py"
-
-# The primary language of the repl. There can be others, though!
 language = "python3"
 # A list of globs that specify which files and directories should
 # be hidden in the workspace.
