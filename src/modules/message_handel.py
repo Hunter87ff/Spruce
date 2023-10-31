@@ -220,10 +220,9 @@ async def ft_ch(message):
     for fmsg in messages:
         if fmsg.author.id != ctx.author.id:
             for mnt in fmsg.mentions:
-                if mnt not in message.mentions:
-                    return None
                 if mnt in message.mentions:
                     return mnt
+    return None
 
 
 
