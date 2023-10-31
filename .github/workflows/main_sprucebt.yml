@@ -29,6 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+        working-directory: ./src  # Change this to your project's root directory
 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: Zip artifact for deployment
