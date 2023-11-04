@@ -1,9 +1,5 @@
-import os
-import discord
-import re
-import random
+import os,discord, re, random, asyncio
 import requests as req
-import asyncio
 import datetime
 from asyncio import sleep
 from modules import config
@@ -106,7 +102,7 @@ async def ask(message, bot):
                 await asyncio.sleep(4)
                 return await ctx.reply(mt["a"])
         if len(matches)==0:
-            req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
+            req.pt(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
             return 
         
 
