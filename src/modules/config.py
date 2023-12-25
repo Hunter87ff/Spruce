@@ -7,7 +7,6 @@ version = "2.0.1"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
-
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://sprucebot.tech/invite"
 support_server_id = 947443790053015623
@@ -17,8 +16,8 @@ dbc = maindb["tourneydb"]["tourneydbc"]
 cfdbc = maindb["configdb"]["configdbc"]
 cfdata = cfdbc.find_one({"config_id": 87})
 spdb = MongoClient(cfdata["spdb"])
-prefix = cfdata["prefix"]
 token = cfdata["TOKEN"]
+prefix = cfdata["prefix"]
 spot_id = cfdata["spot_id"]
 spot_secret = cfdata["spot_secret"]
 cogs_path = cfdata["cogs"]
@@ -100,7 +99,7 @@ yellow = 0xffff00
 
 #functions
 async def voted(ctx, bot):
-	if cfdata["vote_only"] == True: return "yes"
+	if cfdata["vote_only"] == False: return "yes"
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
