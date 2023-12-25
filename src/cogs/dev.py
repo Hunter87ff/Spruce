@@ -1,8 +1,8 @@
-import discord
+import discord, typing
 from modules import config 
 from discord.ext import commands
+# from discord import app_commands, Interaction
 cmd = commands
-
 
 class dev(commands.Cog):
 	def __init__(self, bot):
@@ -125,6 +125,10 @@ class dev(commands.Cog):
 	                await onr.add_roles(owner_role)
 	    return await ms.edit(content="Done")
 	
+
+
+
+
 
 async def setup(bot):
 	await bot.add_cog(dev(bot))
