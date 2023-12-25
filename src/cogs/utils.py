@@ -1,4 +1,4 @@
-import discord, os, random, requests, enum
+import discord, os, random, requests, enum, uuid
 from discord.ext import commands
 cmd = commands
 from modules import config
@@ -7,39 +7,23 @@ from gtts import gTTS
 from discord import app_commands, Interaction
 
 
-
-blurple = 0x7289da
-greyple = 0x99aab5
-d_grey = 0x546e7a
-d_theme = 0x36393F
-l_grey = 0x979c9f
-d_red = 0x992d22
-red = 0xe74c3c
-d_orange = 0xa84300
-orange= 0xe67e22
-d_gold = 0xc27c0e
-gold = 0xf1c40f
-magenta = 0xe91e63
-purple = 0x9b59b6
-d_blue = 0x206694 
-blue = 0x3498db
-green = 0x2ecc71
-d_green = 0x1f8b4c
-teal = 0x1abc9c
-d_teal = 0x11806a
-yellow = 0xffff00
-
-
 whois = ["Noob","Unknown Person","kya pata mai nehi janta","bohot piro", "Bohot E-smart","Dusro Ko Jan Ne Se Pehle Khud Ko Jan Lo","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 coin = ["975413333291335702", "975413366493413476"]
 maindb = config.maindb
 nitrodbc = maindb["nitrodb"]["nitrodbc"]
-
-
-
-
-
-
+def trn(token, fr:str, to:str, text:str):
+	print({"api-version":"3.0", "from":fr, "to":to})
+	api = "https://api.cognitive.microsofttranslator.com/translate"
+	headers = {
+				'Ocp-Apim-Subscription-Key': token,
+				'Ocp-Apim-Subscription-Region': 'centralindia',
+				'Content-type': 'application/json',
+				'X-ClientTraceId': str(uuid.uuid4()),
+			}
+	res = requests.post(api, params={"api-version":"3.0", "from":fr, "to":to}, headers=headers, json=[{"text":text}])
+	if res.status_code==200: return res.json()[0]["translations"][0]["text"]
+	else: return "Something went wrong! please try again later."
+	
 class Utility(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -67,28 +51,14 @@ class Utility(commands.Cog):
 		Russian = "ru"
 		Spanish = "es"
 		Vietnamese = "vi"
-		
-		
-		
-		
 
-		
-		
-		
-		
-		
-		
 	@app_commands.command()
 	async def translate(self, interaction:Interaction, fr:NaturalLang, to:NaturalLang, *, message:str):
 		# if message == None & interaction.message.reference.message_id:
 		# 	message = interaction.message.reference.cached_message
 		# if message == None & interaction.message.reference.message_id == None:
 		# 	return await interaction.response.send_message("Please enter text to translate")
-		opt = requests.get(f"https://spruceprime.sourav87.repl.co/api/translate?fr={fr.value}&to={to.value}&text={message}")
-		if opt.status_code != 200:
-			return await interaction.response.send_message("Something Went Wrong With Selected Language Model!")
-		opt = opt.text 
-		return await interaction.response.send_message(embed=discord.Embed(description=opt, color=config.blurple), ephemeral=True)
+		return await interaction.response.send_message(embed=discord.Embed(description=trn(self.bot.db["trnsl"], fr.value, to.value, message), color=config.blurple), ephemeral=True)
 
 
 
@@ -108,7 +78,7 @@ class Utility(commands.Cog):
 		uptime = ctx.message.created_at - messages[0].created_at
 		upt = str(uptime).split(".")[0]
 		msg = f"**Current Uptime Is : `{upt}`**"
-		emb = discord.Embed(title="Uptime", color=0x00ff00, description=msg, timestamp=ctx.message.created_at)
+		emb = discord.Embed(title="Uptime", color=config.green, description=msg, timestamp=ctx.message.created_at)
 		emb.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar)
 		try:
 			await ctx.send(embed=emb)
@@ -162,7 +132,7 @@ class Utility(commands.Cog):
 			guild = ctx.guild
 
 		if guild.icon != None:
-			enm = discord.Embed(title=guild.name, url=guild.icon, color=0xff0000)
+			enm = discord.Embed(title=guild.name, url=guild.icon, color=config.red)
 			enm.set_image(url=guild.icon)
 			await ctx.send(embed=enm)
 
@@ -198,7 +168,7 @@ class Utility(commands.Cog):
 			return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
-		embed = discord.Embed(description=message, color=blue)
+		embed = discord.Embed(description=message, color=config.blue)
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=embed)
 
@@ -241,11 +211,11 @@ class Utility(commands.Cog):
 		if user.bot == True:
 			return await ctx.send("**Bot is always awesome**")
 		elif user.id == 885193210455011369:
-			owneremb = discord.Embed(description=f"{user.mention} **Best Friend :heart:**", color=blue)
+			owneremb = discord.Embed(description=f"{user.mention} **Best Friend :heart:**", color=config.blue)
 			return await ctx.send(embed=owneremb)
 		else:
 			msg = random.choice(whois)
-			emb = discord.Embed(description=f"{user.mention}  {msg}", color=blurple)
+			emb = discord.Embed(description=f"{user.mention}  {msg}", color=config.blurple)
 			return await ctx.send(embed=emb)
 
 	@cmd.hybrid_command(with_app_command = True)
@@ -308,7 +278,7 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def embed_img(self, ctx, image, *, message):
 		await ctx.defer(ephemeral=True)
-		emb = discord.Embed(description=message, color=blue)
+		emb = discord.Embed(description=message, color=config.blue)
 		emb.set_image(url=image)
 		await ctx.channel.purge(limit=1)
 		await ctx.send(embed=emb) 
@@ -343,7 +313,7 @@ class Utility(commands.Cog):
 		await ctx.defer(ephemeral=True)
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
-		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=teal)
+		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=config.teal)
 		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
 
@@ -379,7 +349,7 @@ class Utility(commands.Cog):
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def botinfo(self, ctx):
 	    await ctx.defer(ephemeral=True)
-	    emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=discord.Color.blurple())
+	    emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=config.blurple)
 	    mmbs = self.mmbrs()
 	    emb.add_field(name=f"{config.servers}__Servers Info__", value=f"Total server : {len(self.bot.guilds)}\nTotal Members : {mmbs}", inline=False)
 	    emb.add_field(name=f"{config.developer} __Developer__", value="[Hunter#6967](https://discord.com/users/885193210455011369)", inline=False)
