@@ -23,7 +23,7 @@ Spruce is a multi-purpose discord bot that provides various kind of features lik
 
 ## Notice:
 > The source here is only for educational purposes. <br>
-If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/hunter-bot/blob/main/LICENSE)
+<!--If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/hunter-bot/blob/main/LICENSE)-->
 
 
 ## Support Server
