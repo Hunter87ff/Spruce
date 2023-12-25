@@ -1,4 +1,4 @@
-import pymongo, json, os, discord
+import pymongo, os, discord
 from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
@@ -11,27 +11,31 @@ owner_tag = "hunter87ff"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://sprucebot.tech/invite"
 support_server_id = 947443790053015623
-prefix = os.environ["prefix"]
-status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech", "Music", "Translate"]
+status = [
+ "500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech",
+ "Music", "Translate"
+]
 maindb = MongoClient(os.environ["mongo_url"])
+
 dbc = maindb["tourneydb"]["tourneydbc"]
 cfdbc = maindb["configdb"]["configdbc"]
-cfdata = cfdbc.find_one({"config_id":87})
-spdb = MongoClient(os.environ["spdb"])
-token = os.environ['TOKEN']
-spot_id = os.environ["spot_id"]
-spot_secret = os.environ["spot_secret"]
-cogs_path = os.environ["cogs"]
-#openai_key = os.environ["openai_key"]
+cfdata = cfdbc.find_one({"config_id": 87})
+spdb = MongoClient(cfdata["spdb"])
+prefix = cfdata["prefix"]
+token = cfdata["TOKEN"]
+spot_id = cfdata["spot_id"]
+spot_secret = cfdata["spot_secret"]
+cogs_path = cfdata["cogs"]
+#openai_key = cfdata["openai_key"]
 bws = cfdata["bws"]
 m_host = "lavalink.lexnet.cc"
-m_host_psw = "lexn3tl@val!nk" 
+m_host_psw = "lexn3tl@val!nk"
 ################## LOG ####################
 
 erl = 1015166083050766366
 stwbh = cfdata["stwbh"]
 stl = 1020027121231462400
-dml = os.environ["dml"]
+dml = cfdata["dml"]
 cmdnf = 1020698810625826846
 gjoin = 1028673206850179152
 gleave = 1028673254606508072
@@ -52,7 +56,7 @@ pubg = "<:pubg:1008283449288835073>"
 bgmi = "<:bgmi:1008283336143282216>"
 developer = "<:dev:1020696239689433139>"
 ff = "<:ff:1008282958349746176>"
-like = "<:like:1014922246072053840>" 
+like = "<:like:1014922246072053840>"
 mod = "<:mod:999353993035780258>"
 servers = "<:servers:1018845797556703262>"
 cod = "<:cod:1008283105452380250>"
@@ -69,7 +73,7 @@ heart = "❤️"
 next_btn = "<:next:1120742875450310796>"
 play_btn = "<:play_btn:1019504469299441674>"
 pause_btn = "<:Pause:1019217055712559195>"
-stop_btn = "<:stop:1019218566475681863>"  
+stop_btn = "<:stop:1019218566475681863>"
 loop_btn = "<:loop_btn:1019219071046258708>"
 queue_btn = "<:queue:1019219174070951967>"
 
@@ -82,20 +86,21 @@ l_grey = 0x979c9f
 d_red = 0x992d22
 red = 0xff0000
 d_orange = 0xa84300
-orange= 0xe67e22
+orange = 0xe67e22
 d_gold = 0xc27c0e
 gold = 0xf1c40f
 magenta = 0xe91e63
 purple = 0x9b59b6
-d_blue = 0x206694 
+d_blue = 0x206694
 blue = 0x0000ff
 green = 0x00ff00
 d_green = 0x1f8b4c
-pink=0xff0066
+pink = 0xff0066
 teal = 0x1abc9c
 cyan = 0x1abc9c
 d_teal = 0x11806a
 yellow = 0xffff00
+
 
 #functions
 async def voted(ctx, bot):
@@ -103,7 +108,7 @@ async def voted(ctx, bot):
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
-		if i.author.id == 1096272690211471421:   #monitoring webhook id
+		if i.author.id == 1096272690211471421:  #monitoring webhook id
 			if f"<@{ctx.author.id}>" in i.content:
 				#print(i.content)
 				if "day" not in str(ctx.message.created_at - i.created_at):
@@ -116,14 +121,17 @@ async def voted(ctx, bot):
 
 async def vtm(ctx):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
-	await ctx.send(embed=discord.Embed(color=cyan, description="Vote Now To Unlock This Command"), view=View().add_item(btn))
-
+	await ctx.send(embed=discord.Embed(
+	 color=cyan, description="Vote Now To Unlock This Command"),
+	               view=View().add_item(btn))
 
 
 def dev():
-    def predicate(ctx):
-        return ctx.message.author.id == owner_id
-    return commands.check(predicate)
+
+	def predicate(ctx):
+		return ctx.message.author.id == owner_id
+
+	return commands.check(predicate)
 
 
 def notuser(message):
