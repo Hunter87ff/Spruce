@@ -22,7 +22,7 @@ Spruce is a multi-purpose discord bot that provides various kind of features lik
 ```
 
 ## Notice:
-If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
+> If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
 
 
 ## Support Server
