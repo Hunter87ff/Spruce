@@ -3,7 +3,7 @@ from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
 
-version = "2.2.3"
+version = "2.0.1"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
@@ -11,12 +11,8 @@ owner_tag = "hunter87ff"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://sprucebot.tech/invite"
 support_server_id = 947443790053015623
-status = [
- "500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech",
- "Music", "Translate"
-]
+status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
 maindb = MongoClient(os.environ["mongo_url"])
-
 dbc = maindb["tourneydb"]["tourneydbc"]
 cfdbc = maindb["configdb"]["configdbc"]
 cfdata = cfdbc.find_one({"config_id": 87})
@@ -26,10 +22,10 @@ token = cfdata["TOKEN"]
 spot_id = cfdata["spot_id"]
 spot_secret = cfdata["spot_secret"]
 cogs_path = cfdata["cogs"]
-#openai_key = cfdata["openai_key"]
 bws = cfdata["bws"]
-m_host = "lavalink.lexnet.cc"
-m_host_psw = "lexn3tl@val!nk"
+m_host = cfdata["m_host"]
+m_host_psw = cfdata["m_host_psw"]
+#openai_key = cfdata["openai_key"]
 ################## LOG ####################
 
 erl = 1015166083050766366
@@ -104,19 +100,15 @@ yellow = 0xffff00
 
 #functions
 async def voted(ctx, bot):
-	return "yes"
+	if cfdata["vote_only"] == True: return "yes"
 	vtl = bot.get_channel(votel)
 	messages = [message async for message in vtl.history(limit=1000)]
 	for i in messages:
 		if i.author.id == 1096272690211471421:  #monitoring webhook id
 			if f"<@{ctx.author.id}>" in i.content:
-				#print(i.content)
-				if "day" not in str(ctx.message.created_at - i.created_at):
-					return "yes"
-				else:
-					return None
-		else:
-			return None
+				if "day" not in str(ctx.message.created_at - i.created_at): return "yes"
+				else: return None
+		else: return None
 
 
 async def vtm(ctx):
@@ -127,17 +119,12 @@ async def vtm(ctx):
 
 
 def dev():
-
 	def predicate(ctx):
 		return ctx.message.author.id == owner_id
-
 	return commands.check(predicate)
 
 
 def notuser(message):
-	if message.author.bot:
-		return True
-	if message.webhook_id:
-		return True
-	else:
-		return None
+	if message.author.bot: return True
+	if message.webhook_id: return True
+	else: return None
