@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2022 hunter87
+Copyright (c) 2022 hunter87ff
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,20 +29,13 @@ from asyncio import sleep
 from modules import config
 from discord.ext import commands
 import numpy as np
-
-
 maindb = config.maindb #MongoClient(os.environ["mongo_url"])
 dbc = maindb["tourneydb"]["tourneydbc"]
 tourneydbc=dbc
-
 gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
 gtadbc = gtamountdbc
-
 sdb = config.spdb
 sdbc = sdb["qna"]["query"]
-
-
-
 bws = config.bws
 
 #########################################################
@@ -68,15 +61,6 @@ def lang_model(ctx, query:str, response):
     for i in name:
         if i in query:
             return ctx.author.name
-
-""" 
-
-            
-    for i in response:
-        if i["q"].lower() in query.lower():
-            return i["a"]
-
-"""
 
 
 def check_send(message, bot):
