@@ -1,3 +1,29 @@
+"""
+MIT License
+
+Copyright (c) 2022 hunter87
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
+
+
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
@@ -9,7 +35,7 @@ from flask_discord import DiscordOAuth2Session, Unauthorized
 import discord as dc
 from modules import config, bot
 
-webh = os.environ["webh"]
+webh = config.cfdata["webh"]
 
 #token = secrets.token_hex(16)
 app = Flask("Spruce")
@@ -18,8 +44,8 @@ app.secret_key = config.spot_secret
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "false"  # !! Only in development environment.
 
 app.config["DISCORD_CLIENT_ID"] = 931202912888164474
-app.config["DISCORD_CLIENT_SECRET"] = os.getenv("csecret")
-app.config["DISCORD_BOT_TOKEN"] = os.getenv("TOKEN")
+app.config["DISCORD_CLIENT_SECRET"] = config.cfdata["csecret"]
+app.config["DISCORD_BOT_TOKEN"] =  config.cfdata["TOKEN"]
 app.config["DISCORD_REDIRECT_URI"] = "https://sprucebot.tech/callback"
 discord = DiscordOAuth2Session(app)
 
@@ -91,10 +117,7 @@ def login_with_data():
 
 @app.route("/invite-bot/")
 def invite_bot():
-	return discord.create_session(scope=["bot"],
-	                              permissions=8,
-	                              guild_id=464488012328468480,
-	                              disable_guild_select=True)
+	return discord.create_session(scope=["bot"],permissions=8,guild_id=464488012328468480,disable_guild_select=False)
 
 
 @app.route("/invite-oauth/")
