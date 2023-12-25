@@ -65,7 +65,7 @@ __**Musics**__
 
 
 ## Contributors
-<a href="https://github.com/spruce87/spruce/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=spruce87/Spruce-Bot" />
+<a href="https://github.com/hunter87ff/spruce/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=hunter87ff/Spruce" />
 </a>
 
