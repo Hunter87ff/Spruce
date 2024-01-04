@@ -8,4 +8,4 @@ COPY . /app
 # Install the application dependencies
 RUN pip install -r src/requirements.txt
 # Define the entry point for the container
-CMD ["python", "src/main.py"]
+CMD ["python", "src/main.py", " rrunserver", "0.0.0.0:8080"]
