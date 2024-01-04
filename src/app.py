@@ -371,7 +371,7 @@ def homee():
 	return "Alive..!"
 
 def run():
-	spruce.run(host='0.0.0.0', port=8787)
+	spruce.run(host='0.0.0.0', port=8080)
 
 
 def keep_alive():
