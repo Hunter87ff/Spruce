@@ -14,4 +14,4 @@ EXPOSE 8080
 # Define the entry point for the container
 # 
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
-CMD ["python", "main.py"]
+RUN python main.py
