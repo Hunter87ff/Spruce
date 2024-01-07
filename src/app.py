@@ -363,9 +363,11 @@ def send():
 	  "username": data["name"]
 	 })
 	return "Sent"
-	
+
+ap = Flask("Health")
+
 def run():
-	app.run(host='0.0.0.0', port=8080)
+	ap.run(host='0.0.0.0', port=8080)
 
 
 def keep_alive():
@@ -373,4 +375,4 @@ def keep_alive():
 	t.start()
 
 if __name__ == '__main__':
-	app.run(host="0.0.0.0", port=8080)
+	ap.run(host="0.0.0.0", port=8080)
