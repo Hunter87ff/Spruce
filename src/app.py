@@ -55,13 +55,8 @@ HYPERLINK = '<a href="{}">{}</a>'
 
 
 def welcome_user(user):
-	dm_channel = discord.bot_request("/users/@me/channels",
-	                                 "POST",
-	                                 json={"recipient_id": user.id})
-	return discord.bot_request(
-	 f"/channels/{dm_channel['id']}/messages",
-	 "POST",
-	 json={"content": "You've Successfully Logged In.."})
+	dm_channel = discord.bot_request("/users/@me/channels","POST",json={"recipient_id": user.id})
+	return discord.bot_request(f"/channels/{dm_channel['id']}/messages","POST",json={"content": "You've Successfully Logged In.."})
 
 
 tokens = []
