@@ -23,7 +23,8 @@ SOFTWARE."""
 import app, os
 from modules import config
 from modules.bot import bot
-
+for i in os.environ:
+    print(i)
 #app.keep_alive()
 bot.remove_command("help")
 bot.run(config.token)
