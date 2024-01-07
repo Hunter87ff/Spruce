@@ -363,17 +363,14 @@ def send():
 	  "username": data["name"]
 	 })
 	return "Sent"
-
-spruce = Flask("Spruce")
-
-@spruce.route("/")
-def homee():
-	return "Alive..!"
-
+	
 def run():
-	spruce.run(host='0.0.0.0', port=8080)
+	app.run(host='0.0.0.0', port=8080)
 
 
 def keep_alive():
 	t = Thread(target=run)
 	t.start()
+
+if __name__ == '__main__':
+	app.run(host="0.0.0.0", port=8080)
