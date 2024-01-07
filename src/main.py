@@ -21,10 +21,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 import app, os
-from modules import config
-from modules.bot import bot
 for i in os.environ:
     print(i)
+from modules import config
+from modules.bot import bot
+
 #app.keep_alive()
 bot.remove_command("help")
 bot.run(config.token)
