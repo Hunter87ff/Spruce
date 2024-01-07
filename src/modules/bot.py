@@ -4,7 +4,6 @@ from wavelink.ext import spotify
 from discord import AllowedMentions, Intents
 from modules import (message_handel as onm, channel_handel as ochd, config)
 
-
 intents = Intents.default()
 intents.message_content = True
 intents.reactions = True
@@ -23,7 +22,7 @@ class Spruce(commands.AutoShardedBot):
 	async def extensions(self):
 		for filename in os.listdir(config.cogs_path):
 		  if filename.endswith(".py"):
-			  await self.load_extension(f"cogs.{filename[:-3]}")
+			  await self.load_extension(f"modules.cogs.{filename[:-3]}")
 		
 	async def on_ready(self):
 		await self.extensions()

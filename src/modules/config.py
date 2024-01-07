@@ -1,4 +1,5 @@
-import pymongo, os, discord
+from os import environ as env
+import pymongo,discord
 from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
@@ -12,8 +13,8 @@ invite_url = "https://sprucebot.tech/invite"
 support_server_id = 947443790053015623
 status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
 maindb = ""
-try: maindb = MongoClient(os.environ["mongo_url"])
-except: maindb = MongoClient(os.environ["MONGO_URL"])
+try: maindb = MongoClient(env["mongo_url"])
+except:  maindb = MongoClient(env["MONGO_URL"])
 dbc = maindb["tourneydb"]["tourneydbc"]
 cfdbc = maindb["configdb"]["configdbc"]
 cfdata = cfdbc.find_one({"config_id": 87})
@@ -22,7 +23,7 @@ token = cfdata["TOKEN2"]
 prefix = cfdata["prefix"]
 spot_id = cfdata["spot_id"]
 spot_secret = cfdata["spot_secret"]
-cogs_path = cfdata["cogs"]
+cogs_path = cfdata["cogs"] #main prospective
 bws = cfdata["bws"]
 m_host = cfdata["m_host"]
 m_host_psw = cfdata["m_host_psw"]
