@@ -1,11 +1,17 @@
 # Use the official Python image as the base image
-FROM python:3.9-slim-buster
+FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
 # Copy the application files into the working directory
-COPY . /app
+COPY . .
 # Install the application dependencies
-RUN pip install -r src/requirements.txt
+# Copy requirements and install dependencies
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+EXPOSE 8080
 # Define the entry point for the container
-CMD ["python", "src/main.py", " runserver", "0.0.0.0:8080"]
+# 
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+RUN python main.py
