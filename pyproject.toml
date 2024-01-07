@@ -2,7 +2,7 @@
 name = "repl_nix_Spruce"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Hunter87 hunter87@sprucebot.tech"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
