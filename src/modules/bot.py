@@ -22,7 +22,7 @@ class Spruce(commands.AutoShardedBot):
 	async def extensions(self):
 		for filename in os.listdir(config.cogs_path):
 		  if filename.endswith(".py"):
-			  await self.load_extension(f"modules.cogs.{filename[:-3]}")
+			  await self.load_extension(f"cogs.{filename[:-3]}")
 		
 	async def on_ready(self):
 		await self.extensions()
