@@ -27,7 +27,7 @@ class Spruce(commands.AutoShardedBot):
 	async def on_ready(self):
 		await self.extensions()
 		try:
-		  await self.node_connect()
+		  #await self.node_connect()
 		  await self.tree.sync()
 		  stmsg = f'{self.user} is ready with {len(self.commands)} commands'
 		  print(stmsg)
