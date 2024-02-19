@@ -27,4 +27,4 @@ from modules.bot import bot
 
 #app.keep_alive()
 bot.remove_command("help")
-bot.start(config.token)
+await bot.start(config.token)
