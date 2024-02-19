@@ -19,13 +19,13 @@ class Spruce(commands.AutoShardedBot):
 		self.sdb = config.spdb
 		super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
 		
-	async def extensions(self):
+
+	async def setup_hook(self) -> None:
 		for filename in os.listdir(config.cogs_path):
 		  if filename.endswith(".py"):
 			  await self.load_extension(f"cogs.{filename[:-3]}")
 		
 	async def on_ready(self):
-		await self.extensions()
 		try:
 		  #await self.node_connect()
 		  await self.tree.sync()

@@ -29,13 +29,8 @@ from asyncio import sleep
 from modules import config
 from discord.ext import commands
 import numpy as np
-maindb = config.maindb #MongoClient(os.environ["mongo_url"])
-dbc = maindb["tourneydb"]["tourneydbc"]
-tourneydbc=dbc
-gtamountdbc = maindb["gtamountdb"]["gtamountdbc"]
-gtadbc = gtamountdbc
-sdb = config.spdb
-sdbc = sdb["qna"]["query"]
+dbc = config.maindb["tourneydb"]["tourneydbc"]
+sdbc = config.spdb["qna"]["query"]
 bws = config.bws
 
 #########################################################
@@ -84,7 +79,7 @@ async def ask(message, bot):
     if check_send(message, bot) != None:
         for i in bws:
             if i.lower() in message.content.split().lower():
-                return await ctx.reply("message contains blocked word. so i can't reply to this message! sorry buddy.")
+                return await ctx.reply("Message contains blocked word. so i can't reply to this message! sorry buddy.")
         query = message.content.replace(f"<@{bot.user.id}>", "").lower()
         if lang_model(ctx, query, response) != None:
             await ctx.typing()
@@ -219,7 +214,6 @@ def reg_update(message):
 #Fake Tag Check
 async def ft_ch(message):
     ctx = message
-    #td = tourneydbc.find_one({"tid" : message.channel.id%1000000000000})
     messages = [message async for message in ctx.channel.history(limit=123)]  
     for fmsg in messages:
         if fmsg.author.id != ctx.author.id:
