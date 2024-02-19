@@ -21,11 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 
-import app, asyncio
+import app, asyncio, discord
 from modules import config
 from modules.bot import bot
 
 #app.keep_alive()
+discord.utils.setup_logging(level=20)
 async def launch():
   bot.remove_command("help")
   await bot.start(config.token)
