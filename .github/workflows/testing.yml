@@ -1,0 +1,50 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+      
+permissions:
+  contents: read
+  
+env:
+  TOKEN : ${{ secrets.TOKEN }}
+  prefix : ${{ secrets.PREFIX }}
+  mongo_url  : ${{ secrets.MONGO_URL }}
+  spdb : ${{ secrets.SPDB }}
+  spot_id: ${{ secrets.SPOT_ID }}
+  spot_secret: ${{ secrets.SPOT_SECRET }}
+  cogs: ${{ secrets.COGS }}
+  dml : ${{ secrets.DML }}
+  webh : ${{ secrets.WEBH }}
+  payuwbh : ${{ secrets.PAYUWBH }}
+  csecret : ${{ secrets.CSECRET }}
+  msgh : ${{ secrets.MSGH }}
+  
+  
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10.9  # Change this to your desired Python version
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+      working-directory: ./src  # Change this to your project's root directory
+
+    - name: Deploy
+      run: |
+        # Add any deployment commands here
+        # For example, to run your Python application:
+        python src/app.py
+        # python src/main.py
