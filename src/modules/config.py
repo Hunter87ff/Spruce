@@ -3,7 +3,9 @@ import pymongo,discord
 from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
-shards = 5
+from dotenv import load_dotenv
+load_dotenv()
+shards = 8
 version = "2.0.1"
 bot_id = 931202912888164474
 owner_id = 885193210455011369

@@ -1,4 +1,5 @@
 pip
+python-dotenv
 flask
 gunicorn
 pymongo==4.2.0
