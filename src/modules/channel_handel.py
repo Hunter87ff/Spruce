@@ -1,18 +1,8 @@
 from modules import config
-
-
-
-
 maindb = config.maindb
 db = maindb["tourneydb"]
 dbc = maindb["tourneydb"]["tourneydbc"]
 gtadbc =  maindb["gtamountdb"]["gtamountdbc"]
-
-
-
-
-
-
 
 async def ch_handel(channel, bot):
 	tourch = dbc.find_one({"rch" : channel.id})

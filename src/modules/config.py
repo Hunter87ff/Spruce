@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from discord.ui import Button, View
 from dotenv import load_dotenv
 load_dotenv()
-shards =  5
+shards =  15
 version = "2.0.1"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
@@ -25,7 +25,7 @@ token = cfdata["TOKEN"]
 prefix = cfdata["prefix"]
 spot_id = cfdata["spot_id"]
 spot_secret = cfdata["spot_secret"]
-cogs_path = "./src/cogs" #cfdata["cogs"] #main prospective
+cogs_path = "./src/core" #cfdata["cogs"] #main prospective
 bws = cfdata["bws"]
 m_host = cfdata["m_host"]
 m_host_psw = cfdata["m_host_psw"]

@@ -3,7 +3,7 @@ from discord.ext import commands
 from wavelink.ext import spotify
 from discord import AllowedMentions, Intents
 from modules import (message_handel as onm, channel_handel as ochd, config)
-
+from database import Database
 intents = Intents.default()
 intents.message_content = True
 intents.reactions = True
@@ -14,16 +14,13 @@ intents.guilds = True
 class Spruce(commands.AutoShardedBot):
 	def __init__(self) -> None:
 		self.config = config
-		self.db = config.cfdata
-		self.mdb = config.maindb
-		self.sdb = config.spdb
+		self.db = Database()
+		self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
 		super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
-		
 
 	async def setup_hook(self) -> None:
-		for filename in os.listdir(config.cogs_path):
-		  if filename.endswith(".py"):
-			  await self.load_extension(f"cogs.{filename[:-3]}")
+		self.remove_command("help")
+		for i in self.core:await self.load_extension(f"core.{i}")
 		
 	async def on_ready(self):
 		try:
@@ -36,19 +33,16 @@ class Spruce(commands.AutoShardedBot):
 			  for st in config.status:
 				  await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
 				  await asyncio.sleep(120)
-		except Exception as ex:
-		  print(ex)
+		except Exception as ex:print(ex)
 	
 	async def node_connect(self):
 		try:
 		  await self.wait_until_ready()
 		  await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=443,password=config.m_host_psw,https=True,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
-		except Exception as e:
-		  print(e)
+		except Exception as e:print(e)
 	
 	async def on_message(self, message):
-	    if config.notuser(message):
-	      return
+	    if config.notuser(message):return
 	    await self.process_commands(message)
 	    await onm.tourney(message)
 	    await onm.ask(message, self)
