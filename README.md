@@ -1,6 +1,6 @@
 ## Spruce Bot 
 
-[![Deployment](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml/badge.svg)](https://github.com/Hunter87ff/Spruce/actions/workflows/py_application.yml)
+[![Tests](https://github.com/Hunter87ff/Spruce/actions/workflows/testing.yml/badge.svg)](https://github.com/Hunter87ff/Spruce/actions/workflows/testing.yml)
 ![Language](https://img.shields.io/badge/lang-Python%203.10-blue)
 ![Commands](https://img.shields.io/badge/87+-Commands-violet)
 ![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.3.0-skyblue)
