@@ -24,6 +24,7 @@ async def check_role(ctx, check=None, timeout=20, delete_after=False, check_perm
         role = await RoleConverter().convert(ctx, message.content)
         return role
 
+
 async def ttl_slots(ctx, check=None, timeout=30):
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
     try:msg = await ctx.bot.wait_for("message", check=check, timeout=timeout)

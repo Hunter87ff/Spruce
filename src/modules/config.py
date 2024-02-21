@@ -31,7 +31,6 @@ m_host = cfdata["m_host"]
 m_host_psw = cfdata["m_host_psw"]
 #openai_key = cfdata["openai_key"]
 ################## LOG ####################
-
 erl = 1015166083050766366
 stwbh = cfdata["stwbh"]
 stl = 1020027121231462400

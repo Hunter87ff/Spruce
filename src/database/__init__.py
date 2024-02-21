@@ -1,6 +1,5 @@
 from modules import config
-__all__ = ("Database",)
-
+__all__ = ("Database", "Tourney")
 
 class Tourney:
     def __init__(self, obj):

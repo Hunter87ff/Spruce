@@ -11,6 +11,7 @@ intents.members = True
 intents.voice_states = True
 intents.guilds = True
 
+
 class Spruce(commands.AutoShardedBot):
 	def __init__(self) -> None:
 		self.config = config
