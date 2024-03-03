@@ -113,7 +113,7 @@ class dev(commands.Cog):
 			"Content-Type": "application/vnd.github+json",
 		}
 		response = requests.post(config.gh_action, headers=headers, json={"ref": "main"})
-		if response.status_code == 204:print(f"Workflow '{workflow_id}' successfully dispatched for rerun.")
+		if response.status_code == 204:print(f"Workflow successfully dispatched for rerun.")
 		else:print(f"Error rerunning workflow: {response.text}")
 
 
