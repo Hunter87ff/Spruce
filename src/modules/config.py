@@ -29,6 +29,8 @@ cogs_path = "./src/core" #cfdata["cogs"] #main prospective
 bws = cfdata["bws"]
 m_host = cfdata["m_host"]
 m_host_psw = cfdata["m_host_psw"]
+gh_api = cfdata["git_api"]
+gh_action = "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
 #openai_key = cfdata["openai_key"]
 ################## LOG ####################
 erl = 1015166083050766366
