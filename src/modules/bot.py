@@ -1,4 +1,4 @@
-import discord, os, wavelink, asyncio, requests
+import discord, os, wavelink, asyncio, requests, time
 from discord.ext import commands
 from wavelink.ext import spotify
 from discord import AllowedMentions, Intents
@@ -23,17 +23,32 @@ class Spruce(commands.AutoShardedBot):
 		self.remove_command("help")
 		for i in self.core:await self.load_extension(f"core.{i}")
 		
+	async def action(self):
+		return print("hello")
+		headers = {
+			"Authorization": f"token {config.gh_api}",
+			"Content-Type": "application/vnd.github+json",
+		}
+		response = requests.post(config.gh_action, headers=headers, json={"ref": "main"})
+		if response.status_code == 204:print(f"Workflow successfully dispatched for rerun.")
+		else:print(f"Error rerunning workflow: {response.text}")
+
+
 	async def on_ready(self):
+		pt = time.time()
 		try:
-		  #await self.node_connect()
-		  await self.tree.sync()
-		  stmsg = f'{self.user} is ready with {len(self.commands)} commands'
-		  print(stmsg)
-		  requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
-		  while True:
-			  for st in config.status:
-				  await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-				  await asyncio.sleep(120)
+			#await self.node_connect()
+			await self.tree.sync()
+			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
+			print(stmsg)
+			requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
+			while True:
+				for st in config.status:
+					nt = time.time()
+					print(int(nt-pt))
+					if int(nt - pt) > 21540:await self.action()
+					await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
+					await asyncio.sleep(40)
 		except Exception as ex:print(ex)
 	
 	async def node_connect(self):

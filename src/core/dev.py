@@ -1,14 +1,13 @@
 import discord, typing, requests
 from modules import config 
-from discord.ext import commands, tasks
+from discord.ext import commands
 # from discord import app_commands, Interaction
 cmd = commands
 
 class dev(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.spruce.start()
-
+		
 	@cmd.command(hidden=True)
 	@commands.guild_only()
 	@config.dev()
@@ -105,17 +104,6 @@ class dev(commands.Cog):
 				return await erl.send(e)
 		if ctx.author.id != config.owner_id:
 			return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
-
-	@tasks.loop(hours=6)
-	async def spruce(self):
-		headers = {
-			"Authorization": f"token {config.gh_api}",
-			"Content-Type": "application/vnd.github+json",
-		}
-		response = requests.post(config.gh_action, headers=headers, json={"ref": "main"})
-		if response.status_code == 204:print(f"Workflow successfully dispatched for rerun.")
-		else:print(f"Error rerunning workflow: {response.text}")
-
 
 	@cmd.command()
 	@commands.guild_only()
