@@ -24,7 +24,6 @@ class Spruce(commands.AutoShardedBot):
 		for i in self.core:await self.load_extension(f"core.{i}")
 		
 	async def action(self):
-		return print("hello")
 		headers = {
 			"Authorization": f"token {config.gh_api}",
 			"Content-Type": "application/vnd.github+json",
