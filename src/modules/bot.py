@@ -10,7 +10,7 @@ intents.reactions = True
 intents.members = True
 intents.voice_states = True
 intents.guilds = True
-
+pt = time.time()
 
 class Spruce(commands.AutoShardedBot):
 	def __init__(self) -> None:
@@ -33,21 +33,23 @@ class Spruce(commands.AutoShardedBot):
 		if response.status_code == 204:print(f"Workflow successfully dispatched for rerun.")
 		else:print(f"Error rerunning workflow: {response.text}")
 
-
 	async def on_ready(self):
-		pt = time.time()
 		try:
 			#await self.node_connect()
 			await self.tree.sync()
 			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
 			print(stmsg)
-			requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
+			stch = self.get_channel(config.stl)
+			msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
+			#requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
 			while True:
 				for st in config.status:
 					nt = time.time()
-					print(int(nt-pt))
+					tp = int(nt-pt)
+					print(tp)
 					if int(nt - pt) > 21540:await self.action()
 					await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
+					await msg.edit(content=f"{tp}")
 					await asyncio.sleep(40)
 		except Exception as ex:print(ex)
 	
