@@ -36,7 +36,7 @@ bws = config.bws
 #########################################################
 ################ CHAT SYSTEM ###########################
 #########################################################
-response = sdbc.find()
+
 say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
 name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
 unfair = [{"q":"me harami", "a":"aap harami ho"}, {"q":"me useless", "a":"me really useful yes i know"}, {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}]
@@ -73,7 +73,7 @@ async def ask(message, bot):
         for i in bws:
             if i.lower() in message.content.lower().split():
                 return await ctx.reply("Message contains blocked word. so i can't reply to this message! sorry buddy.")
-        if not response: response = sdbc.find()
+        response = sdbc.find()
         query = message.content.replace(f"<@{bot.user.id}>", "").lower()
         if lang_model(ctx, query, response) != None:
             await ctx.typing()

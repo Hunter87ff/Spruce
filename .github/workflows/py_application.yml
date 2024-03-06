@@ -13,6 +13,7 @@ env:
   mongo_url  : ${{ secrets.MONGO_URL }}
   shards : ${{ secrets.SHARDS }}
   tkn : ${{ secrets.TKN }}
+  prefix : ${{ secrets.PREFIX }}
   
 jobs:
   deploy:
