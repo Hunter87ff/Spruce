@@ -65,25 +65,20 @@ class Utility(commands.Cog):
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def uptime(self, ctx):
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
 		await ctx.defer(ephemeral=True)
-		try:
-			sch = self.bot.get_channel(config.stl)
-		except:
-			return
+		try:sch = self.bot.get_channel(config.stl)
+		except:return
 		messages = [message async for message in sch.history(limit=3)]
 		uptime = ctx.message.created_at - messages[0].created_at
 		upt = str(uptime).split(".")[0]
 		msg = f"**Current Uptime Is : `{upt}`**"
 		emb = discord.Embed(title="Uptime", color=config.green, description=msg, timestamp=ctx.message.created_at)
 		emb.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar)
-		try:
-			await ctx.send(embed=emb)
-		except:
-			return
+		try:await ctx.send(embed=emb)
+		except:return
 
 
 	@cmd.command()
@@ -92,22 +87,18 @@ class Utility(commands.Cog):
 	async def ping(self, ctx):
 	    if ctx.author.id == config.owner_id:
 	        await ctx.reply(f'**Current ping is `{round(self.bot.latency*1000)} ms`**')
-	    else:
-	        await ctx.reply(f'**Current ping is `{random.choice(range(19,48))} ms`**')
+	    else:await ctx.reply(f'**Current ping is `{random.choice(range(19,48))} ms`**')
 	
 	
 
 	@cmd.hybrid_command(with_app_command = True, aliases=['av', "pfp"])
 	@commands.bot_has_permissions(send_messages=True, embed_links=True)
 	async def avatar(self, ctx, user: discord.User = None):
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
 		await ctx.defer(ephemeral=True)
-		if user == None:
-			user = ctx.author
-			
+		if user == None:user = ctx.author
 		if "a_" in str(user.avatar):
 			eemb = discord.Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", color=0xfff00f)			
 			eemb.set_image(url=user.avatar)
@@ -128,9 +119,7 @@ class Utility(commands.Cog):
 		await ctx.defer(ephemeral=True)
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
-		if guild == None:
-			guild = ctx.guild
-
+		if guild == None:guild = ctx.guild
 		if guild.icon != None:
 			enm = discord.Embed(title=guild.name, url=guild.icon, color=config.red)
 			enm.set_image(url=guild.icon)
@@ -143,16 +132,13 @@ class Utility(commands.Cog):
 
 	@cmd.hybrid_command(with_app_command = True, aliases=["bnr"])
 	async def banner(self, ctx, user:discord.User=None):
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
-		if user == None:
-			user = ctx.author
+		if user == None:user = ctx.author
 		usr = await self.bot.fetch_user(user.id)
 		banner = usr.banner
-		if not banner:
-		    return await ctx.reply("User Don't Have A Banner", delete_after=20)
+		if not banner:return await ctx.reply("User Don't Have A Banner", delete_after=20)
 		banner_url = banner.url
 		emb = discord.Embed(colour=0xff0000, description=f"**[BANNER URL]({banner_url})**")
 		emb.set_image(url=banner_url)
@@ -164,8 +150,7 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def embed(self, ctx, *, message):
 		await ctx.defer()
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
 		embed = discord.Embed(description=message, color=config.blue)
@@ -177,10 +162,8 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def tts(self, ctx, *, message):
 		await ctx.defer(ephemeral=True)
-		if ctx.author.bot:
-			return
-		if not await config.voted(ctx, bot=self.bot):
-			return await config.vtm(ctx)
+		if ctx.author.bot:return
+		if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
 		if len(message.split()) > 100:
 			return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
 		output = gTTS(text=message, lang="en", tld="co.in")
@@ -238,11 +221,8 @@ class Utility(commands.Cog):
 		invbtn = Button(label="Invite Now", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
 		view = View()
 		view.add_item(invbtn)
-		try:
-			await ctx.send("**Click On The Button To Invite Me:**", view=view)
-		except:
-			return
-
+		try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
+		except:return
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
@@ -252,11 +232,8 @@ class Utility(commands.Cog):
 		invbtn = Button(label="Vote Now", url="https://top.gg/bot/931202912888164474/vote")
 		view = View()
 		view.add_item(invbtn)
-		try:
-			await ctx.send("**Click On The Button To Vote Me ^_^**", view=view)
-		except:
-			return
-
+		try:await ctx.send("**Click On The Button To Vote Me ^_^**", view=view)
+		except:return
 
 	@cmd.hybrid_command(with_app_command = True)
 	@commands.bot_has_permissions(send_messages=True)
@@ -266,11 +243,8 @@ class Utility(commands.Cog):
 		invbtn = Button(label="Support", url="https://discord.gg/vMnhpAyFZm")
 		view = View()
 		view.add_item(invbtn)
-		try:
-			await ctx.send("**Click On The Button To Join Our Support Server For Any Issue**", view=view)
-		except:
-			return
-
+		try:await ctx.send("**Click On The Button To Join Our Support Server For Any Issue**", view=view)
+		except:return
 
 	@cmd.hybrid_command(with_app_command=True, aliases=["em"])
 	@commands.has_permissions(manage_messages=True)
@@ -302,17 +276,14 @@ class Utility(commands.Cog):
 	@commands.cooldown(2, 60, commands.BucketType.user)
 	async def prefix(self, ctx):
 		await ctx.defer(ephemeral=True)
-		await ctx.send(config.prefix)
-
-
+		await ctx.send(f"My prefix is : {config.prefix}")
 
 	@cmd.hybrid_command(with_app_command = True, aliases=["mc"])
 	@commands.bot_has_permissions(send_messages=True)
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def member_count(self, ctx):
 		await ctx.defer(ephemeral=True)
-		if not await config.voted(ctx, bot=self.bot):
-			return await config.vtm(ctx)
+		if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
 		emb = discord.Embed(title="Members", description=f"{ctx.guild.member_count}", color=config.teal)
 		emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
@@ -322,26 +293,22 @@ class Utility(commands.Cog):
 	@commands.bot_has_permissions(send_messages=True)
 	async def userinfo(self, ctx, member : discord.Member = None):
 		await ctx.defer(ephemeral=True)
-		if member == None:
-		    member = ctx.author
+		if member == None:member = ctx.author
 		roles = ", ".join([role.mention for role in member.roles][0:10])
-		if len(member.roles) > 10:
-			roles = "Too Many Roles To Show"
+		if len(member.roles) > 15:roles = "Too Many Roles To Show"
 		user = await self.bot.fetch_user(member.id)
 		desc = f'**User Name**: {member}\n**User ID:** {member.id}\n**Nick Name:** {member.display_name}\n**Color :** {member.color.value}\n**Status:** {member.status}\n**Bot?:** {member.bot}\n**Top role:** {member.top_role.mention}\n**Created at:** {member.created_at.strftime("%a, %#d %B %Y")}\n**Joined at:** {member.joined_at.strftime("%a, %#d %B %Y")}\n**Roles:**\n{roles} '
 		embed = discord.Embed(description=desc, colour=0x00ff00, timestamp=ctx.message.created_at)
 		embed.set_author(name=member, icon_url=member.avatar)
 		embed.set_thumbnail(url=member.avatar)
-		if user.banner:
-		    embed.set_image(url=str(user.banner))
+		if user.banner:embed.set_image(url=str(user.banner))
 		embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		await ctx.send(embed=embed)
 
 
 	def mmbrs(self):
 	    i = 0
-	    for guild in self.bot.guilds:
-	        i = i + guild.member_count
+	    for guild in self.bot.guilds:i+=guild.member_count
 	    return i
 
 	@cmd.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info", "status", "botstats"])
@@ -357,20 +324,15 @@ class Utility(commands.Cog):
 	    emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
 	    emb.set_footer(text="Made with ❤️ | By hunter#6967")
 	    return await ctx.send(embed=emb)
-	
-
 
 	@cmd.command()
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	@commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
 	async def nick(self, ctx, user:discord.Member,  *, Nick:str):
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		bt = ctx.guild.get_member(self.bot.user.id)
-		if ctx.author.top_role < user.top_role:
-			return await ctx.send("You don't have enough permission")
-		if bt.top_role < user.top_role:
-			return await ctx.send("I don't have enough permission")
+		if ctx.author.top_role < user.top_role:return await ctx.send("You don't have enough permission")
+		if bt.top_role < user.top_role:return await ctx.send("I don't have enough permission")
 		else:
 			await user.edit(nick=Nick)
 			await ctx.send("Done")
@@ -399,21 +361,14 @@ class Utility(commands.Cog):
 		user = ctx.author
 		guild = ctx.guild
 		roles = ', '.join([role.mention for role in guild.roles[0:8]])
-		if len(roles) > 12:
-			roles = "Too Many Role To Show Here"
-		emb = discord.Embed(title=f"{ctx.guild.name}'s Information",
-                        description=f"**__About__**\n**Name** : {guild.name}\n**Id** : {guild.id}\n**Owner** : <@{guild.owner_id}>\n**Members** : {guild.member_count}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {guild.premium_tier}\n**Emojis** : {len(guild.emojis)}/{guild.emoji_limit}\n**Stickers** : {len(guild.stickers)}/{guild.sticker_limit}\n\n**__Server Roles__ [{len(guild.roles)}]** :\n{roles}\n\n**__Description__**\n{guild.description}",
-                       color=0xf1c40f)
+		if len(roles) > 20:roles = "Too Many Role To Show Here"
+		emb = discord.Embed(title=f"{ctx.guild.name}'s Information",description=f"**__About__**\n**Name** : {guild.name}\n**Id** : {guild.id}\n**Owner** : <@{guild.owner_id}>\n**Members** : {guild.member_count}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {guild.premium_tier}\n**Emojis** : {len(guild.emojis)}/{guild.emoji_limit}\n**Stickers** : {len(guild.stickers)}/{guild.sticker_limit}\n\n**__Server Roles__ [{len(guild.roles)}]** :\n{roles}\n\n**__Description__**\n{guild.description}",color=0xf1c40f)
 		emb.set_thumbnail(url=guild.icon.url)
-		if ctx.guild.banner:
-			emb.set_image(url=ctx.guild.banner.url)
+		if ctx.guild.banner:emb.set_image(url=ctx.guild.banner.url)
 		emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 		await ctx.send(embed=emb)
 
 
-
-	
-	
 	@commands.Cog.listener()
 	async def on_guild_join(self, guild):
 		try:
@@ -427,8 +382,7 @@ class Utility(commands.Cog):
 		        m = discord.utils.get(support_server.members, id=guild.owner.id)
 		        await m.add_roles(orole)
 		    await ch.send(msg)
-		except Exception as e:
-			print(f"on_guild_join : {e}")
+		except Exception as e:print(f"on_guild_join : {e}")
 		
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild): 
@@ -437,9 +391,8 @@ class Utility(commands.Cog):
 	    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
 	    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
 	    for i in support_server.members:
-	        if i.id == guild.owner.id:
-	            if orole in i.roles:
-	                await i.remove_roles(orole, reason="Kicked Spruce")
+	        if i.id == guild.owner.id and orole in i.roles:
+				await i.remove_roles(orole, reason="Kicked Spruce")
 	    return await ch.send(msg)
 	
 

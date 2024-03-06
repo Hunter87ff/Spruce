@@ -5,8 +5,8 @@ from pymongo import MongoClient
 from discord.ui import Button, View
 from dotenv import load_dotenv
 load_dotenv()
-shards =  15
-version = "2.0.1"
+shards =  1
+version = "2.0.2"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
@@ -14,14 +14,14 @@ support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://sprucebot.tech/invite"
 support_server_id = 947443790053015623
 status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
-maindb = ""
 try: maindb = MongoClient(env["mongo_url"])
 except:  maindb = MongoClient(env["MONGO_URL"])
 dbc = maindb["tourneydb"]["tourneydbc"]
+gtadbc =  maindb["gtamountdb"]["gtamountdbc"]
 cfdbc = maindb["configdb"]["configdbc"]
 cfdata = cfdbc.find_one({"config_id": 87})
 spdb = MongoClient(cfdata["spdb"])
-token = cfdata["TOKEN"]
+token = cfdata["TOKEN2"]
 prefix = cfdata["prefix"]
 spot_id = cfdata["spot_id"]
 spot_secret = cfdata["spot_secret"]
@@ -118,18 +118,13 @@ async def voted(ctx, bot):
 
 async def vtm(ctx):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
-	await ctx.send(embed=discord.Embed(
-	 color=cyan, description="Vote Now To Unlock This Command"),
-	               view=View().add_item(btn))
-
+	await ctx.send(embed=discord.Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
 def dev():
 	def predicate(ctx):
 		return ctx.message.author.id == owner_id
 	return commands.check(predicate)
 
-
 def notuser(message):
-	if message.author.bot: return True
-	if message.webhook_id: return True
-	else: return None
+	return True if message.author.bot or message.webhook_id else False
+
