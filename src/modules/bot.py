@@ -21,9 +21,11 @@ class Spruce(commands.AutoShardedBot):
 
 	async def setup_hook(self) -> None:
 		self.remove_command("help")
+		await self.tree.sync()
 		for i in self.core:await self.load_extension(f"core.{i}")
 		
 	async def action(self):
+		await asyncio.sleep(21540)
 		headers = {
 			"Authorization": f"token {config.gh_api}",
 			"Content-Type": "application/vnd.github+json",
@@ -31,25 +33,21 @@ class Spruce(commands.AutoShardedBot):
 		response = requests.post(config.gh_action, headers=headers, json={"ref": "main"})
 		if response.status_code == 204:print(f"Workflow successfully dispatched for rerun.")
 		else:print(f"Error rerunning workflow: {response.text}")
+		await self.action()
 
 	async def on_ready(self):
 		try:
 			#await self.node_connect()
-			await self.tree.sync()
 			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
 			print(stmsg)
 			stch = self.get_channel(config.stl)
 			msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
+			await self.action()
 			#requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
 			while True:
 				for st in config.status:
-					nt = time.time()
-					tp = int(nt-pt)
-					print(tp)
-					if int(nt - pt) > 21540:await self.action()
 					await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=st))
-					await msg.edit(content=f"{tp}")
-					await asyncio.sleep(40)
+					await asyncio.sleep(60)
 		except Exception as ex:print(ex)
 	
 	async def node_connect(self):
