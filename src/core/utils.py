@@ -386,14 +386,13 @@ class Utility(commands.Cog):
 		
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild): 
-	    support_server = self.bot.get_guild(config.support_server_id)
-	    ch = self.bot.get_channel(config.gleave)
-	    orole = discord.utils.get(support_server.roles, id=1043134410029019176)
-	    msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
-	    for i in support_server.members:
-	        if i.id == guild.owner.id and orole in i.roles:
-				await i.remove_roles(orole, reason="Kicked Spruce")
-	    return await ch.send(msg)
+		support_server = self.bot.get_guild(config.support_server_id)
+		ch = self.bot.get_channel(config.gleave)
+		orole = discord.utils.get(support_server.roles, id=1043134410029019176)
+		msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
+		for i in support_server.members:
+			if i.id == guild.owner.id and orole in i.roles:await i.remove_roles(orole, reason="Kicked Spruce")
+		return await ch.send(msg)
 	
 
 async def setup(bot):

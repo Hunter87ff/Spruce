@@ -10,20 +10,9 @@ permissions:
   contents: read
   
 env:
-  TOKEN : ${{ secrets.TOKEN }}
-  prefix : ${{ secrets.PREFIX }}
   mongo_url  : ${{ secrets.MONGO_URL }}
-  spdb : ${{ secrets.SPDB }}
-  spot_id: ${{ secrets.SPOT_ID }}
-  spot_secret: ${{ secrets.SPOT_SECRET }}
-  cogs: ${{ secrets.COGS }}
-  dml : ${{ secrets.DML }}
-  webh : ${{ secrets.WEBH }}
-  payuwbh : ${{ secrets.PAYUWBH }}
-  csecret : ${{ secrets.CSECRET }}
-  msgh : ${{ secrets.MSGH }}
-  
-  
+  shards : ${{ secrets.SHARDS }}
+  tkn : ${{ secrets.TKN }}
   
 jobs:
   deploy:
