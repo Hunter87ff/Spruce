@@ -1,5 +1,4 @@
 from modules import config
-
 class Tourney:
     def __init__(self, obj):
         self.tname = obj["t_name"]
