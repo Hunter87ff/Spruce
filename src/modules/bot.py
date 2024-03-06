@@ -21,7 +21,6 @@ class Spruce(commands.AutoShardedBot):
 
 	async def setup_hook(self) -> None:
 		self.remove_command("help")
-		await self.tree.sync()
 		for i in self.core:await self.load_extension(f"core.{i}")
 		
 	async def action(self, stch):
@@ -37,6 +36,7 @@ class Spruce(commands.AutoShardedBot):
 
 	async def on_ready(self):
 		try:
+			await self.tree.sync()
 			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
 			print(stmsg)
 			stch = self.get_channel(config.stl)
