@@ -24,9 +24,23 @@ SOFTWARE."""
 import app, asyncio, discord
 from modules import config
 from modules.bot import bot
+from threading import Thread
 
-#app.keep_alive()
-discord.utils.setup_logging(level=20)
-async def launch():
-  await bot.start(config.token)
+async def action():
+    config.logger.info(f"Action Triggered")
+    await asyncio.sleep(21500)
+    headers = {
+        "Authorization": f"token {config.gh_api}",
+        "Content-Type": "application/vnd.github+json",
+    }
+    response = config.webpost(config.gh_action, headers=headers, json={"ref": "main"})
+    if response.status_code == 204:
+        config.webpost(url=config.stwbh, json=f"<@{config.owner_id}>\nSuccessfully Restarted!!")
+    else:(f"<@{config.owner_id}>\nException during restart : {response.text}")
+def trigger():asyncio.run(action())
+Thread(target=trigger).start()
+
+#discord.utils.setup_logging(level=20)
+
+async def launch():await bot.start(config.token)
 asyncio.run(launch())

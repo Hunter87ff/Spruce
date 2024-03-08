@@ -3,7 +3,8 @@ from discord.ext import commands
 from wavelink.ext import spotify
 from discord import AllowedMentions, Intents
 from modules import (message_handel as onm, config)
-from database import Database
+from ext import Database, Logger
+
 intents = Intents.default()
 intents.message_content = True
 intents.reactions = True
@@ -11,38 +12,28 @@ intents.members = True
 intents.voice_states = True
 intents.guilds = True
 pt = time.time()
+logger = config.logger
 
 class Spruce(commands.AutoShardedBot):
 	def __init__(self) -> None:
 		self.config = config
 		self.db = Database()
+		self.logger = config.logger
 		self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
 		super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
 
 	async def setup_hook(self) -> None:
 		self.remove_command("help")
 		for i in self.core:await self.load_extension(f"core.{i}")
-		
-	async def action(self, stch):
-		await asyncio.sleep(21460)
-		headers = {
-			"Authorization": f"token {config.gh_api}",
-			"Content-Type": "application/vnd.github+json",
-		}
-		response = requests.post(config.gh_action, headers=headers, json={"ref": "main"})
-		if response.status_code == 204:await stch.send(f"<@{config.owner_id}>\nSuccessfully Restarted!!")
-		else:await stch.send(f"<@{config.owner_id}>\nException during restart : {response.text}")
-		#await self.action()
 
 	async def on_ready(self):
 		try:
 			await self.tree.sync()
 			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
-			print(stmsg)
+			logger.debug(stmsg)
 			stch = self.get_channel(config.stl)
 			#msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
 			requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
-			await self.action(stch)
 		except Exception as ex:print(ex)
 
 	async def on_disconnect(self):

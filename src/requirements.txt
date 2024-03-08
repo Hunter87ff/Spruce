@@ -1,4 +1,3 @@
-pip
 python-dotenv
 flask
 gunicorn
@@ -7,10 +6,10 @@ pymongo[srv]
 discord.py==2.3.0
 requests==2.31.0
 PyNaCl
-wavelink==1.3.3
+wavelink==1.3.5
 bs4
 html5lib
 humanfriendly==10.0
 gtts==2.3.2
 numpy==1.24.1
-flask-discord
+gunicorn
