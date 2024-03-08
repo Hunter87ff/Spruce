@@ -109,7 +109,6 @@ async def ask(message, bot):
 #########################################################
 
 
-
 def get_slot(ms):
     for i in range(1, 13):
         if f"{i})" not in ms.content:return f"{i})"
