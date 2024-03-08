@@ -63,7 +63,7 @@ class Logger:
                 logger.critical("Critical message")
     """
 
-    def __init__(self, level=logging.INFO):
+    def __init__(self, level=logging.DEBUG):
         self.logger = logging.getLogger()
         self.console_handler = logging.StreamHandler()
         self.logger.setLevel(level)

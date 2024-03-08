@@ -30,7 +30,7 @@ class Spruce(commands.AutoShardedBot):
 		try:
 			await self.tree.sync()
 			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
-			logger.debug(stmsg)
+			logger.info(stmsg)
 			stch = self.get_channel(config.stl)
 			#msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
 			requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
