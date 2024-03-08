@@ -54,7 +54,14 @@ class Spruce(commands.AutoShardedBot):
 	    await self.process_commands(message)
 	    await onm.tourney(message)
 	    await onm.ask(message, self)
-
+	    
+	    
+	async def on_error(event, *args, **kwargs):
+	    if isinstance(args[0], discord.errors.ConnectionClosed):
+	      print("ConnectionClosed error occurred. Reconnecting...")
+	      #await bot.close()
+	      #await bot.start("YOUR_BOT_TOKEN")
+        
 	async def on_command_error(self, ctx, error):
 	    await onm.error_handle(ctx, error, self)
 
