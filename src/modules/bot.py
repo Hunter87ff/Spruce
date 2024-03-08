@@ -24,7 +24,7 @@ class Spruce(commands.AutoShardedBot):
 		for i in self.core:await self.load_extension(f"core.{i}")
 		
 	async def action(self, stch):
-		await asyncio.sleep(21500)
+		await asyncio.sleep(21460)
 		headers = {
 			"Authorization": f"token {config.gh_api}",
 			"Content-Type": "application/vnd.github+json",
