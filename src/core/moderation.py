@@ -232,26 +232,18 @@ class Moderation(commands.Cog):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unhide_category(self, ctx, category: discord.CategoryChannel, role :discord.Role = None):
 		await ctx.defer()
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
-		if role == None:
-			role = ctx.guild.default_role
-
+		if role == None:role = ctx.guild.default_role
 		for uhchannel in category.channels:
 		  overwrite = uhchannel.overwrites_for(role)
 		  overwrite.update(view_channel=True)
 		  await uhchannel.set_permissions(role, overwrite=overwrite)
 		  await sleep(2)
 		em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to `{role.name}`**', color=0x00ff00)
-		try:
-			await ctx.send(embed=em, delete_after=5)
-		except:
-			return
-
-
-
+		try:await ctx.send(embed=em, delete_after=5)
+		except:return
 
 
 	#clear command
@@ -262,18 +254,13 @@ class Moderation(commands.Cog):
 	#@commands.cooldown(2, 40, commands.BucketType.user)
 	async def clear(self, ctx, amount:int=None):
 		await ctx.defer()
-
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
-		if amount == None:
-			amount = 10
-
-		await ctx.channel.purge(limit=amount)
+		if amount == None:amount = 10
+		try:await ctx.channel.purge(limit=amount)
+		except: pass
 		return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
-		
-
 
 
 	#Mute Command
@@ -284,13 +271,11 @@ class Moderation(commands.Cog):
 	@commands.cooldown(2, 30, commands.BucketType.user)
 	async def unmute(self, ctx, member: discord.Member, *, reason=None):
 		await ctx.defer()
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
 		bt = ctx.guild.get_member(self.bot.user.id)
-		if reason == None:
-			reason = 'No reason provided'
+		if not reason:reason = 'No reason provided'
 		if not ctx.author.top_role.position > member.top_role.position:
 			return await ctx.reply("You Can Not Manage Him")
 
@@ -300,10 +285,8 @@ class Moderation(commands.Cog):
 		else:
 		    time = humanfriendly.parse_timespan("0")
 		    await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
-		    try:
-		    	await ctx.send(f"{member} has been unmuted")
-		    except:
-		    	return	
+		    try:await ctx.send(f"{member} has been unmuted")
+		    except:return	
 
 
 	@cmd.hybrid_command(with_app_command = True)
@@ -354,37 +337,27 @@ class Moderation(commands.Cog):
 	@commands.guild_only()
 	async def kick(self, ctx, member: discord.Member, reason=None):
 		await ctx.defer()
-		if ctx.author.bot:
-			return
+		if ctx.author.bot:return
 		if not await config.voted(ctx, bot=self.bot):
 			return await config.vtm(ctx)
 		if reason == None:
 			reason = f"{member} kicked by {ctx.author}"
 
 		if ctx.author.top_role.position < member.top_role.position:
-			try:
-				return await ctx.send("You don't have enough permission")
-			except:
-				return
-
+			try:return await ctx.send("You don't have enough permission")
+			except:return
 		elif member == ctx.author:
-			try:
-				return await ctx.send("**You can't kick your self**")
-			except:
-				return
-
+			try:return await ctx.send("**You can't kick your self**")
+			except:return
 		elif ctx.guild.me.top_role.position < member.top_role.position:
 			try:
 				return await ctx.send("**I can't kick him**")
-			except:
-				return
-
+			except:return
 		else:
-			return await ctx.guild.kick(member, reason=reason)
 			try:
-				return await ctx.send(f"{member} kicked")
-			except:
-				return
+				await ctx.guild.kick(member, reason=reason)
+				await ctx.send(f"{member} kicked")
+			except: return
 
 
 	@cmd.hybrid_command(with_app_command = True)
