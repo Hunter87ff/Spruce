@@ -5,6 +5,7 @@
 ![Commands](https://img.shields.io/badge/87+-Commands-violet)
 ![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.3.0-skyblue)
 ![Db](https://img.shields.io/badge/db-MongoDB-green)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=ncloc)](#)
 <!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
 
 Spruce is a multi-functional Discord bot designed to streamline the management of Discord tournaments and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
