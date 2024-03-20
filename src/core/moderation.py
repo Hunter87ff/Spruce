@@ -253,7 +253,6 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_messages=True, send_messages=True)
     #@commands.cooldown(2, 40, commands.BucketType.user)
     async def clear(self, ctx, amount:int=None):
-        await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
