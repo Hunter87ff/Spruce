@@ -80,9 +80,8 @@ class Music(commands.Cog):
             await interaction.send(embed=next_song_emb, view=view)
 
     @cmd.command(enabled=True, aliases= ['p','P'])
-    async def play(self, ctx, *, search: str):
+    async def play(self, ctx, *, search:typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack]):
         if ctx.author.bot:return
-        search:typing.Union[spotify.SpotifyTrack, wavelink.YouTubeMusicTrack]=search
         btns = [next_btn, pause_btn, play_btn, stop_btn, queue_btn, loop_btn]
         view = View()
         for btn in btns:view.add_item(btn)
