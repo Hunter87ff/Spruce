@@ -58,7 +58,7 @@ class Utility(commands.Cog):
         # 	message = interaction.message.reference.cached_message
         # if message == None & interaction.message.reference.message_id == None:
         # 	return await interaction.response.send_message("Please enter text to translate")
-        return await interaction.response.send_message(embed=discord.Embed(description=trn(self.bot.db["trnsl"], fr.value, to.value, message), color=config.blurple), ephemeral=True)
+        return await interaction.response.send_message(embed=discord.Embed(description=trn(config.cfdata["trnsl"], fr.value, to.value, message), color=config.blurple), ephemeral=True)
 
 
 
@@ -206,7 +206,7 @@ class Utility(commands.Cog):
     async def toss(self, ctx):
         await ctx.defer(ephemeral=True)
         msg = f"https://cdn.discordapp.com/emojis/{random.choice(coin)}.png"
-        emb = discord.Embed(color=yellow)
+        emb = discord.Embed(color=config.yellow)
         emb.set_image(url=msg)
         await ctx.send(embed=emb)
 
