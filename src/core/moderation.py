@@ -253,13 +253,14 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_messages=True, send_messages=True)
     #@commands.cooldown(2, 40, commands.BucketType.user)
     async def clear(self, ctx, amount:int=None):
+        await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
         if amount == None:amount = 10
         try:await ctx.channel.purge(limit=amount)
         except: pass
-        return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**',delete_after=5)
+        return await ctx.send(f'**<:vf:947194381172084767> Successfully cleared {amount} messages**')
 
 
     #Mute Command
