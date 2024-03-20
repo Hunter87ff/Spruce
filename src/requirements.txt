@@ -1,6 +1,6 @@
 python-dotenv
 flask
-gunicorn
+psutil
 pymongo==4.2.0
 pymongo[srv]
 discord.py==2.3.0
