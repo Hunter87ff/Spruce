@@ -15,51 +15,54 @@ pt = time.time()
 logger = config.logger
 
 class Spruce(commands.AutoShardedBot):
-	def __init__(self) -> None:
-		self.config = config
-		self.db = Database()
-		self.logger = config.logger
-		self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
-		super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
+    def __init__(self) -> None:
+        self.config = config
+        self.db = Database()
+        self.logger = config.logger
+        self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
+        super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
 
-	async def setup_hook(self) -> None:
-		self.remove_command("help")
-		for i in self.core:await self.load_extension(f"core.{i}")
+    async def setup_hook(self) -> None:
+        self.remove_command("help")
+        for i in self.core:await self.load_extension(f"core.{i}")
 
-	async def on_ready(self):
-		try:
-			await self.tree.sync()
-			stmsg = f'{self.user} is ready with {len(self.commands)} commands'
-			logger.info(stmsg)
-			stch = self.get_channel(config.stl)
-			#msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
-			requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
-		except Exception as ex:print(ex)
+    async def on_ready(self):
+        try:
+            await self.tree.sync()
+            stmsg = f'{self.user} is ready with {len(self.commands)} commands'
+            logger.info(stmsg)
+            await self.node_connect()
+            stch = self.get_channel(config.stl)
+            #msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
+            requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
+        except Exception as ex:print(ex)
 
-	async def on_disconnect(self):
-		print('Disconnected from Discord. Reconnecting...')
-		await self.wait_until_ready()
-	
-	async def on_message(self, message):
-	    if config.notuser(message):return
-	    await self.process_commands(message)
-	    await onm.tourney(message)
-	    await onm.ask(message, self)
-	    
-	    
-	async def on_error(event, *args, **kwargs):
-	    if isinstance(args[0], discord.errors.ConnectionClosed):
-	      print("ConnectionClosed error occurred. Reconnecting...")
-	      #await bot.close()
-	      #await bot.start("YOUR_BOT_TOKEN")
+    async def on_disconnect(self):
+        logger.warning('Disconnected from Discord. Reconnecting...')
+        await self.wait_until_ready()
+
+    async def on_message(self, message):
+        if config.notuser(message):return
+        await self.process_commands(message)
+        await onm.tourney(message)
+        await onm.ask(message, self)
         
-	async def on_command_error(self, ctx, error):
-	    await onm.error_handle(ctx, error, self)
+        
+    async def on_error(event, *args, **kwargs):
+        if isinstance(args[0], discord.errors.ConnectionClosed):
+            print("ConnectionClosed error occurred. Reconnecting...")
+            #await bot.close()
+            #await bot.start("YOUR_BOT_TOKEN")
+        
+    async def on_command_error(self, ctx, error):
+        await onm.error_handle(ctx, error, self)
 
-	async def node_connect(self):
-		try:
-		  await self.wait_until_ready()
-		  await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=443,password=config.m_host_psw,https=True,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
-		except Exception as e:print(e)
-    
+    async def node_connect(self):
+        """Connect to the lavalink server."""
+        try:
+            await self.wait_until_ready()
+            await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=443,password=config.m_host_psw,https=True,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
+            logger.info("Node Connected")
+        except Exception as e:print(e)
+
 bot = Spruce()

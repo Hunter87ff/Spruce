@@ -2,7 +2,7 @@ import discord
 from modules import config
 nitrodbc = config.maindb["nitrodb"]["nitrodbc"]
 ################# NITROF ######################
-nitrodbc = maindb["nitrodb"]["nitrodbc"]
+nitrodbc = config.maindb["nitrodb"]["nitrodbc"]
 async def nitrof(message, bot):
     if message.author.bot:return
     try:gnitro = nitrodbc.find_one({"guild" : message.guild.id})
