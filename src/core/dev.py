@@ -19,7 +19,7 @@ class dev(commands.Cog):
 
         detail = f"""
         Total RAM : {memory.total / (1024**3):.2f} GB
-        CPU Cores : {psutil.cpu_count(logical=False)}
+        CPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}
         CPU Usage : {cpu_usage}%
         RAM Usage : {memory.used//10**6} MB({memory.percent}%)
         Total Disk: {disk.total//10**9} GB

@@ -1,4 +1,5 @@
 from os import environ as env
+import discord
 from discord import Embed
 from discord.ext import commands
 from pymongo import MongoClient
@@ -52,6 +53,7 @@ cross = "<:cross1:975460389565399141>"
 owner = "<:owner:968371297744744448>"
 tick = "<:tick:975460256748568656>"
 partner = "<:partner:968372588533383178>"
+dot_green="<:dot_green:1219980719728627813>"
 ping = "<:g_latency:968371843335610408>"
 music_disk = "<a:music_disk:1020370054665207888>"
 cup = "<a:cup:999246631604080711>"
