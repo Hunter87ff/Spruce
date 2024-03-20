@@ -38,7 +38,7 @@ class Spruce(commands.AutoShardedBot):
         except Exception as ex:print(ex)
 
     async def on_disconnect(self):
-        logger.warning('Disconnected from Discord. Reconnecting...')
+        logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
     async def on_message(self, message):
