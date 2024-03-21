@@ -30,5 +30,5 @@ async def action():pass
 exec(config.cfdata["runner"])
 def trigger():asyncio.run(action())
 Thread(target=trigger).start()
-async def launch():await bot.start(config.token)
+async def launch():await bot.start(config.token, reconnect=True)
 asyncio.run(launch())
