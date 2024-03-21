@@ -320,11 +320,11 @@ class Utility(commands.Cog):
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
 
-        system_info = f"""Total RAM : {memory.total / (1024**3):.2f} GB\nRAM Usage : {memory.used//10**6} MB({memory.percent}%)\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nTotal Disk: {disk.total//10**9} GB"""
+        system_info = f"""Total RAM : {memory.total / (1024**3):.2f} GB\nRAM Usage : {psutil.Process(os.getpid()).memory_info().rss//2**20} MB\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nTotal Disk: {disk.total//10**9} GB"""
         emb = discord.Embed(title="Spruce Bot", description="Welcome To Spruce", color=config.blurple)
-        emb.add_field(name=f"{config.servers} __Servers Info__", value=f"Total server : {len(self.bot.guilds)}\nTotal Members : {self.mmbrs()}", inline=False)
+        emb.add_field(name=f"{config.servers} __Servers Info__", value=f"Total Servers : {len(self.bot.guilds)}\nTotal Members : {self.mmbrs()}", inline=False)
         emb.add_field(name=f"{config.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
-        emb.add_field(name=f"{config.ping} __Response Time__", value=f"{round(self.bot.latency*1000)}ms", inline=False)
+        emb.add_field(name=f"{config.ping} __Response Time__", value=f"{round(self.bot.latency*1000)}ms", inline=True)
         # emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"Command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
         emb.add_field(name=f"{config.mod} __System Stats__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
