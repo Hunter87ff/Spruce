@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from discord.ui import Button, View
 from dotenv import load_dotenv
 from requests import post as webpost
+from requests import get as webget
 from ext import Logger
 load_dotenv()
 logger = Logger()
@@ -34,7 +35,8 @@ bws = cfdata["bws"]
 m_host = cfdata["m_host"]
 m_host_psw = cfdata["m_host_psw"]
 gh_api = cfdata["git_api"]
-gh_action = "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
+gh_action =     "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
+gh_action_run = "https://api.github.com/repos/hunter87ff/Spruce/actions/workflows/py_application.yml/runs"
 #openai_key = cfdata["openai_key"]
 ################## LOG ####################
 erl = 1015166083050766366

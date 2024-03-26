@@ -18,7 +18,7 @@ invbtn = Button(label="Invite", url="https://discord.com/oauth2/authorize?client
 votebtn = Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")
 support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhpAyFZm")
 donate_btn = Button(label="Donate", url="https://discord.gg/x4sUyxttnf")
-hel_p = "• Prefix - `&`\n• Total Commands - `87` | Usable - `80`\n• Type `&help <command | category>` for more info\n\n"
+hel_p = f"• Prefix - `{config.prefix}`\n• Total Commands - `87` | Usable - `80`\n• Type `{config.prefix}help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(title="Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
@@ -30,9 +30,6 @@ buttons =[invbtn, votebtn, support_serverbtn, donate_btn]
 
 def get_thum(ctx):
     return ctx.guild.get_member(config.bot_id).display_avatar
-
-
-
 
 class Dropdown(discord.ui.Select):
     def __init__(self):
