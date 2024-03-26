@@ -1,22 +1,45 @@
-import discord
+"""
+MIT License
+
+Copyright (c) 2022 hunter87ff
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+import typing 
 import wavelink
-from wavelink.ext import spotify
 from time import gmtime
 from time import strftime
-from discord.ui import Button, View
-from discord import ButtonStyle
-from discord.ext import commands
-import requests
-from bs4 import BeautifulSoup
 from modules import config
-import typing   
+from bs4 import BeautifulSoup
+from wavelink.ext import spotify
+from discord.ext import commands
+from requests import get as rget 
+from discord.ui import Button, View
+from discord import ButtonStyle, Embed, HTTPException
+
 
 def get_img(search):
     if " " in search:
         search = search.replace(" ", "+")
     word = f"{search}+song+youtube"
     url = f'https://www.google.com/search?q={word}&tbm=isch'.format(word)
-    content = requests.get(url).content
+    content = rget(url).content
     soup = BeautifulSoup(content, features="html5lib")
     images = soup.findAll('img')
     for image in images:
@@ -32,7 +55,6 @@ queue_btn = Button(emoji=config.queue_btn, style=ButtonStyle.blurple, custom_id=
 play_btn = Button(emoji=config.play_btn, custom_id="play_btn")
 loop_btn = Button(emoji=config.loop_btn, custom_id="loop_btn")
 
-pref_ms = []
 
 cmd = commands
 class Music(commands.Cog):
@@ -49,13 +71,12 @@ class Music(commands.Cog):
         try:
             ctx = player.ctx
             vc: player = ctx.voice_client
-        except discord.HTTPException:
+        except HTTPException:
             interaction = player.interaction
             vc: player = interaction.guild.voice_client
         if vc.loop:
             return await vc.play(track)
-        if vc.queue.is_empty:
-            return
+        if vc.queue.is_empty:return
             #return await vc.disconnect()
         next_song = vc.queue.get()
         image_url = get_img(search=next_song.title)
@@ -63,7 +84,7 @@ class Music(commands.Cog):
         tm = "%H:%M:%S"
         if next_song.duration < 3599:
             tm = "%M:%S"
-        next_song_emb = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=image_url)
+        next_song_emb = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{ next_song.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(next_song.duration))}\n').set_thumbnail(url=image_url)
         try:
 
             messages =  [message async for message in ctx.channel.history(limit=23)]
@@ -73,10 +94,7 @@ class Music(commands.Cog):
                         await i.delete()
             
             await ctx.send(embed=next_song_emb, view=view)
-            #msg = await ms.channel.fetch_message(pref_ms[0])
-            #await msg.delete()
-            #pref_ms.remove(pref_ms[0])
-        except discord.HTTPException:
+        except HTTPException:
             await interaction.send(embed=next_song_emb, view=view)
 
     @cmd.command(enabled=True, aliases= ['p','P'])
@@ -105,7 +123,7 @@ class Music(commands.Cog):
             if search.duration < 3599:
                 tm = "%M:%S"
             image_url = get_img(search=search.title)
-            em = discord.Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=image_url)
+            em = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{search.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(search.duration))}\n').set_thumbnail(url=image_url)
             await ctx.send(embed=em, view=view)
         else:
             await vc.queue.put_wait(search)
@@ -132,7 +150,7 @@ class Music(commands.Cog):
     async def skip(self, ctx):
         await ctx.defer()
         if not ctx.author.voice:
-            return await ctx.reply(embed=discord.Embed(description="Please Join VC To Use This Command", color=0xff0000))
+            return await ctx.reply(embed=Embed(description="Please Join VC To Use This Command", color=0xff0000))
         if ctx.voice_client != None:
             vc: wavelink.Player = ctx.voice_client
         if vc.queue.is_empty:
@@ -140,7 +158,7 @@ class Music(commands.Cog):
         else:
             vc.loop = False
             await vc.stop()
-            await ctx.send(embed=discord.Embed(title=f"{config.tick} | Skipped"), delete_after=2)
+            await ctx.send(embed=Embed(title=f"{config.tick} | Skipped"), delete_after=2)
 
     @cmd.hybrid_command(with_app_command=True)
     async def pause(self, ctx):
@@ -153,7 +171,7 @@ class Music(commands.Cog):
 
             if vc.is_playing:
                 await vc.pause()
-                await ctx.send(embed=discord.Embed(title=f"{config.tick} | Paused"), delete_after=2)
+                await ctx.send(embed=Embed(title=f"{config.tick} | Paused"), delete_after=2)
 
 
     @cmd.hybrid_command(with_app_command=True)
@@ -165,7 +183,7 @@ class Music(commands.Cog):
             vc : wavelink.Player = ctx.voice_client
             if vc.is_paused:
                 await vc.resume()
-                await ctx.send(embed=discord.Embed(title=f"{config.tick} | Resumed"), delete_after=2)
+                await ctx.send(embed=Embed(title=f"{config.tick} | Resumed"), delete_after=2)
 
     @cmd.hybrid_command(with_app_command=True)
     async def loop(self, ctx):
@@ -176,20 +194,20 @@ class Music(commands.Cog):
             if ctx.voice_client != None:
                 vc: wavelink.Player = ctx.voice_client
                 if vc.is_playing == False:
-                    return await ctx.reply(embed=discord.Embed(description="No Audio Available For Loop...", color=0xff0000))
+                    return await ctx.reply(embed=Embed(description="No Audio Available For Loop...", color=0xff0000))
                 else:
                     if vc.loop ==False:
                         vc.loop = True
-                        lemb = discord.Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
+                        lemb = Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
                     else:
                         vc.loop =False 
-                        lemb = discord.Embed(title="Loop Music", description=f"**{config.default_tick} Loop Cancelled**", color=config.orange)
+                        lemb = Embed(title="Loop Music", description=f"**{config.default_tick} Loop Cancelled**", color=config.orange)
                     await ctx.send(embed=lemb, delete_after=5)
         if ctx.author.voice == None:
-            em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
+            em = Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
             await ctx.reply(embed=em)
         if ctx.voice_client == None:
-            return await ctx.reply(embed=discord.Embed(description="**I'm Not Connected To Vc!!**"))
+            return await ctx.reply(embed=Embed(description="**I'm Not Connected To Vc!!**"))
 
     @cmd.hybrid_command(with_app_command=True)
     async def queue(self, ctx):
@@ -201,7 +219,7 @@ class Music(commands.Cog):
         vc: wavelink.Player = ctx.voice_client
         if vc.queue.is_empty:
             return await ctx.send("the queue is empty")
-        em = discord.Embed(title="Queue", color=config.blurple)
+        em = Embed(title="Queue", color=config.blurple)
         queue = vc.queue.copy()
         songCount = 0
         for song in queue:
@@ -233,18 +251,18 @@ class Music(commands.Cog):
                 if ctx.voice_client != None:
                     vc: wavelink.Player = ctx.voice_client
                 if vc.is_playing == False:
-                    return await ctx.reply(embed=discord.Embed(description="No Audio Available For Loop...", color=0xff0000))
+                    return await ctx.reply(embed=Embed(description="No Audio Available For Loop...", color=0xff0000))
                 else:
                     vc.loop = True
-                    lemb = discord.Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
+                    lemb = Embed(title="Loop Music", description=f"{config.default_tick} Cuttent Audio'll Play In Loop", color=config.orange)
                     await ctx.send(embed=lemb, delete_after=5)
 
             if interaction.user.voice == None:
-                em = discord.Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
+                em = Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
                 await ctx.reply(embed=em)
 
             if ctx.voice_client == None:
-                return await ctx.reply(embed=discord.Embed(description="I'm Not Connected To Vc!!"))
+                return await ctx.reply(embed=Embed(description="I'm Not Connected To Vc!!"))
 
         elif interaction.data["custom_id"] == "next_btn":
             if not interaction.user.voice:
@@ -273,7 +291,7 @@ class Music(commands.Cog):
             vc: wavelink.Player = ctx.voice_client
             if vc.queue.is_empty:
                 return await interaction.response.send_message("Queue is empty", ephemeral=True)
-            em = discord.Embed(title="Queue", color=0x303136)
+            em = Embed(title="Queue", color=0x303136)
             
             queue = vc.queue.copy()
             songCount = 0
@@ -332,7 +350,7 @@ class Music(commands.Cog):
             return await ctx.reply("Please Join VC")
 
         if ctx.voice_client:
-            await ctx.send(embed=discord.Embed(title=f"{config.tick} | Disconnected"), delete_after=2)
+            await ctx.send(embed=Embed(title=f"{config.tick} | Disconnected"), delete_after=2)
             return await ctx.voice_client.disconnect()
             
 

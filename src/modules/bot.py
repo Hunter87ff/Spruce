@@ -1,9 +1,32 @@
-import discord, os, wavelink, asyncio, requests, time
+"""
+MIT License
+
+Copyright (c) 2022 hunter87ff
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+from ext import Database
+import wavelink,requests, time
 from discord.ext import commands
 from wavelink.ext import spotify
-from discord import AllowedMentions, Intents
 from modules import (message_handel as onm, config)
-from ext import Database, Logger
+from discord import AllowedMentions, Intents, ActivityType, Activity, errors
 
 intents = Intents.default()
 intents.message_content = True
@@ -20,7 +43,7 @@ class Spruce(commands.AutoShardedBot):
         self.db = Database()
         self.logger = config.logger
         self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
-        super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=discord.Activity(type=discord.ActivityType.listening, name="&help"))
+        super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
 
     async def setup_hook(self) -> None:
         self.remove_command("help")
@@ -49,10 +72,8 @@ class Spruce(commands.AutoShardedBot):
         
         
     async def on_error(event, *args, **kwargs):
-        if isinstance(args[0], discord.errors.ConnectionClosed):
+        if isinstance(args[0], errors.ConnectionClosed):
             print("ConnectionClosed error occurred. Reconnecting...")
-            #await bot.close()
-            #await bot.start("YOUR_BOT_TOKEN")
         
     async def on_command_error(self, ctx, error):
         await onm.error_handle(ctx, error, self)

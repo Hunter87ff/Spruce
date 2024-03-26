@@ -22,13 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import os, discord, re, random, asyncio
-import requests as req
-import datetime
+import re, random
+import numpy as np
 from asyncio import sleep
 from modules import config
 from discord.ext import commands
-import numpy as np
+from requests import post as rpost
+from discord import utils, AllowedMentions, Embed
 dbc = config.maindb["tourneydb"]["tourneydbc"]
 sdbc = config.spdb["qna"]["query"]
 bws = config.bws
@@ -41,17 +41,17 @@ say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
 name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
 unfair = [{"q":"me harami", "a":"aap harami ho"}, {"q":"me useless", "a":"me really useful yes i know"}, {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}]
 repl_yes = ["ohh", "okey", "hm"]
-def lang_model(ctx, query:str, response):
-    for i in say:
-        if i in query:
-            ms = query.replace(i, "")
-            for j in unfair:
-                if j["q"] in ms:
-                    ms = ms.replace(j["q"], j["a"])
-            return ms
+def lang_model(ctx, query:str):
+    query_words = query.split()
+    intersection = np.intersect1d(query_words, say)
+    if len(intersection) > 0:
+        ms = query.replace(intersection[0], "")
+        for j in unfair:
+            if j["q"] in ms:
+                ms = ms.replace(j["q"], j["a"])
+        return ms
 
     if "yes" in query:return random.choice(repl_yes)
-
     for i in name:
         if i in query:return ctx.author.name
 
@@ -64,7 +64,7 @@ def check_send(message, bot):
         if message.reference.cached_message.author.id == bot.user.id:
             return True"""
     
-
+response = sdbc.find()
 async def ask(message, bot):
     ctx = await bot.get_context(message)
     if message.author.bot:return
@@ -73,12 +73,12 @@ async def ask(message, bot):
         for i in bws:
             if i.lower() in message.content.lower().split():
                 return await ctx.reply("Message contains blocked word. so i can't reply to this message! sorry buddy.")
-        response = sdbc.find()
+        # response = sdbc.find()
         query = message.content.replace(f"<@{bot.user.id}>", "").lower()
-        if lang_model(ctx, query, response) != None:
+        if lang_model(ctx, query) != None:
             await ctx.typing()
-            await asyncio.sleep(4)
-            mallow = discord.AllowedMentions(everyone=False, roles=False)
+            await sleep(4)
+            mallow = AllowedMentions(everyone=False, roles=False)
             return await ctx.reply(lang_model(ctx, query, response), allowed_mentions=mallow)
         matches = []
         if not lang_model(ctx, query, response):
@@ -88,7 +88,7 @@ async def ask(message, bot):
                 same = len(np.intersect1d(a1, a2))
                 if int(same/len(a1)*100) >= 95:
                     await ctx.typing()
-                    await asyncio.sleep(4)
+                    await sleep(4)
                     return await ctx.reply(a["a"])
                 if same >= len(query.split())/2:
                     if int(same/len(a1)*100) >= 1:
@@ -97,10 +97,10 @@ async def ask(message, bot):
                 mt = max(matches, key=lambda x: x['r'])
                 del matches
                 await ctx.typing()
-                await asyncio.sleep(4)
+                await sleep(4)
                 return await ctx.reply(mt["a"])
         if len(matches)==0:
-            req.post(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
+            rpost(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
             return 
         
 
@@ -158,7 +158,7 @@ async def auto_grp(message, bot):
                     if "TEAM NAME" not in message.embeds[0].description:
                         return
                 reged = td["reged"]-1
-                grpch = discord.utils.get(message.guild.channels, id=int(td["gch"]))
+                grpch = utils.get(message.guild.channels, id=int(td["gch"]))
                 group = get_group(reged=reged)
                 return await prc(group=group, grpc=grpch, bot=bot, msg=message.content, tsl=td["tslot"])
 
@@ -216,16 +216,16 @@ async def tourney(message):
     if not message.guild:return
     ctx = message
     guild = message.guild
-    tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+    tmrole = utils.get(ctx.guild.roles, name="tourney-mod")
     if tmrole in ctx.author.roles:return
     td = dbc.find_one({"rch" : message.channel.id})
     if td is None:return
     if td["status"] == "paused":await message.author.send("Registration Paused")
     if td is not None and message.channel.id  == int(td["rch"]) and td["status"] == "started":
         messages = [message async for message in ctx.channel.history(limit=2000)]
-        crole = discord.utils.get(guild.roles, id=int(td["crole"]))
-        cch = discord.utils.get(guild.channels, id = int(td["cch"]))
-        rch = discord.utils.get(guild.channels, id = int(td["rch"]))
+        crole = utils.get(guild.roles, id=int(td["crole"]))
+        cch = utils.get(guild.channels, id = int(td["cch"]))
+        rch = utils.get(guild.channels, id = int(td["rch"]))
         ments = td["mentions"]
         rgs = td["reged"]
         tslot = td["tslot"]
@@ -254,9 +254,9 @@ async def tourney(message):
                         await message.add_reaction("✅")
                         reg_update(message)
                         team_name = find_team(message)
-                        femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                        femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                         femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                        femb.timestamp = datetime.datetime.utcnow()
+                        femb.timestamp = message.created_at
                         femb.set_thumbnail(url=message.author.display_avatar)
                         await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                         await message.author.add_roles(crole)
@@ -265,7 +265,7 @@ async def tourney(message):
                     if fmsg.author.id != ctx.author.id:
                         ftch = await ft_ch(message)
                         if ftch != None:
-                            fakeemb = discord.Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
+                            fakeemb = Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
                             fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
                             fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar)
                             await message.delete()
@@ -276,9 +276,9 @@ async def tourney(message):
                                 await message.add_reaction("✅")
                                 reg_update(message)
                                 team_name = find_team(message)
-                                femb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                                femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                                 femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                                femb.timestamp = message.created_at   #datetime.datetime.utcnow()
+                                femb.timestamp = message.created_at   
                                 femb.set_thumbnail(url=message.author.display_avatar)
                                 if rgs >= tslot*0.1 and td["pub"] == "no":
                                     dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
@@ -292,21 +292,47 @@ async def tourney(message):
                     await message.add_reaction("✅")
                     reg_update(message)
                     team_name = find_team(message)
-                    nfemb = discord.Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                    nfemb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
                     nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                    nfemb.timestamp = datetime.datetime.utcnow()
+                    nfemb.timestamp = message.created_at
                     nfemb.set_thumbnail(url=message.author.display_avatar)
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
         elif len(message.mentions) < ments:
             #await bot.process_commands(message)
-            meb = discord.Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
+            meb = Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
             try:await message.delete()
             except Exception as e:print(f"line No 335, error: {e}")
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
-
+################# NITROF ######################
+async def nitrof(message, bot):
+    if message.author.bot:return
+    nitrodbc = bot.config.maindb["nitrodb"]["nitrodbc"]
+    try:gnitro = nitrodbc.find_one({"guild" : message.guild.id})
+    except:return
+    if gnitro != None and gnitro["nitro"] == "enabled":
+        try:webhook = utils.get(await message.channel.webhooks(), name="Spruce")
+        except:await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
+        if not webhook:
+            try:webhook = await message.channel.create_webhook(name="Spruce")
+            except:await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+        words = message.content.split()
+        for word in words:
+            if word[0] == ":" and word[-1] == ":":
+                emjn = word.replace(":", "")
+                emoji = utils.get(bot.emojis, name=emjn)
+                if emoji != None:
+                    if emoji.name in message.content:
+                        msg1 = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
+                        allowed_mentions = AllowedMentions(everyone = False, roles=False, users=True)
+                        nick = message.author.nick
+                        if message.author.nick == None:
+                            nick = message.author.name
+                        await message.delete()
+                        return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
+    else:return
 
 ############## ERROR HANDEL ################
 ############################################
@@ -315,66 +341,66 @@ async def error_handle(ctx, error, bot):
     cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `&help <this_command>` to get Instructions"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `&help <this_command>` to get Instructions"))
         elif isinstance(error, commands.MissingPermissions):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
         elif isinstance(error, commands.DisabledCommand):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
         elif isinstance(error, commands.CommandNotFound):
             await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
         elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         elif isinstance(error, commands.UserInputError):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Please Enter Valid Arguments"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
         elif isinstance(error, commands.EmojiNotFound):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Emoji Not Found"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Emoji Not Found"))
         elif isinstance(error, commands.NotOwner):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="This Is A Owner Only Command You Can't Use It"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="This Is A Owner Only Command You Can't Use It"))
         elif isinstance(error, commands.MessageNotFound):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Message Not Found Or Deleted"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Message Not Found Or Deleted"))
         elif isinstance(error, commands.MemberNotFound):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Member Not Found"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Member Not Found"))
         elif isinstance(error, commands.ChannelNotFound):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Channel Not Found"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Channel Not Found"))
         elif isinstance(error, commands.GuildNotFound):
             return await ctx.send("**I'm Not In The Server! which You Want To See**", delete_after=19)
         elif isinstance(error, commands.ChannelNotReadable):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description="Can Not Read Messages Of The Channel"))
+            return await ctx.send(embed=Embed(color=0xff0000, description="Can Not Read Messages Of The Channel"))
         elif isinstance(error, commands.CommandOnCooldown):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         elif "Manage Messages" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
         elif "Unknown file format." in str(error):
-            return await ctx.send(embed=discord.Embed(description="Invalid Input", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Invalid Input", color=0xff0000))
         elif "Send Messages" in str(error):
-            return await ctx.author.send(embed=discord.Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
+            return await ctx.author.send(embed=Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
         elif "This playlist type is unviewable." in str(error):
-            return await ctx.send(embed=discord.Embed(description="This playlist type is unsupported!", color=0xff0000))
+            return await ctx.send(embed=Embed(description="This playlist type is unsupported!", color=0xff0000))
         elif "Maximum number of channels in category reached (50)" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
         elif isinstance(error, commands.BotMissingPermissions):
-            return await ctx.send(embed=discord.Embed(color=0xff0000, description=str(error)))
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         elif "error code: 10003" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Channel Deleted Or Invalid", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Channel Deleted Or Invalid", color=0xff0000))
         elif "error code: 50013" in str(error):
-            return await ctx.send(embed=discord.Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
         elif "Unknown Role" in str(error):
-            return await ctx.send(embed=discord.Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
         elif "Cannot delete a channel required for community servers" in str(error):
-            return await ctx.send(embed=discord.Embed(description="**I Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=Embed(description="**I Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
         elif "error code: 50001" in str(error):
-            return await ctx.send(embed=discord.Embed(description="**I don't have access to do this**", color=0xff0000), delete_after=30)
+            return await ctx.send(embed=Embed(description="**I don't have access to do this**", color=0xff0000), delete_after=30)
         elif "error code: 30005" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Maximum number of guild roles reached (250)", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Maximum number of guild roles reached (250)", color=0xff0000))
         elif "error code: 30007" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Maximum number of webhooks reached (15)", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Maximum number of webhooks reached (15)", color=0xff0000))
         elif "error code: 30008" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Maximum number of emojis reached", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Maximum number of emojis reached", color=0xff0000))
         elif "error code: 30010" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
         elif "error code: 30013" in str(error):
-            return await ctx.send(embed=discord.Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
+            return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
         else: await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{error}```")
 
     except:pass
