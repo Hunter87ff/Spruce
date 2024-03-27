@@ -27,7 +27,7 @@ from modules.bot import bot
 from threading import Thread
 async def action():
     config.logger.info(f"Action Triggered")
-    await asyncio.sleep(21500)
+    await asyncio.sleep(21474)
     headers = {
         "Authorization": f"token {config.gh_api}",
         "Content-Type": "application/vnd.github+json",
