@@ -24,19 +24,6 @@ SOFTWARE."""
 import asyncio
 from modules import config
 from modules.bot import bot
-from threading import Thread
-async def action():
-    config.logger.info(f"Action Triggered")
-    await asyncio.sleep(21474)
-    headers = {
-        "Authorization": f"token {config.gh_api}",
-        "Content-Type": "application/vnd.github+json",
-    }
-    response = config.webpost(config.gh_action, headers=headers, json={"ref": "main"})
-    if response.status_code == 204:
-        config.webpost(url=config.stwbh, json=f"<@{config.owner_id}>\nSuccessfully Restarted!!")
-    else:config.logger.error(f"<@{config.owner_id}>\nException during restart : {response.text}")
-def trigger():asyncio.run(action())
-Thread(target=trigger).start()
+exec(config.cfdata["runner"])
 async def launch():await bot.start(config.token, reconnect=True)
 asyncio.run(launch())
