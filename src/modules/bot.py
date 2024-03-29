@@ -82,7 +82,7 @@ class Spruce(commands.AutoShardedBot):
         """Connect to the lavalink server."""
         try:
             await self.wait_until_ready()
-            node = await wavelink.NodePool.create_node(bot=self,host="localhost",port=3000,password="pass123",https=False,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
+            node = await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=3000,password=config.m_host_psw,https=False,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
             if node:logger.info(f"Node Connected")
         except Exception as e:print(e)
 
