@@ -19,10 +19,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    # steps:
+    # - name: Checkout code
+    #   uses: actions/checkout@v2
 
+    - name: Install Java
+      run: |
+        sudo apt-get update && sudo apt-get install -y default-jdk
+        java -version
+ 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -33,9 +38,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
       working-directory: ./src 
-    - name: Install ffmpeg
-      run: 
-        sudo apt-get update && sudo apt-get install -y ffmpeg
+    # - name: Install ffmpeg
+    #   run: 
+    #     sudo apt-get update && sudo apt-get install -y ffmpeg
 
     - name: Deploy
       run: |
