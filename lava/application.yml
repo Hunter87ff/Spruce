@@ -78,8 +78,8 @@ logging:
     path: ./logs/
 
   level:
-    root: ERROR
-    lavalink: ERROR
+    root: INFO
+    lavalink: INFO
 
   request:
     enabled: true
