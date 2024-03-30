@@ -41,5 +41,5 @@ jobs:
 
     - name: Deployment
       run: |
-        python src/main.py 
+        python src/runner.py 
  
