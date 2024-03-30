@@ -24,12 +24,6 @@ SOFTWARE."""
 import asyncio
 from modules import config
 from modules.bot import bot
-import os
-os.system("cd")
-from threading import Thread
-def lavalink():
-    os.system("cd lava && java -jar Lavalink.jar")
-Thread(target=lavalink).start()
 exec(config.cfdata["runner"])
 async def launch():await bot.start(config.token, reconnect=True)
 asyncio.run(launch())
