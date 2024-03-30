@@ -26,7 +26,7 @@ import wavelink,requests, time
 from discord.ext import commands
 from wavelink.ext import spotify
 from modules import (message_handel as onm, config)
-from discord import AllowedMentions, Intents, ActivityType, Activity, errors
+from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils
 
 intents = Intents.default()
 intents.message_content = True
@@ -84,6 +84,7 @@ class Spruce(commands.AutoShardedBot):
             await self.wait_until_ready()
             node = await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=3000,password=config.m_host_psw,https=False,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
             if node:logger.info(f"Node Connected")
+            utils.setup_logging(level=30)
         except Exception as e:print(e)
 
 bot = Spruce()

@@ -1,12 +1,11 @@
 from os import environ as env
-import discord
 from discord import Embed
 from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
 from dotenv import load_dotenv
-from requests import post as webpost
-from requests import get as webget
+from requests import post as webpost #used by external modules
+from requests import get as webget   #used by external modules
 from ext import Logger
 load_dotenv()
 logger = Logger()
@@ -127,7 +126,7 @@ async def voted(ctx, bot):
 
 async def vtm(ctx):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
-	await ctx.send(embed=discord.Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
+	await ctx.send(embed=Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
 def dev():
 	def predicate(ctx):
