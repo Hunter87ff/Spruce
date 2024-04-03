@@ -111,20 +111,29 @@ cyan = 0x1abc9c
 d_teal = 0x11806a
 yellow = 0xffff00
 
-
+votes = []
+async def vote_add(bot):
+    global votes
+    vtl = bot.get_channel(votel)
+    votes = [message async for message in vtl.history(limit=500)]
+	
 #functions
 async def voted(ctx, bot):
 	if cfdata["vote_only"] == False: return "yes"
 	vtl = bot.get_channel(votel)
-	messages = [message async for message in vtl.history(limit=1000)]
-	for i in messages:
+	# messages = [message async for message in vtl.history(limit=1000)]
+	for i in votes:
 		if i.author.id == 1096272690211471421:  #monitoring webhook id
 			if f"<@{ctx.author.id}>" in i.content:
 				if "day" not in str(ctx.message.created_at - i.created_at): return "yes"
 				else: return None
-		else: return None
+		else: pass
 
-
+async def vote_check(message):
+    global votes
+    if message.channel.id == votel:
+        votes.append(message)
+			
 async def vtm(ctx):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
 	await ctx.send(embed=Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))

@@ -86,7 +86,7 @@ def query(response, query):
 
 datasets = sdbc.find()
 async def ask(message, bot):
-    if not check_send(message, bot):return print("Not Allowed")
+    if not check_send(message, bot):return
     ctx = await bot.get_context(message)
     await ctx.typing()
     text = message.content.replace(F"<@{bot.user.id}>", "")

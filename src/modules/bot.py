@@ -56,6 +56,7 @@ class Spruce(commands.AutoShardedBot):
             logger.info(stmsg)
             await self.node_connect()
             stch = self.get_channel(config.stl)
+            await config.vote_add(self)
             #msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
             requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
@@ -68,7 +69,9 @@ class Spruce(commands.AutoShardedBot):
         if config.notuser(message):return
         await self.process_commands(message)
         await onm.ask(message, self)
-        if message.guild:await onm.tourney(message)
+        if message.guild:
+            await onm.tourney(message)
+            await config.vote_check(message)
         
         
     async def on_error(event, *args, **kwargs):
