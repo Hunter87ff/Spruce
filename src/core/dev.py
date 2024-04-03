@@ -1,6 +1,7 @@
 import discord, typing, requests
 from modules import config 
 from discord.ext import commands
+from typing import Any
 # from discord import app_commands, Interaction
 cmd = commands
 import psutil
@@ -17,12 +18,7 @@ class dev(commands.Cog):
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
 
-        detail = f"""
-        Total RAM : {memory.total / (1024**3):.2f} GB
-        CPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}
-        CPU Usage : {cpu_usage}%
-        RAM Usage : {memory.used//10**6} MB({memory.percent}%)
-        Total Disk: {disk.total//10**9} GB
+        detail = f"""Total RAM : {memory.total / (1024**3):.2f} GB\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nRAM Usage : {memory.used//10**6} MB({memory.percent}%)\nTotal Disk: {disk.total//10**9} GB\nDisk Usage: {disk.used//10**9} GB({disk.percent}%)
         """
         await ctx.send(embed=discord.Embed(title="System Information", description=detail, color=0x00ff00))
         
@@ -50,22 +46,29 @@ class dev(commands.Cog):
                 await gld.leave()
                 await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
+    @cmd.command(aliases=["dbu"])
+    @config.dev()
+    async def dbupdate(self, ctx, key:str, *, value:Any):
+        if ctx.author.bot:return
+        try:
+            config.cfdbc.update_one({"config_id": 87}, {"$set":{key:value}})
+            await ctx.send(f"Updated {key} to {value}")
+        except Exception as e:
+            await ctx.reply(e)
+        
 
     @cmd.hybrid_command(with_app_command=True)
     @config.dev()
     async def get_guild(self, ctx, id:discord.Guild):
-        if ctx.author.bot:
-            return
+        if ctx.author.bot: return
         await ctx.defer()
         guild = id #self.bot.get_guild(id)
         if  guild:
             try:
                 invites = await [channel for channel in guild.channels][0].create_invite(reason=None, max_age=360, max_uses=2, temporary=True, unique=False, target_type=None, target_user=None, target_application_id=None)
                 return await ctx.send(invites)
-            except:
-                return await ctx.send(f"i dont have permission to get links in {guild.name}")
-        else:
-            return await ctx.send("guild not found")						  
+            except: return await ctx.send(f"i dont have permission to get links in {guild.name}")
+        else: return await ctx.send("guild not found")						  
 
 
     @cmd.hybrid_command(with_app_command=True)
@@ -73,13 +76,11 @@ class dev(commands.Cog):
     @config.dev()
     async def dlm(self, ctx, msg:discord.Message):
         await ctx.defer(ephemeral=True)
-        if ctx.author.bot:
-            return
+        if ctx.author.bot:return
         try:
             await msg.delete()
             return await ctx.send("deleted", delete_after=2)
-        except:
-            return await ctx.send("Not Possible")
+        except:return await ctx.send("Not Possible")
 
     @cmd.hybrid_command(with_app_command = True, hidden=True)
     @config.dev()
@@ -98,14 +99,12 @@ class dev(commands.Cog):
     @commands.is_owner()
     @config.dev()
     async def edm(self, ctx, msg:discord.Message, *, content):
-        if ctx.author.bot:
-            return
+        if ctx.author.bot: return
         await ctx.defer(ephemeral=True)
         if msg.author.id == self.bot.user.id:
             await msg.edit(content=content)
             await ctx.send('done')
-        else:
-            return await ctx.send("i didn't sent")
+        else:return await ctx.send("i didn't sent")
         
 
     @cmd.command(hidden=True)

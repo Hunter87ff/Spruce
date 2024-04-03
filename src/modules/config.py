@@ -34,9 +34,10 @@ bws = cfdata["bws"]
 m_host = cfdata["m_host"]
 m_host_psw = cfdata["m_host_psw"]
 gh_api = cfdata["git_api"]
-gh_action =     "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
+gh_action = "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
 gh_action_run = "https://api.github.com/repos/hunter87ff/Spruce/actions/workflows/py_application.yml/runs"
-#openai_key = cfdata["openai_key"]
+GEMAPI = cfdata["gemapi"]
+
 ################## LOG ####################
 erl = 1015166083050766366
 stwbh = cfdata["stwbh"]

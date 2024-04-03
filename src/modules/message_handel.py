@@ -28,81 +28,80 @@ from asyncio import sleep
 from modules import config
 from discord.ext import commands
 from requests import post as rpost
-from discord import utils, AllowedMentions, Embed
-dbc = config.maindb["tourneydb"]["tourneydbc"]
+from discord import utils, AllowedMentions, Embed, File
+import google.generativeai as genai
+dbc = config.dbc
 sdbc = config.spdb["qna"]["query"]
-bws = config.bws
-
+bws = set(config.bws)
+try:
+    genai.configure(api_key=config.GEMAPI)
+    model = genai.GenerativeModel('gemini-pro')
+except Exception as e:
+    config.webpost(url=config.dml, json={"content":f"```py\n{e}\n```"})
 #########################################################
 ################ CHAT SYSTEM ###########################
 #########################################################
+
 
 say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
 name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
 unfair = [{"q":"me harami", "a":"aap harami ho"}, {"q":"me useless", "a":"me really useful yes i know"}, {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}]
 repl_yes = ["ohh", "okey", "hm"]
 def lang_model(ctx, query:str):
-    query_words = query.split()
-    intersection = np.intersect1d(query_words, say)
-    if len(intersection) > 0:
-        ms = query.replace(intersection[0], "")
-        for j in unfair:
-            if j["q"] in ms:
-                ms = ms.replace(j["q"], j["a"])
-        return ms
+    for i in say:
+        if i in query:
+            ms = query.replace(i, "")
+            for j in unfair:
+                if j["q"] in ms:ms = ms.replace(j["q"], j["a"])
+            return ms
 
     if "yes" in query:return random.choice(repl_yes)
     for i in name:
         if i in query:return ctx.author.name
 
+def is_bws(query):
+    bw = set(query.lower().split())
+    if len(bws.intersection(bw)) > 0:return True
 
 def check_send(message, bot):
-    if message.guild == None:return True
-    else:return None
-
-"""    if message.reference != None:
-        if message.reference.cached_message.author.id == bot.user.id:
-            return True"""
+    if not message.guild:return True
+    if f"{bot.user.name}" in message.channel.name:return True
+    if message.content.endswith(f"<@{bot.user.id}>"):return True
+    if message.reference:
+        if message.reference.resolved.author.id == bot.user.id:return True
+    else: return None
     
-response = sdbc.find()
+def query(response, query):
+    if is_bws(query):return "Message contains blocked word. so i can't reply to this message! sorry buddy."
+    matches = []
+    for a in response:
+        a2 = np.array([x.lower() for x in a["q"].split()])
+        a1 = np.array([x.lower() for x in query.split()])
+        same = len(np.intersect1d(a1, a2))
+        if int(same/len(a1)*100) >= 95:return a["a"]
+        if same >= len(query.split())/2:
+            if int(same/len(a1)*100) > 40:matches.append({"a" : a["a"], "r": int(same/len(a1)*100)})
+    if len(matches) > 0:return max(matches, key=lambda x: x['r'])["a"]
+    if len(matches)==0:return None
+
+datasets = sdbc.find()
 async def ask(message, bot):
+    if not check_send(message, bot):return print("Not Allowed")
     ctx = await bot.get_context(message)
-    if message.author.bot:return
-    # if message.author.id != config.owner_id:pass
-    if check_send(message, bot) != None:
-        for i in bws:
-            if i.lower() in message.content.lower().split():
-                return await ctx.reply("Message contains blocked word. so i can't reply to this message! sorry buddy.")
-        # response = sdbc.find()
-        query = message.content.replace(f"<@{bot.user.id}>", "").lower()
-        if lang_model(ctx, query) != None:
-            await ctx.typing()
-            await sleep(4)
-            mallow = AllowedMentions(everyone=False, roles=False)
-            return await ctx.reply(lang_model(ctx, query, response), allowed_mentions=mallow)
-        matches = []
-        if not lang_model(ctx, query, response):
-            for a in response:
-                a2 = np.array([x.lower() for x in a["q"].split()])
-                a1 = np.array([x.lower() for x in query.split()])
-                same = len(np.intersect1d(a1, a2))
-                if int(same/len(a1)*100) >= 95:
-                    await ctx.typing()
-                    await sleep(4)
-                    return await ctx.reply(a["a"])
-                if same >= len(query.split())/2:
-                    if int(same/len(a1)*100) >= 1:
-                        matches.append({"a" : a["a"], "r": int(same/len(a1)*100)})
-            if len(matches) > 0:
-                mt = max(matches, key=lambda x: x['r'])
-                del matches
-                await ctx.typing()
-                await sleep(4)
-                return await ctx.reply(mt["a"])
-        if len(matches)==0:
-            rpost(url=config.dml, json={"content":f"{message.author}```\n{query}\n```"})
-            return 
-        
+    await ctx.typing()
+    text = message.content.replace(F"<@{bot.user.id}>", "")
+    if lang_model(ctx, message.content):await message.reply(lang_model(ctx, text))
+    response = query(datasets, text)
+    if response:await message.reply(response)
+    else:
+        try: 
+            response = model.generate_content(text).text
+            if len(response) > 2000:
+                with open("response.txt", "w") as f:f.write(response)
+                return await message.reply(file=File("response.txt"))
+            else:return await message.reply(response)
+        except Exception as e:rpost(url=config.dml, json={"content":f"{message.author}```\n{e}\n```"})
+
 
 #########################################################
 ################ GROUP SYSTEM ###########################

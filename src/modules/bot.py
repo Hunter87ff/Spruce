@@ -67,8 +67,8 @@ class Spruce(commands.AutoShardedBot):
     async def on_message(self, message):
         if config.notuser(message):return
         await self.process_commands(message)
-        await onm.tourney(message)
         await onm.ask(message, self)
+        if message.guild:await onm.tourney(message)
         
         
     async def on_error(event, *args, **kwargs):
@@ -84,7 +84,7 @@ class Spruce(commands.AutoShardedBot):
             await self.wait_until_ready()
             node = await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=3000,password=config.m_host_psw,https=False,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
             if node:logger.info(f"Node Connected")
-            utils.setup_logging(level=30)
+            if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
         except Exception as e:print(e)
 
 bot = Spruce()
