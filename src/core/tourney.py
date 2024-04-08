@@ -38,7 +38,7 @@ class Esports(commands.Cog):
         del members
 
     @commands.Cog.listener()
-    async def ch_handel(self, channel):
+    async def  on_guild_channel_delete(self, channel):
         tourch = config.dbc.find_one({"rch" : channel.id})
         dlog = self.bot.get_channel(config.tdlog)
         if tourch != None:
