@@ -37,17 +37,6 @@ class Esports(commands.Cog):
                 await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
         del members
 
-    @commands.Cog.listener()
-    async def  on_guild_channel_delete(self, channel):
-        tourch = config.dbc.find_one({"rch" : channel.id})
-        dlog = self.bot.get_channel(config.tdlog)
-        if tourch != None:
-            gtad = config.gtadbc.find_one({"guild" : channel.guild.id%1000000000000})
-            gta = gtad["gta"]
-            config.gtadbc.update_one({"guild" : channel.guild.id%1000000000000}, {"$set" : {"gta" : gta - 1}})
-            await dlog.send(f"```\n{tourch}\n```")
-            config.dbc.delete_one({"rch" : channel.id})
-
     async def get_input(self, ctx, check=None, timeout=30):
         check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
         try:
@@ -124,21 +113,13 @@ class Esports(commands.Cog):
                 await htrm.add_reaction(config.tick)
                 await rchm.add_reaction(config.tick)
                 await asyncio.sleep(1)  #sleep
-                tour = {"tid" : int(r_ch.id%1000000000000), "guild" : int(ctx.guild.id), "t_name" : str(name), "prefix" : str(front),"rch" : int(r_ch.id), "cch" : int(c_ch.id), "gch" : int(g_ch.id), "crole" : int(c_role.id), "tslot" : int(total_slot), "reged" : 1, "mentions" : int(mentions), "status" : "started", "faketag": "no", "pub" : "no", "prize" : "No Data", "auto_grp":"no", "spg":slot_per_group, "cgp":0, "created_at":datetime.datetime.now()}
-                gtadbcds = gtadbc.find_one({"guild" : gid})
-                if gtadbcds == None:
-                    gtadbc.insert_one({"guild" : gid, "gta" : 1})
-                    await asyncio.sleep(1) 
-                gtadbcdf = gtadbc.find_one({"guild" : gid})
-                if gtadbcdf["gta"] > 5:
-                    return await ctx.send(embed=discord.Embed(description="Tournament Limit Reached", color=0xff0000))
-                gtadbcd = gtadbc.find_one({"guild" : gid})
-                if gtadbcd != None:
-                    gta = gtadbcd["gta"]
-                    gtadbc.update_one({"guild" : gid}, {"$set":{"gta" : gta + 1}})
+                tour = {"guild" : int(ctx.guild.id), "t_name" : str(name), "prefix" : str(front),"rch" : int(r_ch.id), "cch" : int(c_ch.id), "gch" : int(g_ch.id), "crole" : int(c_role.id), "tslot" : int(total_slot), "reged" : 1, "mentions" : int(mentions), "status" : "started", "faketag": "no", "pub" : "no", "prize" : "No Data", "auto_grp":"no", "spg":slot_per_group, "cgp":0, "created_at":datetime.datetime.now()}
+                tour_count = len(list(dbc.find({"guild" : ctx.guild.id})))
+                print(tour_count)
+                if tour_count > 5:return await ctx.send(embed=discord.Embed(description="Tournament Limit Reached", color=0xff0000))
                 dbc.insert_one(tour)
                 await self.set_manager(ctx, r_ch)
-                return await ms.edit(content=None, embed=discord.Embed(color=config.cyan, description='<:vf:947194381172084767> | Successfully Created'), delete_after=10)
+                return await ms.edit(content=None, embed=discord.Embed(color=config.cyan, description=f'<:vf:947194381172084767> | Successfully Created({tour_count+1}/5 used)'), delete_after=10)
         except:return
 
     """

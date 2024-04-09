@@ -81,6 +81,15 @@ class Spruce(commands.AutoShardedBot):
     async def on_command_error(self, ctx, error):
         await onm.error_handle(ctx, error, self)
 
+
+    async def  on_guild_channel_delete(self, channel):
+        tourch = config.dbc.find_one({"rch" : channel.id})
+        dlog = self.get_channel(config.tdlog)
+        if tourch:
+            config.dbc.delete_one({"rch" : channel.id})
+            await dlog.send(f"```json\n{list(tourch)}\n```")
+
+
     async def node_connect(self):
         """Connect to the lavalink server."""
         try:

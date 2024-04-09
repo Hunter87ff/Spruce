@@ -232,7 +232,7 @@ async def tourney(message):
             try:await message.author.send("Registration Paused")
             except:pass
             await ctx.reply("Confirm Role Not Found")
-            return dbc.update_one({"tid" : td["rch"]}, {"$set" : {"status" : "paused"}})
+            return dbc.update_one({"rch" : ctx.channel.id}, {"$set" : {"status" : "paused"}})
         if crole in message.author.roles:
             try:await message.delete()
             except:pass
