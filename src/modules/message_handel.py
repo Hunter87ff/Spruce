@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import re, random
+import re, random, traceback
 import numpy as np
 from asyncio import sleep
 from modules import config
@@ -66,7 +66,7 @@ def is_bws(query):
 def check_send(message, bot):
     if not message.guild:return True
     if f"{bot.user.name}" in message.channel.name:return True
-    if message.content.endswith(f"<@{bot.user.id}>"):return True
+    # if message.content.endswith(f"<@{bot.user.id}>"):return True
     if message.reference:
         if message.reference.resolved.author.id == bot.user.id:return True
     else: return None
@@ -347,7 +347,7 @@ async def error_handle(ctx, error, bot):
             return await ctx.send(embed=Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
         elif isinstance(error, commands.CommandNotFound):
             await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
-            return await ctx.send(embed=Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
+            # return await ctx.send(embed=Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
         elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
             return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         elif isinstance(error, commands.UserInputError):
@@ -400,7 +400,7 @@ async def error_handle(ctx, error, bot):
             return await ctx.send(embed=Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
         elif "error code: 30013" in str(error):
             return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
-        else: await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{error}```")
+        else: await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{error}\nTraceback: {traceback.format_exc()}\n```")
 
     except:pass
         #e = str(error)

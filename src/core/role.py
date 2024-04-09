@@ -25,7 +25,7 @@ import os
 from asyncio import sleep
 from modules import config
 from discord.ext import commands
-from discord import  Embed, Role, File, Member, utils
+from discord import  Embed, Role, File, Member, utils, Guild
 cmd = commands
 
 class Roles(commands.Cog):
@@ -36,13 +36,12 @@ class Roles(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def create_roles(self, ctx, *Names:str):
-        if ctx.author.bot:
-            return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        if ctx.author.bot:return
+        guild:Guild = ctx.guild
+        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         for role in Names:
-            await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
-            await sleep(2)
+            await guild.create_role(name=role, reason=f"Created by {ctx.author}")
+            await sleep(1)
         await ctx.send(embed=Embed(description=f"{config.tick} | All roles created"), delete_after=5)
 
 

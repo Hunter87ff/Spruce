@@ -10,7 +10,7 @@ from ext import Logger
 load_dotenv()
 logger = Logger()
 shards =  int(env["shards"])
-version = "2.0.3"
+version = "2.0.4"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"

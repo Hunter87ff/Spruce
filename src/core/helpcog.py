@@ -22,7 +22,7 @@ hel_p = f"• Prefix - `{config.prefix}`\n• Total Commands - `87` | Usable - `
 helpemb  = discord.Embed(title="Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
 musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
-espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`, `add_slot`, `cancel_slot`,`auto_group` , `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `group_setup`", color=0xf0ff0f)
+espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`,`tconfig`, `add_slot`, `cancel_slot`,`auto_group` , `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `group_setup`", color=0xf0ff0f)
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
 utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`, `uptime`, `vote`, `support`, `invite`", color=0xf0ff0f)
 buttons =[invbtn, votebtn, support_serverbtn, donate_btn]
@@ -305,6 +305,11 @@ class Helper(commands.Cog):
 ######################	
 #Esports Help Commands
 ######################
+    @help.command(aliases=["tc"])
+    async def tconfig(self, ctx):
+        em = discord.Embed(description="Aliases : `tc`\nUsage : `tconfig`\nExample : `&tconfig`", color=0x00ff00)
+        await ctx.send(embed=em)
+
     @help.command(aliases=["cs"])
     async def change_slot(self, ctx):
         em = discord.Embed(description="Aliases : `cs`\nUsage : `change_slot <exact_teame> <mention>`\nExample : `&change_slot HG ESPORTS @hunter `\nDescription: Use This Command By Replying The Group Message! And Use The Exact Slot Detail Otherwise It'll Not Work", color=0x00ff00)
@@ -321,7 +326,7 @@ class Helper(commands.Cog):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `tourneys`\nExample : `&tourneys`\nDescription: By using this command! you'll get a list of ongoing tournaments to register", color=0x00ff00)
         await ctx.send(embed=em)
 
-    @help.command()
+    @help.command(aliases=["autogroup"])
     async def auto_group(self, ctx):
         em = discord.Embed(description="Aliases : `Not Available`\nUsage : `auto_group <registration_channel>`\nExample : `&auto_group <registration_channel> `\nDescription: By using this command it'll create total group system of the tournament\n\nNote: Make sure no one should send messages in  confirm channel. else it'll not work\nAnd Only use this command if the registration if end or you want to start the tournament\n\n[Watch Tutorial](https://www.youtube.com/watch?v=_ylU69sogAU)", color=0x00ff00)
         await ctx.send(embed=em)

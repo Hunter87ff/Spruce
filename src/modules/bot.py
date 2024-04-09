@@ -87,7 +87,7 @@ class Spruce(commands.AutoShardedBot):
         dlog = self.get_channel(config.tdlog)
         if tourch:
             config.dbc.delete_one({"rch" : channel.id})
-            await dlog.send(f"```json\n{list(tourch)}\n```")
+            await dlog.send(f"```json\n{tourch}\n```")
 
 
     async def node_connect(self):
