@@ -27,7 +27,7 @@ Spruce is a multi-purpose discord bot that provides various kind of features lik
 
 
 ## Support Server
-If you're facing any kind of issues with spruce feel free to join our discord support server<br> 
+> If you're facing any kind of issues with spruce, feel free to join our discord support server<br> 
 [![DiscordBanner](https://invidget.switchblade.xyz/vMnhpAyFZm)](https://discord.gg/vMnhpAyFZm)
 
 
@@ -35,7 +35,7 @@ If you're facing any kind of issues with spruce feel free to join our discord su
  
 __**Esports**__
 
-`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`
+`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`
 
 
 ---------------------------------
