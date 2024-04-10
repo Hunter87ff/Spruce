@@ -784,7 +784,7 @@ class Esports(commands.Cog):
                 if bt10 not in view.children:view.add_item(bt10)
                 await msg.edit(embed=embed, view=view)
             else:
-		return await interaction.response.send_message("Tournament Not Found", delete_after=10)
+                return await interaction.response.send_message("Tournament Not Found", delete_after=10)
             
         async def delete_tourney_confirm(interaction):
             view1 = View().add_item(bt11)
