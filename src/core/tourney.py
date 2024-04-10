@@ -783,7 +783,8 @@ class Esports(commands.Cog):
                 embed.description=f"**Total Slot : {db['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nFake Tag Filter : {db['faketag']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>\n**"
                 if bt10 not in view.children:view.add_item(bt10)
                 await msg.edit(embed=embed, view=view)
-            else:return await interaction.response.send_message("Tournament Not Found", delete_after=10)
+            else:
+		return await interaction.response.send_message("Tournament Not Found", delete_after=10)
             
         async def delete_tourney_confirm(interaction):
             view1 = View().add_item(bt11)
