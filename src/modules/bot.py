@@ -25,7 +25,7 @@ from ext import Database
 import wavelink,requests, time
 from discord.ext import commands
 from wavelink.ext import spotify
-from modules import (message_handel as onm, config)
+from modules import (config, message_handle as onm)
 from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils
 
 intents = Intents.default()

@@ -335,7 +335,7 @@ async def nitrof(message, bot):
 
 ############## ERROR HANDEL ################
 ############################################
-async def error_handle(ctx, error, bot):
+async def error_handle(ctx:commands.Context, error, bot):
     erl = bot.get_channel(config.erl)
     cmdnf = bot.get_channel(config.cmdnf)
     try:
@@ -400,7 +400,7 @@ async def error_handle(ctx, error, bot):
             return await ctx.send(embed=Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
         elif "error code: 30013" in str(error):
             return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
-        else: await erl.send(f"<@885193210455011369>\n```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}\n\n\n{error}\nTraceback: {traceback.format_exc()}\n```")
+        else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exc()}\n```")
 
     except:pass
         #e = str(error)

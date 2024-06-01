@@ -330,20 +330,22 @@ class Utility(commands.Cog):
     async def botinfo(self, ctx):
         if ctx.author.bot:return
         await ctx.defer(ephemeral=True)
-        cpu_usage = psutil.cpu_percent()
         memory = psutil.virtual_memory()
-        disk = psutil.disk_usage('/')
-
-        system_info = f"""Total RAM : {memory.total / (1024**3):.2f} GB\nRAM Usage : {psutil.Process(os.getpid()).memory_info().rss//2**20} MB\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nTotal Disk: {disk.total//10**9} GB"""
-        emb = Embed(title="Spruce Bot", description="Welcome To Spruce", color=config.blurple)
-        emb.add_field(name=f"{config.servers} __Servers Info__", value=f"Total Servers : {len(self.bot.guilds)}\nTotal Members : {self.mmbrs()}", inline=False)
-        emb.add_field(name=f"{config.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
-        emb.add_field(name=f"{config.ping} __Response Time__", value=f"{round(self.bot.latency*1000)}ms", inline=True)
+        # cpu_usage = psutil.cpu_percent()
+        # disk = psutil.disk_usage('/')
+        #\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nTotal Disk: {disk.total//10**9} GB
+        mem_percent = f"{(psutil.Process(os.getpid()).memory_percent()):.2f}"
+        system_info = f"`{memory.total / (1024**3):.2f} GB`/ `{psutil.Process(os.getpid()).memory_info().rss//2**20} MB`/ `{mem_percent}%`"
+        emb = Embed(title="Spruce Bot", color=config.green)
+        emb.add_field(name=f"{config.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
+        emb.add_field(name=f"{config.invite} __Members__", value=f"`{'{:,}'.format(self.mmbrs())}`", inline=True)
+        emb.add_field(name=f"{config.ping_cloud} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
+        # emb.add_field(name=f"{config.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
         # emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"Command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
-        emb.add_field(name=f"{config.mod} __System Stats__", value=f"{system_info}", inline=False)
+        emb.add_field(name=f"{config.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
         return await ctx.send(embed=emb)
-
+    
     @commands.command()
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
