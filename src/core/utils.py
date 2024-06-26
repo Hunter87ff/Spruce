@@ -339,7 +339,7 @@ class Utility(commands.Cog):
         emb = Embed(title="Spruce Bot", color=config.green)
         emb.add_field(name=f"{config.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
         emb.add_field(name=f"{config.invite} __Members__", value=f"`{'{:,}'.format(self.mmbrs())}`", inline=True)
-        emb.add_field(name=f"{config.ping_cloud} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
+        emb.add_field(name=f"{config.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
         # emb.add_field(name=f"{config.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
         # emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"Command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
         emb.add_field(name=f"{config.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
