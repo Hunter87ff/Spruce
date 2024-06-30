@@ -327,7 +327,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info", "status", "botstats"])
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    async def botinfo(self, ctx):
+    async def botinfo(self, ctx:commands.Context):
         if ctx.author.bot:return
         await ctx.defer(ephemeral=True)
         memory = psutil.virtual_memory()
@@ -349,7 +349,7 @@ class Utility(commands.Cog):
     @commands.command()
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
-    async def nick(self, ctx, user:Member,  *, Nick:str):
+    async def nick(self, ctx:commands.Context, user:Member,  *, Nick:str):
         if ctx.author.bot:return
         bt = ctx.guild.get_member(self.bot.user.id)
         if ctx.author.top_role < user.top_role:return await ctx.send("You don't have enough permission")

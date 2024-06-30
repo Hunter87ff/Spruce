@@ -307,7 +307,7 @@ class Helper(commands.Cog):
 ######################
     @help.command(aliases=["tc"])
     async def tconfig(self, ctx):
-        em = discord.Embed(description="Aliases : `tc`\nUsage : `tconfig`\nExample : `&tconfig`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `tc`\nUsage : `tconfig`\nExample : `&tconfig`\nUse this command to see the list of ongoing tournament on the server!!", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["cs"])

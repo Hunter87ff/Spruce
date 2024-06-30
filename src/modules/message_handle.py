@@ -28,7 +28,7 @@ from asyncio import sleep
 from modules import config
 from discord.ext import commands
 from requests import post as rpost
-from discord import utils, AllowedMentions, Embed, File
+from discord import utils, AllowedMentions, Embed, File, errors
 import google.generativeai as genai
 dbc = config.dbc
 sdbc = config.spdb["qna"]["query"]
@@ -126,8 +126,7 @@ async def prc(group,  grpc, bot, msg, tsl):
                 if "12)" not in ms.content.split():
                     cont = f"{ms.content}\n{get_slot(ms)} {msg}"
                     return await ms.edit(content=cont)
-                if "12)" in ms.content.split():
-                    pass
+                if "12)" in ms.content.split():pass
             if f"**__GROUP__ {str(group)} **" not in ms.content:
                 ms = await grpc.send(f"**__GROUP__ {group} ** \n")
                 cont = f"{ms.content}\n{get_slot(ms=ms)} {msg}"
@@ -139,23 +138,18 @@ async def prc(group,  grpc, bot, msg, tsl):
 
 def get_group(reged):
     grp = reged/12
-    if grp > int(grp):
-        grp = grp + 1
+    if grp > int(grp):grp = grp + 1
     return str(int(grp))
 
 async def auto_grp(message, bot):
-    try:
-        td = dbc.find_one({"cch":message.channel.id})
-    except:
-        return
+    try:td = dbc.find_one({"cch":message.channel.id})
+    except:return
     if td:
         if td["auto_grp"] == "yes":
             if message.author.id == bot.user.id:
-                if not message.embeds:
-                    return
+                if not message.embeds:return
                 if message.embeds:
-                    if "TEAM NAME" not in message.embeds[0].description:
-                        return
+                    if "TEAM NAME" not in message.embeds[0].description:return
                 reged = td["reged"]-1
                 grpch = utils.get(message.guild.channels, id=int(td["gch"]))
                 group = get_group(reged=reged)
@@ -335,7 +329,7 @@ async def nitrof(message, bot):
 
 ############## ERROR HANDEL ################
 ############################################
-async def error_handle(ctx:commands.Context, error, bot):
+async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot):
     erl = bot.get_channel(config.erl)
     cmdnf = bot.get_channel(config.cmdnf)
     try:
@@ -400,7 +394,7 @@ async def error_handle(ctx:commands.Context, error, bot):
             return await ctx.send(embed=Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
         elif "error code: 30013" in str(error):
             return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
-        else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exc()}\n```")
+        else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)}\n```")
 
     except:pass
         #e = str(error)
