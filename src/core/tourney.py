@@ -751,17 +751,17 @@ class Esports(commands.Cog):
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tconfig(self,ctx:commands.Context):
-        data = config.dbc.find({"guild":ctx.guild.id})
-        if not data:return await ctx.send("No Tournament Found")
         await ctx.defer(ephemeral=True)
-        options = []
+        data = list(config.dbc.find({"guild":ctx.guild.id}))
+        if not data or len(data)<1:return await ctx.send(embed=discord.Embed(description="**No Ongoing Tournament Found**", color=config.red), delete_after=20)
+        options = [discord.SelectOption(label=i["t_name"], value=i["rch"]) for i in data]
         view = View()
         embed = discord.Embed(title="Select Tournament", color=config.cyan)
         bt10 = Button(label="Delete Tournament", style=discord.ButtonStyle.danger)
         bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
         bt12 = Button(label="Cancel", custom_id="Cancel", style=discord.ButtonStyle.blurple)
         btmanage = Button(label="Manage", custom_id="btmanage", style=discord.ButtonStyle.green)
-        for i in data:options.append(discord.SelectOption(label=i["t_name"], value=i["rch"]))
+        # for i in data:options.append(discord.SelectOption(label=i["t_name"], value=i["rch"]))
         tlist = discord.ui.Select(min_values=1, max_values=1, options=options)
         view.add_item(tlist)
         view.add_item(bt12)
