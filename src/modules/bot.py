@@ -77,7 +77,6 @@ class Spruce(commands.AutoShardedBot):
     async def on_error(event, *args, **kwargs):
         if isinstance(args[0], errors.ConnectionClosed):
             print("ConnectionClosed error occurred. Reconnecting...")
-        else: logger.info(f"Error: {args[0]}")
         
     async def on_command_error(self, ctx, error):
         await onm.error_handle(ctx, error, self)

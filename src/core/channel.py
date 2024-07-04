@@ -51,7 +51,7 @@ class Channel(commands.Cog):
 		view = View()
 		for i in [bt11, bt12]:
 			view.add_item(i)
-		del_t_con = await ctx.reply("**Are You Sure To Delete The Category?**", view=view)
+		del_t_con = await ctx.reply(f"**Are You Sure To Delete `{category.name}`?**", view=view)
 		async def dc_confirmed(interaction):
 			if not interaction.user.bot:
 				emb = discord.Embed(color=0x00ff00, description=f"**{config.loading} | Deleting `{category.name}` Category**")

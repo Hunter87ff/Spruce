@@ -23,7 +23,7 @@ SOFTWARE.
 """
 import os, random, requests, enum, uuid, psutil
 from discord.ext import commands
-from discord import Embed, User, File, PartialEmoji, Guild, Member, app_commands, Interaction, utils
+from discord import Embed, User, File, PartialEmoji, Guild, Member, app_commands, Interaction, utils, PermissionOverwrite, ButtonStyle, Role, Emoji, TextInput
 from modules import config
 from discord.ui import Button, View 
 from gtts import gTTS
@@ -377,7 +377,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True, aliases=["si", "server_info"])
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    async def serverinfo(self, ctx):
+    async def serverinfo(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         roles = ', '.join([role.mention for role in guild.roles[::-1][:20]])
@@ -387,6 +387,76 @@ class Utility(commands.Cog):
         if ctx.guild.banner:emb.set_image(url=ctx.guild.banner.url)
         emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=emb)
+
+
+
+
+    class Buttons(enum.Enum):
+        green = ButtonStyle.green
+        red = ButtonStyle.red
+        grey = ButtonStyle.grey
+        blurple = ButtonStyle.blurple
+
+
+    @commands.hybrid_command(with_app_command = True)
+    @commands.cooldown(2, 60, commands.BucketType.user)
+    @commands.bot_has_permissions(send_messages=True, embed_links=True, manage_messages=True, manage_channels=True, manage_roles=True)
+    async def setup_ticket(self, ctx:commands.Context, mod_role:Role=None, button_label:str=None, button_emoji:Emoji=None, button_color:Buttons=None, *, message:str=None):
+        if ctx.author.bot:return
+        if config.prefix in ctx.message.content:return await ctx.reply("Use Slash Command to manage other properties!!", delete_after=10)
+        await ctx.defer(ephemeral=True)
+        ms = await ctx.send("Creating Ticket Category...")
+        overwrites = {
+            ctx.guild.default_role: PermissionOverwrite(read_messages=False),
+            ctx.guild.me: PermissionOverwrite(read_messages=True),
+        }
+        if mod_role:overwrites[mod_role] = PermissionOverwrite(read_messages=True, send_messages=True, manage_messages=True)
+        category = await ctx.guild.create_category("Tickets", overwrites=overwrites)
+        ticketChannel = await category.create_text_channel("create-ticket")
+        await ms.edit(content="Creating Ticket Channel...")
+        await ticketChannel.set_permissions(ctx.guild.default_role, read_messages=True, send_messages=False)
+        await ms.edit(content="Creating Ticket Message...")
+        embed = Embed(title="Create Ticket", description="Click on the button to create a ticket!!", color=config.green)
+        embed.set_footer(text=ctx.guild.name, icon_url=ctx.guild.icon.url)
+        if not button_color:button_color = ButtonStyle.blurple
+        else:button_color = button_color.value
+        view = View().add_item(Button(emoji=button_emoji or config.default_ticket, label=button_label or "Create Ticket", style=button_color, custom_id=f"{self.bot.user.id}SPticket"))
+        await ms.edit(content="Sending Ticket Message...")
+        await ticketChannel.send(embed=embed, view=view)
+        await ms.edit(content="Ticket System Setup Done")
+
+
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction:Interaction):
+        if interaction.user.bot:return
+        if not "custom_id" in interaction.data or interaction.message.author.id != self.bot.user.id: return
+        # await interaction.response.defer(ephemeral=True)
+        if interaction.data["custom_id"] == f"{self.bot.user.id}SPticket":
+            if not interaction.channel.category: return await interaction.response.send_message("**Please move this channel to a category. to create tickets**", delete_after=10)
+            channel = await interaction.channel.category.create_text_channel(f"ticket-{interaction.user}", reason="Ticket Created")
+            await channel.set_permissions(interaction.user, read_messages=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True, add_reactions=True)
+            embed = Embed(title="Ticket Created", description=f"**{config.arow}Thanks for contacting\n{config.arow}Feel free to communicate**", color=config.green)
+            view = View().add_item(Button(label="Close Ticket", style=ButtonStyle.red, custom_id=f"{self.bot.user.id}SPTcancel"))
+            await channel.send(f"<@{interaction.user.id}>", embed=embed, view=view)
+            await interaction.response.send_message(f"**Ticket <#{channel.id}> Created Successfully**", ephemeral=True, delete_after=10)
+
+        if interaction.data["custom_id"] == f"{self.bot.user.id}SPTcancel":
+            closeConfirm = Button(label="Confirm", style=ButtonStyle.red)
+            closeCancel = Button(label="Cancel", style=ButtonStyle.green)
+            view = View()
+            view.add_item(closeConfirm); view.add_item(closeCancel)
+            await interaction.response.send_message(embed=Embed(description="Are You Sure?", color=config.red), view=view, delete_after=10)
+
+            async def closeTicket(interaction:Interaction):
+                await interaction.response.send_message(embed=Embed(description="Closing Ticket...", color=config.red), ephemeral=True)
+                await interaction.channel.delete(reason="Ticket Closed")
+
+            async def cancelClose(interaction:Interaction):
+                await interaction.message.delete()
+
+            closeConfirm.callback = closeTicket
+            closeCancel.callback = cancelClose
 
 
     @commands.Cog.listener()
@@ -404,6 +474,7 @@ class Utility(commands.Cog):
             await ch.send(msg)
         except Exception as e:print(f"on_guild_join : {e}")
         
+
     @commands.Cog.listener()
     async def on_guild_remove(self, guild): 
         support_server = self.bot.get_guild(config.support_server_id)
