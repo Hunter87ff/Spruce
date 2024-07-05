@@ -20,8 +20,8 @@ class Music(commands.Cog):
         self.bot:commands.Bot = bot
 
     @commands.Cog.listener()
-    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        config.logger.info("Wavelink Node connected: %r | Resumed: %s", payload.node, payload.resumed)
+    async def on_wavelink_node_ready(self):
+        return config.logger.info("Node Connected")
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
