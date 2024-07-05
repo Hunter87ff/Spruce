@@ -1,4 +1,3 @@
-import logging
 from typing import cast
 from time import gmtime, strftime
 from modules import config
@@ -22,7 +21,7 @@ class Music(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        logging.info("Wavelink Node connected: %r | Resumed: %s", payload.node, payload.resumed)
+        config.logger.info("Wavelink Node connected: %r | Resumed: %s", payload.node, payload.resumed)
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
