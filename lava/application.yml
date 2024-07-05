@@ -38,7 +38,7 @@ plugins:
       - "ytsearch:%QUERY%" # Will be used if track has no ISRC or no track could be found for the ISRC
       #  you can add multiple other fallback sources here
     sources:
-      spotify: false # Enable Spotify source
+      spotify: true # Enable Spotify source
       applemusic: false # Enable Apple Music source
       deezer: false # Enable Deezer source
       yandexmusic: false # Enable Yandex Music source
@@ -50,9 +50,9 @@ plugins:
       youtube: false # Enable YouTube lyrics source
       yandexmusic: false # Enable Yandex Music lyrics source
     spotify:
-      clientId: "your client id"
-      clientSecret: "your client secret"
-      spDc: "your sp dc cookie" # the sp dc cookie used for accessing the spotify lyrics api
+      clientId: ${{ secrets.SPOT_ID }}
+      clientSecret: ${{ secrets.SPOT_SECRET }}
+      spDc: "sp dc cookie" # the sp dc cookie used for accessing the spotify lyrics api
       countryCode: "IN" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistLoadLimit: 6 # The number of pages at 100 tracks each
       albumLoadLimit: 6 # The number of pages at 50 tracks each
@@ -84,7 +84,7 @@ lavalink:
   plugins:
     - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.1.1"
   server:
-    password: "nopass"
+    password: "hunter87"
     sources:
       youtube: false
       bandcamp: true
@@ -126,8 +126,8 @@ sentry:
 
 logging:
   file:
-    max-history: 30
-    max-size: 1GB
+    max-history: 23
+    max-size: 500MB
   path: ./logs/
 
   level:

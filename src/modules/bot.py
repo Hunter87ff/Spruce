@@ -24,7 +24,7 @@ SOFTWARE.
 from ext import Database
 import wavelink,requests, time
 from discord.ext import commands
-from wavelink.ext import spotify
+from  wavelink import Node, Pool
 from modules import (config, message_handle as onm)
 from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils
 
@@ -46,18 +46,19 @@ class Spruce(commands.AutoShardedBot):
         super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
 
     async def setup_hook(self) -> None:
+        if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
         self.remove_command("help")
         for i in self.core:await self.load_extension(f"core.{i}")
+        nodes = [Node(uri=config.m_host, password=config.m_host_psw)]
+        await Pool.connect(nodes=nodes, client=self, cache_capacity=None)
 
     async def on_ready(self):
         try:
             await self.tree.sync()
             stmsg = f'{self.user} is ready with {len(self.commands)} commands'
             logger.info(stmsg)
-            await self.node_connect()
-            stch = self.get_channel(config.stl)
+            # stch = self.get_channel(config.stl)
             await config.vote_add(self)
-            #msg = await stch.send("<@885193210455011369>", embed=discord.Embed(title="Status", description=stmsg, color=0xff00))
             requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
 
@@ -88,15 +89,5 @@ class Spruce(commands.AutoShardedBot):
         if tourch:
             config.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")
-
-
-    async def node_connect(self):
-        """Connect to the lavalink server."""
-        try:
-            await self.wait_until_ready()
-            node = await wavelink.NodePool.create_node(bot=self,host=config.m_host,port=3000,password=config.m_host_psw,https=False,spotify_client=spotify.SpotifyClient(client_id=config.spot_id,client_secret=config.spot_secret))
-            if node:logger.info(f"Node Connected")
-            if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
-        except Exception as e:print(e)
 
 bot = Spruce()
