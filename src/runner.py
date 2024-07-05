@@ -21,9 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import os
+import os, time
 from threading import Thread
 def lavalink():os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")
 Thread(target=lavalink).start()
+time.sleep(5)
 try:os.system("python src/main.py")
 except:os.system("python3 src/main.py")
