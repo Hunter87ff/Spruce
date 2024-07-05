@@ -23,7 +23,7 @@ SOFTWARE.
 """
 import os
 from threading import Thread
-def lavalink():os.system("cd lava && java -jar Lavalink.jar")
-Thread(target=lavalink).start() 
+def lavalink():os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")
+Thread(target=lavalink).start()
 try:os.system("python src/main.py")
 except:os.system("python3 src/main.py")

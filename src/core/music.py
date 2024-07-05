@@ -30,7 +30,7 @@ class Music(commands.Cog):
         if not player:return
         original: wavelink.Playable | None = payload.original
         track: wavelink.Playable = payload.track
-        print(track.title, track.artwork, track.length, track.source, track.uri)
+        # print(track.title, track.artwork, track.length, track.source, track.uri)
         tm = "%H:%M:%S"
         if track.length//1000 < 3599:tm = "%M:%S"
         embed = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{track.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
