@@ -34,7 +34,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        sudo apt-get update && sudo apt-get install -y default-jdk
+        sudo apt-get update && sudo apt install openjdk-17-jdk -y
       working-directory: ./src  
         
     # - name: Install ffmpeg
