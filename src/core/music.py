@@ -206,6 +206,5 @@ class Music(commands.Cog):
                 await ctx.reply("Connected To VC", delete_after=10)
             except:await ctx.reply("I'm Unable To Join VC", delete_after=10)
         
-
 async def setup(bot:commands.Bot):
     await bot.add_cog(Music(bot))
