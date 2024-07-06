@@ -41,8 +41,8 @@ jobs:
 
     - name: Update Credentials 
       run: |
-        sed -i 's/^\(\s*clientId:\s*\).*/\1"${{ secrets.SPOT_ID }}"/' Lava/application.yml
-        sed -i 's/^\(\s*clientSecret:\s*\).*/\1"${{ secrets.SPOT_SECRET }}"/' Lava/application.yml
+        sed -i 's/^\(\s*clientId:\s*\).*/\1"${{ secrets.SPOT_ID }}"/' lava/application.yml
+        sed -i 's/^\(\s*clientSecret:\s*\).*/\1"${{ secrets.SPOT_SECRET }}"/' lava/application.yml
 
     - name: Install dependencies
       run: |
