@@ -55,7 +55,7 @@ class Spruce(commands.AutoShardedBot):
     async def on_ready(self):
         try:
             await self.tree.sync()
-            stmsg = f'{self.user} is ready with {len(self.commands)} commands'
+            stmsg = f'{self.user} is ready with {len(self.commands)} commands | Version : {config.version}'
             logger.info(stmsg)
             # stch = self.get_channel(config.stl)
             await config.vote_add(self)
