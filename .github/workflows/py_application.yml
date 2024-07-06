@@ -16,6 +16,7 @@ env:
   shards : ${{ secrets.SHARDS }}
   tkn : ${{ secrets.TKN }}
   prefix : ${{ secrets.PREFIX }}
+  version : "2.0.5"
   
 jobs:
   deploy:
