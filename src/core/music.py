@@ -113,7 +113,7 @@ class Music(commands.Cog):
         player: wavelink.Player
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  # type: ignore
         if not player:
-            try: player = await ctx.author.voice.channel.connect(cls=wavelink.Player)  
+            try: player = await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)  
             except:return await ctx.send("Something went wrong. Please try again.")
         player.autoplay = wavelink.AutoPlayMode.disabled
 
@@ -186,7 +186,7 @@ class Music(commands.Cog):
         if not ctx.guild:return
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if not player:
-            try: player = await ctx.author.voice.channel.connect(cls=wavelink.Player)  
+            try: player = await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)  
             except AttributeError:return await ctx.send("Please join a voice channel first before using this command.")
         playlist :wavelink.Playlist = playlist_url
         if playlist:
@@ -202,7 +202,7 @@ class Music(commands.Cog):
         if ctx.voice_client: return await ctx.reply("I'm Already Connected To VC", delete_after=10)
         else:
             try:
-                await ctx.author.voice.channel.connect(cls=wavelink.Player)
+                await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
                 await ctx.reply("Connected To VC", delete_after=10)
             except:await ctx.reply("I'm Unable To Join VC", delete_after=10)
         
