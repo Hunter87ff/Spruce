@@ -9,8 +9,9 @@ from requests import get as webget   #used by external modules
 from ext import Logger
 load_dotenv()
 logger = Logger()
-shards =  int(env["shards"])
-version = "2.0.4"
+shards =  int(env["shards"]) or 20
+version = env["version"] or "2.0.5"
+print(version)
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
@@ -26,7 +27,7 @@ cfdbc = maindb["configdb"]["configdbc"]
 cfdata = cfdbc.find_one({"config_id": 87})
 spdb = MongoClient(cfdata["spdb"])
 token = cfdata[env["tkn"]]
-prefix = env["prefix"]
+prefix = env["prefix"] or "&"
 spot_id = cfdata["spot_id"]
 spot_secret = cfdata["spot_secret"]
 cogs_path = "./src/core" #cfdata["cogs"] #main prospective
