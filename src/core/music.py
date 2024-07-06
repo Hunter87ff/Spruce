@@ -38,7 +38,7 @@ class Music(commands.Cog):
         # if track.artwork:embed.set_image(url=track.artwork)
         # if original and original.recommended:embed.description += f"\n\n`This track was recommended via {track.source}`"
         # if track.album.name:embed.add_field(name="Album", value=track.album.name)
-        await player.home.send(embed=embed, view=view)
+        player.message = await player.home.send(embed=embed, view=view)
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
@@ -46,7 +46,7 @@ class Music(commands.Cog):
         if not player:return
         # track: wavelink.Playable = payload.track
         if not player.queue.is_empty: await player.play(player.queue.get(), volume=30)
-        else:await player.disconnect()
+        else:await player.message.delete()
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
@@ -106,9 +106,10 @@ class Music(commands.Cog):
                 await vc.pause(False)
                 return await interaction.response.send_message("Resumed", ephemeral=True)
 
-    @commands.hybrid_command(with_app_command=True, alliases=["p"])
+    @commands.hybrid_command(with_app_command=True, aliases=["p"])
     async def play(self, ctx: commands.Context, *, query: str) -> None:
-        if not ctx.guild:return
+        if not ctx.guild or ctx.author.bot:return
+        elif "youtube" in query: return await ctx.reply("I'm sorry, but I can't play YouTube links.", delete_after=10)
         player: wavelink.Player
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  # type: ignore
         if not player:

@@ -39,6 +39,10 @@ jobs:
     - name: Verify Java version
       run: java -version
 
+    - name: Update Credentials 
+      run: |
+        sed -i 's/^\(\s*clientId:\s*\).*/\1"${{ secrets.SPOT_ID }}"/' Lava/application.yml
+        sed -i 's/^\(\s*clientSecret:\s*\).*/\1"${{ secrets.SPOT_SECRET }}"/' Lava/application.yml
 
     - name: Install dependencies
       run: |
