@@ -26,7 +26,7 @@ import wavelink,requests, time
 from discord.ext import commands
 from  wavelink import Node, Pool
 from modules import (config, message_handle as onm)
-from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils
+from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils, Message, Embed
 
 intents = Intents.default()
 intents.message_content = True
@@ -55,18 +55,19 @@ class Spruce(commands.AutoShardedBot):
     async def on_ready(self):
         try:
             await self.tree.sync()
-            stmsg = f'{self.user} is ready with {len(self.commands)} commands | Version : {config.version}'
+            stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
             logger.info(stmsg)
-            # stch = self.get_channel(config.stl)
             await config.vote_add(self)
             requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
+        
+    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:logger.info(f"Node Connected")
 
     async def on_disconnect(self):
         logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
-    async def on_message(self, message):
+    async def on_message(self, message:Message):
         if config.notuser(message):return
         await self.process_commands(message)
         await onm.ask(message, self)
@@ -75,9 +76,11 @@ class Spruce(commands.AutoShardedBot):
             await config.vote_check(message)
         
         
-    async def on_error(event, *args, **kwargs):
-        if isinstance(args[0], errors.ConnectionClosed):
-            print("ConnectionClosed error occurred. Reconnecting...")
+    # async def on_error(self, event, *args, **kwargs):
+    #     if isinstance(args[0], errors.ConnectionClosed):
+    #         print("ConnectionClosed error occurred. Reconnecting...")
+    #     else:
+    #         logger.error(f"Event : {event} | Args : {args} | Kwargs : {kwargs}")
         
     async def on_command_error(self, ctx, error):
         await onm.error_handle(ctx, error, self)

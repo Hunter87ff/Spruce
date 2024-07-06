@@ -50,8 +50,8 @@ plugins:
       youtube: false # Enable YouTube lyrics source
       yandexmusic: false # Enable Yandex Music lyrics source
     spotify:
-      clientId: ${{ secrets.SPOT_ID }}
-      clientSecret: ${{ secrets.SPOT_SECRET }}
+      clientId: "spot_id"
+      clientSecret: "spot_secret"
       spDc: "sp dc cookie" # the sp dc cookie used for accessing the spotify lyrics api
       countryCode: "IN" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistLoadLimit: 6 # The number of pages at 100 tracks each

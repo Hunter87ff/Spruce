@@ -1,23 +1,25 @@
 from modules import config
-import logging, datetime
+import logging, datetime, discord
 
 __all__ = ("Database", "Tourney", "Logger")
 
 class Tourney:
     def __init__(self, obj):
-        self.tname = obj["t_name"]
-        self.rch = obj["rch"]
-        self.tid = obj["tid"]
-        self.cch = obj["cch"]
-        self.crole = obj["crole"]
-        self.gch = obj["gch"]
-        self.tslot = obj["tslot"]
-        self.prefix = obj["prefix"]
-        self.faketag = obj["faketag"]
-        self.reged = obj["reged"]
-        self.status = obj["status"]
-        self.pub = obj["pub"]
-        self.spg = obj["spg"]
+        self.tname:str = obj["t_name"]
+        self.rch:int = obj["rch"]
+        # self.tid = obj["tid"] | None
+        self.mentions:int = obj["mentions"]
+        self.cch:int = obj["cch"]
+        self.crole:int = obj["crole"]
+        self.gch:int= obj["gch"]
+        self.tslot:int = obj["tslot"]
+        self.prefix:str = obj["prefix"]
+        self.prize:str = obj["prize"]
+        self.faketag:str = obj["faketag"]
+        self.reged:int = obj["reged"]
+        self.status:str = obj["status"]
+        self.pub:str = obj["pub"]
+        self.spg:int = obj["spg"]
         self.auto_grp = obj["auto_grp"]
         self.cgp = obj["cgp"]
 

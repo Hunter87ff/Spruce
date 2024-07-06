@@ -25,14 +25,15 @@ async def check_role(ctx, check=None, timeout=20, delete_after=False, check_perm
         return role
 
 
-async def ttl_slots(ctx, check=None, timeout=30):
+async def ttl_slots(ctx:commands.Context, check=None, timeout=20) -> int:
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
     try:msg = await ctx.bot.wait_for("message", check=check, timeout=timeout)
     except asyncio.TimeoutError:
-        return await ctx.send("Time Out! Try Again")
+        await ctx.send("Time Out! Try Again")
+        return None
     else:
         try:await msg.delete()
         except:pass
-        return msg.content
+        return int(msg.content)
     
 
