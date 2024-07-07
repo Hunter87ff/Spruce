@@ -33,7 +33,7 @@ class Music(commands.Cog):
         view = View()
         for button in controlButtons:view.add_item(button)
         
-        messages = [message async for message in player.home.history(limit=10)]
+        messages = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
         for i in messages:
             if i.author.id == self.bot.user.id and i.embeds[0].title == "<a:music_disk:1020370054665207888>   Now Playing":await i.delete()
         self.message = await player.home.send(embed=embed, view=view)
