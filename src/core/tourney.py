@@ -413,7 +413,7 @@ class Esports(commands.Cog):
             if tcat:tname = tcat.name
             if tcat == None:tname = ctx.guild.name
             db = tdb
-            emb = discord.Embed(description=f"**Total Slot : {tdb['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFake Tag Filter : {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**", color=config.cyan, timestamp=datetime.datetime.now())
+            emb = discord.Embed(description=f"**Total Slot : {tdb['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFakeTag Allowed : {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**", color=config.cyan, timestamp=datetime.datetime.now())
             emb.set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.avatar.url)
             for button in buttons:view.add_item(button)
             msg1 = await ctx.send(embed=emb, view=view)
@@ -757,7 +757,7 @@ class Esports(commands.Cog):
             db = dbc.find_one({"rch":int(tlist.values[0])})
             if db:
                 embed.title=db["t_name"].upper()
-                embed.description=f"**Total Slot : {db['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFake Tag Filter : {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**"
+                embed.description=f"**Total Slot : {db['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFakeTag Allowed: {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**"
                 if bt10 not in view.children:view.add_item(bt10)
                 if btmanage not in view.children:view.add_item(btmanage)
                 await msg.edit(embed=embed, view=view)
