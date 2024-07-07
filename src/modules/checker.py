@@ -36,4 +36,18 @@ async def ttl_slots(ctx:commands.Context, check=None, timeout=20) -> int:
         except:pass
         return int(msg.content)
     
+async def get_input(interaction:discord.Interaction, title:str="Enter Value", label:str="Enter Value", style:discord.TextStyle=discord.TextStyle.short, max_length:int=None, placeholder:str=None):
+    modal = discord.ui.Modal(title=title)
+    modal.add_item(discord.ui.TextInput(label=label, style=style, placeholder=placeholder,  max_length=max_length))
+    await interaction.response.send_modal(modal)
+    async def mod_val(interaction:discord.Interaction):await interaction.response.defer()
+    modal.on_submit = mod_val
+    await modal.wait()
+    if modal.is_finished():return modal.children[0].value
 
+async def get_role(interaction:discord.Interaction, title:str="Enter Role"):
+    # modal = discord.ui.Modal(title=title)
+    selection = discord.ui.RoleSelect(min_values=1, max_values=1, placeholder="Select Role")
+    selection.callback = lambda i: i.response.defer()
+    await interaction.response.send_message("Select Role", view=selection)
+    return selection.values[0]

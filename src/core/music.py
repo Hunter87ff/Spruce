@@ -32,7 +32,7 @@ class Music(commands.Cog):
         embed = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{track.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in controlButtons:view.add_item(button)
-        self.message = await player.home.send(embed=embed, view=view)
+        self.message = await player.home.send(embed=embed, view=view, delete_after=track.length//1000)
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
