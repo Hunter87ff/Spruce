@@ -42,11 +42,8 @@ class Music(commands.Cog):
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
         player: wavelink.Player | None = payload.player
         if not player:return
-        # elif player.loop:return await player.play(player.current, volume=30)
-        elif not player.queue.is_empty and self.message:
-            await self.message.delete()
-            return await player.play(player.queue.get(), volume=30)
-        elif self.message:await self.message.delete()
+        elif self.loop:return await player.play(payload.track, volume=100)
+        elif not player.queue.is_empty and self.message:return await player.play(player.queue.get(), volume=100)
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
@@ -85,7 +82,7 @@ class Music(commands.Cog):
 
         elif interaction.data["custom_id"] == "music_queue_btn":
             if vc.queue.is_empty:return await interaction.response.send_message("Queue is empty", ephemeral=True)
-            em = Embed(title="Queue", color=0x303136)
+            em = Embed(title="Queue", color=config.cyan)
             queue = vc.queue.copy()
             songCount = 0
             for song in queue:
@@ -131,7 +128,7 @@ class Music(commands.Cog):
                 track: wavelink.Playable = tracks[0]
                 await player.queue.put_wait(track)
                 if player.current:await ctx.send(embed=Embed(description=f"{config.music_disk} Added **`{track}`** to the queue.", color=config.green))
-            if not player.playing:await player.play(player.queue.get(), volume=30)
+            if not player.playing:await player.play(player.queue.get(), volume=100)
         except Exception as e:
             await self.bot.get_channel(config.erl).send(f"<@{config.owner_id}> Error in Music Play Command: {e}")
 

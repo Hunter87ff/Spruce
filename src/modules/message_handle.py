@@ -28,7 +28,7 @@ from asyncio import sleep
 from modules import config
 from discord.ext import commands
 from requests import post as rpost
-from discord import utils, AllowedMentions, Embed, File, errors
+from discord import utils, AllowedMentions, Embed, File, errors, Message
 import google.generativeai as genai
 dbc = config.dbc
 sdbc = config.spdb["qna"]["query"]
@@ -63,13 +63,12 @@ def is_bws(query):
     bw = set(query.lower().split())
     if len(bws.intersection(bw)) > 0:return True
 
-def check_send(message, bot):
+def check_send(message:Message, bot:commands.Bot) -> bool:
+    """return `True` if triggered dm or mentioned in channel, else `None`"""
     if not message.guild:return True
-    if f"{bot.user.name}" in message.channel.name:return True
-    # if message.content.endswith(f"<@{bot.user.id}>"):return True
-    if message.reference:
-        if message.reference.resolved.author.id == bot.user.id:return True
-    else: return None
+    elif not message.reference.resolved:return False
+    elif message.reference.resolved.author.id == bot.user.id:return True
+    return None
     
 def query(response, query):
     if is_bws(query):return "Message contains blocked word. so i can't reply to this message! sorry buddy."
@@ -85,7 +84,7 @@ def query(response, query):
     if len(matches)==0:return None
 
 datasets = sdbc.find()
-async def ask(message, bot):
+async def ask(message:Message, bot:commands.Bot):
     if not check_send(message, bot):return
     ctx = await bot.get_context(message)
     await ctx.typing()
@@ -141,7 +140,7 @@ def get_group(reged):
     if grp > int(grp):grp = grp + 1
     return str(int(grp))
 
-async def auto_grp(message, bot):
+async def auto_grp(message:Message, bot):
     try:td = dbc.find_one({"cch":message.channel.id})
     except:return
     if td:

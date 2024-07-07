@@ -35,6 +35,6 @@ Thread(target=lavalink).start()
 
 
 time.sleep(5)
-with open("lava/application.yml", "w") as f: f.write(content1)
+with open("lava/application.yml", "w") as f: f.write(content1.replace(config.spot_id, "spot_id").replace(config.spot_secret, "spot_secret"))
 try:os.system("python src/main.py")
 except:os.system("python3 src/main.py")
