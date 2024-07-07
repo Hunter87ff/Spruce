@@ -18,6 +18,8 @@ controlButtons = [
 class Music(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot:commands.Bot = bot
+        self.message:Message  = None
+        self.loop:bool = False
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
@@ -30,17 +32,17 @@ class Music(commands.Cog):
         embed = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{track.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in controlButtons:view.add_item(button)
-        player.message = await player.home.send(embed=embed, view=view)
+        self.message = await player.home.send(embed=embed, view=view)
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
         player: wavelink.Player | None = payload.player
         if not player:return
         # elif player.loop:return await player.play(player.current, volume=30)
-        elif not player.queue.is_empty and player.message:
-            await player.message.delete()
+        elif not player.queue.is_empty and self.message:
+            await self.message.delete()
             return await player.play(player.queue.get(), volume=30)
-        elif player.message:await player.message.delete()
+        elif self.message:await self.message.delete()
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
