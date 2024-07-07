@@ -66,7 +66,7 @@ def is_bws(query):
 def check_send(message:Message, bot:commands.Bot) -> bool:
     """return `True` if triggered dm or mentioned in channel, else `None`"""
     if not message.guild:return True
-    elif not message.reference.resolved:return False
+    elif not message.reference:return False
     elif message.reference.resolved.author.id == bot.user.id:return True
     return None
     
