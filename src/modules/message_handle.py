@@ -47,7 +47,7 @@ say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
 name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
 unfair = [{"q":"me harami", "a":"aap harami ho"}, {"q":"me useless", "a":"me really useful yes i know"}, {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}]
 repl_yes = ["ohh", "okey", "hm"]
-def lang_model(ctx, query:str):
+def lang_model(ctx:commands.Context, query:str):
     for i in say:
         if i in query:
             ms = query.replace(i, "")
@@ -66,7 +66,7 @@ def is_bws(query):
 def check_send(message:Message, bot:commands.Bot) -> bool:
     """return `True` if triggered dm or mentioned in channel, else `None`"""
     if not message.guild:return True
-    elif not message.reference:return False
+    elif not message.reference or not message.reference.resolved:return False
     elif message.reference.resolved.author.id == bot.user.id:return True
     return None
     
