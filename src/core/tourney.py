@@ -1,7 +1,6 @@
 import discord
 import datetime
 import asyncio
-from ext import Tourney
 from asyncio import sleep
 from discord.utils import get
 from discord.ext import commands
@@ -16,6 +15,27 @@ def get_front(name):
   for i in name.split()[0:2]:li.append(i[0])
   return str("".join(li) + "-")
 
+class Tourney:
+    def __init__(self, obj):
+        self.tname:str = obj["t_name"]
+        self.rch:int = obj["rch"]
+        # self.tid = obj["tid"] | None
+        self.mentions:int = obj["mentions"]
+        self.cch:int = obj["cch"]
+        self.crole:int = obj["crole"]
+        self.gch:int= obj["gch"]
+        self.tslot:int = obj["tslot"]
+        self.prefix:str = obj["prefix"]
+        self.prize:str = obj["prize"]
+        self.faketag:str = obj["faketag"]
+        self.reged:int = obj["reged"]
+        self.status:str = obj["status"]
+        self.pub:str = obj["pub"]
+        self.spg:int = obj["spg"]
+        self.auto_grp = obj["auto_grp"]
+        self.cgp = obj["cgp"]
+
+
 class Esports(commands.Cog):
     def __init__(self, bot):
         self.bot:commands.Bot = bot
@@ -28,10 +48,12 @@ class Esports(commands.Cog):
             db = dbc.find_one({"crole":role.id})
             cch = discord.utils.get(role.guild.channels,id=db["cch"])
             messages = [message async for message in cch.history(limit=int(db["tslot"])+50)]
-            for msg in messages:
-                for m in role.guild.members:
-                    if m.mention in msg.content:
-                        members.append(m)
+            members = {m for msg in messages for m in role.guild.members if m.mention in msg.content}
+
+            # for msg in messages:
+            #     for m in role.guild.members:
+            #         if m.mention in msg.content:
+            #             members.append(m)
             newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Role use &tourney command")
             dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
             for i in members:

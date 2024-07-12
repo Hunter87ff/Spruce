@@ -16,6 +16,7 @@ owner_id = 885193210455011369
 owner_tag = "hunter87ff"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://sprucebot.tech/invite"
+invite_url2 = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot"
 support_server_id = 947443790053015623
 status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
 try: maindb = MongoClient(env["mongo_url"])

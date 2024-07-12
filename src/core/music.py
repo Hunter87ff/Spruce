@@ -5,7 +5,6 @@ from discord.ext import commands
 from discord import ButtonStyle, Interaction, Embed, Message
 from discord.ui import Button, View
 import wavelink
-
 controlButtons = [
         Button(emoji=config.next_btn, custom_id="music_next_btn"),
         Button(emoji=config.pause_btn, custom_id="music_pause_btn"),
@@ -29,7 +28,7 @@ class Music(commands.Cog):
         track: wavelink.Playable = payload.track
         tm = "%H:%M:%S"
         if track.length//1000 < 3599:tm = "%M:%S"
-        embed = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{track.title}](https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify)**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
+        embed = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in controlButtons:view.add_item(button)
         
