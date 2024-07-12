@@ -6,7 +6,7 @@ pymongo[srv]
 discord.py==2.3.2
 requests
 PyNaCl
-wavelink=3.4.0
+wavelink==3.4.0
 bs4
 html5lib
 humanfriendly==10.0
