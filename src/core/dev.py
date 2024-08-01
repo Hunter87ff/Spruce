@@ -57,9 +57,9 @@ class dev(commands.Cog):
             await ctx.reply(e)
         
 
-    @cmd.hybrid_command(with_app_command=True)
+    @cmd.command()
     @config.dev()
-    async def get_guild(self, ctx, id:discord.Guild):
+    async def get_guild(self, ctx:commands.Context, id:discord.Guild):
         if ctx.author.bot: return
         await ctx.defer()
         guild = id #self.bot.get_guild(id)

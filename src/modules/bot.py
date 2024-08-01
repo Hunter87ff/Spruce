@@ -25,6 +25,7 @@ from ext import Database
 import wavelink,requests, time
 from discord.ext import commands
 from  wavelink import Node, Pool
+from modules.chat import ChatClient
 from modules import (config, message_handle as onm)
 from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils, Message, Embed
 
@@ -42,6 +43,7 @@ class Spruce(commands.AutoShardedBot):
         self.config = config
         self.db = Database()
         self.logger = config.logger
+        self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
         super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
 
@@ -70,7 +72,7 @@ class Spruce(commands.AutoShardedBot):
     async def on_message(self, message:Message):
         if config.notuser(message):return
         await self.process_commands(message)
-        await onm.ask(message, self)
+        await self.chat_client.chat(message)
         if message.guild:
             await onm.tourney(message)
             await config.vote_check(message)

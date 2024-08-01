@@ -30,12 +30,12 @@ cmd = commands
 
 class Roles(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot:commands.Bot = bot
 
     @cmd.command(aliases=["croles"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def create_roles(self, ctx, *Names:str):
+    async def create_roles(self, ctx:commands.Context, *Names:str):
         if ctx.author.bot:return
         guild:Guild = ctx.guild
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
@@ -48,7 +48,7 @@ class Roles(commands.Cog):
     @cmd.command(aliases=["droles"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def del_roles(self, ctx, *roles : Role):
+    async def del_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -70,7 +70,7 @@ class Roles(commands.Cog):
     @cmd.command(aliases=["role"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def give_role(self, ctx, role: Role, *users: Member):
+    async def give_role(self, ctx:commands.Context, role: Role, *users: Member):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -78,36 +78,42 @@ class Roles(commands.Cog):
         bt = ctx.guild.get_member(self.bot.user.id)
         given = []
         if bt.top_role.position <= role.position:
-            if ms:await ms.edit(content="My Top Role position Is not higher enough")
+            if ms:return await ms.edit(content="```\nMy Top Role position Is not higher enough\n```")
         if not ctx.author.top_role.position >= role.position:
             if ms:return await ms.edit(content="You can Not manage that role")
         if users:
-            if len(users) >=1 and role.permission.administrator:
+            if len(users) > 1 and role.permissions.administrator:
                 return await ms.edit(content="**I can't give admin role to more than 1 person. at a time**")
             for user in users:
                 if user.top_role.position >= ctx.author.top_role.position:
-                    try:await ms.edit(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+                    try:
+                        await ms.edit(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+                        await sleep(3)
                     except:return
 
-                if bt.top_role.position < user.top_role.position:
-                    try:await ms.edit(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+                elif bt.top_role.position < user.top_role.position:
+                    try:
+                        await ms.edit(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+                        await sleep(3)
                     except:return
                 else:
                     await user.add_roles(role)
                     given.append(user)
-                    await sleep(2)
-
             if ms:await ms.edit(content=f"{role.mention} given To {len(given)} Members")
 
-        if not users and ctx.message.reference:
+        elif not users and ctx.message.reference:
             message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
             for user in ctx.guild.members:
                 if user.mention in message.content.split():
                     if user.top_role.position >= ctx.author.top_role.position:
-                        try:await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
+                        try:
+                            await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
+                            await sleep(3)
                         except:return
-                    if bt.top_role.position <= user.top_role.position:
-                        try:await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
+                    elif bt.top_role.position <= user.top_role.position:
+                        try:
+                            await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
+                            await sleep(3)
                         except:return
                     else:
                         await user.add_roles(role)
@@ -115,18 +121,15 @@ class Roles(commands.Cog):
                         await sleep(2)
 
             if ms:await ms.edit(content=f"Role Added To - {len(given)} Members")
-        del message
-        del user
 
 
 
 
-
-    @cmd.command(aliases=["ra_role"])
+    @cmd.hybrid_command(with_app_command=True, aliases=["ra_role"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
-    async def remove_role_members(self, ctx, role: Role, reason=None):
+    async def remove_role_members(self, ctx:commands.Context, role: Role, reason=None):
         if ctx.author.bot:return
         prs = await ctx.send("<a:loading:969894982024568856> | Processing...")
         if reason == None:
@@ -142,7 +145,7 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def inrole(self, ctx, role: Role):
+    async def inrole(self, ctx:commands.Context, role: Role):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
@@ -173,7 +176,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     @commands.guild_only()
-    async def port(self, ctx, role1: Role, role2: Role, reason=None):
+    async def port(self, ctx:commands.Context, role1: Role, role2: Role, reason=None):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
@@ -200,7 +203,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     @commands.guild_only()
-    async def remove_role(self, ctx, role:Role, *users: Member):
+    async def remove_role(self, ctx:commands.Context, role:Role, *users: Member):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -222,7 +225,7 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def add_roles(self, ctx, user:Member, * roles:Role):
+    async def add_roles(self, ctx:commands.Context, user:Member, *roles:Role):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -242,7 +245,7 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def role_all_human(self, ctx, role: Role):
+    async def role_all_human(self, ctx:commands.Context, role: Role):
         if ctx.author.bot:return
         await ctx.defer()
         prs = await ctx.send("Processing...")
@@ -266,7 +269,7 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def role_all_bot(self, ctx, role: Role):
+    async def role_all_bot(self, ctx:commands.Context, role: Role):
         await ctx.defer()
         if ctx.author.bot:return
         prs = await ctx.send("Processing...")
@@ -292,7 +295,7 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def hide_roles(self, ctx):
+    async def hide_roles(self, ctx:commands.Context):
         await ctx.defer()
         if ctx.author.bot:return
         msg = await ctx.send(f'{config.loading}** Processing..**')
@@ -308,7 +311,7 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def unhide_roles(self, ctx, *roles : Role):
+    async def unhide_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
         msg = await ctx.send(f'{config.loading}** Processing..**')
         for role in roles:
@@ -318,5 +321,5 @@ class Roles(commands.Cog):
         await msg.edit(content=f"{config.vf} Done", delete_after=10)
 
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
     await bot.add_cog(Roles(bot))

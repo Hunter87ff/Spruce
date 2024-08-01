@@ -47,7 +47,7 @@ def trn(token, fr:str, to:str, text:str):
 	
 class Utility(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot:commands.Bot = bot
         self.counter = 0
 
     class NaturalLang(enum.Enum):
@@ -81,7 +81,7 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 60, commands.BucketType.user)
-    async def uptime(self, ctx):
+    async def uptime(self, ctx:commands.Context):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -109,7 +109,7 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, aliases=['av', "pfp"])
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    async def avatar(self, ctx, user: User = None):
+    async def avatar(self, ctx:commands.Context, user: User = None):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -131,7 +131,7 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, aliases=['sav'])
     @commands.bot_has_permissions(embed_links=True)
-    async def server_av(self, ctx, guild:Guild=None):
+    async def server_av(self, ctx:commands.Context, guild:Guild=None):
         await ctx.defer(ephemeral=True)
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -147,7 +147,7 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["bnr"])
-    async def banner(self, ctx, user:User=None):
+    async def banner(self, ctx:commands.Context, user:User=None):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -164,7 +164,7 @@ class Utility(commands.Cog):
     @commands.command(aliases=['emb'])
     @commands.bot_has_permissions(send_messages=True, manage_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
-    async def embed(self, ctx, *, message):
+    async def embed(self, ctx:commands.Context, *, message):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
@@ -176,7 +176,7 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 60, commands.BucketType.user)
-    async def tts(self, ctx, *, message):
+    async def tts(self, ctx:commands.Context, *, message):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
@@ -193,7 +193,7 @@ class Utility(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
-    async def addemoji(self, ctx, emoji: PartialEmoji):
+    async def addemoji(self, ctx:commands.Context, emoji: PartialEmoji):
         await ctx.defer(ephemeral=True)
         emoji_bytes = await emoji.read()
         new = await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
@@ -202,7 +202,7 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 20, commands.BucketType.user)
-    async def whoiss(self, ctx, user:Member=None):
+    async def whoiss(self, ctx:commands.Context, user:Member=None):
         await ctx.defer(ephemeral=True)
         if not user:
             user = ctx.author
@@ -234,7 +234,7 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 8, commands.BucketType.user)
     async def invite(self, ctx):
         await ctx.defer(ephemeral=True)
-        invbtn = Button(label="Invite Now", url="https://discord.com/api/oauth2/authorize?client_id=931202912888164474&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.gg%2FvMnhpAyFZm&response_type=code&scope=bot%20identify")
+        invbtn = Button(label="Invite Now", url=config.invite_url2)
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
@@ -266,7 +266,7 @@ class Utility(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
-    async def embed_img(self, ctx, image, *, message):
+    async def embed_img(self, ctx:commands.Context, image, *, message):
         await ctx.defer(ephemeral=True)
         emb = Embed(description=message, color=config.blue)
         emb.set_image(url=image)
@@ -278,7 +278,7 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 360, commands.BucketType.user)
     @commands.has_permissions(add_reactions=True)
     @commands.bot_has_permissions(add_reactions=True)
-    async def react(self, ctx, msg_id, *emojis):
+    async def react(self, ctx:commands.Context, msg_id, *emojis):
         for emoji in emojis:
             msg = await ctx.channel.fetch_message(msg_id)
             await ctx.channel.purge(limit=1)
@@ -307,7 +307,7 @@ class Utility(commands.Cog):
         
     @commands.hybrid_command(with_app_command = True, aliases=["ui"])
     @commands.bot_has_permissions(send_messages=True)
-    async def userinfo(self, ctx, member : Member = None):
+    async def userinfo(self, ctx:commands.Context, member : Member = None):
         await ctx.defer(ephemeral=True)
         if member == None:member = ctx.author
         roles = ", ".join([role.mention for role in member.roles][0:10])

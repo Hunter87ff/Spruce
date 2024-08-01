@@ -12,5 +12,4 @@ html5lib
 humanfriendly==10.0
 gtts==2.3.2
 numpy==1.24.1
-# gunicorn
 google-generativeai

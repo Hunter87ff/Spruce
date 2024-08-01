@@ -60,10 +60,10 @@ class Esports(commands.Cog):
                 await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
         del members
 
-    async def get_input(self, ctx, check=None, timeout=30):
+    async def get_input(self, ctx:commands.Context, check=None, timeout=30):
         check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
         try:
-            msg = await ctx.bot.wait_for("message", check=check, timeout=timeout)
+            msg:discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
             return msg.content
         except asyncio.TimeoutError:
             return await ctx.send("Time Out! Try Again", delete_after=5)
@@ -251,7 +251,7 @@ class Esports(commands.Cog):
     @cmd.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
-    async def cancel_slot(self, ctx, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
+    async def cancel_slot(self, ctx:commands.Context, registration_channel : discord.TextChannel, member : discord.Member, reason=None):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
@@ -313,7 +313,7 @@ class Esports(commands.Cog):
     @cmd.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.guild_only()
-    async def tourneys(self, ctx):
+    async def tourneys(self, ctx:commands.Context):
         if ctx.author.bot:return 
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         await ctx.defer(ephemeral=True)
@@ -339,7 +339,7 @@ class Esports(commands.Cog):
     @commands.has_role("tourney-mod")
     @commands.cooldown(2, 20, commands.BucketType.user)
     @commands.guild_only()
-    async def publish(self, ctx, rch: discord.TextChannel, *, prize: str):
+    async def publish(self, ctx:commands.Context, rch: discord.TextChannel, *, prize: str):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:
             return
@@ -381,10 +381,10 @@ class Esports(commands.Cog):
                 await ctx.send("Disable Fake Tag Filter", view=view2)
             if dbcd["faketag"] == "yes":
                 await ctx.send("Enable Fake Tag Filter", view=view1)
-            async def enable_ftf(interaction):
+            async def enable_ftf(interaction:discord.Interaction):
                 dbc.update_one({"rch" : registration_channel.id, "faketag" : "yes"}, {"$set":{"faketag" : "no"}})
                 await interaction.response.send_message("Enabled")
-            async def disable_ftf(interaction):
+            async def disable_ftf(interaction:discord.Interaction):
                 dbc.update_one({"rch" : registration_channel.id, "faketag" : "no"}, {"$set":{"faketag" : "yes"}})
                 await interaction.response.send_message("Disabled")
             btn.callback = enable_ftf
@@ -608,7 +608,7 @@ class Esports(commands.Cog):
     @commands.cooldown(1, 60, commands.BucketType.guild)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def group_setup(self, ctx, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
+    async def group_setup(self, ctx:commands.Context, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         elif not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
@@ -656,7 +656,7 @@ class Esports(commands.Cog):
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
-    async def tourney_reset(self, ctx, channel: discord.TextChannel):
+    async def tourney_reset(self, ctx:commands.Context, channel: discord.TextChannel):
         if ctx.author.bot:return 
         if not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
         td = dbc.find_one({"rch" : channel.id})

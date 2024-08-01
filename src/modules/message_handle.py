@@ -22,98 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import re, random, traceback
-import numpy as np
+import re, traceback
 from asyncio import sleep
 from modules import config
 from discord.ext import commands
-from requests import post as rpost
-from discord import utils, AllowedMentions, Embed, File, errors, Message
-import google.generativeai as genai
+from discord import utils, AllowedMentions, Embed, errors, Message, TextChannel
 dbc = config.dbc
-sdbc = config.spdb["qna"]["query"]
-bws = set(config.bws)
-try:
-    genai.configure(api_key=config.GEMAPI)
-    model = genai.GenerativeModel('gemini-pro')
-except Exception as e:
-    config.webpost(url=config.dml, json={"content":f"```py\n{e}\n```"})
-#########################################################
-################ CHAT SYSTEM ###########################
-#########################################################
-
-
-say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
-name = ["my name", "mera nam kya hai", "what is my name", "do you know my name"]
-unfair = [{"q":"me harami", "a":"aap harami ho"}, {"q":"me useless", "a":"me really useful yes i know"}, {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}]
-repl_yes = ["ohh", "okey", "hm"]
-def lang_model(ctx:commands.Context, query:str):
-    for i in say:
-        if i in query:
-            ms = query.replace(i, "")
-            for j in unfair:
-                if j["q"] in ms:ms = ms.replace(j["q"], j["a"])
-            return ms
-
-    if "yes" in query:return random.choice(repl_yes)
-    for i in name:
-        if i in query:return ctx.author.name
-
-def is_bws(query):
-    bw = set(query.lower().split())
-    if len(bws.intersection(bw)) > 0:return True
-
-def check_send(message:Message, bot:commands.Bot) -> bool:
-    """return `True` if triggered dm or mentioned in channel, else `None`"""
-    if not message.guild:return True
-    elif not message.reference or not message.reference.resolved:return False
-    elif message.reference.resolved.author.id == bot.user.id:return True
-    return None
-    
-def query(response, query):
-    if is_bws(query):return "Message contains blocked word. so i can't reply to this message! sorry buddy."
-    matches = []
-    for a in response:
-        a2 = np.array([x.lower() for x in a["q"].split()])
-        a1 = np.array([x.lower() for x in query.split()])
-        same = len(np.intersect1d(a1, a2))
-        if int(same/len(a1)*100) >= 95:return a["a"]
-        if same >= len(query.split())/2:
-            if int(same/len(a1)*100) > 40:matches.append({"a" : a["a"], "r": int(same/len(a1)*100)})
-    if len(matches) > 0:return max(matches, key=lambda x: x['r'])["a"]
-    if len(matches)==0:return None
-
-datasets = sdbc.find()
-async def ask(message:Message, bot:commands.Bot):
-    if not check_send(message, bot):return
-    ctx = await bot.get_context(message)
-    await ctx.typing()
-    text = message.content.replace(F"<@{bot.user.id}>", "")
-    if lang_model(ctx, message.content):await message.reply(lang_model(ctx, text))
-    response = query(datasets, text)
-    if response:await message.reply(response)
-    else:
-        try: 
-            response = model.generate_content(text).text
-            if len(response) > 2000:
-                with open("response.txt", "w") as f:f.write(response)
-                return await message.reply(file=File("response.txt"))
-            else:return await message.reply(response)
-        except Exception as e:rpost(url=config.dml, json={"content":f"{message.author}```\n{e}\n```"})
-
-
 #########################################################
 ################ GROUP SYSTEM ###########################
 #########################################################
 
 
-def get_slot(ms):
+def get_slot(ms:Message):
     for i in range(1, 13):
         if f"{i})" not in ms.content:return f"{i})"
 
 
-async def prc(group,  grpc, bot, msg, tsl):
-    messages = [message async for message in grpc.history(limit=tsl)]
+async def prc(group:int,  grpc:TextChannel, bot:commands.Bot, msg:Message, tsl:int):
+    messages:list[Message] = [message async for message in grpc.history(limit=tsl)]
 
     for ms in messages:
         if len(messages) <3:
@@ -135,12 +61,12 @@ async def prc(group,  grpc, bot, msg, tsl):
         cont = f"{ms.content}\n{get_slot(ms)} {msg}"
         return await ms.edit(content=cont)
 
-def get_group(reged):
+def get_group(reged:int):
     grp = reged/12
     if grp > int(grp):grp = grp + 1
     return str(int(grp))
 
-async def auto_grp(message:Message, bot):
+async def auto_grp(message:Message, bot:commands.Bot):
     try:td = dbc.find_one({"cch":message.channel.id})
     except:return
     if td:
@@ -157,18 +83,15 @@ async def auto_grp(message:Message, bot):
 ##########################################################################
 ########################### SLOT CONFIRM SYSTEM ##########################
 ##########################################################################
-def gp(info):
+def gp(info:str):
     match = ["INR", "inr" , "₹", "Inr", "$"]
     for i in match:
         if i in info:
-            nd =  info.split(i)[0]
-            ad =  nd.split()[-1]
-            print(ad)
+            ad =  info.split(i)[0].split()[-1]
             return f"{ad} {i}"
-        else:
-            return "Not Data"
+        else:return "No Data"
 
-async def get_prize(cch):
+async def get_prize(cch:TextChannel):
     info = cch.category.channels[0]
     finder = ["Prize", "prize", "PRIZE", "POOL", "Pool", "PrizE"]
     messages = [message async for message in info.history(limit=123)]
@@ -178,7 +101,7 @@ async def get_prize(cch):
             if p in str(i.content).split():return gp(info=i.content)
             else:return "No Data"
 
-def find_team(message):
+def find_team(message:Message):
     content = message.content.lower()
     teamname = re.search(r"team.*", content)
     if teamname is None:return f"{message.author}'s team"
@@ -186,14 +109,14 @@ def find_team(message):
     teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
 
-def reg_update(message):
+def reg_update(message:Message):
     df = dbc.find_one({"rch" : message.channel.id})
     rgd = df["reged"] 
     dbc.update_one({"rch" : message.channel.id}, {"$set":{"reged": rgd + 1}})
 
 
 #Fake Tag Check
-async def ft_ch(message):
+async def ft_ch(message:Message):
     ctx = message
     messages = [message async for message in ctx.channel.history(limit=123)]  
     for fmsg in messages:
@@ -203,7 +126,7 @@ async def ft_ch(message):
     return None
 
 #Tourney System
-async def tourney(message):
+async def tourney(message:Message):
     if message.author.bot:return
     if not message.guild:return
     ctx = message
@@ -292,14 +215,13 @@ async def tourney(message):
                         dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
         elif len(message.mentions) < ments:
-            #await bot.process_commands(message)
             meb = Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
             try:await message.delete()
             except Exception as e:print(f"line No 335, error: {e}")
             return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
 ################# NITROF ######################
-async def nitrof(message, bot):
+async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
     nitrodbc = bot.config.maindb["nitrodb"]["nitrodbc"]
     try:gnitro = nitrodbc.find_one({"guild" : message.guild.id})
@@ -328,7 +250,7 @@ async def nitrof(message, bot):
 
 ############## ERROR HANDEL ################
 ############################################
-async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot):
+async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot):
     erl = bot.get_channel(config.erl)
     cmdnf = bot.get_channel(config.cmdnf)
     try:

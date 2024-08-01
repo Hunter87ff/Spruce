@@ -1,5 +1,5 @@
 from os import environ as env
-from discord import Embed
+from discord import Embed, Message
 from discord.ext import commands
 from pymongo import MongoClient
 from discord.ui import Button, View
@@ -10,7 +10,7 @@ from ext import Logger
 load_dotenv()
 logger = Logger()
 shards =  int(env["shards"]) or 20
-version = env["version"] or "2.0.5"
+version = env["version"] or "2.0.6"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
@@ -18,7 +18,7 @@ support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = "https://sprucebot.tech/invite"
 invite_url2 = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot"
 support_server_id = 947443790053015623
-status = ["500k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
+status = ["550k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
 try: maindb = MongoClient(env["mongo_url"])
 except:  maindb = MongoClient(env["MONGO_URL"])
 dbc = maindb["tourneydb"]["tourneydbc"]
@@ -116,16 +116,15 @@ d_teal = 0x11806a
 yellow = 0xffff00
 
 votes = []
-async def vote_add(bot):
+async def vote_add(bot:commands.Bot):
     global votes
     vtl = bot.get_channel(votel)
     votes = [message async for message in vtl.history(limit=500)]
 	
 #functions
-async def voted(ctx, bot):
+async def voted(ctx:commands.Context, bot:commands.Bot):
 	if cfdata["vote_only"] == False: return "yes"
 	vtl = bot.get_channel(votel)
-	# messages = [message async for message in vtl.history(limit=1000)]
 	for i in votes:
 		if i.author.id == 1096272690211471421:  #monitoring webhook id
 			if f"<@{ctx.author.id}>" in i.content:
@@ -133,20 +132,20 @@ async def voted(ctx, bot):
 				else: return None
 		else: pass
 
-async def vote_check(message):
+async def vote_check(message:Message):
     global votes
     if message.channel.id == votel:
         votes.append(message)
 			
-async def vtm(ctx):
+async def vtm(ctx:commands.Context):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
 	await ctx.send(embed=Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
 def dev():
-	def predicate(ctx):
+	def predicate(ctx:commands.Context):
 		return ctx.message.author.id == owner_id
 	return commands.check(predicate)
 
-def notuser(message):
+def notuser(message:Message):
 	return True if message.author.bot or message.webhook_id else False
 
