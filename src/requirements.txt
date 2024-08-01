@@ -1,7 +1,7 @@
 python-dotenv
 flask
 psutil
-pymongo==4.2.0
+pymongo
 pymongo[srv]
 discord.py==2.3.2
 requests
