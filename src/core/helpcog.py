@@ -407,7 +407,7 @@ class Helper(commands.Cog):
 
     @help.command(aliases=["bi"])
     async def botinfo(self, ctx):
-        em = discord.Embed(description=f"Aliases : `bi`\nUsage : `botinfo`\nDescription : `Use This Command To Get The Details About Me`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `bi`\nUsage : `botinfo`\nDescription : `Use This Command To Get The Details About Me`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=["emb"])
@@ -490,12 +490,12 @@ class Helper(commands.Cog):
 
     @help.command()
     async def translate(self, ctx):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `translate fr:<from_lang> to:<to_lang>`\nExample : `/translate ` fr:English` `to:Hindi` `message:one earth one family one future`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `translate fr:<from_lang> to:<to_lang>`\nExample : `/translate ` fr:English` `to:Hindi` `message:one earth one family one future`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def setup_ticket(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `setup_ticket`mod_role, button_label, button_emoji, button_color:choose from dropdown, *, message\nExample : `/setup_ticket` `mod_role`: `@tourney-mod` `button_label`: `Claim Reward` `button_emoji`: `<:mobile:1048673949812273252>` `button_color`: `red`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `setup_ticket`mod_role, button_label, button_emoji, button_color:choose from dropdown, *, message\nExample : `/setup_ticket` `mod_role`: `@tourney-mod` `button_label`: `Claim Reward` `button_emoji`: `<:mobile:1048673949812273252>` `button_color`: `red`", color=0x00ff00)
         await ctx.send(embed=em)
 
 

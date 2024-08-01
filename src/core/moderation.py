@@ -216,8 +216,8 @@ class Moderation(commands.Cog):
         if ctx.author.bot:return
         elif not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
         elif not reason:reason = 'No reason provided'
-        elif not ctx.author.top_role.position > member.top_role.position:return await ctx.reply("You Can Not Manage Him")
-        elif not bt.top_role.position > member.top_role.position:return await ctx.reply("I can't manage him")
+        elif ctx.author.top_role.position <= member.top_role.position:return await ctx.reply("You Can Not Manage Him")
+        elif bt.top_role.position <= member.top_role.position:return await ctx.reply("I can't manage him")
         else:
             time = humanfriendly.parse_timespan("0")
             await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
@@ -237,8 +237,8 @@ class Moderation(commands.Cog):
         bt = ctx.guild.get_member(self.bot.user.id)
         if time == None:time = "5m"
         if reason == None:reason = 'No reason provided'
-        if not ctx.author.top_role.position > member.top_role.position:return await ctx.reply("You Can Not Manage Him")
-        if not bt.top_role.position > member.top_role.position:return await ctx.reply("I can't manage him")
+        if ctx.author.top_role.position <= member.top_role.position:return await ctx.reply("You Can Not Manage Him")
+        if bt.top_role.position <= member.top_role.position:return await ctx.reply("I can't manage him")
         else:
             timee = humanfriendly.parse_timespan(time)
             await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=timee), reason=reason)

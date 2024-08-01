@@ -77,10 +77,8 @@ class Roles(commands.Cog):
         ms = await ctx.send("Processing...")
         bt = ctx.guild.get_member(self.bot.user.id)
         given = []
-        if bt.top_role.position <= role.position:
-            if ms:return await ms.edit(content="```\nMy Top Role position Is not higher enough\n```")
-        if not ctx.author.top_role.position >= role.position:
-            if ms:return await ms.edit(content="You can Not manage that role")
+        if bt.top_role.position <= role.position and ms:return await ms.edit(content="```\nMy Top Role position Is not higher enough\n```")
+        if ctx.author.top_role.position < role.position and ms:return await ms.edit(content="You can Not manage that role")
         if users:
             if len(users) > 1 and role.permissions.administrator:
                 return await ms.edit(content="**I can't give admin role to more than 1 person. at a time**")
@@ -89,13 +87,13 @@ class Roles(commands.Cog):
                     try:
                         await ms.edit(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
                         await sleep(3)
-                    except:return
+                    except Exception:return
 
                 elif bt.top_role.position < user.top_role.position:
                     try:
                         await ms.edit(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
                         await sleep(3)
-                    except:return
+                    except Exception:return
                 else:
                     await user.add_roles(role)
                     given.append(user)
@@ -109,12 +107,12 @@ class Roles(commands.Cog):
                         try:
                             await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
                             await sleep(3)
-                        except:return
+                        except Exception:return
                     elif bt.top_role.position <= user.top_role.position:
                         try:
                             await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
                             await sleep(3)
-                        except:return
+                        except Exception:return
                     else:
                         await user.add_roles(role)
                         given.append(user)
