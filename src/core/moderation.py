@@ -70,13 +70,12 @@ class Moderation(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         bt = ctx.guild.get_member(self.bot.user.id)
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         ms:discord.Message = await ctx.send(f"**{config.loading} Processing...**")
         if role:
             if role.position < bt.top_role.position:
                 await role.edit(permissions=discord.Permissions(permissions=0))
-                emb = discord.Embed(description=f'{config.default_tick} | All Permissions Removed from {role.mention}')
+                emb = discord.Embed(description=f'{config.tick} | All Permissions Removed from {role.mention}')
                 return await ms.edit(content=None, embed=emb)
             
         elif not role:
@@ -84,7 +83,7 @@ class Moderation(commands.Cog):
                 if role.position < bt.top_role.position:
                     await role.edit(permissions=discord.Permissions(permissions=0))
                     await sleep(1)
-            emb = discord.Embed(descriptio=f'{config.default_tick} | All permissions removed from all role below {bt.top_role.mention}')
+            emb = discord.Embed(descriptio=f'{config.tick} | All permissions removed from all role below {bt.top_role.mention}')
             return await ms.edit(content=None, embed=emb)
 
 
@@ -122,7 +121,7 @@ class Moderation(commands.Cog):
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(send_messages=False)
             await hchannel.set_permissions(role, overwrite=overwrite)
-            await sleep(2)
+            await sleep(1)
         try:await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From `{role.name}`**')
         except Exception:return
             
@@ -142,7 +141,7 @@ class Moderation(commands.Cog):
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(send_messages=True, add_reactions=True)
             await hchannel.set_permissions(role, overwrite=overwrite)
-            await sleep(2)
+            await sleep(1)
         try:await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**')
         except Exception:return
 
@@ -162,7 +161,7 @@ class Moderation(commands.Cog):
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(view_channel=False)
             await hchannel.set_permissions(role, overwrite=overwrite)
-            await sleep(2)
+            await sleep(1)
         em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from `{role.name}`**', color=0x00ff00)
         try:await ctx.send(embed=em)
         except Exception:return
@@ -183,7 +182,7 @@ class Moderation(commands.Cog):
             overwrite = uhchannel.overwrites_for(role)
             overwrite.update(view_channel=True)
             await uhchannel.set_permissions(role, overwrite=overwrite)
-            await sleep(2)
+            await sleep(1)
         em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to `{role.name}`**', color=0x00ff00)
         try:await ctx.send(embed=em, delete_after=5)
         except Exception:return
