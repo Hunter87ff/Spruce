@@ -138,7 +138,7 @@ class Esports(commands.Cog):
                 dbc.insert_one(tour)
                 await self.set_manager(ctx, r_ch)
                 return await ms.edit(content=None, embed=discord.Embed(color=config.cyan, description=f'<:vf:947194381172084767> | Successfully Created. Tournament Slot({tour_count+1}/5 used)'), delete_after=20)
-        except:return
+        except Exception:return
 
     """
 
@@ -351,7 +351,7 @@ class Esports(commands.Cog):
             dbcd = dbc.find_one({"rch" : rch.id})
             if dbcd["reged"] < dbcd["tslot"]*0.1:
                 return await ctx.send("You need To Fill 10% Of Total Slot. To Publish This Tournament")
-        except:
+        except Exception:
             return await ctx.send("Tournament Not Found")
         dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
         await ctx.send(f"**{rch.category.name} is now public**")
@@ -556,7 +556,7 @@ class Esports(commands.Cog):
                         con_role = await checker.check_role(ctx)
                         await interaction.delete_original_response()
                         if not con_role:return await ctx.send("Kindly Mention A Role!!", delete_after=5)
-                    except:return await ctx.send("Something went wrong!! please try again later!!", delete_after=5)
+                    except Exception:return await ctx.send("Something went wrong!! please try again later!!", delete_after=5)
                     cndb = dbc.find_one({"crole" : str(con_role.id)})
 
                     if cndb == None:
@@ -670,7 +670,7 @@ class Esports(commands.Cog):
             dbc.update_one({"rch" : channel.id}, {"$set":{"reged" : 1}})
             await ctx.send("Done")
 
-        except:return
+        except Exception:return
 
     @cmd.hybrid_command(with_app_command = True, aliases=["autogroup"])
     @commands.guild_only()

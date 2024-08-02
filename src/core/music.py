@@ -57,7 +57,7 @@ class Music(commands.Cog):
                 await ctx.voice_client.disconnect()
                 await interaction.response.send_message(embed=Embed(description=f"{config.reddot} Successfully Disconnected", color=config.red), ephemeral=True)
                 await interaction.message.delete()
-            except:pass
+            except Exception:pass
 
         elif interaction.data["custom_id"] == "music_loop_btn":
             await interaction.response.defer(ephemeral=True)
@@ -114,7 +114,7 @@ class Music(commands.Cog):
             player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  # type: ignore
             if not player:
                 try: player = await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)  
-                except:return await ctx.send("Something went wrong. Please try again.")
+                except Exception:return await ctx.send("Something went wrong. Please try again.")
             player.autoplay = wavelink.AutoPlayMode.disabled
 
             tracks: wavelink.Search = await wavelink.Playable.search(query)
@@ -206,7 +206,7 @@ class Music(commands.Cog):
             try:
                 await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
                 await ctx.reply("Connected To VC", delete_after=10)
-            except:await ctx.reply("I'm Unable To Join VC", delete_after=10)
+            except Exception:await ctx.reply("I'm Unable To Join VC", delete_after=10)
         
 async def setup(bot:commands.Bot):
     await bot.add_cog(Music(bot))

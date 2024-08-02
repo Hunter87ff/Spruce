@@ -34,7 +34,7 @@ class dev(commands.Cog):
                     await ctx.send(f"Leaved From {gname}, Members: {guild.member_count}")
         if guild_id:
             try:gld = self.bot.get_guild(guild_id)
-            except:return None
+            except Exception:return None
             if gld:
                 await gld.leave()
                 await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
@@ -58,7 +58,7 @@ class dev(commands.Cog):
             try:
                 invites = await [channel for channel in guild.channels][0].create_invite(reason=None, max_age=360, max_uses=2, temporary=True, unique=False, target_type=None, target_user=None, target_application_id=None)
                 return await ctx.send(invites)
-            except: return await ctx.send(f"i dont have permission to get links in {guild.name}")
+            except Exception: return await ctx.send(f"i dont have permission to get links in {guild.name}")
         else: return await ctx.send("guild not found")						  
 
 
@@ -71,7 +71,7 @@ class dev(commands.Cog):
         try:
             await msg.delete()
             return await ctx.send("deleted", delete_after=2)
-        except:return await ctx.send("Not Possible")
+        except Exception:return await ctx.send("Not Possible")
 
     @commands.hybrid_command(with_app_command = True, hidden=True)
     @config.dev()

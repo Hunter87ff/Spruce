@@ -68,7 +68,7 @@ def get_group(reged:int):
 
 async def auto_grp(message:Message, bot:commands.Bot):
     try:td = dbc.find_one({"cch":message.channel.id})
-    except:return
+    except Exception:return
     if td:
         if td["auto_grp"] == "yes":
             if message.author.id == bot.user.id:
@@ -146,12 +146,12 @@ async def tourney(message:Message):
         tslot = td["tslot"]
         if not crole:
             try:await message.author.send("Registration Paused")
-            except:pass
+            except Exception:pass
             await ctx.reply("Confirm Role Not Found")
             return dbc.update_one({"rch" : ctx.channel.id}, {"$set" : {"status" : "paused"}})
         if crole in message.author.roles:
             try:await message.delete()
-            except:pass
+            except Exception:pass
             return await message.channel.send("**Already Registered**", delete_after=5)
         if rgs > tslot:
             overwrite = rch.overwrites_for(message.guild.default_role)
@@ -183,7 +183,7 @@ async def tourney(message:Message):
                             fakeemb = Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
                             fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
                             fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar)
-                            await message.delete()
+                            if message: await message.delete()
                             return await ctx.channel.send(embed=fakeemb, delete_after=60)
                         if ftch == None:
                             try:
@@ -225,13 +225,13 @@ async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
     nitrodbc = bot.config.maindb["nitrodb"]["nitrodbc"]
     try:gnitro = nitrodbc.find_one({"guild" : message.guild.id})
-    except:return
+    except Exception:return
     if gnitro != None and gnitro["nitro"] == "enabled":
         try:webhook = utils.get(await message.channel.webhooks(), name="Spruce")
-        except:await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
+        except Exception:await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
         if not webhook:
             try:webhook = await message.channel.create_webhook(name="Spruce")
-            except:await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+            except Exception:await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
         words = message.content.split()
         for word in words:
             if word[0] == ":" and word[-1] == ":":
@@ -317,6 +317,6 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
             return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
         else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)}\n```")
 
-    except:pass
+    except Exception:pass
         #e = str(error)
         #await ctx.reply("Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)

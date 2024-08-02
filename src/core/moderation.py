@@ -124,7 +124,7 @@ class Moderation(commands.Cog):
             await hchannel.set_permissions(role, overwrite=overwrite)
             await sleep(2)
         try:await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From `{role.name}`**')
-        except:return
+        except Exception:return
             
 
 
@@ -144,7 +144,7 @@ class Moderation(commands.Cog):
             await hchannel.set_permissions(role, overwrite=overwrite)
             await sleep(2)
         try:await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**')
-        except:return
+        except Exception:return
 
 
 
@@ -165,7 +165,7 @@ class Moderation(commands.Cog):
             await sleep(2)
         em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Hidden from `{role.name}`**', color=0x00ff00)
         try:await ctx.send(embed=em)
-        except:return
+        except Exception:return
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["uhc"])
@@ -186,7 +186,7 @@ class Moderation(commands.Cog):
             await sleep(2)
         em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to `{role.name}`**', color=0x00ff00)
         try:await ctx.send(embed=em, delete_after=5)
-        except:return
+        except Exception:return
 
 
     #clear command
@@ -201,7 +201,7 @@ class Moderation(commands.Cog):
         if not amount:amount = 10
         if amount > 100:amount = 100
         try:await ctx.channel.purge(limit=amount)
-        except: pass
+        except Exception: pass
         return await ctx.send(f'**{config.tick} | Successfully cleared {amount} messages**', delete_after=5)
 
 
@@ -222,7 +222,7 @@ class Moderation(commands.Cog):
             time = humanfriendly.parse_timespan("0")
             await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
             try:await ctx.send(f"{member} has been unmuted")
-            except:return	
+            except Exception:return	
 
 
     @commands.hybrid_command(with_app_command = True)

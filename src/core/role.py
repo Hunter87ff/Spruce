@@ -154,7 +154,7 @@ class Roles(commands.Cog):
             for i in role.members:
                 msg = msg + f"\n{i} : {i.id}"
             try:await ctx.send(msg)
-            except:return
+            except Exception:return
 
         if len(role.members) > 15 and len(role.members) <= 1000000:
             for i in role.members:
@@ -166,7 +166,7 @@ class Roles(commands.Cog):
             os.remove("members.txt")
         if len(role.members) > 2000000:
             try:return await ctx.send("Too Many Members To Show!")
-            except:return
+            except Exception:return
         del msg
 
 
@@ -301,7 +301,7 @@ class Roles(commands.Cog):
         for role in roles:
             if role.position < ctx.author.top_role.position:
                     try:await role.edit(hoist=False)
-                    except:pass
+                    except Exception:pass
         await msg.edit(content=f"{config.vf} Done", delete_after=10)
 
 
@@ -315,7 +315,7 @@ class Roles(commands.Cog):
         for role in roles:
             if role.position < ctx.author.top_role.position:
                 try:await role.edit(hoist=True)
-                except:pass
+                except Exception:pass
         await msg.edit(content=f"{config.vf} Done", delete_after=10)
 
 

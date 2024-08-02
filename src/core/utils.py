@@ -87,7 +87,7 @@ class Utility(commands.Cog):
             return await config.vtm(ctx)
         await ctx.defer(ephemeral=True)
         try:sch = self.bot.get_channel(config.stl)
-        except:return
+        except Exception:return
         messages = [message async for message in sch.history(limit=3)]
         uptime = ctx.message.created_at - messages[0].created_at
         upt = str(uptime).split(".")[0]
@@ -95,7 +95,7 @@ class Utility(commands.Cog):
         emb = Embed(title="Uptime", color=config.green, description=msg, timestamp=ctx.message.created_at)
         emb.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar)
         try:await ctx.send(embed=emb)
-        except:return
+        except Exception:return
 
 
     @commands.command()
@@ -238,7 +238,7 @@ class Utility(commands.Cog):
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
-        except:return
+        except Exception:return
 
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
@@ -249,7 +249,7 @@ class Utility(commands.Cog):
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Vote Me ^_^**", view=view)
-        except:return
+        except Exception:return
 
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
@@ -260,7 +260,7 @@ class Utility(commands.Cog):
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Join Our Support Server For Any Issue**", view=view)
-        except:return
+        except Exception:return
 
     @commands.hybrid_command(with_app_command=True, aliases=["em"])
     @commands.has_permissions(manage_messages=True)
