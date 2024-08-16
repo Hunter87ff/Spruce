@@ -41,7 +41,6 @@ class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = config
         self.db = Database()
-        self.logger = config.logger
         self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
         super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
@@ -57,23 +56,17 @@ class Spruce(commands.AutoShardedBot):
         try:
             await self.tree.sync()
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
-            self.logger.info(stmsg)
+            config.logger.info(stmsg)
             await config.vote_add(self)
             requests.post(url=config.stwbh, json={"content":f"<@{config.owner_id}>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        self.logger.info(f"Node Connected")
+        config.logger.info(f"Node Connected")
 
     async def on_disconnect(self):
-        self.logger.info('Disconnected from Discord. Reconnecting...')
+        config.logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
-
-    async def on_shard_disconnect(self, shard_id):
-        self.logger.warning(f"Shard {shard_id} disconnected.")
-        shard = self.get_shard(shard_id)
-        self.logger.info(f"Reconnecting shard {shard_id}...")
-        await shard.reconnect()
 
     async def on_message(self, message:Message):
         if config.notuser(message):return
