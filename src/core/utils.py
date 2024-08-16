@@ -21,13 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import datetime, discord
+
+
+import datetime
 import os, random, requests, enum, uuid, psutil
 from discord.ext import commands
-from discord import Embed, User, File, PartialEmoji, Guild, Member, app_commands, Interaction, utils, PermissionOverwrite, ButtonStyle, Role, Emoji, TextInput
 from modules import config
 from discord.ui import Button, View 
 from gtts import gTTS
+from discord import (
+    Embed,
+    User, 
+    File, 
+    PartialEmoji, 
+    Guild, 
+    Member, 
+    app_commands, 
+    Interaction, 
+    utils, 
+    PermissionOverwrite, 
+    ButtonStyle, 
+    Role, 
+    Emoji
+)
+
+
+
 
 whois = ["Noob","Unknown Person","kya pata mai nehi janta","bohot piro", "Bohot E-smart","Dusro Ko Jan Ne Se Pehle Khud Ko Jan Lo","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 coin = ["975413333291335702", "975413366493413476"]

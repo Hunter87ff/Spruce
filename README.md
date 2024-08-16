@@ -5,9 +5,18 @@
 [![Commands](https://img.shields.io/badge/90+-Commands-violet)](#)
 [![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.4.0-skyblue)](#)
 [![Db](https://img.shields.io/badge/db-MongoDB-green)](#)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=ncloc)](#)
 [![Repo Size](https://img.shields.io/github/repo-size/hunter87ff/spruce)](#)
 [![Lavalink](https://img.shields.io/badge/Lavalink%20-4.0.7-skyblue)](#)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=ncloc)](#)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=reliability_rating)](#)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=sqale_rating)](#)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=security_rating)](#)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=duplicated_lines_density)](#)
+
+
+
+<!-- [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=bugs)](#)
+[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=vulnerabilities)](#) -->
 <!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
 
 Spruce is a multi-functional Discord bot designed to streamline the management of Discord tournaments and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
@@ -18,9 +27,12 @@ Spruce is a multi-purpose discord bot that provides various kind of features lik
 ```
 - Esports Tournament Management
 - Auto Group Setup
-- Totally Free For All
 - Text To Speech
-- Vertual Assistant
+- Ticket System
+- Music Player
+- Translation
+- Moderation
+- Utility 
 - and much much more...
 ```
 

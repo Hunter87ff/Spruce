@@ -20,7 +20,13 @@ history=[
     {"role": "user","parts": ["what you can do?"]},
     {"role": "model","parts": ["i can manage tournaments, chat with you, play music, moderate your server, and many more things!!"]}
     ]
+
+
+
 class ChatClient:
+    """
+    A class to chat with user
+    """
     def __init__(self, bot) -> None:
         self.bot:commands.Bot = bot
         self.chat_session = model.start_chat(history=history)
@@ -49,7 +55,7 @@ class ChatClient:
         elif message.reference.resolved.author.id == bot.user.id:return True
         return None
         
-    def query(self, response, query) -> typing.Union[str, None]:
+    def query(self, response:list[dict[str,str]], query:str) -> typing.Union[str, None]:
         if self.is_bws(query):return "Message contains blocked word. so i can't reply to this message! sorry buddy."
         matches = []
         for a in response:
@@ -79,7 +85,6 @@ class ChatClient:
             if response:return await message.reply(response)
             else:
                 response = self.chat_session.send_message(text).text
-                # if len(self.chat_session.history) > 20: del self.chat_session.history[0:2]
                 if len(response) > 2000:
                     with open("response.txt", "w") as f:f.write(response)
                     return await message.reply(file=File("response.txt"))

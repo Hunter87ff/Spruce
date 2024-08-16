@@ -21,7 +21,7 @@ class Moderation(commands.Cog):
         if not role:role = ctx.guild.default_role
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(send_messages=False)
-        await ctx.send(f'**<:vf:947194381172084767> Channel has been locked for `{role.name}`**', delete_after=5)
+        await ctx.send(f'**{config.tick} Channel has been locked for `{role.name}`**', delete_after=5)
         await ctx.channel.set_permissions(role, overwrite=overwrite)
             
 
@@ -34,8 +34,8 @@ class Moderation(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
-        if not channel:channel = ctx.channel
-        if not role:role = ctx.guild.default_role
+        channel = channel or ctx.channel
+        role = role or ctx.guild.default_role
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
@@ -53,8 +53,8 @@ class Moderation(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if role == None:role = ctx.guild.default_role
-        if channel is None:channel = ctx.channel
+        role = role or ctx.guild.default_role
+        channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(view_channel=False)
         await channel.set_permissions(role, overwrite=overwrite)
@@ -92,14 +92,13 @@ class Moderation(commands.Cog):
     @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
-    #@commands.cooldown(2, 30, commands.BucketType.user)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def unhide(self, ctx:commands.Context, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
         if ctx.author.bot:return
         await ctx.defer()
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if role == None:role = ctx.guild.default_role
-        if channel is None:channel = ctx.channel
+        role = role or ctx.guild.default_role
+        channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(view_channel=True)
         await channel.set_permissions(role, overwrite=overwrite)
@@ -108,7 +107,6 @@ class Moderation(commands.Cog):
         
 
     @commands.hybrid_command(with_app_command = True, aliases=["lc"])
-    #@commands.cooldown(2, 30, commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     @commands.guild_only()
@@ -116,33 +114,35 @@ class Moderation(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if not role: role = ctx.guild.default_role
+        ms = await ctx.send(f'**{config.loading} Processing...**')
+        role:discord.Role = role or  ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(send_messages=False)
             await hchannel.set_permissions(role, overwrite=overwrite)
             await sleep(1)
-        try:await ctx.send(f'**<:vf:947194381172084767>Successfully Locked {category.name} From `{role.name}`**')
+        try:await ms.edit(content=f'**{config.tick} | Successfully Locked {category.name} From `{role.name}`**')
         except Exception:return
             
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["ulc"])
     @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     @commands.cooldown(2, 30, commands.BucketType.user)
     @commands.guild_only()
     async def unlock_category(self, ctx:commands.Context,category: discord.CategoryChannel, role:discord.Role=None):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if role == None:role = ctx.guild.default_role
+        ms:discord.Message = await ctx.send(f'**{config.loading} Processing...**')
+        role == role or ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(send_messages=True, add_reactions=True)
             await hchannel.set_permissions(role, overwrite=overwrite)
             await sleep(1)
-        try:await ctx.send(f'**<:vf:947194381172084767>Successfully Unlocked {category.name}**')
+        try:await ms.edit(content=f'**{config.tick} | Successfully Unlocked {category.name}**')
         except Exception:return
 
 
@@ -156,7 +156,7 @@ class Moderation(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if role == None:role = ctx.guild.default_role
+        role = role or ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(view_channel=False)
@@ -177,7 +177,7 @@ class Moderation(commands.Cog):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
-        if role == None:role = ctx.guild.default_role
+        role = role or ctx.guild.default_role
         for uhchannel in category.channels:
             overwrite = uhchannel.overwrites_for(role)
             overwrite.update(view_channel=True)
@@ -211,12 +211,11 @@ class Moderation(commands.Cog):
     @commands.cooldown(2, 30, commands.BucketType.user)
     async def unmute(self, ctx:commands.Context, member: discord.Member, *, reason=None):
         await ctx.defer()
-        bt = ctx.guild.get_member(self.bot.user.id)
         if ctx.author.bot:return
         elif not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
         elif not reason:reason = 'No reason provided'
         elif ctx.author.top_role.position <= member.top_role.position:return await ctx.reply("You Can Not Manage Him")
-        elif bt.top_role.position <= member.top_role.position:return await ctx.reply("I can't manage him")
+        elif ctx.me.top_role.position <= member.top_role.position:return await ctx.reply("I can't manage him")
         else:
             time = humanfriendly.parse_timespan("0")
             await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=time), reason=reason)
@@ -228,16 +227,15 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(moderate_members=True)
     @commands.cooldown(2, 30, commands.BucketType.user)
-    @commands.bot_has_permissions(moderate_members=True, send_messages=True)
+    @commands.bot_has_guild_permissions(moderate_members=True, send_messages=True)
     async def mute(self, ctx:commands.Context, member: discord.Member, time=None, *, reason=None):
         await ctx.defer()
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        bt = ctx.guild.get_member(self.bot.user.id)
         if time == None:time = "5m"
         if reason == None:reason = 'No reason provided'
         if ctx.author.top_role.position <= member.top_role.position:return await ctx.reply("You Can Not Manage Him")
-        if bt.top_role.position <= member.top_role.position:return await ctx.reply("I can't manage him")
+        if ctx.me.top_role.position <= member.top_role.position:return await ctx.reply("I can't manage him")
         else:
             timee = humanfriendly.parse_timespan(time)
             await member.edit(timed_out_until=discord.utils.utcnow() + datetime.timedelta(seconds=timee), reason=reason)
@@ -246,7 +244,7 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(kick_members=True)
-    @commands.bot_has_permissions(kick_members=True, send_messages=True)
+    @commands.bot_has_guild_permissions(kick_members=True, send_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.guild_only()
     async def kick(self, ctx:commands.Context, member: discord.Member, reason=None):
@@ -283,5 +281,5 @@ class Moderation(commands.Cog):
 
 
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
     await bot.add_cog(Moderation(bot))

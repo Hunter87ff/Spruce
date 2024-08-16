@@ -38,8 +38,34 @@ def get_slot(ms:Message):
         if f"{i})" not in ms.content:return f"{i})"
 
 
-async def prc(group:int,  grpc:TextChannel, bot:commands.Bot, msg:Message, tsl:int):
-    messages:list[Message] = [message async for message in grpc.history(limit=tsl)]
+async def process_registration_group(group:int,  grpc:TextChannel, bot:commands.Bot, msg:Message, totalSlot:int):
+    """This function is basically a helper for managing automated group system. but there is a problem of customization.
+    this function can manage group system for any group of 12 teams. which is kind of a limitation. but it can be customized!!
+    i've not yet customised this function. but if you wanna customise it, you're welcome!!
+    
+    Parameters
+    -----------
+    
+    group : int
+        Group Number
+    
+    grpc : TextChannel
+        Group Channel
+        
+    bot : commands.Bot
+        Bot Object
+        
+    msg : Message
+        Message Object
+        
+    totalSlot : int
+        Total Slot
+    
+    Returns
+    --------
+    Coroutine[Any, Any, Message] | None (basically None)"""
+
+    messages:list[Message] = [message async for message in grpc.history(limit=totalSlot)]
 
     for ms in messages:
         if len(messages) <3:
@@ -62,6 +88,15 @@ async def prc(group:int,  grpc:TextChannel, bot:commands.Bot, msg:Message, tsl:i
         return await ms.edit(content=cont)
 
 def get_group(reged:int):
+    """Returns Group Number Based On Registered Teams
+
+    Parameters
+    -----------
+    reged : int
+    
+    Returns
+    --------
+    str"""
     grp = reged/12
     if grp > int(grp):grp = grp + 1
     return str(int(grp))
@@ -78,7 +113,7 @@ async def auto_grp(message:Message, bot:commands.Bot):
                 reged = td["reged"]-1
                 grpch = utils.get(message.guild.channels, id=int(td["gch"]))
                 group = get_group(reged=reged)
-                return await prc(group=group, grpc=grpch, bot=bot, msg=message.content, tsl=td["tslot"])
+                return await process_registration_group(group=group, grpc=grpch, bot=bot, msg=message.content, totalSlot=td["tslot"])
 
 ##########################################################################
 ########################### SLOT CONFIRM SYSTEM ##########################
