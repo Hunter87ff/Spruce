@@ -27,7 +27,7 @@ from discord.ext import commands
 from  wavelink import Node, Pool
 from modules.chat import ChatClient
 from modules import (config, message_handle as onm)
-from discord import AllowedMentions, Intents, ActivityType, Activity, errors, utils, Message, Embed
+from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message, Embed
 
 intents = Intents.default()
 intents.message_content = True
@@ -36,7 +36,6 @@ intents.members = True
 intents.voice_states = True
 intents.guilds = True
 pt = time.time()
-logger = config.logger
 
 class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
@@ -58,24 +57,23 @@ class Spruce(commands.AutoShardedBot):
         try:
             await self.tree.sync()
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
-            logger.info(stmsg)
+            self.logger.info(stmsg)
             await config.vote_add(self)
-            requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
+            requests.post(url=config.stwbh, json={"content":f"<@{config.owner_id}>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        logger.info(f"Node Connected")
+        self.logger.info(f"Node Connected")
 
     async def on_disconnect(self):
-        logger.info('Disconnected from Discord. Reconnecting...')
+        self.logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
     async def on_shard_disconnect(self, shard_id):
-        logger.warning(f"Shard {shard_id} disconnected.")
+        self.logger.warning(f"Shard {shard_id} disconnected.")
         shard = self.get_shard(shard_id)
-        logger.info(f"Reconnecting shard {shard_id}...")
-        await shard.connect()
-        logger.info(f"Shard {shard_id} reconnected.")
+        self.logger.info(f"Reconnecting shard {shard_id}...")
+        await shard.reconnect()
 
     async def on_message(self, message:Message):
         if config.notuser(message):return
@@ -88,7 +86,7 @@ class Spruce(commands.AutoShardedBot):
     async def on_command_error(self, ctx, error):
         await onm.error_handle(ctx, error, self)
 
-    async def  on_guild_channel_delete(self, channel):
+    async def  on_guild_channel_delete(self, channel:TextChannel):
         tourch = config.dbc.find_one({"rch" : channel.id})
         dlog = self.get_channel(config.tdlog)
         if tourch:

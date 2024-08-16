@@ -136,7 +136,7 @@ class Moderation(commands.Cog):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         ms:discord.Message = await ctx.send(f'**{config.loading} Processing...**')
-        role == role or ctx.guild.default_role
+        role = role or ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(send_messages=True, add_reactions=True)

@@ -7,10 +7,11 @@ from dotenv import load_dotenv
 from requests import post as webpost #used by external modules
 from requests import get as webget   #used by external modules
 from ext import Logger
+
 load_dotenv()
-logger = Logger()
-shards =  int(env["shards"]) or 20
-version = env["version"] or "2.0.6"
+logger = Logger(name="root")
+shards =  int(env.get("shards")) or 20
+version = "2.0.6"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"

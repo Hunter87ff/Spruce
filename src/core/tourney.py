@@ -529,7 +529,7 @@ class Esports(commands.Cog):
 
                 except Exception as e :
                     await self.bot.get_channel(config.erl).send(content=f"<@{config.owner_id}>",embed=discord.Embed(title=f"Error | {ctx.command.name}", description=f"```{e}```", color=config.red))
-                    config.logger.info(e)
+                    # config.logger.info(e)
                     return await ctx.send(embed=discord.Embed(description=f"{config.reddot} Unable to update | Try again!!", color=config.red), delete_after=5)
 
 
