@@ -24,9 +24,8 @@ Spruce is a multi-purpose discord bot that provides various kind of features lik
 - and much much more...
 ```
 
-## Notice:
+> [!NOTE]
 > If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
-
 
 ## Support Server
 > If you're facing any kind of issues with spruce, feel free to join our discord support server<br> 
