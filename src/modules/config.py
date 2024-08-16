@@ -91,6 +91,11 @@ stop_btn = "<:stop:1019218566475681863>"
 loop_btn = "<:loop_btn:1019219071046258708>"
 queue_btn = "<:queue:1019219174070951967>"
 
+
+
+# TEXT CONSTANTS
+PROCESSING = "Processing..."
+
 #colors
 blurple = 0x7289da
 greyple = 0x99aab5
