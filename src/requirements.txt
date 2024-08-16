@@ -3,7 +3,7 @@ flask
 psutil
 pymongo
 pymongo[srv]
-discord.py==2.3.2
+discord.py==2.4.0
 requests
 PyNaCl
 wavelink==3.4.0
