@@ -24,17 +24,16 @@ class Music(commands.Cog):
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
         player: wavelink.Player | None = payload.player
         if not player:return
-        original: wavelink.Playable | None = payload.original
         track: wavelink.Playable = payload.track
         tm = "%H:%M:%S"
         if track.length//1000 < 3599:tm = "%M:%S"
-        embed = Embed(title="<a:music_disk:1020370054665207888>   Now Playing", color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
+        embed = Embed(title=f"{config.music_disk} Now Playing", color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in controlButtons:view.add_item(button)
         
-        messages = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
+        messages:list[Message] = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
         for i in messages:
-            if i.author.id == self.bot.user.id and i.embeds[0].title == "<a:music_disk:1020370054665207888>   Now Playing":await i.delete()
+            if i.author.id == self.bot.user.id and i.embeds[0].title == f"{config.music_disk} Now Playing":await i.delete() if i else None
         self.message = await player.home.send(embed=embed, view=view)
 
     @commands.Cog.listener()
@@ -52,41 +51,35 @@ class Music(commands.Cog):
         ctx:commands.Context = await self.bot.get_context(interaction.message)
         if not ctx.voice_client: return await interaction.response.send_message(Embed(description="I'm Not Connected To Vc!!", color=config.blurple), ephemeral=True)
         if ctx.voice_client: vc:wavelink.Player = cast(wavelink.Player, ctx.voice_client)
+
         if interaction.data["custom_id"] == "music_stop_btn":
-            try:
-                await ctx.voice_client.disconnect()
-                await interaction.response.send_message(embed=Embed(description=f"{config.reddot} Successfully Disconnected", color=config.red), ephemeral=True)
-                await interaction.message.delete()
-            except Exception:pass
+            await ctx.voice_client.disconnect()
+            await interaction.response.send_message(embed=Embed(description=f"{config.tick} | Successfully Disconnected", color=config.red), ephemeral=True)
+            await interaction.message.delete()
 
         elif interaction.data["custom_id"] == "music_loop_btn":
             await interaction.response.defer(ephemeral=True)
             if interaction.user.voice != None:
-                if not vc.current:return await ctx.reply(embed=Embed(description="No Audio Available For Loop...", color=0xff0000))
-                else:
-                    vc.loop = True
-                    lemb = Embed(title="Loop Music", description=f"✅ Cuttent Audio'll Play In Loop", color=config.orange)
-                    await ctx.send(embed=lemb, delete_after=5)
+                if not vc.current:return await ctx.reply(embed=Embed(description=f"{config.cross} | No Audio Available For Loop...", color=0xff0000))
+                vc.loop = True
+                lemb = Embed(title="Loop Music", description=f"{config.tick} | Cuttent Audio'll Play In Loop", color=config.orange)
+                await ctx.send(embed=lemb, delete_after=5)
 
             if interaction.user.voice == None:
-                em = Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000)
-                await ctx.reply(embed=em)
+                await ctx.reply(embed=Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000))
 
         elif interaction.data["custom_id"] == "music_next_btn":
             if vc.queue.is_empty:return await interaction.response.send_message(embed=Embed(description="the queue is empty"), ephemeral=True)
-            else:
-                await interaction.response.send_message("Skiping...", ephemeral=True)
-                await vc.skip(force=True)
-                await interaction.delete_original_response()
+            await interaction.response.send_message("Skiping...", ephemeral=True)
+            await vc.skip(force=True)
+            await interaction.delete_original_response()
 
         elif interaction.data["custom_id"] == "music_queue_btn":
             if vc.queue.is_empty:return await interaction.response.send_message("Queue is empty", ephemeral=True)
             em = Embed(title="Queue", color=config.cyan)
             queue = vc.queue.copy()
-            songCount = 0
             for song in queue:
-                songCount += 1
-                em.add_field(name=f"Song Position {str(songCount)}", value=f"`{song}`")
+                em.add_field(name=f"Song Position {str(queue.count)}", value=f"`{song}`")
             await interaction.response.send_message(embed=em, ephemeral=True)
             
         elif interaction.data["custom_id"] == "music_pause_btn":
@@ -106,46 +99,74 @@ class Music(commands.Cog):
                 
 
     @commands.hybrid_command(with_app_command=True, aliases=["p"])
+    @commands.bot_has_guild_permissions(connect=True, speak=True)
     async def play(self, ctx: commands.Context, *, query: str) -> None:
-        try:
-            if not ctx.guild or ctx.author.bot:return
-            elif "youtube" in query: return await ctx.reply(embed=Embed(description="I'm sorry, but I can't play YouTube links.", color=config.blue), delete_after=10)
-            player: wavelink.Player
-            player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  # type: ignore
-            if not player:
-                try: player = await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)  
-                except Exception:return await ctx.send("Something went wrong. Please try again.")
-            player.autoplay = wavelink.AutoPlayMode.disabled
+        await ctx.defer()
+        if not ctx.guild or ctx.author.bot:return
+        elif "youtube" in query: return await ctx.reply(embed=Embed(description="I'm sorry, but I can't play YouTube links.", color=config.blue), delete_after=10)
+        player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
+        player.autoplay = wavelink.AutoPlayMode.disabled
+        tracks: wavelink.Search = await wavelink.Playable.search(query)
+        if not tracks: return await ctx.send(embed=Embed(description=f"Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+        player.home = ctx.channel
+        if isinstance(tracks, wavelink.Playlist):
+            added: int = await player.queue.put_wait(tracks)
+            await ctx.send(embed=Embed(description=f"{config.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=config.green))
+        else:
+            track: wavelink.Playable = tracks[0]
+            await player.queue.put_wait(track)
+            if player.current:await ctx.send(embed=Embed(description=f"{config.music_disk} Added **`{track}`** to the queue.", color=config.green))
+        if not player.playing:await player.play(player.queue.get(), volume=100)
 
-            tracks: wavelink.Search = await wavelink.Playable.search(query)
-            if not tracks: return await ctx.send(embed=Embed(description=f"Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
-            player.home = ctx.channel
-            if isinstance(tracks, wavelink.Playlist):
-                added: int = await player.queue.put_wait(tracks)
-                await ctx.send(embed=Embed(description=f"{config.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=config.green))
-            else:
-                track: wavelink.Playable = tracks[0]
-                await player.queue.put_wait(track)
-                if player.current:await ctx.send(embed=Embed(description=f"{config.music_disk} Added **`{track}`** to the queue.", color=config.green))
-            if not player.playing:await player.play(player.queue.get(), volume=100)
-        except Exception as e:
-            await self.bot.get_channel(config.erl).send(f"<@{config.owner_id}> Error in Music Play Command: {e}")
+
 
     @commands.hybrid_command(with_app_command=True)
     async def skip(self, ctx: commands.Context) -> None:
+        await ctx.defer()
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if not player:return
         await player.skip(force=True)
         await ctx.message.add_reaction("\u2705")
 
-    @commands.hybrid_command(with_app_command=True, disabled=True)
+
+    @commands.hybrid_command(with_app_command=True)
     async def nightcore(self, ctx: commands.Context) -> None:
+        await ctx.defer()
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if not player:return
         filters: wavelink.Filters = player.filters
         filters.timescale.set(pitch=1.2, speed=1.2, rate=1)
         await player.set_filters(filters)
         await ctx.message.add_reaction("\u2705")
+        await ctx.send(embed=Embed(description=f"{config.tick} | Nightcore mode enabled.", color=config.green))
+
+
+    @commands.hybrid_command(with_app_command=True)
+    async def speed(self, ctx: commands.Context, value: float) -> None:
+        await ctx.defer()
+        player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
+        if not player:return
+        filters: wavelink.Filters = player.filters
+        value = max(0.5, min(value, 2.0))
+        filters.timescale.set(speed=value)
+        await player.set_filters(filters)
+        await ctx.message.add_reaction("\u2705")
+        await ctx.send(f"Speed changed to : {value}")
+
+
+
+    @commands.hybrid_command(with_app_command=True, description="Change the pitch of the current track. 1 is default")
+    async def pitch(self, ctx: commands.Context, value: float) -> None:
+        await ctx.defer()
+        player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
+        if not player:return
+        filters: wavelink.Filters = player.filters
+        value = max(0.5, min(value, 2.0))
+        filters.timescale.set(pitch=value)
+        await player.set_filters(filters)
+        await ctx.message.add_reaction("\u2705")
+        await ctx.send(f"Pitch changed to : {value}")
+
 
     @commands.hybrid_command(with_app_command=True, name="toggle", aliases=["pause", "resume"], description="Pause or resume the current track.")
     async def pause_resume(self, ctx: commands.Context) -> None:
@@ -153,13 +174,19 @@ class Music(commands.Cog):
         if not player:return
         await player.pause(not player.paused)
         await ctx.message.add_reaction("\u2705")
+        await ctx.send(f"{'Paused' if player.paused else 'Resumed'} the track.")
 
-    @commands.hybrid_command(with_app_command=True)
+
+    @commands.hybrid_command(with_app_command=True, aliases=["vol"])
+    @commands.bot_has_guild_permissions(connect=True, speak=True)
     async def volume(self, ctx: commands.Context, value: int) -> None:
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if not player: return
+        value = max(1, min(value, 200))
         await player.set_volume(value)
         await ctx.message.add_reaction("\u2705")
+        await ctx.send(f"Volume changed to : {value}")
+
 
     @commands.hybrid_command(with_app_command=True, aliases=["stop", "leave"])
     async def disconnect(self, ctx: commands.Context) -> None:
@@ -167,8 +194,11 @@ class Music(commands.Cog):
         if not player:return
         await player.disconnect()
         await ctx.message.add_reaction("\u2705")
+        await ctx.send(f"{config.tick} | Successfully Disconnected")
+
 
     @commands.hybrid_command(with_app_command=True)
+    @commands.bot_has_guild_permissions(send_messages=True)
     async def queue(self, ctx:commands.Context):
         await ctx.defer()
         if not ctx.voice_client:return await ctx.send("Not Connected to any VC!!")
@@ -177,27 +207,26 @@ class Music(commands.Cog):
         if vc.queue.is_empty:return await ctx.reply("Queue is empty")
         em = Embed(title="Queue", color=config.blurple)
         queue = vc.queue.copy()
-        songCount = 0
         for song in queue:
-            songCount += 1
-            em.add_field(name=f"Song Position {str(songCount)}", value=f"`{song}`")
+            em.add_field(name=f"Song Position {str(queue.count)}", value=f"`{song}`")
         await ctx.send(embed=em)
 
+
     @commands.hybrid_command(with_app_command=True)
+    @commands.bot_has_guild_permissions(connect=True, speak=True, send_messages=True)
     async def spotify(self, ctx:commands.Context, playlist_url:str):
-        if not ctx.guild:return
-        player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)
-        if not player:
-            try: player = await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)  
-            except AttributeError:return await ctx.send("Please join a voice channel first before using this command.")
-        playlist :wavelink.Playlist = playlist_url
-        if playlist:
-            await player.queue.put_wait(playlist)
-            await ctx.send(f"Added the playlist **`{playlist.name}`** to the queue.")
-            if not player.playing:await player.play(player.queue.get(), volume=30)
+        tracks: wavelink.Search = await wavelink.Playable.search(playlist_url)
+        player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
+        if not tracks: return await ctx.send(embed=Embed(description=f"Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+        player.home = ctx.channel
+        if isinstance(tracks, wavelink.Playlist):
+            added: int = await player.queue.put_wait(tracks)
+            await ctx.send(embed=Embed(description=f"{config.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=config.green))
+        if not player.playing:await player.play(player.queue.get(), volume=100)
         
 
     @commands.hybrid_command(with_app_command=True, aliases= ['connect'])
+    @commands.bot_has_guild_permissions(connect=True, speak=True)
     async def join(self, ctx:commands.Context):
         await ctx.defer()
         if ctx.author.voice == None:return await ctx.reply("Please Join VC", delete_after=10)

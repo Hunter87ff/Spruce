@@ -63,11 +63,19 @@ class Spruce(commands.AutoShardedBot):
             requests.post(url=config.stwbh, json={"content":"<@885193210455011369>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
         
-    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:logger.info(f"Node Connected")
+    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
+        logger.info(f"Node Connected")
 
     async def on_disconnect(self):
         logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
+
+    async def on_shard_disconnect(self, shard_id):
+        logger.warning(f"Shard {shard_id} disconnected.")
+        shard = self.get_shard(shard_id)
+        logger.info(f"Reconnecting shard {shard_id}...")
+        await shard.connect()
+        logger.info(f"Shard {shard_id} reconnected.")
 
     async def on_message(self, message:Message):
         if config.notuser(message):return
@@ -76,17 +84,9 @@ class Spruce(commands.AutoShardedBot):
         if message.guild:
             await onm.tourney(message)
             await config.vote_check(message)
-        
-        
-    # async def on_error(self, event, *args, **kwargs):
-    #     if isinstance(args[0], errors.ConnectionClosed):
-    #         print("ConnectionClosed error occurred. Reconnecting...")
-    #     else:
-    #         logger.error(f"Event : {event} | Args : {args} | Kwargs : {kwargs}")
-        
+         
     async def on_command_error(self, ctx, error):
         await onm.error_handle(ctx, error, self)
-
 
     async def  on_guild_channel_delete(self, channel):
         tourch = config.dbc.find_one({"rch" : channel.id})

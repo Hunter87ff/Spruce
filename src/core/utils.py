@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import datetime, discord
 import os, random, requests, enum, uuid, psutil
 from discord.ext import commands
 from discord import Embed, User, File, PartialEmoji, Guild, Member, app_commands, Interaction, utils, PermissionOverwrite, ButtonStyle, Role, Emoji, TextInput
@@ -176,17 +177,17 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 60, commands.BucketType.user)
-    async def tts(self, ctx:commands.Context, *, message):
+    async def tts(self, ctx:commands.Context, *, message:str):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if len(message.split()) > 100:
+        if len(message.split()) > 150 and len(message)<=1000:
             return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
         output = gTTS(text=message, lang="en", tld="co.in")
-        output.save("tts.mp3")
-        #fl = open("tts.mp3", r).read()
-        await ctx.send(ctx.author.mention, file=File("tts.mp3"))
-        os.remove("tts.mp3")
+        file_name = f"tts_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.ogg"
+        output.save(file_name)
+        await ctx.send(ctx.author.mention, file=File(file_name))
+        os.remove(file_name)
 
 
     @commands.hybrid_command(with_app_command = True)

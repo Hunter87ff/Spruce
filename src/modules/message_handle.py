@@ -223,7 +223,7 @@ async def tourney(message:Message):
 ################# NITROF ######################
 async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
-    nitrodbc = bot.config.maindb["nitrodb"]["nitrodbc"]
+    nitrodbc = config.maindb["nitrodb"]["nitrodbc"]
     try:gnitro = nitrodbc.find_one({"guild" : message.guild.id})
     except Exception:return
     if gnitro != None and gnitro["nitro"] == "enabled":

@@ -7,7 +7,6 @@ class Tourney:
     def __init__(self, obj):
         self.tname:str = obj["t_name"]
         self.rch:int = obj["rch"]
-        # self.tid = obj["tid"] | None
         self.mentions:int = obj["mentions"]
         self.cch:int = obj["cch"]
         self.crole:int = obj["crole"]
@@ -89,26 +88,26 @@ class Logger:
         return colors[level]
 
     def debug(self, message):
-        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.utcnow())[:-7]}]{self.colors('DEBUG')} [%(levelname)s]: {self.colors('none')}%(message)s")
+        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.now())[:-7]}]{self.colors('DEBUG')} [%(levelname)s]: {self.colors('none')}%(message)s")
         self.console_handler.setFormatter(formatter)
         self.logger.debug(message)
 
     def info(self, message):
-        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.utcnow())[:-7]}]{self.colors('INFO')} [%(levelname)s]: {self.colors('none')}%(message)s")
+        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.now())[:-7]}]{self.colors('INFO')} [%(levelname)s]: {self.colors('none')}%(message)s")
         self.console_handler.setFormatter(formatter)
         self.logger.info(message)
 
     def warning(self, message):
-        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.utcnow())[:-7]}]{self.colors('WARNING')} [%(levelname)s]: {self.colors('none')}%(message)s")
+        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.now())[:-7]}]{self.colors('WARNING')} [%(levelname)s]: {self.colors('none')}%(message)s")
         self.console_handler.setFormatter(formatter)
         self.logger.warning(message)
 
     def error(self, message):
-        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.utcnow())[:-7]}]{self.colors('ERROR')} [%(levelname)s]: {self.colors('none')}%(message)s")
+        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.now())[:-7]}]{self.colors('ERROR')} [%(levelname)s]: {self.colors('none')}%(message)s")
         self.console_handler.setFormatter(formatter)
         self.logger.error(message)
 
     def critical(self, message):
-        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.utcnow())[:-7]}]{self.colors('CRITICAL')} [%(levelname)s]: {self.colors('none')}%(message)s")
+        formatter = logging.Formatter(f"{self.colors('magenta')}[{str(datetime.datetime.now())[:-7]}]{self.colors('CRITICAL')} [%(levelname)s]: {self.colors('none')}%(message)s")
         self.console_handler.setFormatter(formatter)
         self.logger.critical(message)
