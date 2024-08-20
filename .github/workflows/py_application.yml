@@ -2,11 +2,11 @@ name: Deployment
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
+  # push:
+    # branches:
+    #   - main
+    # paths:
+    #   - 'src/**'
     
 permissions:
   contents: read
