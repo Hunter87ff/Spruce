@@ -30,7 +30,7 @@ class dev(commands.Cog):
         if plan == Plans.Custom:
             url = config.support_server
         button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
-        await interaction.response.send_message(embed=discord.Embed(title="Get Prime", description=f"Click the button to get prime", color=0x00ff00),view=discord.ui.View().add_item(button))
+        await interaction.response.send_message(embed=discord.Embed(title="Get Prime", description="Click the button to get prime", color=0x00ff00),view=discord.ui.View().add_item(button))
 
     @commands.command(hidden=True)
     @config.dev()

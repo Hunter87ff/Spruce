@@ -79,7 +79,7 @@ class Spruce(commands.AutoShardedBot):
             if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
                 return config.paydbc.delete_one({"guild_id":obj.guild_id})
             print("Ignored the check")
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
 
     async def on_message(self, message:Message):
