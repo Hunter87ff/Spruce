@@ -120,23 +120,6 @@ class PaymentHook:
         }
 
 
-data = {
-        'cf_order_id': '3245910202', 
-        'order_id': '9474437900530156235GBG6L88LJ', 
-        'entity': 'order', 
-        'order_currency': 'INR', 
-        'order_amount': 1.0, 
-        'order_status': 'ACTIVE', 
-        'payment_session_id': 'session_I5ABIJZaEBHQ3mjJ4uGNBeWI7NlKWv7bDy8HZiv-qw69sy7Y52NDfDqmp1B3x0pvvUxQlIQA_n3pd8sMe1x0NJVFYLs7FFkQC22WPFZdSQrx', 
-        'order_expiry_time': datetime.datetime(2024, 9, 25, 20, 31, 24, tzinfo=datetime.timezone(datetime.timedelta(seconds=19800))), 
-        'order_note': None, 
-        'created_at': datetime.datetime(2024, 8, 26, 20, 31, 24, tzinfo=datetime.timezone(datetime.timedelta(seconds=19800))), 
-        'order_splits': [], 
-        'customer_details': CustomerDetails(customer_id='947443790053015623', customer_email=None, customer_phone='8474090589', customer_name='hunter87', customer_bank_account_number=None, customer_bank_ifsc=None, customer_bank_code=None, customer_uid=None), 
-        'order_meta': OrderMeta(return_url='https://discord.gg/vMnhpAyFZm', notify_url=None, payment_methods=None), 
-        'order_tags': None
-    }
-
 class PaymentOrder:
     def __init__(self, obj:dict):
         self.__cf_order_id = obj.get("cf_order_id")
