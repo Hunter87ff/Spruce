@@ -36,6 +36,8 @@ class Tourney:
 
 
 class Esports(commands.Cog):
+    ONLY_AUTHOR_BUTTON = "Only Author Can Use This Button"
+
     def __init__(self, bot):
         self.bot:commands.Bot = bot
         self._tnotfound = "Tournament Not Found"
@@ -62,7 +64,7 @@ class Esports(commands.Cog):
             return await ctx.send("Time Out! Try Again", delete_after=5)
 
     async def unlc_ch(self, channel:discord.TextChannel, role:discord.Role=None):
-        if role == None:role = channel.guild.default_role
+        role = role or channel.guild.default_role
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
@@ -304,10 +306,10 @@ class Esports(commands.Cog):
         for i in data:
             obj = Tourney(i)
             rch = self.bot.get_channel(int(i["rch"]))
-            if rch != None and obj.reged < obj.tslot*0.98 and obj.reged >= obj.tslot*0.1 and obj.status=="started":
+            if rch and obj.reged < obj.tslot*0.98 and obj.reged >= obj.tslot*0.1 and obj.status=="started":
                 link = await rch.create_invite(reason=None,max_age=360000,max_uses=0,temporary=False,unique=False,target_type=None,target_user=None,target_application_id=None)
                 emb.add_field(name=f'{obj.tname.upper()}', value=f"Prize: {obj.prize.upper()}\nServer: {rch.guild.name[0:20]}\n[Register]({link})\n---------------- ")
-            if not rch:pass
+
         if len(emb.fields) > 0:
             await ctx.author.send(embed=emb)
             await ms.edit(content="Please Check Your DM")
@@ -432,7 +434,7 @@ class Esports(commands.Cog):
                     await interaction.response.send_message("Tournament Unpublished",  delete_after=5)
 
             async def c_ch(interaction:discord.Interaction):
-                if interaction.user != ctx.author: return await ctx.send("Only author can use these buttons")
+                if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 await interaction.response.send_message("Mention Confiration Channel")
                 cchannel = await checker.channel_input(ctx)
                 acch = dbc.find_one({"cch" : cchannel.id})
@@ -460,7 +462,7 @@ class Esports(commands.Cog):
 
 
             async def ttl_slot(interaction:discord.Interaction):
-                if interaction.user != ctx.author: return await ctx.send("Only author can use these buttons")
+                if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label="Enter Total Slot Between 2 and 20000"))
                 try:
                     if int(tsl) > 20000 or int(tsl)<1:return await ctx.send("Only Number Between 1 and 20000", delete_after=20)
@@ -471,7 +473,7 @@ class Esports(commands.Cog):
                 except ValueError:return await ctx.send("Numbers Only", delete_after=10)
     
             async def mnts(interaction:discord.Interaction):
-                if interaction.user != ctx.author: return await ctx.send("Only author can use these buttons")
+                if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 mns = await checker.get_input(interaction=interaction, title="Mentions", label="Enter Number Between 1 and 20")
                 try:
                     if int(mns) > 20: return await ctx.send("Only Number upto 20", delete_after=5)
@@ -517,7 +519,7 @@ class Esports(commands.Cog):
                     if cndb != None:return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
 
             async def spg_change(interaction:discord.Interaction):
-                if not ctx.author:return await ctx.send("Only author can use these buttons")
+                if not ctx.author:return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 try:
                     spg = int(await checker.get_input(interaction=interaction, title="Slot Per Group"))
                     if not spg:return await ctx.send(embed=discord.Embed(description="Kindly Mention the number of slot per group!!", color=config.red), delete_after=5)

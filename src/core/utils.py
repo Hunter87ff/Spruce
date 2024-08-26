@@ -450,8 +450,7 @@ class Utility(commands.Cog):
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
         if interaction.user.bot:return
-        if not "custom_id" in interaction.data or interaction.message.author.id != self.bot.user.id: return
-        # await interaction.response.defer(ephemeral=True)
+        if "custom_id" not in interaction.data or interaction.message.author.id != self.bot.user.id: return
         if interaction.data["custom_id"] == f"{self.bot.user.id}SPticket":
             if not interaction.channel.category: return await interaction.response.send_message("**Please move this channel to a category. to create tickets**", delete_after=10)
             channel = await interaction.channel.category.create_text_channel(f"ticket-{interaction.user}", reason="Ticket Created")

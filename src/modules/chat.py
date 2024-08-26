@@ -47,7 +47,7 @@ class ChatClient:
         bw = set(query.lower().split())
         if len(bws.intersection(bw)) > 0:return True
 
-    def check_send(self, ctx:commands.Context, message:Message, bot:commands.Bot) -> bool:
+    def check_send(self, ctx:commands.Context, message:Message, bot:commands.Bot) -> bool|None:
         """return `True` if triggered dm or mentioned in channel, else `None`"""
         if ctx.author.bot:return None
         elif not message.guild:return True

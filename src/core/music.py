@@ -100,7 +100,7 @@ class Music(commands.Cog):
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
         player.autoplay = wavelink.AutoPlayMode.disabled
         tracks: wavelink.Search = await wavelink.Playable.search(query)
-        if not tracks: return await ctx.send(embed=Embed(description=f"Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+        if not tracks: return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
         player.home = ctx.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await player.queue.put_wait(tracks)
@@ -210,7 +210,7 @@ class Music(commands.Cog):
     async def spotify(self, ctx:commands.Context, playlist_url:str):
         tracks: wavelink.Search = await wavelink.Playable.search(playlist_url)
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
-        if not tracks: return await ctx.send(embed=Embed(description=f"Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+        if not tracks: return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
         player.home = ctx.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await player.queue.put_wait(tracks)

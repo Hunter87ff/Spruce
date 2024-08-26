@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands.converter import (MemberConverter, RoleConverter, TextChannelConverter)
 
-async def channel_input(ctx, check=None, timeout=20, delete_after=False, check_perms=True):
+async def channel_input(ctx:commands.Context, check=None, timeout=20):
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
     try:message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
     except asyncio.TimeoutError:return await ctx.send("Time Out! Try Again")
@@ -14,7 +14,7 @@ async def channel_input(ctx, check=None, timeout=20, delete_after=False, check_p
         channel = await TextChannelConverter().convert(ctx, message.content)
         return channel
 
-async def check_role(ctx, check=None, timeout=20, delete_after=False, check_perms=True):
+async def check_role(ctx:commands.Context, check=None, timeout=20):
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
     try:message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
     except asyncio.TimeoutError:return await ctx.send("Time Out! Try Again")
@@ -25,9 +25,9 @@ async def check_role(ctx, check=None, timeout=20, delete_after=False, check_perm
         return role
 
 
-async def ttl_slots(ctx:commands.Context, check=None, timeout=20) -> int:
+async def ttl_slots(ctx:commands.Context, check=None, timeout=20) -> int|None:
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
-    try:msg = await ctx.bot.wait_for("message", check=check, timeout=timeout)
+    try:msg:discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
     except asyncio.TimeoutError:
         await ctx.send("Time Out! Try Again")
         return None
@@ -45,8 +45,7 @@ async def get_input(interaction:discord.Interaction, title:str="Enter Value", la
     await modal.wait()
     if modal.is_finished():return modal.children[0].value
 
-async def get_role(interaction:discord.Interaction, title:str="Enter Role"):
-    # modal = discord.ui.Modal(title=title)
+async def get_role(interaction:discord.Interaction):
     selection = discord.ui.RoleSelect(min_values=1, max_values=1, placeholder="Select Role")
     selection.callback = lambda i: i.response.defer()
     await interaction.response.send_message("Select Role", view=selection)
