@@ -447,14 +447,13 @@ class Esports(commands.Cog):
                 tourn.cch = cchannel.id
 
             async def ft(interaction:discord.Interaction):
-                if interaction.user == ctx.author:
-                    if tdb["faketag"] == "yes":
-                        dbc.update_one({"rch": rch.id}, {"$set":{"faketag" : "no"}})
-                        bt1.disabled = True
-                        await interaction.response.edit_message(view=view)
-                        await ctx.send("Enabled", delete_after=10)
+                if interaction.user == ctx.author and tdb["faketag"] == "yes":
+                    dbc.update_one({"rch": rch.id}, {"$set":{"faketag" : "no"}})
+                    bt1.disabled = True
+                    await interaction.response.edit_message(view=view)
+                    await ctx.send("Enabled", delete_after=10)
 
-                if tdb["faketag"] == "no":
+                if interaction.user == ctx.author and tdb["faketag"] == "no":
                     dbc.update_one({"rch": rch.id}, {"$set":{"faketag" : "yes"}})
                     bt1.disabled = True
                     await interaction.response.edit_message(view=view)
