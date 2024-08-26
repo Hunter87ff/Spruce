@@ -45,12 +45,10 @@ class Music(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
-        if "custom_id" not in interaction.data:return
-        elif not interaction.data["custom_id"].startswith("music_"):return
+        if "custom_id" not in interaction.data or not interaction.data.get("custom_id").startswith("music_"):return
         elif not interaction.user.voice:return await interaction.response.send_message(Embed(description="Please Join VC", color=config.blurple), ephemeral=True)
         ctx:commands.Context = await self.bot.get_context(interaction.message)
-        if not ctx.voice_client: return await interaction.response.send_message(Embed(description="I'm Not Connected To Vc!!", color=config.blurple), ephemeral=True)
-        if ctx.voice_client: vc:wavelink.Player = cast(wavelink.Player, ctx.voice_client)
+        vc:wavelink.Player = cast(wavelink.Player, ctx.voice_client or await interaction.user.voice.channel.connect(self_deaf=True, cls=wavelink.Player))
 
         if interaction.data["custom_id"] == "music_stop_btn":
             await ctx.voice_client.disconnect()
@@ -59,14 +57,11 @@ class Music(commands.Cog):
 
         elif interaction.data["custom_id"] == "music_loop_btn":
             await interaction.response.defer(ephemeral=True)
-            if interaction.user.voice != None:
-                if not vc.current:return await ctx.reply(embed=Embed(description=f"{config.cross} | No Audio Available For Loop...", color=0xff0000))
-                vc.loop = True
-                lemb = Embed(title="Loop Music", description=f"{config.tick} | Cuttent Audio'll Play In Loop", color=config.orange)
-                await ctx.send(embed=lemb, delete_after=5)
-
-            if interaction.user.voice == None:
-                await ctx.reply(embed=Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000))
+            if not interaction.user.voice:return await ctx.reply(embed=Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000))
+            if not vc.current:return await ctx.reply(embed=Embed(description=f"{config.cross} | No Audio Available For Loop...", color=0xff0000))
+            vc.loop = True
+            lemb = Embed(title="Loop Music", description=f"{config.tick} | Cuttent Audio'll Play In Loop", color=config.orange)
+            await ctx.send(embed=lemb, delete_after=5)
 
         elif interaction.data["custom_id"] == "music_next_btn":
             if vc.queue.is_empty:return await interaction.response.send_message(embed=Embed(description="the queue is empty"), ephemeral=True)
@@ -84,18 +79,16 @@ class Music(commands.Cog):
             
         elif interaction.data["custom_id"] == "music_pause_btn":
             if vc.paused:return await interaction.response.send_message("No audio is playing", ephemeral=True)
-            if not vc.paused:
-                await interaction.response.send_message("Paused", ephemeral=True)
-                await vc.pause(True)
-                await interaction.delete_original_response()
+            await interaction.response.send_message("Paused", ephemeral=True)
+            await vc.pause(True)
+            await interaction.delete_original_response()
                 
 
         elif interaction.data["custom_id"] == "music_play_btn":
             if not vc.paused:return await interaction.response.send_message("Already playing", ephemeral=True)
-            if vc.paused:
-                await interaction.response.send_message("Resumed", ephemeral=True)
-                await vc.pause(False)
-                await interaction.delete_original_response()
+            await interaction.response.send_message("Resumed", ephemeral=True)
+            await vc.pause(False)
+            await interaction.delete_original_response()
                 
 
     @commands.hybrid_command(with_app_command=True, aliases=["p"])
