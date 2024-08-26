@@ -21,12 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import ast, traceback
 from ext import Database
 import wavelink,requests, time
 from discord.ext import commands
-from  wavelink import Node, Pool
+from wavelink import Node, Pool
 from modules.chat import ChatClient
-from modules import (config, message_handle as onm)
+from modules import (config, payment, message_handle as onm)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message, Embed
 
 intents = Intents.default()
@@ -42,7 +43,7 @@ class Spruce(commands.AutoShardedBot):
         self.config = config
         self.db = Database()
         self.chat_client = ChatClient(self)
-        self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils")
+        self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils", "tasks")
         super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
 
     async def setup_hook(self) -> None:
@@ -68,7 +69,21 @@ class Spruce(commands.AutoShardedBot):
         config.logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
+    async def fetch_payment_hook(self, message:Message):
+        """Fetches the payment object from the message content in paylog channel and updates the primedbc"""
+        if message.channel.id != config.paylog or (not message.webhook_id): return
+        try:
+            obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
+            if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
+                return config.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
+            if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
+                return config.paydbc.delete_one({"guild_id":obj.guild_id})
+            print("Ignored the check")
+        except Exception as e:
+            traceback.print_exc()
+
     async def on_message(self, message:Message):
+        if message.channel.id == config.paylog: await self.fetch_payment_hook(message)
         if config.notuser(message):return
         await self.process_commands(message)
         await self.chat_client.chat(message)

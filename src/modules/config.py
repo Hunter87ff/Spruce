@@ -26,6 +26,8 @@ except:  maindb = MongoClient(env["MONGO_URL"])
 dbc = maindb["tourneydb"]["tourneydbc"]
 gtadbc =  maindb["gtamountdb"]["gtamountdbc"]
 cfdbc = maindb["configdb"]["configdbc"]
+paydbc = maindb["paymentdb"]["paymentdbc"]
+primedbc = maindb["primedb"]["primedbc"]
 cfdata = cfdbc.find_one({"config_id": 87})
 spdb = MongoClient(cfdata["spdb"])
 token = cfdata[env["tkn"]]
@@ -55,6 +57,7 @@ gjoin = 1028673206850179152
 gleave = 1028673254606508072
 votel = 1099588071986573362
 tdlog = 1112411458513408090
+paylog = 1233044089398755378
 ################# emojis ####################
 arow = "<a:arow:969894198515998720>"
 bgmi = "<:bgmi:1008283336143282216>"

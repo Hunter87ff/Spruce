@@ -5,19 +5,17 @@ from typing import Any
 import psutil, enum
 
 class Plans(enum.Enum):
-    Monthly = 1
-    Quarterly = 3
-    HalfYearly = 6
-    Yearly = 12
-    Lifetime = 999
+    Monthly = 49
+    Quarterly = 139
+    HalfYearly = 229
+    Yearly = 429
+    Lifetime = 4444
     Custom = 0
     
 
 class dev(commands.Cog):
     def __init__(self, bot):
         self.bot:commands.Bot = bot
-
-
 
 
     @discord.app_commands.command(description="Use coupon code SP10 to get 10% Discount.")
@@ -28,7 +26,7 @@ class dev(commands.Cog):
         amount = plan.value if (interaction.user.id != config.owner_id) else 1
         url:str = f"{config.BASE_URL}/payment/prime?session="
         if plan != Plans.Custom:
-            url += payment.create_order(customer_id=ctx.guild.id, customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), amount=amount)["payment_session_id"]
+            url += payment.create_order(customer_id=ctx.guild.id, customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), amount=amount).payment_session_id
         if plan == Plans.Custom:
             url = config.support_server
         button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
