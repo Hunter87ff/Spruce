@@ -1,16 +1,42 @@
 import discord
-from modules import config 
+from modules import config, payment
 from discord.ext import commands
 from typing import Any
-import psutil
+import psutil, enum
+
+class Plans(enum.Enum):
+    Monthly = 1
+    Quarterly = 3
+    HalfYearly = 6
+    Yearly = 12
+    Lifetime = 999
+    Custom = 0
+    
 
 class dev(commands.Cog):
     def __init__(self, bot):
         self.bot:commands.Bot = bot
 
+
+
+
+    @discord.app_commands.command(description="Use coupon code SP10 to get 10% Discount.")
+    @config.dev()
+    async def getprime(self, interaction:discord.Interaction, plan:Plans):
+        ctx = interaction
+        if ctx.user.bot:return
+        amount = plan.value if (interaction.user.id != config.owner_id) else 1
+        url:str = f"{config.BASE_URL}/payment/prime?session="
+        if plan != Plans.Custom:
+            url += payment.create_order(customer_id=ctx.guild.id, customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), amount=amount)["payment_session_id"]
+        if plan == Plans.Custom:
+            url = config.support_server
+        button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
+        await interaction.response.send_message(embed=discord.Embed(title="Get Prime", description=f"Click the button to get prime", color=0x00ff00),view=discord.ui.View().add_item(button))
+
     @commands.command(hidden=True)
     @config.dev()
-    async def system(self, ctx):
+    async def system(self, ctx:commands.Context):
         if ctx.author.bot:return
         cpu_usage = psutil.cpu_percent()
         memory = psutil.virtual_memory()
@@ -125,6 +151,18 @@ class dev(commands.Cog):
                     onr = ofcg.get_member(i.owner.id)
                     await onr.add_roles(owner_role)
         return await ms.edit(content="Done")
+    
+
+    @commands.command()
+    @commands.guild_only()
+    async def add_dev(self, ctx:commands.Context, member:discord.Member):
+        if ctx.author.bot or ctx.author.id != config.owner_id:return await ctx.send("You are not allowed to use this command")
+        if member.id not in config.devs:
+            config.devs.add(member.id)
+            await ctx.send(f"Added {member.name} to devs")
+        else:
+            config.devs.remove(member.id)
+            await ctx.send(f"Removed {member.name} from devs")
 
 
 

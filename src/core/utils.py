@@ -134,7 +134,7 @@ class Utility(commands.Cog):
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
         await ctx.defer(ephemeral=True)
-        if user == None:user = ctx.author
+        user = user or ctx.author
         if "a_" in str(user.avatar):
             eemb = Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", color=0xfff00f)			
             eemb.set_image(url=user.avatar)
@@ -155,7 +155,7 @@ class Utility(commands.Cog):
         await ctx.defer(ephemeral=True)
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
-        if guild == None:guild = ctx.guild
+        guild = guild or ctx.guild
         if guild.icon != None:
             enm = Embed(title=guild.name, url=guild.icon, color=config.red)
             enm.set_image(url=guild.icon)
@@ -480,7 +480,7 @@ class Utility(commands.Cog):
 
 
     @commands.Cog.listener()
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild:Guild):
         try:
             support_server = self.bot.get_guild(config.support_server_id)
             ch = self.bot.get_channel(config.gjoin)

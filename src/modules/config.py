@@ -18,7 +18,7 @@ owner_tag = "hunter87ff"
 BASE_URL = "https://sprucbot.tech"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = f"{BASE_URL}/invite"
-invite_url2 = "https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot"
+invite_url2 = f"https://discord.com/oauth2/authorize?client_id={bot_id}&permissions=8&scope=bot"
 support_server_id = 947443790053015623
 status = ["550k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
 try: maindb = MongoClient(env["mongo_url"])
@@ -39,7 +39,11 @@ m_host_psw = cfdata["m_host_psw"]
 gh_api = cfdata["git_api"]
 gh_action = "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
 gh_action_run = "https://api.github.com/repos/hunter87ff/Spruce/actions/workflows/py_application.yml/runs"
+DOMAIN = "sprucbot.tech"
 GEMAPI = cfdata["gemapi"]
+XClientId = cfdata["xclient_id"]
+XClientSecret = cfdata["xclient_secret"]
+devs = set(cfdata["devs"])
 
 ################## LOG ####################
 erl = 1015166083050766366
@@ -150,8 +154,13 @@ async def vtm(ctx:commands.Context):
 
 def dev():
 	def predicate(ctx:commands.Context):
-		return ctx.message.author.id == owner_id
+		return ctx.message.author.id in devs
 	return commands.check(predicate)
+
+def owner_only():
+    def predicate(ctx:commands.Context):
+        return (ctx.message.author.id == owner_id)
+    return commands.check(predicate)
 
 def notuser(message:Message):
 	return True if message.author.bot or message.webhook_id else False
