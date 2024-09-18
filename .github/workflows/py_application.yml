@@ -16,7 +16,7 @@ env:
   shards : ${{ secrets.SHARDS }}
   tkn : ${{ secrets.TKN }}
   prefix : ${{ secrets.PREFIX }}
-  version : "2.0.5"
+  version : "2.0.6"
   
 jobs:
   deploy:
@@ -34,22 +34,16 @@ jobs:
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin' # Install OpenJDK from the AdoptOpenJDK distribution
+        distribution: 'jdk'
         java-version: '17'
     
     - name: Verify Java version
       run: java -version
 
-    # - name: Update Credentials 
-    #   run: |
-    #     sed -i 's/^\(\s*clientId:\s*\).*/\1"spot_id"/' lava/application.yml
-    #     sed -i 's/^\(\s*clientSecret:\s*\).*/\1"spot_secret"/' lava/application.yml
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        # sudo apt-get update && sudo apt install openjdk-17-jdk -y
       working-directory: ./src  
         
     # - name: Install ffmpeg
