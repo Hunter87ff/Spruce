@@ -37,6 +37,7 @@ class Tourney:
 
 class Esports(commands.Cog):
     ONLY_AUTHOR_BUTTON = "Only Author Can Use This Button"
+    MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
     def __init__(self, bot):
         self.bot:commands.Bot = bot
@@ -127,7 +128,7 @@ class Esports(commands.Cog):
                 await sleep(1)  #sleep
                 tour = {"guild" : int(ctx.guild.id), "t_name" : str(name), "prefix" : str(front),"rch" : int(r_ch.id), "cch" : int(c_ch.id), "gch" : int(g_ch.id), "crole" : int(c_role.id), "tslot" : int(total_slot), "reged" : 1, "mentions" : int(mentions), "status" : "started", "faketag": "no", "pub" : "no", "prize" : "No Data", "auto_grp":"no", "spg":slot_per_group, "cgp":0, "created_at":datetime.datetime.now()}
                 tour_count = len(list(dbc.find({"guild" : ctx.guild.id})))
-                print(tour_count)
+
                 if tour_count > 5:return await ctx.send(embed=discord.Embed(description="Tournament Limit Reached!! you can delete previous tournament to create another one. or contact us via support server!!", color=0xff0000), delete_after=30)
                 dbc.insert_one(tour)
                 await self.set_manager(ctx, r_ch)
@@ -399,7 +400,8 @@ class Esports(commands.Cog):
             view = View()
             emb = discord.Embed(title=rch.category.name, description=f"**Total Slot : {tourn.tslot}\nRegistered : {tourn.reged}\nMentions : {tourn.mentions}\nStatus : {tourn.status}\nPublished : {tourn.pub.upper()}\nPrize : {tourn.prize}\nSlot per group: {tourn.spg}\nFakeTag Allowed : {tourn.faketag.upper()}\nRegistration : <#{tourn.rch}>\nConfirm Channel: <#{tourn.cch}>\nGroup Channel: <#{tourn.gch}>\nConfirm Role : <@&{tourn.crole}>**", color=config.cyan, timestamp=datetime.datetime.now())
             emb.set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.avatar.url)
-            for button in buttons:view.add_item(button)
+            for button in buttons:
+                view.add_item(button)
             msg1 = await ctx.send(embed=emb, view=view)
 
             async def save_delete(interaction:discord.Interaction):
@@ -704,7 +706,8 @@ class Esports(commands.Cog):
     async def tconfig(self,ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         data = list(config.dbc.find({"guild":ctx.guild.id}))
-        if not data or len(data)<1:return await ctx.send(embed=discord.Embed(description="**No Ongoing Tournament Found**", color=config.red), delete_after=20)
+        if not data or len(data)<1:
+            return await ctx.send(embed=discord.Embed(description="**No Ongoing Tournament Found**", color=config.red), delete_after=20)
         options = [discord.SelectOption(label=i["t_name"], value=i["rch"]) for i in data]
         view = View()
         embed = discord.Embed(title="Select Tournament", color=config.cyan)
@@ -749,30 +752,83 @@ class Esports(commands.Cog):
         bt11.callback = delete_t_confirmed
         btmanage.callback = manage_tournament
 
+    # Currently it's a developer only command, and under development
+    # With this command you can send a message containing a button to register a team
+    # Then the user can submit a regiatration form to register their team
+    # but there is a issue with the teammate mention and i'm working on it 
+    @cmd.hybrid_command(with_app_command = True)
+    @commands.guild_only()
+    @config.dev()
+    @commands.has_role("tourney-mod")
+    @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
+    async def start_reg(self, ctx:commands.Context, registration_channel:discord.TextChannel):
+        if ctx.author.bot:return
+        await ctx.defer(ephemeral=True)
+        db = dbc.find_one({"rch":registration_channel.id})
+        if not db:return await ctx.send(embed=discord.Embed(description=self._tnotfound, color=config.red), delete_after=10)
+        tourObj:Tourney = Tourney(db)
+        emb:discord.Embed = discord.Embed(color=config.cyan, description=f"**{config.cup} | REGISTRATION STARTED | {config.cup}\n{config.tick} | TOTAL SLOT : {tourObj.tslot}\n{config.tick} | REQUIRED MENTIONS : {tourObj.mentions}\n{config.cross} | FAKE TAGS NOT ALLOWED**")
+        btn:Button = Button(label="Register Team", style=discord.ButtonStyle.red, custom_id=f"db_reg_btn_{self.bot.user.id}")
+        view:View = View().add_item(btn)
+        await registration_channel.send(embed=emb, view=view)
 
-    @cmd.Cog.listener()
+
+
+    # This one is under development and currently testing on it!! and im not sure to impliment this or not, due to some mention related issues
+    # If you have any idea or suggestion please let me know in the issue section or raise a PR
+    async def register(self, interaction:discord.Interaction):
+        db = dbc.find_one({"rch":interaction.channel.id})
+        if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+        if interaction.data["custom_id"] == f"db_reg_btn_{self.bot.user.id}":
+            t:Tourney = Tourney(db)
+            crole:discord.Role = interaction.guild.get_role(t.crole)
+            cch:discord.TextChannel = self.bot.get_channel(t.cch)
+
+            inp = discord.ui.Modal(title="Registraion Form", timeout=30)
+            fields = [
+                discord.ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="rg_teamname"),
+                discord.ui.TextInput(label="Enter Player Names", placeholder="playerX, playerR, player4 (comma as separator)", max_length=200, custom_id="rg_players"),
+                ]
+            for i in fields:
+                inp.add_item(i)
+            await interaction.response.send_modal(inp)
+
+            async def register_team(interaction:discord.Interaction):
+                teamname:str = inp.children[0].value.upper()
+                players = inp.children[1].value.split(",")
+                emb = discord.Embed(color=0xffff00, description=f"**{t.reged}) TEAM NAME: {teamname}**\n**Players** : {players} ")
+                emb.timestamp = interaction.message.created_at
+                emb.set_thumbnail(url=interaction.user.display_avatar)
+                await cch.send(content=f"{interaction.user.mention} {teamname}", embed=emb)
+                await interaction.user.add_roles(crole)
+                dbc.update_one({"rch":cch.id},{"$inc":{"reged":1}})
+                await interaction.response.send_message("Team Registered!!", ephemeral=True)
+            inp.on_submit = register_team
+
+
+    @commands.Cog.listener()
     async def on_interaction(self, interaction:discord.Interaction):
         if interaction.user.bot:return
-        if "custom_id" in interaction.data:
+        elif "custom_id" in interaction.data and interaction.data["custom_id"] in self.MANAGER_PREFIXES:
             db = dbc.find_one({"mch":interaction.channel.id})
-            if db is not None:
-                view = View()
-                crole:discord.Role = interaction.guild.get_role(db["crole"])
-                cch:discord.TextChannel = self.bot.get_channel(db["cch"])
-                teams = [message async for message in cch.history(limit=db["tslot"], oldest_first=True)]
-                options = []
-                for i in teams:
-                    if i.embeds and "TEAM" in i.embeds[0].description:
-                        if f"<@{interaction.user.id}>" in i.embeds[0].description:
-                            st = i.embeds[0].description.find("[")+1
-                            en = i.embeds[0].description.find("]")
-                            options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
-                if len(options) == 0:return await interaction.response.send_message("You Aren't Registered!!", ephemeral=True)
-                cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
-                view.add_item(cslotlist)
-            
+            if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+            view = View()
+            crole:discord.Role = interaction.guild.get_role(db["crole"])
+            cch:discord.TextChannel = self.bot.get_channel(db["cch"])
+            teams = [message async for message in cch.history(limit=db["tslot"], oldest_first=True)]
+            options = []
+            for i in teams:
+                if i.embeds and "TEAM" in i.embeds[0].description:
+                    if f"<@{interaction.user.id}>" in i.embeds[0].description:
+                        st = i.embeds[0].description.find("[")+1
+                        en = i.embeds[0].description.find("]")
+                        options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
+            if len(options) == 0:return await interaction.response.send_message("You Aren't Registered!!", ephemeral=True)
+            cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
+            view.add_item(cslotlist)
+            cslotlist.callback = None    
+
             if interaction.data["custom_id"] == "Cslot":
-                if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
                 await interaction.response.send_message(view=view, ephemeral=True)
 
                 async def confirm(interact:discord.Interaction):
@@ -789,13 +845,15 @@ class Esports(commands.Cog):
                                 await ms.delete()
                         return await cnfinteract.response.send_message("Slot Cancelled!!", ephemeral=True)
                             
-                    async def cnc(interact:discord.Interaction):await interact.message.delete()
+                    async def cnc(interact:discord.Interaction):
+                        await interact.message.delete()
+
+
                     conf.callback = cnf
                     canc.callback = cnc
                 cslotlist.callback = confirm
 
             if interaction.data["custom_id"] == "Mslot":
-                if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
                 await interaction.response.send_message(view=view, ephemeral=True)
                 async def myteam(interaction:discord.Interaction):
                     ms = await cch.fetch_message(cslotlist.values[0])
@@ -806,7 +864,6 @@ class Esports(commands.Cog):
             if interaction.data["custom_id"] == "Cancel":await interaction.message.delete()
 
             if interaction.data["custom_id"] == "Tname":
-                if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
                 await interaction.response.send_message(view=view, ephemeral=True)
                 async def change_teamname(interaction:discord.Interaction):
                     inp = discord.ui.Modal(title="Team Name", timeout=30)
@@ -830,6 +887,13 @@ class Esports(commands.Cog):
                             return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
                     inp.on_submit = tname
                 cslotlist.callback = change_teamname
+
+
+        # Currently Testing on this and not sure to impliment this or not
+        elif "custom_id" in interaction.data and interaction.data["custom_id"].startswith("db_reg_btn"):
+            await self.register(interaction)
+
+            
                 
 
 async def setup(bot):
