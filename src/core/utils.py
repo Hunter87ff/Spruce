@@ -36,7 +36,7 @@ from discord import (
 whois = ["Noob","Unknown Person","kya pata mai nehi janta","bohot piro", "Bohot E-smart","Dusro Ko Jan Ne Se Pehle Khud Ko Jan Lo","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
 coin = ["975413333291335702", "975413366493413476"]
 maindb = config.maindb
-nitrodbc = maindb["nitrodb"]["nitrodbc"]
+
 def trn(token, fr:str, to:str, text:str):
 	print({"api-version":"3.0", "from":fr, "to":to})
 	api = "https://api.cognitive.microsofttranslator.com/translate"
@@ -362,21 +362,6 @@ class Utility(commands.Cog):
         else:
             await user.edit(nick=Nick)
             await ctx.send("Done")
-
-
-    @commands.command(enabled=False)
-    @commands.has_permissions(manage_webhooks=True)
-    @commands.bot_has_permissions(manage_webhooks=True)
-    async def nitro(self, ctx):
-        gnitro = nitrodbc.find_one({"guild" : ctx.guild.id})
-        if gnitro == None:
-            nitrodbc.insert_one({"guild":ctx.guild.id, "nitro" : "enabled"})
-        if gnitro != None and gnitro["nitro"] == "enabled":
-            nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "disabled"}})
-            return await ctx.send("Disabled")
-        if gnitro != None and gnitro["nitro"] == "disabled":
-            nitrodbc.update_one({"guild":ctx.guild.id}, {"$set":{"nitro" : "enabled"}})
-            return await ctx.send("Enabled")
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["si", "server_info"])

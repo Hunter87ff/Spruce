@@ -15,6 +15,5 @@ class Tasks(commands.Cog):
         """Delete all the documents from the database where the expiry time is less than the current time. with inbuild features of pymongo"""
         config.primedbc.delete_many({"end_time": {"$lt": datetime.datetime.now()}})
 
-
 async def setup(bot:commands.Bot):
     await bot.add_cog(Tasks(bot))

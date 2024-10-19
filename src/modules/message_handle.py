@@ -243,8 +243,7 @@ async def tourney(message:Message):
 ################# NITROF ######################
 async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
-    nitrodbc = config.maindb["nitrodb"]["nitrodbc"]
-    try:gnitro = nitrodbc.find_one({"guild" : message.guild.id})
+    try:gnitro = config.guildbc.find_one({"guild_id" : message.guild.id})
     except Exception:return
     if gnitro != None and gnitro["nitro"] == "enabled":
         try:webhook = utils.get(await message.channel.webhooks(), name="Spruce")

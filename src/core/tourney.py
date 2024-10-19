@@ -16,9 +16,8 @@ from discord.utils import get
 from discord.ext import commands
 from discord.ui import Button, View
 from modules import config, checker
-cmd = commands
 dbc = config.dbc
-gtadbc = config.gtadbc
+
 
 def get_front(name:str):
   li = []
@@ -147,7 +146,7 @@ class Esports(commands.Cog):
 
     """
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.has_role("tourney-mod")
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -200,7 +199,7 @@ class Esports(commands.Cog):
         """		
 
 
-    @cmd.hybrid_command(with_app_command = True, aliases=["girlslobby"])
+    @commands.hybrid_command(with_app_command = True, aliases=["girlslobby"])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -225,7 +224,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.bot_has_guild_permissions(manage_channels=True, send_messages=True)
@@ -239,7 +238,7 @@ class Esports(commands.Cog):
         await ctx.send("Started", delete_after=10)
 
             
-    @cmd.hybrid_command(with_app_command = True, aliases=['pt'])
+    @commands.hybrid_command(with_app_command = True, aliases=['pt'])
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def pause_tourney(self, ctx:commands.Context, registration_channel : discord.TextChannel):
@@ -253,7 +252,7 @@ class Esports(commands.Cog):
 
         
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     async def cancel_slot(self, ctx:commands.Context, registration_channel : discord.TextChannel, member : discord.Member, reason:str="Not Provided"):
@@ -278,7 +277,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.bot_has_guild_permissions(send_messages=True, manage_roles=True)
@@ -304,7 +303,7 @@ class Esports(commands.Cog):
             
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.guild_only()
     async def tourneys(self, ctx:commands.Context):
@@ -328,7 +327,7 @@ class Esports(commands.Cog):
         
 
 
-    @cmd.hybrid_command(with_app_command = True, aliases=["pub"])
+    @commands.hybrid_command(with_app_command = True, aliases=["pub"])
     @commands.bot_has_permissions(create_instant_invite=True)
     @commands.has_guild_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
     @commands.has_role("tourney-mod")
@@ -348,7 +347,7 @@ class Esports(commands.Cog):
 
 
             
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_guild_permissions(manage_channels=True, manage_roles=True)
@@ -378,7 +377,7 @@ class Esports(commands.Cog):
         btn1.callback = disable_ftf
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_any_role("tourney-mod")
     @commands.bot_has_guild_permissions(send_messages=True)
@@ -562,7 +561,7 @@ class Esports(commands.Cog):
 
 
 
-    @cmd.hybrid_command(with_app_command = True, aliases=['gsetup'])
+    @commands.hybrid_command(with_app_command = True, aliases=['gsetup'])
     @commands.has_role("tourney-mod")
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.guild)
@@ -586,7 +585,7 @@ class Esports(commands.Cog):
             await sleep(2)
         await ms.edit(content=f"{config.tick} | Successfully Created")
 
-    @cmd.hybrid_command(with_app_command = True, aliases=["cs"])
+    @commands.hybrid_command(with_app_command = True, aliases=["cs"])
     @commands.has_any_role("tourney-mod")
     @commands.guild_only()
     @commands.bot_has_guild_permissions(send_messages=True, manage_messages=True)
@@ -609,7 +608,7 @@ class Esports(commands.Cog):
     
 
 
-    @cmd.command(enabled=False, aliases=["t_reset"])
+    @commands.command(enabled=False, aliases=["t_reset"])
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
@@ -630,7 +629,7 @@ class Esports(commands.Cog):
         except Exception as e:return await ctx.send(f"Error : {e}")
 
 
-    @cmd.hybrid_command(with_app_command = True, aliases=["autogroup"])
+    @commands.hybrid_command(with_app_command = True, aliases=["autogroup"])
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
@@ -682,7 +681,7 @@ class Esports(commands.Cog):
                 
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
@@ -708,7 +707,7 @@ class Esports(commands.Cog):
         await ctx.send(f"{config.tick} | {mch.mention} created")
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
@@ -766,7 +765,7 @@ class Esports(commands.Cog):
     # With this command you can send a message containing a button to register a team
     # Then the user can submit a regiatration form to register their team
     # but there is a issue with the teammate mention and i'm working on it 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @config.dev()
     @commands.has_role("tourney-mod")
