@@ -7,10 +7,10 @@ from discord.ui import Button, View
 from dotenv import load_dotenv
 from requests import post as webpost #used by external modules
 from requests import get as webget   #used by external modules
-from ext import Logger2, Logger
+from ext import Logger
 
 load_dotenv()
-logger = Logger or Logger2(name="root")
+logger = Logger
 shards =  int(env.get("shards")) or 20
 version = "2.0.6"
 bot_id = 931202912888164474
