@@ -1,6 +1,7 @@
 from flask import Flask
 from threading import Thread
-ap = Flask("Status")
+ap = Flask(__name__)
+ap.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF protection safely
 @ap.route("/")
 def home():return "Status : Online"
 def run():ap.run(host='0.0.0.0', port=8080)
