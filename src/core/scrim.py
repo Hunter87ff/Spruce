@@ -141,12 +141,8 @@ class Scrim(commands.Cog):
     async def team_reg(self, message:discord.Message):
         msg = message
         tmrole = discord.utils.get(msg.guild.roles, name="scrim-mod") 
-        if tmrole in msg.author.roles:
-            return
-        elif message.author.bot or message.author == self.bot.user:
-            return
-        elif message.channel.id != 1167331222494646302:  
-            return
+        if message.author.bot or message.author == self.bot.user or tmrole in msg.author.roles or message.channel.id != 1167331222494646302:
+            return None
         req_men = 2
         tslot = 12
         crole = message.guild.get_role(1167424093574930432) 
