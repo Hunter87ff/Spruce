@@ -2,7 +2,10 @@ from discord.ext import commands
 from discord.ext import tasks
 import discord, re, pytz, json
 from datetime import datetime
+from modules import config
 from enum import Enum
+import numpy as np
+
 
 class TimeZone(Enum):
     Asia_Kolkata = "Asia/Kolkata"
@@ -16,12 +19,32 @@ class TimeZone(Enum):
     Asia_Nepal = "Asia/Kathmandu"
 
 
+
 class Scrim(commands.Cog):
+    """Currently in development mode!!"""
     def __init__(self, bot) -> None:
         self.bot:commands.Bot = bot
         self.monitor_scrims.start()
 
+
+    @discord.app_commands.command()
+    async def scrim(self, interaction:discord.Interaction, total_slots:int, time_zone:TimeZone, time:str="4:00 AM"):
+        self.create_scrim(total_slots, Scrim.convert_time(time=Scrim.to24h(time), fr=time_zone.value, to="Asia/Kolkata"), time_zone.value)
+        await interaction.response.send_message("Scrim created successfully")
+
+
+    @commands.command()
+    async def slotlist(self, ctx:commands.Context, channel:discord.TextChannel):
+        message = [ms async for ms in channel.history(limit=2)][0]
+        crole = message.guild.get_role(1167424093574930432)
+        tmrole = discord.utils.get(channel.guild.roles, name="scrim-mod")
+        ms = await ctx.send("Processing")
+        await self.team_struct(message, crole, tmrole)
+        await ms.edit(content="Done")
+
+
     def create_scrim(self, total_slots:int, time:str, zone:str):
+        print(total_slots, time, zone)
         try:
             with open("scrim.json", "r") as f:
                 data:list = json.load(f)
@@ -41,32 +64,30 @@ class Scrim(commands.Cog):
         return data
 
 
-    @discord.app_commands.command()
-    async def scrim(self, interaction:discord.Interaction, total_slots:int, time:str, time_zone:TimeZone):
-        self.create_scrim(total_slots, self.convert_time(self.to24h(time)), time_zone.value)
-        await interaction.response.send_message("Scrim created successfully")
-
-
-    def to24h(time:str) -> str:
-        if time[-2:] == "AM":return time[:-2]
+    @staticmethod
+    def to24h(time: str) -> str:
+        if time[-2:].lower() == "am":
+            return time[:-2].strip()
         else:
-            time = time[:-2]
+            time = time[:-2].strip()
             time = time.split(":")
-            if int(time[0]) >= 11: return ":".join(time)
-            else: return str(int(time[0]) + 12) + ":" + time[1]
+            if int(time[0]) == 12:
+                return ":".join(time)
+            else:
+                return str(int(time[0]) + 12) + ":" + time[1]
 
-
-    def convert_time(time: str, fr: str = "Asia/Tokyo", to: str = "Asia/Kolkata"):
+    @staticmethod
+    def convert_time(time: str, fr: str = "Asia/Kolkata", to: str = "Asia/Kolkata"):
         from_zone = pytz.timezone(fr)
         naive_time = datetime.strptime(time, "%H:%M").time() 
         combined_time = datetime.combine(datetime.now(from_zone).date(), naive_time)
         localized_time = from_zone.localize(combined_time)
         to_zone = pytz.timezone(to)
-        converted_time = localized_time.astimezone(to_zone)
-        return converted_time
+        converted_time = localized_time.astimezone(to_zone).time()
+        return str(converted_time)
 
-
-    def time_format(self, delta):
+    @staticmethod
+    def time_format(delta):
         delta = str(delta)
         time = ""
         lst = delta.split(".")[0].split(":")
@@ -89,16 +110,15 @@ class Scrim(commands.Cog):
         return teamname
 
 
-    async def ft_ch(self, message:discord.Message):
+    async def ft_ch(self, message:discord.Message) -> discord.Member|None:
         ctx = message
+        current_mentions = np.array(ctx.mentions)
         messages = [message async for message in ctx.channel.history(limit=123)]  
         for fmsg in messages:
-            if fmsg.author.id != ctx.author.id:
-                for mnt in fmsg.mentions:
-                    if mnt not in message.mentions:
-                        return None
-                    if mnt in message.mentions:
-                        return mnt
+            previous_mentions = set(fmsg.mentions)
+            if len(np.intersect1d(current_mentions, previous_mentions)) > 0:
+                return fmsg.author
+        return None
                     
 
     async def team_struct(self, msg:discord.Message, crole:discord.Role, tmrole):
@@ -113,7 +133,7 @@ class Scrim(commands.Cog):
         teams += "```"
         time_taken = msgs[-1].created_at - msgs[0].created_at
         em = discord.Embed(title="Team List", description=teams, color=0x00ff00)
-        em.set_footer(text=f"Time Taken : {self.time_format(time_taken)}")
+        em.set_footer(text=f"Time Taken : {Scrim.time_format(time_taken)}")
         mes = await msg.channel.send(embed=em)
         await mes.add_reaction("✅")
 
@@ -145,17 +165,6 @@ class Scrim(commands.Cog):
                 await msg.channel.send("Registration closed")
                 return await self.team_struct(message, crole, tmrole)
     
-
-    @commands.command()
-    async def slotlist(self, ctx:commands.Context, channel:discord.TextChannel):
-        message = [ms async for ms in channel.history(limit=2)][0]
-        crole = message.guild.get_role(1167424093574930432)
-        tmrole = discord.utils.get(channel.guild.roles, name="scrim-mod")
-        ms = await ctx.send("Processing")
-        await self.team_struct(message, crole, tmrole)
-        await ms.edit(content="Done")
-
-
 
     @tasks.loop(seconds=60)
     async def monitor_scrims(self):

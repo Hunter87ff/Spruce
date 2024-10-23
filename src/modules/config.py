@@ -1,4 +1,5 @@
 from os import environ as env
+import discord
 from discord import Embed, Message
 from discord.ext import commands
 from pymongo import MongoClient
@@ -6,10 +7,10 @@ from discord.ui import Button, View
 from dotenv import load_dotenv
 from requests import post as webpost #used by external modules
 from requests import get as webget   #used by external modules
-from ext import Logger
+from ext import Logger2, Logger
 
 load_dotenv()
-logger = Logger(name="root")
+logger = Logger or Logger2(name="root")
 shards =  int(env.get("shards")) or 20
 version = "2.0.6"
 bot_id = 931202912888164474
