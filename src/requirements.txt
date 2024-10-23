@@ -1,5 +1,6 @@
 python-dotenv
 psutil
+flask
 pymongo
 pymongo[srv]
 requests
