@@ -173,3 +173,15 @@ def owner_only():
 def notuser(message:Message):
 	return True if message.author.bot or message.webhook_id else False
 
+async def is_dev(ctx:commands.Context | discord.Interaction):
+    if isinstance(ctx, discord.Interaction): 
+        if ctx.user.id not in devs:
+              await ctx.response.send_message("Command is under development", ephemeral=True)
+              return False
+
+    elif isinstance(ctx, commands.Context): 
+        if ctx.author.id not in devs:
+              await ctx.send("Command is under development", ephemeral=True)
+              return False
+    return True
+    

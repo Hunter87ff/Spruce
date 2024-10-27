@@ -16,10 +16,11 @@ with open("lava/application.yml", "w") as f: f.write(content)
 def lavalink():
     if platform.system() == "Windows":os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
     else:os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &
-if config.LOCAL_LAVA : Thread(target=lavalink).start()
+if config.LOCAL_LAVA : 
+    Thread(target=lavalink).start()
+    time.sleep(5)
 
 
-time.sleep(5)
 with open("lava/application.yml", "w") as f: f.write(content1.replace(config.spot_id, "spot_id").replace(config.spot_secret, "spot_secret"))
 try:os.system("python src/main.py")
 except Exception:os.system("python3 src/main.py")

@@ -28,13 +28,15 @@ class Scrim(commands.Cog):
 
 
     @discord.app_commands.command()
-    async def scrim(self, interaction:discord.Interaction, total_slots:int, time_zone:TimeZone, time:str="4:00 AM"):
+    async def scrim(self, interaction:discord.Interaction, total_slots:int, time_zone:TimeZone, time:str):
+        if await config.is_dev(interaction) == False: return
         self.create_scrim(total_slots, Scrim.convert_time(time=Scrim.to24h(time), fr=time_zone.value, to="Asia/Kolkata"), time_zone.value)
         await interaction.response.send_message("Scrim created successfully")
 
 
-    @commands.command()
+    @commands.hybrid_command()
     async def slotlist(self, ctx:commands.Context, channel:discord.TextChannel):
+        if await config.is_dev(ctx) == False: return
         message = [ms async for ms in channel.history(limit=2)][0]
         crole = message.guild.get_role(1167424093574930432)
         tmrole = discord.utils.get(channel.guild.roles, name="scrim-mod")
