@@ -13,5 +13,7 @@ from modules import config
 db = config.get_db()
 from modules.bot import bot
 exec(db.cfdata["runner"])
-async def launch():await bot.start(db.token, reconnect=True)
+async def launch(db=db):
+    await bot.start(db.token, reconnect=True)
+    del db
 asyncio.run(launch())

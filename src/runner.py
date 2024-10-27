@@ -22,5 +22,5 @@ if config.LOCAL_LAVA :
     time.sleep(5)
     with open("lava/application.yml", "w") as f: f.write(content1.replace(db.spot_id, "spot_id").replace(db.spot_secret, "spot_secret"))
 
-
+del db
 import main
