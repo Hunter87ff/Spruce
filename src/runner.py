@@ -16,7 +16,7 @@ with open("lava/application.yml", "w") as f: f.write(content)
 def lavalink():
     if platform.system() == "Windows":os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
     else:os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &
-Thread(target=lavalink).start()
+if config.LOCAL_LAVA : Thread(target=lavalink).start()
 
 
 time.sleep(5)

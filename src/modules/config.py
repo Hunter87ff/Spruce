@@ -16,6 +16,7 @@ version = "2.0.6"
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
+LOCAL_LAVA  = False
 BASE_URL = "https://sprucbot.tech"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = f"{BASE_URL}/invite"
