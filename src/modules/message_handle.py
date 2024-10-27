@@ -271,7 +271,7 @@ async def nitrof(message:Message, bot:commands.Bot):
 ############## ERROR HANDEL ################
 ############################################
 async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot):
-    erl = bot.get_channel(erl)
+    erl = bot.get_channel(config.erl)
     cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
