@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import os
+from ext import Logger
 
 class Database:
     _instance = None
@@ -16,6 +17,7 @@ class Database:
             return
         try:
             # Primary MongoDB client and collections
+            Logger.info("Database Connecting...")
             self.maindb = MongoClient(os.environ["mongo_url"])
             self.cfdbc = self.maindb["configdb"]["configdbc"]
             self.dbc = self.maindb["tourneydb"]["tourneydbc"]
@@ -36,10 +38,10 @@ class Database:
             self.gh_api = self.cfdata.get("git_api")
             # Secondary MongoDB client based on a config value, if necessary
             self.spdb = MongoClient(self.cfdata.get("spdb"))
-            print("Database connections and configuration data loaded successfully.")
+            Logger.info("Database Connected.")
    
         except Exception as e:
-            print(f"Error loading database or configuration data: {e}")
+            Logger.warning(f"Error loading database or configuration data: {e}")
 
 
 

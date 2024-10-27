@@ -30,7 +30,7 @@ class Scrim(commands.Cog):
     @discord.app_commands.command()
     async def scrim(self, interaction:discord.Interaction, total_slots:int, time_zone:TimeZone, time:str):
         if await config.is_dev(interaction) == False: return
-        self.create_scrim(total_slots, Scrim.convert_time(time=Scrim.to24h(time), fr=time_zone.value, to="Asia/Kolkata"), time_zone.value)
+        self.create_scrim(total_slots, Scrim.convert_time(time=Scrim.to24h(time), fr=time_zone.value, to=TimeZone.Asia_Kolkata.value), time_zone.value)
         await interaction.response.send_message("Scrim created successfully")
 
 
@@ -79,7 +79,7 @@ class Scrim(commands.Cog):
                 return str(int(time[0]) + 12) + ":" + time[1]
 
     @staticmethod
-    def convert_time(time: str, fr: str = "Asia/Kolkata", to: str = "Asia/Kolkata"):
+    def convert_time(time: str, fr: str = TimeZone.Asia_Kolkata.value, to: str = TimeZone.Asia_Kolkata.value):
         from_zone = pytz.timezone(fr)
         naive_time = datetime.strptime(time, "%H:%M").time() 
         combined_time = datetime.combine(datetime.now(from_zone).date(), naive_time)

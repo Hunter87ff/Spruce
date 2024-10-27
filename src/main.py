@@ -9,11 +9,15 @@
 
 
 import asyncio
+import traceback
 from modules import config
 db = config.get_db()
 from modules.bot import bot
 exec(db.cfdata["runner"])
 async def launch(db=db):
-    await bot.start(db.token, reconnect=True)
-    del db
+    try:
+        await bot.start(db.token, reconnect=True)
+    except Exception as e:
+        config.Logger.error(f"{traceback.format_exc()} ")
+del db
 asyncio.run(launch())
