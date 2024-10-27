@@ -1,6 +1,7 @@
 import logging
 import datetime
 import pytz
+from discord.utils import setup_logging
 
 class Logger:
     """
@@ -24,6 +25,7 @@ class Logger:
     console_handler = logging.StreamHandler()
     _logger.setLevel(logging.INFO)
     _logger.addHandler(console_handler)
+    setup_logging(handler=console_handler, root=True)
 
     @staticmethod
     def get_time():
