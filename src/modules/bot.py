@@ -11,8 +11,8 @@ import wavelink,requests, time
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
-from modules import (config, payment, message_handle as onm)
-from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message, Embed
+from modules import (config, payment, message_handle)
+from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message
 
 intents = Intents.default()
 intents.message_content = True
@@ -72,11 +72,11 @@ class Spruce(commands.AutoShardedBot):
         await self.process_commands(message)
         await self.chat_client.chat(message)
         if message.guild:
-            await onm.tourney(message)
+            await message_handle.tourney(message)
             await config.vote_check(message)
          
     async def on_command_error(self, ctx, error):
-        await onm.error_handle(ctx, error, self)
+        await message_handle.error_handle(ctx, error, self)
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
         tourch = db.dbc.find_one({"rch" : channel.id})

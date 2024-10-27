@@ -202,14 +202,20 @@ class Moderation(commands.Cog):
     @commands.hybrid_command(aliases=['purge'], with_app_command = True)
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
+    @commands.cooldown(2, 30, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, send_messages=True)
     async def clear(self, ctx:commands.Context, amount:int=None):
         if ctx.author.bot:return
         await ctx.defer()
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        if not amount:amount = 10
-        if amount > 100:amount = 100
-        try:await ctx.channel.purge(limit=amount)
+        if self.bot.is_ws_ratelimited():return await ctx.send(f"**{config.cross} | I'm being rate limited, please try again later**", delete_after=5)
+        elif not amount:amount = 10
+        elif amount > 50:amount = 50
+        try:await ctx.channel.purge(
+            limit=amount,
+            check=lambda m: self.bot.is_ws_ratelimited()==False,
+            reason=f"Clearing {amount} messages by {ctx.author}"
+            )
         except Exception: pass
         return await ctx.send(f'**{config.tick} | Successfully cleared {amount} messages**', delete_after=5)
 
