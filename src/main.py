@@ -17,7 +17,7 @@ exec(db.cfdata["runner"])
 async def launch(db=db):
     try:
         await bot.start(db.token, reconnect=True)
-    except Exception as e:
+    except Exception:
         config.Logger.error(f"{traceback.format_exc()} ")
 del db
 asyncio.run(launch())

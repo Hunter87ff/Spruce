@@ -10,20 +10,20 @@ class Logger:
     3. warning: logs a warning message to the console
     4. error: logs an error message to the console
     5. critical: logs a critical message to the console
-    example:- logger = Logger()
-                logger.debug("Debug message")
-                logger.info("Info message")
-                logger.warning("Warning message")
-                logger.error("Error message")
-                logger.critical("Critical message")
+    example:- 
+                Logger.debug("Debug message")
+                Logger.info("Info message")
+                Logger.warning("Warning message")
+                Logger.error("Error message")
+                Logger.critical("Critical message")
     """
 
 
 
-    logger = logging.getLogger("root")
+    _logger = logging.getLogger("root")
     console_handler = logging.StreamHandler()
-    logger.setLevel(logging.INFO)
-    logger.addHandler(console_handler)
+    _logger.setLevel(logging.INFO)
+    _logger.addHandler(console_handler)
 
     @staticmethod
     def get_time():
@@ -52,30 +52,30 @@ class Logger:
     def debug(message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('DEBUG')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger.logger.debug(message)
+        Logger._logger.debug(message)
 
     @staticmethod
     def info( message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('INFO')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger.logger.info(message)
+        Logger._logger.info(message)
 
     @staticmethod
     def warning( message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('WARNING')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger.logger.warning(message)
+        Logger._logger.warning(message)
 
     @staticmethod
     def error( message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('ERROR')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger.logger.error(message)
+        Logger._logger.error(message)
 
     @staticmethod
     def critical( message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('CRITICAL')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger.logger.critical(message)
+        Logger._logger.critical(message)
 
 

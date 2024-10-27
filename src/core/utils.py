@@ -181,12 +181,13 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def whoiss(self, ctx:commands.Context, user:Member=None):
         await ctx.defer(ephemeral=True)
+        msg:str = ""
         if not user:
             user = ctx.author
             msg = random.choice(constants.whois)
         if user.bot == True:
             return await ctx.send("**Bot is always awesome**")
-        elif user.id == 885193210455011369:
+        elif user.id == config.owner_id:
             owneremb = Embed(description=f"{user.mention} **Best Friend :heart:**", color=color.blue)
             return await ctx.send(embed=owneremb)
         else:
@@ -197,7 +198,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 8, commands.BucketType.user)
-    async def toss(self, ctx):
+    async def toss(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         msg = f"https://cdn.discordapp.com/emojis/{random.choice(constants.coin)}.png"
         emb = Embed(color=color.yellow)
@@ -209,7 +210,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 8, commands.BucketType.user)
-    async def invite(self, ctx):
+    async def invite(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         invbtn = Button(label="Invite Now", url=config.invite_url2)
         view = View()
@@ -220,7 +221,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 8, commands.BucketType.user)
-    async def vote(self, ctx):
+    async def vote(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         invbtn = Button(label="Vote Now", url="https://top.gg/bot/931202912888164474/vote")
         view = View()
@@ -274,7 +275,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True, aliases=["mc"])
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
-    async def member_count(self, ctx):
+    async def member_count(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         emb = Embed(title="Members", description=f"{ctx.guild.member_count}", color=color.teal)
@@ -308,17 +309,12 @@ class Utility(commands.Cog):
         if ctx.author.bot:return
         await ctx.defer(ephemeral=True)
         memory = psutil.virtual_memory()
-        # cpu_usage = psutil.cpu_percent()
-        # disk = psutil.disk_usage('/')
-        #\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nTotal Disk: {disk.total//10**9} GB
         mem_percent = f"{(psutil.Process(os.getpid()).memory_percent()):.2f}"
         system_info = f"`{memory.total / (1024**3):.2f} GB`/ `{psutil.Process(os.getpid()).memory_info().rss//2**20} MB`/ `{mem_percent}%`"
         emb = Embed(title="Spruce Bot", color=color.green)
         emb.add_field(name=f"{emoji.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
         emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(self.mmbrs())}`", inline=True)
         emb.add_field(name=f"{emoji.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
-        # emb.add_field(name=f"{emoji.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
-        # emb.add_field(name=f"{emoji.setting} __Command Prefix__", value=f"Command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
         emb.add_field(name=f"{emoji.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
         return await ctx.send(embed=emb)
