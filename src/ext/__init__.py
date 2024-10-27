@@ -9,7 +9,6 @@ __all__ = (
     "Database", 
     "Tourney", 
     "Logger",
-    "NaturalLang",
     "constants",
     "emoji",
     "color",
