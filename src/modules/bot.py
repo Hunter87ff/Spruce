@@ -75,7 +75,7 @@ class Spruce(commands.AutoShardedBot):
             await message_handle.tourney(message)
             await config.vote_check(message)
          
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx:commands.Context, error):
         await message_handle.error_handle(ctx, error, self)
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
