@@ -10,7 +10,8 @@
 
 import asyncio
 from modules import config
+db = config.get_db()
 from modules.bot import bot
-exec(config.cfdata["runner"])
-async def launch():await bot.start(config.token, reconnect=True)
+exec(db.cfdata["runner"])
+async def launch():await bot.start(db.token, reconnect=True)
 asyncio.run(launch())

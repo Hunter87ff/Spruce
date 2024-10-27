@@ -16,7 +16,7 @@ from discord.utils import get
 from discord.ext import commands
 from discord.ui import Button, View
 from modules import config, checker
-dbc = config.dbc
+dbc = config.get_db().dbc
 
 
 def get_front(name:str):
@@ -714,7 +714,7 @@ class Esports(commands.Cog):
     @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tconfig(self,ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        data = list(config.dbc.find({"guild":ctx.guild.id}))
+        data = list(dbc.find({"guild":ctx.guild.id}))
         if not data or len(data)<1:
             return await ctx.send(embed=discord.Embed(description="**No Ongoing Tournament Found**", color=config.red), delete_after=20)
         options = [discord.SelectOption(label=i["t_name"], value=i["rch"]) for i in data]

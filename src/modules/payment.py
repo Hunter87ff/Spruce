@@ -10,7 +10,7 @@
 
 
 
-import random
+import random, string
 import datetime
 import traceback
 from modules import config
@@ -18,13 +18,15 @@ from cashfree_pg.models.create_order_request import CreateOrderRequest
 from cashfree_pg.api_client import Cashfree
 from cashfree_pg.models.customer_details import CustomerDetails
 from cashfree_pg.models.order_meta import OrderMeta
-Cashfree.XClientId = config.XClientId
-Cashfree.XClientSecret = config.XClientSecret
+from ext import Database
+db = Database()
+Cashfree.XClientId = db.cfdata["xclient_id"]
+Cashfree.XClientSecret = db.cfdata["xclient_secret"]
 Cashfree.XEnvironment = Cashfree.PRODUCTION
 x_api_version = "2023-08-01"
 
 def create_token(range:int=10):
-    return ''.join(random.choices('0123456789ABCDEFGHIJKDL', k=range))
+    return ''.join(random.choices(string.ascii_letters.join(string.digits), k=range))
 
 
 class PaymentOrder:

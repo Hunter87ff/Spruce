@@ -10,14 +10,16 @@
 from modules import config
 from discord import Message, File
 from discord.ext import commands
-import typing, time, random, numpy as np
+import typing, random, numpy as np
 import google.generativeai as genai
-sdbc = config.spdb["qna"]["query"]
-bws = set(config.bws)
+from ext.db import Database
+db = Database()
+sdbc = db.spdb["qna"]["query"]
+bws = set(db.bws)
 datasets:dict = sdbc.find()
 generation_config = {"temperature": 1.5,"top_p": 0.95,"top_k": 64,"max_output_tokens": 2000}
-try:genai.configure(api_key=config.GEMAPI)
-except Exception as e:config.webpost(url=config.dml, json={"content":f"```py\n{e}\n```"})
+try:genai.configure(api_key=db.GEMAPI)
+except Exception as e:config.webpost(url=db.cfdata["dml"], json={"content":f"```py\n{e}\n```"})
 model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=generation_config)
 say = ["bolo ki", "say", "bolo", "bolie", "kaho"]
 name = {"my name", "mera nam kya hai", "what is my name", "do you know my name"}

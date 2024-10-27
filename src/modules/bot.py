@@ -7,7 +7,6 @@
  of this license document, but changing it is not allowed.
 """
 import ast, traceback
-from ext import Database
 import wavelink,requests, time
 from discord.ext import commands
 from wavelink import Node, Pool
@@ -22,11 +21,11 @@ intents.members = True
 intents.voice_states = True
 intents.guilds = True
 pt = time.time()
+db = config.get_db()
 
 class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = config
-        self.db = Database()
         self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils", "tasks")
         super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
@@ -35,7 +34,7 @@ class Spruce(commands.AutoShardedBot):
         if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
         self.remove_command("help")
         for i in self.core:await self.load_extension(f"core.{i}")
-        nodes = [Node(uri=config.m_host, password=config.m_host_psw)]
+        nodes = [Node(uri=db.m_host, password=db.m_host_psw)]
         await Pool.connect(nodes=nodes, client=self, cache_capacity=None)
 
     async def on_ready(self):
@@ -44,7 +43,7 @@ class Spruce(commands.AutoShardedBot):
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
             config.logger.info(stmsg)
             await config.vote_add(self)
-            requests.post(url=config.stwbh, json={"content":f"<@{config.owner_id}>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
+            requests.post(url=db.cfdata.get("stwbh"), json={"content":f"<@{config.owner_id}>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
         except Exception as ex:print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
@@ -60,9 +59,9 @@ class Spruce(commands.AutoShardedBot):
         try:
             obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
             if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
-                return config.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
+                return db.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
             if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
-                return config.paydbc.delete_one({"guild_id":obj.guild_id})
+                return db.paydbc.delete_one({"guild_id":obj.guild_id})
             print("Ignored the check")
         except Exception:
             traceback.print_exc()
@@ -80,10 +79,10 @@ class Spruce(commands.AutoShardedBot):
         await onm.error_handle(ctx, error, self)
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
-        tourch = config.dbc.find_one({"rch" : channel.id})
+        tourch = db.dbc.find_one({"rch" : channel.id})
         dlog = self.get_channel(config.tdlog)
         if tourch:
-            config.dbc.delete_one({"rch" : channel.id})
+            db.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")
 
 bot = Spruce()

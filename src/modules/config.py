@@ -1,21 +1,26 @@
 from os import environ as env
+import sys
+from dotenv import load_dotenv
+load_dotenv()
+
 import discord
 from discord import Embed, Message
 from discord.ext import commands
-from pymongo import MongoClient
 from discord.ui import Button, View
-from dotenv import load_dotenv
 from requests import post as webpost #used by external modules
 from requests import get as webget   #used by external modules
+from ext.emoji import *
+from ext.color import *
 from ext import Logger
+from ext import Database
 
-load_dotenv()
 logger = Logger
 shards =  int(env.get("shards")) or 20
-version = "2.0.6"
+version = env.get("version", "2.0.6")
 bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
+MAINTAINER = "hunter87ff"
 LOCAL_LAVA  = False
 BASE_URL = "https://sprucbot.tech"
 support_server = "https://discord.gg/vMnhpAyFZm"
@@ -23,40 +28,17 @@ invite_url = f"{BASE_URL}/invite"
 invite_url2 = f"https://discord.com/oauth2/authorize?client_id={bot_id}&permissions=8&scope=bot"
 support_server_id = 947443790053015623
 status = ["550k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
-try: maindb = MongoClient(env["mongo_url"])
-except:  maindb = MongoClient(env["MONGO_URL"])
+prefix = env.get("prefix", "&")
 
-cfdbc = maindb["configdb"]["configdbc"]
-dbc = maindb["tourneydb"]["tourneydbc"]
-scrimdbc = maindb["tourneydb"]["scrimdbc"]
-paydbc = maindb["paymentdb"]["paymentdbc"]
-primedbc = maindb["primedb"]["primedbc"]
-guildbc = maindb["guildb"]["guildbc"]
 
-cfdata = cfdbc.find_one({"config_id": 87})
-spdb = MongoClient(cfdata["spdb"])
-token = cfdata[env["tkn"]]
-prefix = env["prefix"] or "&"
-spot_id = cfdata["spot_id"]
-spot_secret = cfdata["spot_secret"]
-cogs_path = "./src/core"
-bws = cfdata["bws"]
-m_host = cfdata["m_host"]
-m_host_psw = cfdata["m_host_psw"]
-gh_api = cfdata["git_api"]
-gh_action = "https://api.github.com/repos/hunter87ff/spruce/actions/workflows/py_application.yml/dispatches"
-gh_action_run = "https://api.github.com/repos/hunter87ff/Spruce/actions/workflows/py_application.yml/runs"
 DOMAIN = "sprucbot.tech"
-GEMAPI = cfdata["gemapi"]
-XClientId = cfdata["xclient_id"]
-XClientSecret = cfdata["xclient_secret"]
-devs = set(cfdata["devs"])
+gh_action = f"https://api.github.com/repos/{MAINTAINER}/spruce/actions/workflows/py_application.yml/dispatches"
+gh_action_run = f"https://api.github.com/repos/{MAINTAINER}/Spruce/actions/workflows/py_application.yml/runs"
+
 
 ################## LOG ####################
 erl = 1015166083050766366
-stwbh = cfdata["stwbh"]
 stl = 1020027121231462400
-dml = cfdata["dml"]
 cmdnf = 1020698810625826846
 gjoin = 1028673206850179152
 gleave = 1028673254606508072
@@ -64,75 +46,20 @@ votel = 1099588071986573362
 tdlog = 1112411458513408090
 paylog = 1233044089398755378
 ################# emojis ####################
-arow = "<a:arow:969894198515998720>"
-bgmi = "<:bgmi:1008283336143282216>"
-cross = "<:cross1:975460389565399141>"
-cpu="<:cpu:1220349275368718366>"
-cup = "<a:cup:999246631604080711>"
-cod = "<:cod:1008283105452380250>"
-defean = "<:defean:969894009331933205>"
-dot_green="<:dot_green:1219980719728627813>"
-developer = "<:dev:1020696239689433139>"
-ff = "<:ff:1008282958349746176>"
-invite="<:invites:968901936327848016> "
-loading = "<a:loading:969894982024568856>"
-like = "<:like:1014922246072053840>"
-mod = "<:mod:999353993035780258>"
-music_disk = "<a:music_disk:1020370054665207888>"
-newstate = "<:newstate:1014922927776477205>"
-owner = "<:owner:968371297744744448>"
-partner = "<:partner:968372588533383178>"
-wifi = "<:ping:1255441122692562944>"
-ping = "<:g_latency:968371843335610408>"
-pubg = "<:pubg:1008283449288835073>"
-role = "<:role:1022568952573984828>"
-reddot = "<:reddot:973870004606992444>"
-ram="<:RAM:1220349738843504743>"
-servers = "<:servers:1018845797556703262>"
-setting = "<:setting:968374105961300008>"
-tick = "<:tick:975460256748568656>"
-user = "<:user:1006581167048368189>"
-valo = "<:valorant:1008283511247081542>"
-vf = "<:vf:959508659153535016>"
-default_tick = "✅"
-default_cross = "❌"
-default_ticket = "🎟️"
-heart = "❤️"
-next_btn = "<:next:1120742875450310796>"
-play_btn = "<:play_btn:1019504469299441674>"
-pause_btn = "<:Pause:1019217055712559195>"
-stop_btn = "<:stop:1019218566475681863>"
-loop_btn = "<:loop_btn:1019219071046258708>"
-queue_btn = "<:queue:1019219174070951967>"
 
 
 
 # TEXT CONSTANTS
 PROCESSING = "Processing..."
 
-#colors
-blurple = 0x7289da
-greyple = 0x99aab5
-d_grey = 0x546e7a
-d_theme = 0x36393F
-l_grey = 0x979c9f
-d_red = 0x992d22
-red = 0xff0000
-d_orange = 0xa84300
-orange = 0xe67e22
-d_gold = 0xc27c0e
-gold = 0xf1c40f
-magenta = 0xe91e63
-purple = 0x9b59b6
-d_blue = 0x206694
-blue = 0x0000ff
-green = 0x00ff00
-d_green = 0x1f8b4c
-pink = 0xff0066
-teal = 0x1abc9c
-cyan = 0x1abc9c
-d_teal = 0x11806a
-yellow = 0xffff00
+
+
+def get_db():
+    """
+    Returns a Database Object
+    """
+    return Database()
+
 
 votes = []
 async def vote_add(bot:commands.Bot):
@@ -142,7 +69,7 @@ async def vote_add(bot:commands.Bot):
 	
 #functions
 async def voted(ctx:commands.Context, bot:commands.Bot):
-	if cfdata["vote_only"] == False: return "yes"
+	if get_db().cfdata["vote_only"] == False: return "yes"
 	vtl = bot.get_channel(votel)
 	for i in votes:
 		if i.author.id == 1096272690211471421:  #monitoring webhook id
@@ -162,7 +89,7 @@ async def vtm(ctx:commands.Context):
 
 def dev():
 	def predicate(ctx:commands.Context):
-		return ctx.message.author.id in devs
+		return ctx.message.author.id in get_db().cfdata["devs"]
 	return commands.check(predicate)
 
 def owner_only():
@@ -175,12 +102,12 @@ def notuser(message:Message):
 
 async def is_dev(ctx:commands.Context | discord.Interaction):
     if isinstance(ctx, discord.Interaction): 
-        if ctx.user.id not in devs:
+        if ctx.user.id not in get_db().cfdata["devs"]:
               await ctx.response.send_message("Command is under development", ephemeral=True)
               return False
 
     elif isinstance(ctx, commands.Context): 
-        if ctx.author.id not in devs:
+        if ctx.author.id not in get_db().cfdata["devs"]:
               await ctx.send("Command is under development", ephemeral=True)
               return False
     return True

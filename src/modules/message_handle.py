@@ -8,11 +8,12 @@
 """
 
 import re, traceback
-from asyncio import sleep
 from modules import config
 from discord.ext import commands
 from discord import utils, AllowedMentions, Embed, errors, Message, TextChannel
-dbc = config.dbc
+from ext import Database
+db = Database()
+dbc = db.dbc
 #########################################################
 ################ GROUP SYSTEM ###########################
 #########################################################
@@ -243,7 +244,7 @@ async def tourney(message:Message):
 ################# NITROF ######################
 async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
-    try:gnitro = config.guildbc.find_one({"guild_id" : message.guild.id})
+    try:gnitro = db.guildbc.find_one({"guild_id" : message.guild.id})
     except Exception:return
     if gnitro != None and gnitro["nitro"] == "enabled":
         try:webhook = utils.get(await message.channel.webhooks(), name="Spruce")
@@ -270,7 +271,7 @@ async def nitrof(message:Message, bot:commands.Bot):
 ############## ERROR HANDEL ################
 ############################################
 async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot):
-    erl = bot.get_channel(config.erl)
+    erl = bot.get_channel(erl)
     cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):

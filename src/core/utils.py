@@ -14,6 +14,7 @@ from discord.ext import commands
 from modules import config
 from discord.ui import Button, View 
 from gtts import gTTS
+from ext import constants, emoji, color
 from discord import (
     Embed,
     User, 
@@ -29,13 +30,6 @@ from discord import (
     Role, 
     Emoji
 )
-
-
-
-
-whois = ["Noob","Unknown Person","kya pata mai nehi janta","bohot piro", "Bohot E-smart","Dusro Ko Jan Ne Se Pehle Khud Ko Jan Lo","Nalla", "Bohot achha","bohooooooooot badaaaaa Bot","Nehi bolunga kya kar loge", "insan", "bhoot", "bhagwan", "e-smart ultra pro max"]
-coin = ["975413333291335702", "975413366493413476"]
-maindb = config.maindb
 
 def trn(token, fr:str, to:str, text:str):
 	print({"api-version":"3.0", "from":fr, "to":to})
@@ -55,32 +49,10 @@ class Utility(commands.Cog):
         self.bot:commands.Bot = bot
         self.counter = 0
 
-    class NaturalLang(enum.Enum):
-        Afrikaans = "af"
-        Arabic = "ar"
-        Assamese = "as"
-        Bengali = "bn"
-        Chinese = "zh-Hans"
-        English = "en"
-        French = "fr"
-        Greek = "el"
-        Gujarati = "gu"
-        Hindi = "hi"
-        Japanese = "ja"
-        Kannada = "kn"
-        Marathi = "mr"
-        Nepali = "ne"
-        Odia = "or"
-        Polish = "pl"
-        Portuguese = "pt"
-        Punjabi = "pa"
-        Russian = "ru"
-        Spanish = "es"
-        Vietnamese = "vi"
 
     @app_commands.command()
-    async def translate(self, interaction:Interaction, fr:NaturalLang, to:NaturalLang, *, message:str):
-        return await interaction.response.send_message(embed=Embed(description=trn(config.cfdata["trnsl"], fr.value, to.value, message), color=config.blurple), ephemeral=True)
+    async def translate(self, interaction:Interaction, fr:constants.NaturalLang, to:constants.NaturalLang, *, message:str):
+        return await interaction.response.send_message(embed=Embed(description=trn(config.cfdata["trnsl"], fr.value, to.value, message), color=color.blurple), ephemeral=True)
 
 
 
@@ -97,7 +69,7 @@ class Utility(commands.Cog):
         uptime = ctx.message.created_at - messages[0].created_at
         upt = str(uptime).split(".")[0]
         msg = f"**Current Uptime Is : `{upt}`**"
-        emb = Embed(title="Uptime", color=config.green, description=msg, timestamp=ctx.message.created_at)
+        emb = Embed(title="Uptime", color=color.green, description=msg, timestamp=ctx.message.created_at)
         emb.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar)
         try:await ctx.send(embed=emb)
         except Exception:return
@@ -107,8 +79,8 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def ping(self, ctx):
-        await ctx.reply(embed=Embed(description=f'**{config.dot_green} Current Response Time : `{round(self.bot.latency*1000)}ms`**', color=config.green))
-        # else:await ctx.reply(embed=Embed(description=f'**{config.ping}Current Response Time : `{round(self.bot.latency*1000)}MS`**'))
+        await ctx.reply(embed=Embed(description=f'**{emoji.dot_green} Current Response Time : `{round(self.bot.latency*1000)}ms`**', color=color.green))
+        # else:await ctx.reply(embed=Embed(description=f'**{emoji.ping}Current Response Time : `{round(self.bot.latency*1000)}MS`**'))
 
 
 
@@ -142,7 +114,7 @@ class Utility(commands.Cog):
             return await config.vtm(ctx)
         guild = guild or ctx.guild
         if guild.icon != None:
-            enm = Embed(title=guild.name, url=guild.icon, color=config.red)
+            enm = Embed(title=guild.name, url=guild.icon, color=color.red)
             enm.set_image(url=guild.icon)
             await ctx.send(embed=enm)
 
@@ -174,7 +146,7 @@ class Utility(commands.Cog):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
-        embed = Embed(description=message, color=config.blue)
+        embed = Embed(description=message, color=color.blue)
         await ctx.channel.purge(limit=1)
         await ctx.send(embed=embed)
 
@@ -211,15 +183,15 @@ class Utility(commands.Cog):
         await ctx.defer(ephemeral=True)
         if not user:
             user = ctx.author
-            msg = random.choice(whois)
+            msg = random.choice(constants.whois)
         if user.bot == True:
             return await ctx.send("**Bot is always awesome**")
         elif user.id == 885193210455011369:
-            owneremb = Embed(description=f"{user.mention} **Best Friend :heart:**", color=config.blue)
+            owneremb = Embed(description=f"{user.mention} **Best Friend :heart:**", color=color.blue)
             return await ctx.send(embed=owneremb)
         else:
-            msg = random.choice(whois)
-            emb = Embed(description=f"{user.mention}  {msg}", color=config.blurple)
+            msg = random.choice(constants.whois)
+            emb = Embed(description=f"{user.mention}  {msg}", color=color.blurple)
             await ctx.send(embed=emb)
 
     @commands.hybrid_command(with_app_command = True)
@@ -227,8 +199,8 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 8, commands.BucketType.user)
     async def toss(self, ctx):
         await ctx.defer(ephemeral=True)
-        msg = f"https://cdn.discordapp.com/emojis/{random.choice(coin)}.png"
-        emb = Embed(color=config.yellow)
+        msg = f"https://cdn.discordapp.com/emojis/{random.choice(constants.coin)}.png"
+        emb = Embed(color=color.yellow)
         emb.set_image(url=msg)
         await ctx.send(embed=emb)
 
@@ -273,7 +245,7 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.user)
     async def embed_img(self, ctx:commands.Context, image, *, message):
         await ctx.defer(ephemeral=True)
-        emb = Embed(description=message, color=config.blue)
+        emb = Embed(description=message, color=color.blue)
         emb.set_image(url=image)
         await ctx.channel.purge(limit=1)
         await ctx.send(embed=emb) 
@@ -305,7 +277,7 @@ class Utility(commands.Cog):
     async def member_count(self, ctx):
         await ctx.defer(ephemeral=True)
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        emb = Embed(title="Members", description=f"{ctx.guild.member_count}", color=config.teal)
+        emb = Embed(title="Members", description=f"{ctx.guild.member_count}", color=color.teal)
         emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
         await ctx.send(embed=emb)
 
@@ -341,13 +313,13 @@ class Utility(commands.Cog):
         #\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nTotal Disk: {disk.total//10**9} GB
         mem_percent = f"{(psutil.Process(os.getpid()).memory_percent()):.2f}"
         system_info = f"`{memory.total / (1024**3):.2f} GB`/ `{psutil.Process(os.getpid()).memory_info().rss//2**20} MB`/ `{mem_percent}%`"
-        emb = Embed(title="Spruce Bot", color=config.green)
-        emb.add_field(name=f"{config.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
-        emb.add_field(name=f"{config.invite} __Members__", value=f"`{'{:,}'.format(self.mmbrs())}`", inline=True)
-        emb.add_field(name=f"{config.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
-        # emb.add_field(name=f"{config.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
-        # emb.add_field(name=f"{config.setting} __Command Prefix__", value=f"Command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
-        emb.add_field(name=f"{config.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
+        emb = Embed(title="Spruce Bot", color=color.green)
+        emb.add_field(name=f"{emoji.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
+        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(self.mmbrs())}`", inline=True)
+        emb.add_field(name=f"{emoji.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
+        # emb.add_field(name=f"{emoji.developer} __Developer__", value="[hunter87ff](https://discord.com/users/885193210455011369)", inline=False)
+        # emb.add_field(name=f"{emoji.setting} __Command Prefix__", value=f"Command: {config.prefix}help, prefix: {config.prefix}  ", inline=False)
+        emb.add_field(name=f"{emoji.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
         return await ctx.send(embed=emb)
     
@@ -406,11 +378,11 @@ class Utility(commands.Cog):
         await ms.edit(content="Creating Ticket Channel...")
         await ticketChannel.set_permissions(ctx.guild.default_role, read_messages=True, send_messages=False)
         await ms.edit(content="Creating Ticket Message...")
-        embed = Embed(title="Create Ticket", description="Click on the button to create a ticket!!", color=config.green)
+        embed = Embed(title="Create Ticket", description="Click on the button to create a ticket!!", color=color.green)
         embed.set_footer(text=ctx.guild.name, icon_url=ctx.guild.icon.url)
         if not button_color:button_color = ButtonStyle.blurple
         else:button_color = button_color.value
-        view = View().add_item(Button(emoji=button_emoji or config.default_ticket, label=button_label or "Create Ticket", style=button_color, custom_id=f"{self.bot.user.id}SPticket"))
+        view = View().add_item(Button(emoji=button_emoji or emoji.default_ticket, label=button_label or "Create Ticket", style=button_color, custom_id=f"{self.bot.user.id}SPticket"))
         await ms.edit(content="Sending Ticket Message...")
         await ticketChannel.send(embed=embed, view=view)
         await ms.edit(content="Ticket System Setup Done")
@@ -425,7 +397,7 @@ class Utility(commands.Cog):
             if not interaction.channel.category: return await interaction.response.send_message("**Please move this channel to a category. to create tickets**", delete_after=10)
             channel = await interaction.channel.category.create_text_channel(f"ticket-{interaction.user}", reason="Ticket Created")
             await channel.set_permissions(interaction.user, read_messages=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True, add_reactions=True)
-            embed = Embed(title="Ticket Created", description=f"**{config.arow}Thanks for contacting\n{config.arow}Feel free to communicate**", color=config.green)
+            embed = Embed(title="Ticket Created", description=f"**{emoji.arow}Thanks for contacting\n{emoji.arow}Feel free to communicate**", color=color.green)
             view = View().add_item(Button(label="Close Ticket", style=ButtonStyle.red, custom_id=f"{self.bot.user.id}SPTcancel"))
             await channel.send(f"<@{interaction.user.id}>", embed=embed, view=view)
             await interaction.response.send_message(f"**Ticket <#{channel.id}> Created Successfully**", ephemeral=True, delete_after=10)
@@ -435,10 +407,10 @@ class Utility(commands.Cog):
             closeCancel = Button(label="Cancel", style=ButtonStyle.green)
             view = View()
             view.add_item(closeConfirm); view.add_item(closeCancel)
-            await interaction.response.send_message(embed=Embed(description="Are You Sure?", color=config.red), view=view, delete_after=10)
+            await interaction.response.send_message(embed=Embed(description="Are You Sure?", color=color.red), view=view, delete_after=10)
 
             async def closeTicket(interaction:Interaction):
-                await interaction.response.send_message(embed=Embed(description="Closing Ticket...", color=config.red), ephemeral=True)
+                await interaction.response.send_message(embed=Embed(description="Closing Ticket...", color=color.red), ephemeral=True)
                 await interaction.channel.delete(reason="Ticket Closed")
 
             async def cancelClose(interaction:Interaction):
