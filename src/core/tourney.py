@@ -654,7 +654,7 @@ class Esports(commands.Cog):
             if msg.author.id == self.bot.user.id and msg.embeds:
                 if "TEAM" in msg.embeds[0].description:teams.append(msg)
 
-        if len(teams) < 1:return await ctx.send("Minimum Number Of Teams Is't Reached!!")
+        if len(teams) < 1:return await ctx.send("Minimum Number Of Teams Isn't Reached!!")
         category = await ctx.guild.create_category(name=f"{tprefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
         group = int(len(teams)/spg)
@@ -694,7 +694,11 @@ class Esports(commands.Cog):
         if not db:return await ctx.send(embed=discord.Embed(description=self._tnotfound, color=config.red), delete_after=10)
         rch = self.bot.get_channel(db["rch"])
         mch = await rch.category.create_text_channel(name="manage-slot")
-        emb = discord.Embed(title=rch.category.name, description=f"{config.arow} **Cancel Slot** : To Cancel Your Slot\n{config.arow} **My Slot** : To Get Details Of Your Slot\n{config.arow} **Team Name** : To Change Your Team Name", color=config.cyan)
+        emb = discord.Embed(
+            title=rch.category.name, 
+            description=f"{config.arow} **Cancel Slot** : To Cancel Your Slot\n{config.arow} **My Slot** : To Get Details Of Your Slot\n{config.arow} **Team Name** : To Change Your Team Name", 
+            color=config.cyan
+        )
         buttons = [Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id="Cslot"),
                     Button(label='My Slot', style=discord.ButtonStyle.blurple, custom_id="Mslot"),
                     Button(label='Team Name', style=discord.ButtonStyle.green, custom_id="Tname"),

@@ -341,7 +341,7 @@ class Utility(commands.Cog):
         roles = ', '.join([role.mention for role in guild.roles[::-1][:20]])
         if len(roles) > 20:roles += "..."
         emb = Embed(title=f"{ctx.guild.name}'s Information",description=f"**__About__**\n**Name** : {guild.name}\n**Id** : {guild.id}\n**Owner** : <@{guild.owner_id}>\n**Members** : {guild.member_count}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {guild.premium_tier}\n**Emojis** : {len(guild.emojis)}/{guild.emoji_limit}\n**Stickers** : {len(guild.stickers)}/{guild.sticker_limit}\n\n**__Server Roles__ [{len(guild.roles)}]** :\n{roles}\n\n**__Description__**\n{guild.description}",color=0xf1c40f)
-        emb.set_thumbnail(url=guild.icon.url)
+        emb.set_thumbnail(url=guild.icon.url or self.bot.user.avatar.url)
         if ctx.guild.banner:emb.set_image(url=ctx.guild.banner.url)
         emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=emb)
