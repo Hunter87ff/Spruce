@@ -769,7 +769,8 @@ class Esports(commands.Cog):
     # With this command you can send a message containing a button to register a team
     # Then the user can submit a regiatration form to register their team
     # but there is a issue with the teammate mention and i'm working on it 
-    @commands.hybrid_command(with_app_command = True)
+    # @commands.hybrid_command(with_app_command = True)
+    @commands.command()
     @commands.guild_only()
     @config.dev()
     @commands.has_role("tourney-mod")
