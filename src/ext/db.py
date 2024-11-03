@@ -32,7 +32,7 @@ class Database:
             self.GEMAPI = self.cfdata["gemapi"]
             self.spot_id = self.cfdata["spot_id"]
             self.spot_secret = self.cfdata["spot_secret"]
-            self.bws = self.cfdata["bws"]
+            self.bws:list[str] = self.cfdata["bws"]
             self.m_host = self.cfdata["m_host"]
             self.m_host_psw = self.cfdata.get("m_host_psw")
             self.gh_api = self.cfdata.get("git_api")

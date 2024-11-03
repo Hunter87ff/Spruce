@@ -1,3 +1,14 @@
+"""
+This module contains all the constants used in the bot.
+"""
+
+__all__ = (
+    "NaturalLang",
+    "whois",
+    "bws_replacement",
+    "coin"
+)
+
 from enum import Enum
 
 
@@ -25,7 +36,7 @@ class NaturalLang(Enum):
     Spanish = "es"
     Vietnamese = "vi"
 
-
+# whoiss command assets
 whois = [
     "Noob","Unknown Person",
     "kya pata mai nehi janta",
@@ -41,6 +52,30 @@ whois = [
     "bhagwan", 
     "e-smart ultra pro max"
     ]
+
+
+# good words about a person
+bws_replacement = {
+    "awesome",
+    "amazing",
+    "cool",
+    "nice",
+    "good",
+    "great",
+    "smart",
+    "intelligent",
+    "kind",
+    "helpful",
+    "friendly",
+    "funny",
+    "beautiful",
+    "handsome",
+    "pretty",
+    "cute",
+    "attractive",
+    "charming",
+    "lovely",
+}
 
 coin = [
     "975413333291335702", 

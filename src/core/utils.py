@@ -52,7 +52,7 @@ class Utility(commands.Cog):
 
     @app_commands.command()
     async def translate(self, interaction:Interaction, fr:constants.NaturalLang, to:constants.NaturalLang, *, message:str):
-        return await interaction.response.send_message(embed=Embed(description=trn(config.cfdata["trnsl"], fr.value, to.value, message), color=color.blurple), ephemeral=True)
+        return await interaction.response.send_message(embed=Embed(description=trn(config.get_db().cfdata.get("trnsl"), fr.value, to.value, message), color=color.blurple), ephemeral=True)
 
 
 
@@ -157,8 +157,15 @@ class Utility(commands.Cog):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+        bws:set[str] = set(config.get_db().bws)
+
         if len(message.split()) > 150 and len(message)<=1000:
             return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
+        
+        if bws.intersection(set(message.split())):
+            for i in bws.intersection(set(message.split())):
+                message = message.replace(i, random.choice(constants.bws_replacement))
+
         output = gTTS(text=message, lang="en", tld="co.in")
         file_name = f"tts_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.ogg"
         output.save(file_name)

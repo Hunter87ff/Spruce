@@ -35,14 +35,18 @@ class Music(commands.Cog):
         if not player:return
         track: wavelink.Playable = payload.track
         tm = "%H:%M:%S"
-        if track.length//1000 < 3599:tm = "%M:%S"
-        embed = Embed(title=f"{config.music_disk} Now Playing", color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
+        if track.length//1000 < 3599:
+            tm = "%M:%S"
+        embed = Embed(
+            title=f"{config.music_disk} Now Playing", 
+            color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in controlButtons:view.add_item(button)
         
         messages:list[Message] = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
         for i in messages:
-            if i.author.id == self.bot.user.id and i.embeds[0].title == f"{config.music_disk} Now Playing":await i.delete() if i else None
+            if i and i.author.id == self.bot.user.id and i.embeds[0].title == f"{config.music_disk} Now Playing":
+                await i.delete() if i else None
         self.message = await player.home.send(embed=embed, view=view)
 
     @commands.Cog.listener()
