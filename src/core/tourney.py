@@ -102,8 +102,8 @@ class Esports(commands.Cog):
             if not tmrole:tmrole = await ctx.guild.create_role(name="tourney-mod")
             if tmrole and not ctx.author.guild_permissions.administrator:
                 if tmrole not in ctx.author.roles:return await ctx.send(f"You Must Have {tmrole.mention} role to run rhis command")
-            if int(total_slot) > 20000:return await ctx.send("Total Slot should be below 20000")
-            if int(total_slot) < 20000:
+            if int(total_slot) > 1100:return await ctx.send("Total Slot should be below 1100")
+            if int(total_slot) < 1100:
                 overwrite = ctx.channel.overwrites_for(bt)
                 overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, add_reactions=True, manage_channels=True, external_emojis=True, view_channel=True)
                 reason= f'Created by {ctx.author.name}'   #reason for auditlog
