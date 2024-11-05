@@ -7,7 +7,7 @@
  of this license document, but changing it is not allowed.
 """
 import ast, traceback
-import wavelink,requests, time
+import wavelink,requests
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
@@ -21,12 +21,15 @@ intents.reactions = True
 intents.members = True
 intents.voice_states = True
 intents.guilds = True
-pt = time.time()
-db = config.get_db()
+
+
 
 class Spruce(commands.AutoShardedBot):
     """
     The main bot class that inherits from discord.ext.commands.AutoShardedBot
+    ```
+    class Spruce(commands.AutoShardedBot)
+    ```
     """
     def __init__(self) -> None:
         self.config = config
@@ -47,7 +50,7 @@ class Spruce(commands.AutoShardedBot):
         if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
         self.remove_command("help")
         for i in self.core:await self.load_extension(f"core.{i}")
-        nodes = [Node(uri=db.m_host, password=db.m_host_psw)]
+        nodes = [Node(uri=self.db.m_host, password=self.db.m_host_psw)]
         await Pool.connect(nodes=nodes, client=self, cache_capacity=None)
 
     async def on_ready(self):
@@ -57,7 +60,7 @@ class Spruce(commands.AutoShardedBot):
             config.logger.info(stmsg)
             await config.vote_add(self)
             requests.post(
-                url=db.cfdata.get("stwbh"), 
+                url=self.db.cfdata.get("stwbh"), 
                 json={
                     "content":f"<@{config.owner_id}>",
                     "embeds":[
@@ -84,9 +87,9 @@ class Spruce(commands.AutoShardedBot):
         try:
             obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
             if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
-                return db.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
+                return self.db.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
             if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
-                return db.paydbc.delete_one({"guild_id":obj.guild_id})
+                return self.db.paydbc.delete_one({"guild_id":obj.guild_id})
             print("Ignored the check")
         except Exception:
             traceback.print_exc()
@@ -105,10 +108,10 @@ class Spruce(commands.AutoShardedBot):
         await message_handle.error_handle(ctx, error, self)
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
-        tourch = db.dbc.find_one({"rch" : channel.id})
+        tourch = self.db.dbc.find_one({"rch" : channel.id})
         dlog = self.get_channel(config.tdlog)
         if tourch:
-            db.dbc.delete_one({"rch" : channel.id})
+            self.db.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")
 
 bot = Spruce()
