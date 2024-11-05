@@ -63,7 +63,7 @@ class Logger:
         Logger._logger.info(message)
 
     @staticmethod
-    def warning( message):
+    def warning( message, *args):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('WARNING')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
         Logger._logger.warning(message)

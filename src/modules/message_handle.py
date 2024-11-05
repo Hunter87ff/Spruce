@@ -284,8 +284,6 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
             await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
         elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
             return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
-        elif isinstance(error, commands.UserInputError):
-            return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
         elif isinstance(error, commands.EmojiNotFound):
             return await ctx.send(embed=Embed(color=0xff0000, description="Emoji Not Found"))
         elif isinstance(error, commands.NotOwner):
@@ -334,9 +332,11 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
             return await ctx.send(embed=Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
         elif "error code: 30013" in str(error):
             return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
+        elif isinstance(error, commands.UserInputError):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
         elif isinstance(error, config.discord.HTTPException):
             await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)}\n```")
 
     except Exception as e:
-        await config.error_log(bot=bot, ctx=ctx, exception=traceback.format_exception(e))
+        await config.logger.warning(traceback.format_exception(e))

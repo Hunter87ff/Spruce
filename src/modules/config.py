@@ -1,5 +1,4 @@
 from os import environ as env
-import sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -114,25 +113,3 @@ async def is_dev(ctx:commands.Context | discord.Interaction):
               return False
     return True
     
-async def error_log(bot:commands.Bot, ctx:commands.Context, exception:str|list):
-    """
-    Logs the error in the error log channel
-    """
-    try:
-        erl = bot.get_channel(erl)
-        await logger.error(ctx.message, exception)
-        await erl.send(f"""
-                        <@885193210455011369>
-                        ```py
-                        Command : {ctx.command.name}
-                        Guild Name: {ctx.guild}
-                        Guild Id : {ctx.guild.id}
-                        Channel Id : {ctx.channel.id}
-                        User Tag : {ctx.author}
-                        User Id : {ctx.author.id}
-
-                        Traceback: {exception}
-                        ```"""
-        )
-    except Exception as e:
-          await logger.error(ctx.message, e)
