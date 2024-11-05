@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import os
+from typing import Any
 from ext import Logger
 
 class Database:
@@ -27,7 +28,7 @@ class Database:
             self.guildbc = self.maindb["guildb"]["guildbc"]
 
             # Load configuration data from the main config collection
-            self.cfdata = dict(self.cfdbc.find_one({"config_id": 87}))
+            self.cfdata:dict = dict(self.cfdbc.find_one({"config_id": 87}))
             self.token = self.cfdata.get(os.environ["tkn"])
             self.GEMAPI = self.cfdata["gemapi"]
             self.spot_id = self.cfdata["spot_id"]

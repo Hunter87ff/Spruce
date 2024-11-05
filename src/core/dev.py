@@ -8,7 +8,7 @@
  """
 
 import discord
-from modules import config, payment
+from modules import config, payment, bot as spruce
 from discord.ext import commands
 from typing import Any
 import psutil, enum
@@ -24,7 +24,7 @@ class Plans(enum.Enum):
 
 class dev(commands.Cog):
     def __init__(self, bot):
-        self.bot:commands.Bot = bot
+        self.bot:spruce.Spruce = bot
 
 
     @discord.app_commands.command(description="Use coupon code SP10 to get 10% Discount.")
@@ -35,11 +35,21 @@ class dev(commands.Cog):
         amount = plan.value if (interaction.user.id != config.owner_id) else 1
         url:str = f"{config.BASE_URL}/payment/prime?session="
         if plan != Plans.Custom:
-            url += payment.create_order(customer_id=ctx.guild.id, customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), amount=amount).payment_session_id
+            url += payment.create_order(
+                customer_id=ctx.guild.id, 
+                customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), 
+                amount=amount
+            ).payment_session_id
         if plan == Plans.Custom:
             url = config.support_server
         button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
-        await interaction.response.send_message(embed=discord.Embed(title="Get Prime", description="Click the button to get prime", color=0x00ff00),view=discord.ui.View().add_item(button))
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title="Get Prime", 
+                description="Click the button to get prime", 
+                color=0x00ff00
+                ),
+            view=discord.ui.View().add_item(button))
 
     @commands.command(hidden=True)
     @config.dev()
@@ -77,7 +87,7 @@ class dev(commands.Cog):
     async def dbupdate(self, ctx:commands.Context, key:str, *, value:Any):
         if ctx.author.bot:return
         try:
-            config.cfdbc.update_one({"config_id": 87}, {"$set":{key:value}})
+            self.bot.db.cfdbc.update_one({"config_id": 87}, {"$set":{key:value}})
             await ctx.send(f"Updated {key} to {value}")
         except Exception as e:await ctx.reply(e)
         
@@ -164,11 +174,11 @@ class dev(commands.Cog):
     @commands.guild_only()
     async def add_dev(self, ctx:commands.Context, member:discord.Member):
         if ctx.author.bot or ctx.author.id != config.owner_id:return await ctx.send("You are not allowed to use this command")
-        if member.id not in config.devs:
-            config.devs.add(member.id)
+        if member.id not in self.bot.db.cfdata["devs"]:
+            self.bot.devs.append(member.id)
             await ctx.send(f"Added {member.name} to devs")
         else:
-            config.devs.remove(member.id)
+            self.bot.devs.remove(member.id)
             await ctx.send(f"Removed {member.name} from devs")
 
 

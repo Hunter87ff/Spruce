@@ -6,7 +6,12 @@ __all__ = (
     "NaturalLang",
     "whois",
     "bws_replacement",
-    "coin"
+    "coin",
+    "say",
+    "history",
+    "name",
+    "unfair",
+    "repl_yes",
 )
 
 from enum import Enum
@@ -80,4 +85,39 @@ bws_replacement = {
 coin = [
     "975413333291335702", 
     "975413366493413476"
-    ]
+]
+
+say:list[str] = [
+    "bolo ki", 
+    "say", 
+    "bolo", 
+    "bolie", 
+    "kaho"
+]
+
+history=[
+    {"role": "user","parts": ["what is your name?"]},
+    {"role": "model","parts": ["im spruce!! an awesome discord bot. nice to meet you btw!!"]},
+    {"role": "user","parts": ["what you can do?"]},
+    {"role": "model","parts": ["i can manage tournaments, chat with you, play music, moderate your server, and many more things!!"]}
+]
+
+name = {
+    "my name", 
+    "mera nam kya hai", 
+    "what is my name", 
+    "do you know my name"
+}
+
+unfair = [
+    {"q":"me harami", "a":"aap harami ho"}, 
+    {"q":"me useless", "a":"me really useful yes i know"}, 
+    {"q":"mein harami", "a":"aap harami nehi ho!! kya baat kar rhe ho"}, 
+    {"q":"i am a dog", "a":"im a bot!! Spruce Bot 😎"}
+]
+
+repl_yes = [
+    "ohh", 
+    "okey", 
+    "hm"
+]

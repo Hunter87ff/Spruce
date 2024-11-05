@@ -11,6 +11,7 @@ import wavelink,requests, time
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
+from ext import Database, Logger
 from modules import (config, payment, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message
 
@@ -24,11 +25,23 @@ pt = time.time()
 db = config.get_db()
 
 class Spruce(commands.AutoShardedBot):
+    """
+    The main bot class that inherits from discord.ext.commands.AutoShardedBot
+    """
     def __init__(self) -> None:
         self.config = config
         self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils", "tasks")
-        super().__init__(shard_count=config.shards, command_prefix= commands.when_mentioned_or(config.prefix),intents=intents,allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),activity=Activity(type=ActivityType.listening, name="&help"))
+        super().__init__(
+            shard_count=config.shards, 
+            command_prefix= commands.when_mentioned_or(config.prefix),
+            intents=intents,
+            allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
+            activity=Activity(type=ActivityType.listening, name="&help")
+        )
+        self.db: Database = Database()
+        self.devs:list[str] = self.db.cfdata["devs"]
+        self.logger:Logger = Logger
 
     async def setup_hook(self) -> None:
         if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
@@ -43,7 +56,19 @@ class Spruce(commands.AutoShardedBot):
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
             config.logger.info(stmsg)
             await config.vote_add(self)
-            requests.post(url=db.cfdata.get("stwbh"), json={"content":f"<@{config.owner_id}>","embeds":[{"title":"Status","description":stmsg,"color":0xff00}]})
+            requests.post(
+                url=db.cfdata.get("stwbh"), 
+                json={
+                    "content":f"<@{config.owner_id}>",
+                    "embeds":[
+                        {
+                            "title":"Status",
+                            "description":stmsg,
+                            "color":0xff00
+                        }
+                    ]
+                }
+            )
         except Exception as ex:print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
@@ -67,8 +92,9 @@ class Spruce(commands.AutoShardedBot):
             traceback.print_exc()
 
     async def on_message(self, message:Message):
-        if message.channel.id == config.paylog: await self.fetch_payment_hook(message)
-        if config.notuser(message):return
+        if message.channel.id == config.paylog: 
+            await self.fetch_payment_hook(message)
+        elif config.notuser(message):return
         await self.process_commands(message)
         await self.chat_client.chat(message)
         if message.guild:

@@ -13,12 +13,12 @@ from asyncio import sleep
 from discord.ext import commands
 import datetime
 import humanfriendly
-from modules import config
+from modules import config, bot as bt
 import typing
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
-        self.bot:commands.Bot = bot
+        self.bot:bt.Spruce = bot
 
     @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(manage_roles=True)
@@ -57,7 +57,6 @@ class Moderation(commands.Cog):
     @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
-    #@commands.cooldown(2, 30, commands.BucketType.user)
     @commands.bot_has_permissions(manage_roles=True)
     async def hide(self, ctx:commands.Context, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
         await ctx.defer()

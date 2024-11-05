@@ -67,7 +67,6 @@ async def vote_add(bot:commands.Bot):
     vtl = bot.get_channel(votel)
     votes = [message async for message in vtl.history(limit=500)]
 	
-#functions
 async def voted(ctx:commands.Context, bot:commands.Bot):
 	if get_db().cfdata["vote_only"] == False: return "yes"
 	vtl = bot.get_channel(votel)
@@ -101,6 +100,9 @@ def notuser(message:Message):
 	return True if message.author.bot or message.webhook_id else False
 
 async def is_dev(ctx:commands.Context | discord.Interaction):
+    """
+    Checks if the user is a developer
+    """
     if isinstance(ctx, discord.Interaction): 
         if ctx.user.id not in get_db().cfdata["devs"]:
               await ctx.response.send_message("Command is under development", ephemeral=True)
@@ -112,3 +114,25 @@ async def is_dev(ctx:commands.Context | discord.Interaction):
               return False
     return True
     
+async def error_log(bot:commands.Bot, ctx:commands.Context, exception:str|list):
+    """
+    Logs the error in the error log channel
+    """
+    try:
+        erl = bot.get_channel(erl)
+        await logger.error(ctx.message, exception)
+        await erl.send(f"""
+                        <@885193210455011369>
+                        ```py
+                        Command : {ctx.command.name}
+                        Guild Name: {ctx.guild}
+                        Guild Id : {ctx.guild.id}
+                        Channel Id : {ctx.channel.id}
+                        User Tag : {ctx.author}
+                        User Id : {ctx.author.id}
+
+                        Traceback: {exception}
+                        ```"""
+        )
+    except Exception as e:
+          await logger.error(ctx.message, e)

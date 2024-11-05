@@ -113,8 +113,17 @@ class PaymentHook:
 
 def create_order(customer_id:str, customer_name:str, customer_ph:str="8474090589", order_id:str=None, amount:int=1, currency:str="INR") -> PaymentOrder|None:
     order_id = order_id or str(customer_id) + create_token(10)
-    customer_details = CustomerDetails(customer_id=str(customer_id), customer_phone=str(customer_ph), customer_name=customer_name)
-    create_order = CreateOrderRequest(order_id=order_id, order_amount=amount, order_currency=currency, customer_details=customer_details)
+    customer_details = CustomerDetails(
+        customer_id=str(customer_id), 
+        customer_phone=str(customer_ph), 
+        customer_name=customer_name
+    )
+    create_order = CreateOrderRequest(
+        order_id=order_id, 
+        order_amount=amount, 
+        order_currency=currency, 
+        customer_details=customer_details
+    )
     order_meta = OrderMeta()
     order_meta.return_url =  config.support_server
     create_order.order_meta = order_meta

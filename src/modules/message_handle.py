@@ -282,7 +282,6 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
             return await ctx.send(embed=Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
         elif isinstance(error, commands.CommandNotFound):
             await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
-            # return await ctx.send(embed=Embed(color=0xff0000, description="Command Not Found! Please Check Spelling Carefully."))
         elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
             return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         elif isinstance(error, commands.UserInputError):
@@ -339,6 +338,5 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
             await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)}\n```")
 
-    except Exception:pass
-        #e = str(error)
-        #await ctx.reply("Something Went Wrong. Don't worry! I've Reported To Developers. You'll Get Reply Soon.\nThanks For Playing With Me ❤️", delete_after=30)
+    except Exception as e:
+        await config.error_log(bot=bot, ctx=ctx, exception=traceback.format_exception(e))
