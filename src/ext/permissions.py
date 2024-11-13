@@ -52,7 +52,7 @@ def has_guild_permissions(**perms: bool):
 
 
 
-def has_role(role:str):
+def has_role(role:str, ctx:commands.Context=None): #type: ignore
     """Check if the user has a role"""
     async def predicate(ctx:commands.Context):
         if not ctx.guild:return False
@@ -63,7 +63,7 @@ def has_role(role:str):
     return commands.check(predicate)
 
 
-def has_any_role(*roles:str):
+def has_any_role(*roles:str): #type: ignore
     """Check if the user has any of the roles"""
     async def predicate(ctx:commands.Context):
         if not ctx.guild:return False
