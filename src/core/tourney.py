@@ -408,7 +408,7 @@ class Esports(commands.Cog):
             buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4]
             view = View()
             emb = discord.Embed(title=rch.category.name, description=f"**Total Slot : {tourn.tslot}\nRegistered : {tourn.reged}\nMentions : {tourn.mentions}\nStatus : {tourn.status}\nPublished : {tourn.pub.upper()}\nPrize : {tourn.prize}\nSlot per group: {tourn.spg}\nFakeTag Allowed : {tourn.faketag.upper()}\nRegistration : <#{tourn.rch}>\nConfirm Channel: <#{tourn.cch}>\nGroup Channel: <#{tourn.gch}>\nConfirm Role : <@&{tourn.crole}>**", color=config.cyan, timestamp=datetime.datetime.now())
-            emb.set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.avatar.url)
+            emb.set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.avatar.url or ctx.me.avatar.url)
             for button in buttons:
                 view.add_item(button)
             msg1 = await ctx.send(embed=emb, view=view)
