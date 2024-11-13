@@ -336,7 +336,7 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
             return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
         elif isinstance(error, config.discord.HTTPException):
             await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
-        else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)}\n```")
+        else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)[:1000]}\n```")
 
     except Exception as e:
-        config.logger.warning(traceback.format_exception(e)[:1000])
+        config.logger.warning(traceback.format_exception(e))
