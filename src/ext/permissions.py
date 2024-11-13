@@ -81,6 +81,8 @@ def owner_only():
 def dev_only():
     """Check if the user is a developer"""
     async def predicate(ctx:commands.Context):
-        await ctx.send("Command is under development", ephemeral=True)
-        return ctx.message.author.id in db.cfdata["devs"]
+        is_dev = ctx.message.author.id in db.cfdata["devs"]
+        if not is_dev :
+            await ctx.send("Command is under development or only for developers!!", ephemeral=True, delete_after=10)
+        return is_dev
     return commands.check(predicate)
