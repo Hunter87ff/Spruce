@@ -92,7 +92,7 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
         elif isinstance(error, config.discord.HTTPException):
             await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         else: 
-            text = f"<@885193210455011369>\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
+            text = f"<@885193210455011369>\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}\n\n\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
 
             if len(text) >= 1999:
                 await erl.send(file=File(fp=text, filename="error.txt"))
