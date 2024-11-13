@@ -41,6 +41,20 @@ class NaturalLang(Enum):
     Spanish = "es"
     Vietnamese = "vi"
 
+
+class TimeZone(Enum):
+    Asia_Kolkata = "Asia/Kolkata"
+    Asia_Tokyo = "Asia/Tokyo"
+    Asia_Shanghai = "Asia/Shanghai"
+    Asia_Singapore = "Asia/Singapore"
+    Asia_Dubai = "Asia/Dubai"
+    Asia_Bangkok = "Asia/Bangkok"
+    Asia_Hong_Kong = "Asia/Hong_Kong"
+    Asia_Bangladesh = "Asia/Dhaka"
+    Asia_Nepal = "Asia/Kathmandu"
+
+
+
 # whoiss command assets
 whois = [
     "Noob","Unknown Person",
@@ -121,3 +135,5 @@ repl_yes = [
     "okey", 
     "hm"
 ]
+# TEXT CONSTANTS
+PROCESSING = "Processing..."

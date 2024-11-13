@@ -3,6 +3,8 @@ import ext.constants as constants
 import ext.emoji as emoji
 import ext.color as color
 from ext.db import Database
+import ext.error as error
+import ext.permissions as permissions
 import locale
 
 __all__ = (
@@ -12,7 +14,9 @@ __all__ = (
     "constants",
     "emoji",
     "color",
-    "locale"
+    "locale",
+    "permissions",
+    "error"
     )
 
 class Tourney:

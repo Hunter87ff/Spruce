@@ -11,7 +11,7 @@ import wavelink,requests
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
-from ext import Database, Logger
+from ext import Database, Logger, error as error_handle
 from modules import (config, payment, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message
 
@@ -50,7 +50,10 @@ class Spruce(commands.AutoShardedBot):
         if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
         self.remove_command("help")
         for i in self.core:await self.load_extension(f"core.{i}")
-        nodes = [Node(uri=self.db.m_host, password=self.db.m_host_psw)]
+        if config.LOCAL_LAVA:
+            nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
+        elif not config.LOCAL_LAVA :
+            nodes = [Node(uri=self.db.m_host, password=self.db.m_host_psw)]
         await Pool.connect(nodes=nodes, client=self, cache_capacity=None)
 
     async def on_ready(self):
@@ -105,7 +108,7 @@ class Spruce(commands.AutoShardedBot):
             await config.vote_check(message)
          
     async def on_command_error(self, ctx:commands.Context, error):
-        await message_handle.error_handle(ctx, error, self)
+        await error_handle.manage_context(ctx, error, self)
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
         tourch = self.db.dbc.find_one({"rch" : channel.id})

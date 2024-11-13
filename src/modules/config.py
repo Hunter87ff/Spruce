@@ -20,16 +20,13 @@ bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
 MAINTAINER = "hunter87ff"
-LOCAL_LAVA  = False
+LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if env.get("LOCAL_LAVA", None) else None
 BASE_URL = "https://sprucbot.tech"
 support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = f"{BASE_URL}/invite"
 invite_url2 = f"https://discord.com/oauth2/authorize?client_id={bot_id}&permissions=8&scope=bot"
 support_server_id = 947443790053015623
-status = ["550k+ Members", '&help', "You", "Tournaments", "Feedbacks", "Text2Speech","Music", "Translate"]
 prefix = env.get("prefix", "&")
-
-
 DOMAIN = "sprucbot.tech"
 gh_action = f"https://api.github.com/repos/{MAINTAINER}/spruce/actions/workflows/py_application.yml/dispatches"
 gh_action_run = f"https://api.github.com/repos/{MAINTAINER}/Spruce/actions/workflows/py_application.yml/runs"
@@ -45,12 +42,6 @@ votel = 1099588071986573362
 tdlog = 1112411458513408090
 paylog = 1233044089398755378
 ################# emojis ####################
-
-
-
-# TEXT CONSTANTS
-PROCESSING = "Processing..."
-
 
 
 def get_db():
@@ -82,18 +73,10 @@ async def vote_check(message:Message):
         votes.append(message)
 			
 async def vtm(ctx:commands.Context):
-	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{bot_id}/vote")
+	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{ctx.me.id}/vote")
 	await ctx.send(embed=Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
-def dev():
-	def predicate(ctx:commands.Context):
-		return ctx.message.author.id in get_db().cfdata["devs"]
-	return commands.check(predicate)
 
-def owner_only():
-    def predicate(ctx:commands.Context):
-        return (ctx.message.author.id == owner_id)
-    return commands.check(predicate)
 
 def notuser(message:Message):
 	return True if message.author.bot or message.webhook_id else False

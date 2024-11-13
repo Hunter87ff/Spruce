@@ -9,6 +9,9 @@
 import os, time, platform
 from threading import Thread
 from modules import config
+if platform.system() == "Windows": os.system("cls")
+else: os.system("clear")
+
 db = config.get_db()
 def lavalink():
     if platform.system() == "Windows":os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
@@ -22,5 +25,5 @@ if config.LOCAL_LAVA :
     time.sleep(5)
     with open("lava/application.yml", "w") as f: f.write(content1.replace(db.spot_id, "spot_id").replace(db.spot_secret, "spot_secret"))
 
-del db
+
 import main

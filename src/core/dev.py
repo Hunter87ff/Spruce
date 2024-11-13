@@ -10,6 +10,7 @@
 import discord
 from modules import config, payment, bot as spruce
 from discord.ext import commands
+from ext import permissions
 from typing import Any
 import psutil, enum
 
@@ -28,7 +29,7 @@ class dev(commands.Cog):
 
 
     @discord.app_commands.command(description="Use coupon code SP10 to get 10% Discount.")
-    @config.dev()
+    @permissions.dev_only()
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
         ctx = interaction
         if ctx.user.bot:return
@@ -52,7 +53,7 @@ class dev(commands.Cog):
             view=discord.ui.View().add_item(button))
 
     @commands.command(hidden=True)
-    @config.dev()
+    @permissions.dev_only()
     async def system(self, ctx:commands.Context):
         if ctx.author.bot:return
         cpu_usage = psutil.cpu_percent()
@@ -64,7 +65,7 @@ class dev(commands.Cog):
         
     @commands.command(hidden=True)
     @commands.guild_only()
-    @config.dev()
+    @permissions.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def leaveg(self, ctx:commands.Context, member:int, guild_id:int=None):
         if ctx.author.bot:return
@@ -83,7 +84,7 @@ class dev(commands.Cog):
                 await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
     @commands.command(aliases=["dbu"])
-    @config.dev()
+    @permissions.dev_only()
     async def dbupdate(self, ctx:commands.Context, key:str, *, value:Any):
         if ctx.author.bot:return
         try:
@@ -93,7 +94,7 @@ class dev(commands.Cog):
         
 
     @commands.command()
-    @config.dev()
+    @permissions.dev_only()
     async def get_guild(self, ctx:commands.Context, guild:discord.Guild):
         if ctx.author.bot: return
         await ctx.defer()
@@ -105,11 +106,10 @@ class dev(commands.Cog):
         else: return await ctx.send("guild not found")						  
 
 
-    @commands.hybrid_command(with_app_command=True)
+    @commands.command()
     @commands.guild_only()
-    @config.dev()
+    @permissions.dev_only()
     async def dlm(self, ctx:commands.Context, msg:discord.Message):
-        await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         try:
             await msg.delete()
@@ -117,7 +117,7 @@ class dev(commands.Cog):
         except Exception:return await ctx.send("Not Possible")
 
     @commands.hybrid_command(with_app_command = True, hidden=True)
-    @config.dev()
+    @permissions.dev_only()
     @commands.dm_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def cdm(self, ctx:commands.Context,amount:int):
@@ -130,7 +130,7 @@ class dev(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, hidden=True)
     @commands.is_owner()
-    @config.dev()
+    @permissions.dev_only()
     async def edm(self, ctx:commands.Context, msg:discord.Message, *, content):
         if ctx.author.bot: return
         await ctx.defer(ephemeral=True)
@@ -142,7 +142,7 @@ class dev(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.guild_only()
-    @config.dev()
+    @permissions.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def sdm(self, ctx:commands.Context, member: discord.User, *, message):
         if ctx.author.id == config.owner_id:
@@ -156,7 +156,7 @@ class dev(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @config.dev()
+    @permissions.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def owners(self, ctx:commands.Context):
         ms = await ctx.send(f"{config.loading} Processing...")
@@ -181,7 +181,12 @@ class dev(commands.Cog):
             self.bot.devs.remove(member.id)
             await ctx.send(f"Removed {member.name} from devs")
 
-
+    @commands.command()
+    @commands.guild_only()
+    @permissions.dev_only()
+    async def get_log(self, ctx:commands.Context):
+        if ctx.author.bot:return
+        await ctx.send(file=discord.File("error.log"))
 
 
 

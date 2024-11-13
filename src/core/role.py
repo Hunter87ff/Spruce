@@ -11,6 +11,7 @@ from asyncio import sleep
 from modules import config
 from discord.ext import commands
 from discord import  Embed, Role, File, Member, utils, Guild, Message
+from ext import constants
 cmd = commands
 
 class Roles(commands.Cog):
@@ -37,7 +38,7 @@ class Roles(commands.Cog):
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
             
-        msg = await ctx.send(f"{config.loading} {config.PROCESSING}")
+        msg = await ctx.send(f"{config.loading} {constants.PROCESSING}")
         for role in roles:
             if ctx.author.top_role.position < role.position:
                 return await ctx.send("Role Is Higher Than Your Top Role", delete_after=5)
@@ -78,7 +79,7 @@ class Roles(commands.Cog):
     async def give_role(self, ctx:commands.Context, role: Role, *users: Member):
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        ms:Message = await ctx.send(f"{config.PROCESSING}")
+        ms:Message = await ctx.send(f"{constants.PROCESSING}")
         given = []
         if ctx.me.top_role.position <= role.position and ms:return await ms.edit(content="```\nMy Top Role position Is not higher enough\n```")
         if ctx.author.top_role.position < role.position and ms:return await ms.edit(content="You can Not manage that role")
@@ -110,7 +111,7 @@ class Roles(commands.Cog):
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def remove_role_members(self, ctx:commands.Context, role: Role, reason=None):
         if ctx.author.bot:return
-        prs = await ctx.send(f"{config.loading} | {config.PROCESSING}")
+        prs = await ctx.send(f"{config.loading} | {constants.PROCESSING}")
         if reason == None:
             reason = f"{role} removed by {ctx.author}"
         for member in role.members:
@@ -163,7 +164,7 @@ class Roles(commands.Cog):
         await ctx.reply("If You're Running this command by mistake! You Can Run `&help ra_role`")
         if reason == None:
             reason = f"{role2.name} added by {ctx.author}"
-        msg = await ctx.send(f"**{config.loading} {config.PROCESSING}**")
+        msg = await ctx.send(f"**{config.loading} {constants.PROCESSING}**")
         for m in role1.members:
             if m.top_role.position < bt.top_role.position:
                 await m.add_roles(role2, reason=reason)
@@ -222,7 +223,7 @@ class Roles(commands.Cog):
     async def role_all_human(self, ctx:commands.Context, role: Role):
         if ctx.author.bot:return
         await ctx.defer()
-        prs = await ctx.send(f"{config.PROCESSING}")
+        prs = await ctx.send(f"{constants.PROCESSING}")
         if role.permissions.administrator:
             return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
         if ctx.author.top_role.position <= role.position:
@@ -246,7 +247,7 @@ class Roles(commands.Cog):
     async def role_all_bot(self, ctx:commands.Context, role: Role):
         await ctx.defer()
         if ctx.author.bot:return
-        prs = await ctx.send(f"{config.PROCESSING}")
+        prs = await ctx.send(f"{constants.PROCESSING}")
         if role.permissions.administrator:
             return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
         if ctx.author.top_role.position <= role.position:
@@ -272,7 +273,7 @@ class Roles(commands.Cog):
     async def hide_roles(self, ctx:commands.Context):
         await ctx.defer()
         if ctx.author.bot:return
-        msg = await ctx.send(f'{config.loading}** {config.PROCESSING}**')
+        msg = await ctx.send(f'{config.loading}** {constants.PROCESSING}**')
         roles = ctx.guild.roles
         for role in roles:
             if role.position < ctx.author.top_role.position:
@@ -287,7 +288,7 @@ class Roles(commands.Cog):
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def unhide_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
-        msg = await ctx.send(f'{config.loading}** {config.PROCESSING}**')
+        msg = await ctx.send(f'{config.loading}** {constants.PROCESSING}**')
         for role in roles:
             if role.position < ctx.author.top_role.position:
                 try:await role.edit(hoist=True)

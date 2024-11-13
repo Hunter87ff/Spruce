@@ -16,6 +16,7 @@ from discord.utils import get
 from discord.ext import commands
 from discord.ui import Button, View
 from modules import config, checker
+from ext import constants, permissions
 dbc = config.get_db().dbc
 
 
@@ -96,7 +97,7 @@ class Esports(commands.Cog):
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)            
         front = get_front(name)
         try:
-            ms = await ctx.send(config.PROCESSING)
+            ms = await ctx.send(constants.PROCESSING)
             bt = ctx.guild.get_member(self.bot.user.id)
             tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
             if not tmrole:tmrole = await ctx.guild.create_role(name="tourney-mod")
@@ -115,7 +116,7 @@ class Esports(commands.Cog):
                 await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"schedule", category=category,reason=reason)
                 roadmap = await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
-                rdmm = await roadmap.send(config.PROCESSING)
+                rdmm = await roadmap.send(constants.PROCESSING)
                 await ctx.guild.create_text_channel(str(front)+"point-system", category=category,reason=reason)
                 await sleep(1) #sleep
                 htrc = await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
@@ -209,7 +210,7 @@ class Esports(commands.Cog):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        snd = await ctx.send(f"{config.loading} | {config.PROCESSING}")
+        snd = await ctx.send(f"{config.loading} | {constants.PROCESSING}")
         cat = await ctx.guild.create_category(name="GIRLS LOBBY")
         crl = await ctx.guild.create_role(name="GIRLS LOBBY", color=0xD02090)
         await cat.set_permissions(ctx.guild.default_role, connect=False, send_messages=False, add_reactions=False)
@@ -310,7 +311,7 @@ class Esports(commands.Cog):
         if ctx.author.bot:return 
         if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         await ctx.defer(ephemeral=True)
-        ms = await ctx.send(config.PROCESSING)
+        ms = await ctx.send(constants.PROCESSING)
         emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=config.invite_url, color=0x00ff00)
         data  = dbc.find({"pub" : "yes"})
         for i in data:
@@ -421,7 +422,7 @@ class Esports(commands.Cog):
                 await interaction.response.send_message("**Are You Sure To Delete The Tournament?**", view=view)
 
             async def delete_t_confirmed(interaction:discord.Interaction):
-                await interaction.message.edit(content=f"**{config.loading} {config.PROCESSING}**")
+                await interaction.message.edit(content=f"**{config.loading} {constants.PROCESSING}**")
                 dbc.delete_one({"rch" : registration_channel.id })
                 await save_delete(interaction)
                 await interaction.message.delete()
@@ -573,7 +574,7 @@ class Esports(commands.Cog):
         elif not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
         elif start < 1:return await ctx.reply("Starting Number Should Not Be Lower Than 1")
         elif end < start:return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
-        ms = await ctx.send(f"{config.loading}| {config.PROCESSING}")
+        ms = await ctx.send(f"{config.loading}| {constants.PROCESSING}")
         if category == None:category = await ctx.guild.create_category(name=f"{prefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
         for i in range(start, end+1):
@@ -747,7 +748,7 @@ class Esports(commands.Cog):
             await interaction.response.send_message("**Are You Sure To Delete The Tournament?**", view=view1)
 
         async def delete_t_confirmed(interaction:discord.Interaction):
-            await interaction.message.edit(content=f"**{config.loading} {config.PROCESSING}**")
+            await interaction.message.edit(content=f"**{config.loading} {constants.PROCESSING}**")
             x = dbc.delete_one({"rch" : int(tlist.values[0])})
             if x:
                 await interaction.message.delete()
@@ -756,7 +757,7 @@ class Esports(commands.Cog):
                 if channel: await self.tconfig(ctx)
 
         async def manage_tournament(interaction:discord.Interaction):
-            ms = await interaction.message.edit(content=f"**{config.loading} {config.PROCESSING}**")
+            ms = await interaction.message.edit(content=f"**{config.loading} {constants.PROCESSING}**")
             await self.tourney(ctx, registration_channel=ctx.guild.get_channel(int(tlist.values[0])))   
             await ms.delete()
 
@@ -772,7 +773,7 @@ class Esports(commands.Cog):
     # @commands.hybrid_command(with_app_command = True)
     @commands.command()
     @commands.guild_only()
-    @config.dev()
+    @permissions.dev_only()
     @commands.has_role("tourney-mod")
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     async def start_reg(self, ctx:commands.Context, registration_channel:discord.TextChannel):

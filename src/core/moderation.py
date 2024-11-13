@@ -53,10 +53,9 @@ class Moderation(commands.Cog):
 
 
 
-
     @commands.hybrid_command(with_app_command = True)
-    @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def hide(self, ctx:commands.Context, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
         await ctx.defer()
