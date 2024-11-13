@@ -339,4 +339,4 @@ async def error_handle(ctx:commands.Context, error:errors.DiscordException, bot:
         else: await erl.send(f"<@885193210455011369>\n```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\n{error}\nTraceback: {traceback.format_exception(error)}\n```")
 
     except Exception as e:
-        await config.logger.warning(traceback.format_exception(e))
+        config.logger.warning(traceback.format_exception(e)[:1000])
