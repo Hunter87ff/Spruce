@@ -144,7 +144,7 @@ def reg_update(message:Message):
 #duplicate Tag Check
 async def duplicate_tag_check(message:Message):
     ctx = message
-    messages = [message async for message in ctx.channel.history(limit=123)]  
+    messages = [message async for message in ctx.channel.history(limit=30)]  
     for fmsg in messages:
         if fmsg.author.id != ctx.author.id:
             for mnt in fmsg.mentions:
