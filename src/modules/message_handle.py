@@ -8,8 +8,8 @@
 """
 
 import re, traceback
-from modules import config
 from discord.ext import commands
+from ext.error import update_error_log
 from discord import utils, AllowedMentions, Embed, errors, Message, TextChannel, File
 from ext import Database
 db = Database()
@@ -73,6 +73,7 @@ async def process_registration_group(group:int,  grpc:TextChannel, bot:commands.
         cont = f"{ms.content}\n{get_slot(ms)} {msg}"
         return await ms.edit(content=cont)
 
+
 def get_group(reged:int):
     """Returns Group Number Based On Registered Teams
 
@@ -87,6 +88,8 @@ def get_group(reged:int):
     if grp > int(grp):grp = grp + 1
     return str(int(grp))
 
+
+"""This feature is no longer maintained!!"""
 async def auto_grp(message:Message, bot:commands.Bot):
     try:td = dbc.find_one({"cch":message.channel.id})
     except Exception:return
@@ -101,9 +104,8 @@ async def auto_grp(message:Message, bot:commands.Bot):
                 group = get_group(reged=reged)
                 return await process_registration_group(group=group, grpc=grpch, bot=bot, msg=message.content, totalSlot=td["tslot"])
 
-##########################################################################
-########################### SLOT CONFIRM SYSTEM ##########################
-##########################################################################
+
+
 def gp(info:str):
     match = ["INR", "inr" , "₹", "Inr", "$"]
     for i in match:
@@ -112,15 +114,17 @@ def gp(info:str):
             return f"{ad} {i}"
         else:return "No Data"
 
+
 async def get_prize(cch:TextChannel):
     info = cch.category.channels[0]
     finder = ["Prize", "prize", "PRIZE", "POOL", "Pool", "PrizE"]
-    messages = [message async for message in info.history(limit=123)]
+    messages = [message async for message in info.history(limit=10, oldest_first=True)]
     if len(messages) == 0:return "No Data Given"
     for i in messages:
         for p in finder:
             if p in str(i.content).split():return gp(info=i.content)
             else:return "No Data"
+
 
 def find_team(message:Message):
     content = message.content.lower()
@@ -130,14 +134,15 @@ def find_team(message:Message):
     teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
 
+
 def reg_update(message:Message):
     df = dbc.find_one({"rch" : message.channel.id})
     rgd = df["reged"] 
     dbc.update_one({"rch" : message.channel.id}, {"$set":{"reged": rgd + 1}})
 
 
-#Fake Tag Check
-async def ft_ch(message:Message):
+#duplicate Tag Check
+async def duplicate_tag_check(message:Message):
     ctx = message
     messages = [message async for message in ctx.channel.history(limit=123)]  
     for fmsg in messages:
@@ -146,102 +151,104 @@ async def ft_ch(message:Message):
                 if mnt in message.mentions:return mnt
     return None
 
+
 #Tourney System
 async def tourney(message:Message):
     if message.author.bot:return
-    if not message.guild:return
-    ctx = message
-    guild = message.guild
-    tmrole = utils.get(ctx.guild.roles, name="tourney-mod")
-    if tmrole in ctx.author.roles:return
+    elif not message.guild:return
     td = dbc.find_one({"rch" : message.channel.id})
-    if td is None:return
-    if td["status"] == "paused":await message.author.send("Registration Paused")
-    if td is not None and message.channel.id  == int(td["rch"]) and td["status"] == "started":
-        messages = [message async for message in ctx.channel.history(limit=2000)]
-        crole = utils.get(guild.roles, id=int(td["crole"]))
-        cch = utils.get(guild.channels, id = int(td["cch"]))
-        rch = utils.get(guild.channels, id = int(td["rch"]))
-        ments = td["mentions"]
-        rgs = td["reged"]
-        tslot = td["tslot"]
-        if not crole:
-            try:await message.author.send("Registration Paused")
-            except Exception:pass
-            await ctx.reply("Confirm Role Not Found")
-            return dbc.update_one({"rch" : ctx.channel.id}, {"$set" : {"status" : "paused"}})
-        if crole in message.author.roles:
-            try:await message.delete()
-            except Exception:pass
-            return await message.channel.send("**Already Registered**", delete_after=5)
-        if rgs > tslot:
-            overwrite = rch.overwrites_for(message.guild.default_role)
-            overwrite.update(send_messages=False)
-            await rch.set_permissions(guild.default_role, overwrite=overwrite)
-            await message.delete()
-            return await rch.send("**Registration Closed**")
-        elif len(message.mentions) >= ments:
-            for fmsg in messages:
-                
-                #IF FAKE TAG NOT ALLOWED
-                ########################
-                if td["faketag"] == "no":
-                    if fmsg.author.id == ctx.author.id and len(messages) == 1:
-                        await message.add_reaction("✅")
-                        reg_update(message)
-                        team_name = find_team(message)
-                        femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                        femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                        femb.timestamp = message.created_at
-                        femb.set_thumbnail(url=message.author.display_avatar)
-                        await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
-                        await message.author.add_roles(crole)
-                        if rgs >= tslot*0.1 and td["pub"] == "no":
-                            dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                    if fmsg.author.id != ctx.author.id:
-                        ftch = await ft_ch(message)
-                        if ftch != None:
-                            fakeemb = Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
-                            fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
-                            fakeemb.set_author(name=ctx.author, icon_url=ctx.author.avatar)
-                            if message: await message.delete()
-                            return await ctx.channel.send(embed=fakeemb, delete_after=60)
-                        if ftch == None:
-                            try:
-                                await message.author.add_roles(crole)
-                                await message.add_reaction("✅")
-                                reg_update(message)
-                                team_name = find_team(message)
-                                femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                                femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                                femb.timestamp = message.created_at   
-                                femb.set_thumbnail(url=message.author.display_avatar)
-                                if rgs >= tslot*0.1 and td["pub"] == "no":
-                                    dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                                return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
-                            except Exception as e:print(e)
-                                
-                #IF FAKE TAG ALLOWED
-                ####################
-                if td["faketag"] == "yes":
+    if not td :return
+    elif utils.get(message.author.roles, name="tourney-mod") : return
+    elif td["status"] == "paused":await message.author.send("Registration Paused")
+    elif message.channel.id  != int(td["rch"]) or td["status"] != "started": return
+    messages = [message async for message in message.channel.history(limit=2000)]
+    crole = utils.get(message.guild.roles, id=int(td["crole"]))
+    cch = utils.get(message.guild.channels, id = int(td["cch"]))
+    rch = utils.get(message.guild.channels, id = int(td["rch"]))
+    ments = td["mentions"]
+    rgs = td["reged"]
+    tslot = td["tslot"]
+    if not crole:
+        await message.author.send("Registration Paused") if message.author.dm_channel else None
+        await message.reply("Confirm Role Not Found")
+        return dbc.update_one({"rch" : message.channel.id}, {"$set" : {"status" : "paused"}})
+    elif crole in message.author.roles:
+        await message.delete() if message.guild.me.guild_permissions.manage_messages else None
+        return await message.channel.send("**Already Registered**", delete_after=5)
+    elif rgs > tslot:
+        overwrite = rch.overwrites_for(message.guild.default_role)
+        overwrite.update(send_messages=False)
+        await rch.set_permissions(message.guild.default_role, overwrite=overwrite)
+        await message.delete()
+        return await rch.send("**Registration Closed**")
+    elif len(message.mentions) >= ments:
+        for fmsg in messages:
+
+            #IF DUPLICATE TAG ALLOWED
+            ####################
+            if td["faketag"] == "yes":
+                await message.author.add_roles(crole)
+                await message.add_reaction("✅")
+                reg_update(message)
+                team_name = find_team(message)
+                nfemb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                nfemb.timestamp = message.created_at
+                nfemb.set_thumbnail(url=message.author.display_avatar)
+                if rgs >= tslot*0.1 and td["pub"] == "no":
+                    dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
+            
+            
+            #IF DUPLICATE TAG NOT ALLOWED
+            ########################
+
+            if fmsg.author.id == message.author.id and len(messages) == 1:
+                await message.add_reaction("✅")
+                reg_update(message)
+                team_name = find_team(message)
+                femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                femb.timestamp = message.created_at
+                femb.set_thumbnail(url=message.author.display_avatar or message.author.default_avatar or message.guild.icon or message.guild.me.avatar)
+                await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                await message.author.add_roles(crole)
+                if rgs >= tslot*0.1 and td["pub"] == "no":
+                    dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+
+            if fmsg.author.id != message.author.id:
+                ftch = await duplicate_tag_check(message)
+                if ftch != None:
+                    fakeemb = Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
+                    fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
+                    fakeemb.set_author(name=message.author, icon_url=message.author.avatar)
+                    if message: await message.delete()
+                    return await message.channel.send(embed=fakeemb, delete_after=60)
+                try:
                     await message.author.add_roles(crole)
                     await message.add_reaction("✅")
                     reg_update(message)
                     team_name = find_team(message)
-                    nfemb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
-                    nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-                    nfemb.timestamp = message.created_at
-                    nfemb.set_thumbnail(url=message.author.display_avatar)
+                    femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
+                    femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                    femb.timestamp = message.created_at   
+                    femb.set_thumbnail(url=message.author.display_avatar)
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
-                    return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
-        elif len(message.mentions) < ments:
-            meb = Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
-            try:await message.delete()
-            except Exception as e:print(f"line No 335, error: {e}")
-            return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
+                    return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
+                except Exception: update_error_log(traceback.format_exc())
+                    
 
-################# NITROF ######################
+
+    elif len(message.mentions) < ments:
+        meb = Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
+        try:await message.delete()
+        except Exception as e:print(f"line No 335, error: {e}")
+        return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
+
+
+
+################# NITRO ######################
 async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
     try:gnitro = db.guildbc.find_one({"guild_id" : message.guild.id})

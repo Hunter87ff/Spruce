@@ -390,7 +390,12 @@ class Esports(commands.Cog):
         rch = registration_channel
         tdb:dict = dbc.find_one({"rch": rch.id})   
         tourn = Tourney(tdb)
-        if tdb == None:return await ctx.reply(embed=discord.Embed(description=f"{config.cross} | Kindly Mention Registration Channel I'm Managing..", color=config.red), delete_after=30)    
+        if tdb == None:
+            emb = discord.Embed(
+                description=f"{config.cross} | Kindly Mention Registration Channel I'm Managing..", 
+                color=config.red
+            )
+            return await ctx.reply(embed=emb, delete_after=30)    
         if tdb != None:
             if tdb["pub"] == "no":pub = "Publish"; 
             if tdb["pub"] == "yes":pub = "Unlisted"; 
@@ -399,7 +404,6 @@ class Esports(commands.Cog):
             bt2 = Button(label="Total Slot", style=discord.ButtonStyle.green) 
             bt3 = Button(label="Mentions", style=discord.ButtonStyle.green)
             bt4 = Button(label="Save")
-            #bt5 = Button(label="Registration Channel") #used to change the registration channel
             bt6 = Button(label="Slot Channel")
             bt9 = Button(label="Confirm Role", style=discord.ButtonStyle.secondary)
             bt10 = Button(label="Delete", style=discord.ButtonStyle.danger)
@@ -474,9 +478,9 @@ class Esports(commands.Cog):
 
             async def ttl_slot(interaction:discord.Interaction):
                 if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
-                tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label="Enter Total Slot Between 2 and 20000"))
+                tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label="Enter Total Slot Between 2 and 1100"))
                 try:
-                    if int(tsl) > 20000 or int(tsl)<1:return await ctx.send("Only Number Between 1 and 20000", delete_after=20)
+                    if int(tsl) > 1100 or int(tsl)<1:return await ctx.send("Only Number Between 1 and 1100", delete_after=20)
                     dbc.update_one({"rch": rch.id}, {"$set":{"tslot" : int(tsl)}})
                     await ctx.send("Total Slots Updated", delete_after=5)
                     await interaction.message.edit(embed=discord.Embed(description=interaction.message.embeds[0].description.replace(f"Total Slot : {tourn.tslot}", f"Total Slot : {int(tsl)}"), color=config.cyan))
@@ -484,7 +488,8 @@ class Esports(commands.Cog):
                 except ValueError:return await ctx.send("Numbers Only", delete_after=10)
     
             async def mnts(interaction:discord.Interaction):
-                if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
+                if interaction.user != ctx.author:
+                    return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 mns = await checker.get_input(interaction=interaction, title="Mentions", label="Enter Number Between 1 and 20")
                 try:
                     if int(mns) > 20: return await ctx.send("Only Number upto 20", delete_after=5)
@@ -586,6 +591,7 @@ class Esports(commands.Cog):
             await sleep(2)
         await ms.edit(content=f"{config.tick} | Successfully Created")
 
+
     @commands.hybrid_command(with_app_command = True, aliases=["cs"])
     @commands.has_any_role("tourney-mod")
     @commands.guild_only()
@@ -646,6 +652,8 @@ class Esports(commands.Cog):
         teams = []
         cch = self.bot.get_channel(int(db["cch"]))
         gch = self.bot.get_channel(int(db["gch"]))
+        if not cch:return await ctx.send("Confirm Channel Not Found")
+        if not gch:return await ctx.send("Group Channel Not Found")
         tslot = db["tslot"]
         spg = db["spg"]
         cgp = db["cgp"]
@@ -679,7 +687,7 @@ class Esports(commands.Cog):
                 if m.mention in msg.content:await m.add_roles(role)
             await msg.add_reaction(config.tick)
         await ctx.send(f"check this channel {gch.mention}")
-                
+        del messages, teams, group, category, role, channel, overwrite, ms, grp, ncgp, msg, m, cgp
 
 
     @commands.hybrid_command(with_app_command = True)
@@ -700,9 +708,10 @@ class Esports(commands.Cog):
             description=f"{config.arow} **Cancel Slot** : To Cancel Your Slot\n{config.arow} **My Slot** : To Get Details Of Your Slot\n{config.arow} **Team Name** : To Change Your Team Name", 
             color=config.cyan
         )
-        buttons = [Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id="Cslot"),
-                    Button(label='My Slot', style=discord.ButtonStyle.blurple, custom_id="Mslot"),
-                    Button(label='Team Name', style=discord.ButtonStyle.green, custom_id="Tname"),
+        buttons = [
+            Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id="Cslot"),
+            Button(label='My Slot', style=discord.ButtonStyle.blurple, custom_id="Mslot"),
+            Button(label='Team Name', style=discord.ButtonStyle.green, custom_id="Tname"),
         ]
         
         for i in buttons:view.add_item(i)
@@ -735,9 +744,9 @@ class Esports(commands.Cog):
         msg = await ctx.send(embed=embed, view=view, ephemeral=True)
         async def tourney_details(interaction:discord.Interaction):
             await interaction.response.defer()
-            db = dbc.find_one({"rch":int(tlist.values[0])})
+            db:dict = dbc.find_one({"rch":int(tlist.values[0])})
             if not db: return await interaction.response.send_message(self._tnotfound, delete_after=10)
-            embed.title=db["t_name"].upper()
+            embed.title=db.get("t_name").upper()
             embed.description=f"**Total Slot : {db['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFakeTag Allowed: {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**"
             if bt10 not in view.children:view.add_item(bt10)
             if btmanage not in view.children:view.add_item(btmanage)
@@ -765,6 +774,7 @@ class Esports(commands.Cog):
         bt10.callback = delete_tourney_confirm
         bt11.callback = delete_t_confirmed
         btmanage.callback = manage_tournament
+
 
     # Currently it's a developer only command, and under development
     # With this command you can send a message containing a button to register a team
@@ -826,19 +836,21 @@ class Esports(commands.Cog):
         if interaction.user.bot:return
         elif "custom_id" in interaction.data and interaction.data["custom_id"] in self.MANAGER_PREFIXES:
             db = dbc.find_one({"mch":interaction.channel.id})
-            if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+            if not db:
+                return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
             view = View()
             crole:discord.Role = interaction.guild.get_role(db["crole"])
             cch:discord.TextChannel = self.bot.get_channel(db["cch"])
-            teams = [message async for message in cch.history(limit=db["tslot"], oldest_first=True)]
+            teams = [message async for message in cch.history(limit=db["tslot"])]
             options = []
             for i in teams:
-                if i.embeds and "TEAM" in i.embeds[0].description:
+                if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
                     if f"<@{interaction.user.id}>" in i.embeds[0].description:
                         st = i.embeds[0].description.find("[")+1
                         en = i.embeds[0].description.find("]")
                         options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
-            if len(options) == 0:return await interaction.response.send_message("You Aren't Registered!!", ephemeral=True)
+            if len(options) == 0:
+                return await interaction.response.send_message("You Aren't Registered!!", ephemeral=True)
             cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
             view.add_item(cslotlist)
             cslotlist.callback = None    
@@ -894,10 +906,10 @@ class Esports(commands.Cog):
                             team = pem.description[st:en]
                             desc = pem.description.replace(team, nme)
                             emb = discord.Embed(color=pem.color, description=desc)
-                            emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon)
-                            emb.set_thumbnail(url=interaction.user.display_avatar)
+                            emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
+                            emb.set_thumbnail(url=interaction.user.display_avatar or interaction.guild.icon or interaction.guild.me.avatar.url)
                             emb.timestamp = ms.created_at
-                            try:await ms.edit(content = f"{nme} {interaction.user.mention}",embed=emb)
+                            try:await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb)
                             except Exception as e:return await interaction.response.send_message(f'Unable To Change Team Name At This Time!!\nReason : {e}', ephemeral=True)
                             return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
                     inp.on_submit = tname
@@ -911,5 +923,5 @@ class Esports(commands.Cog):
             
                 
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
     await bot.add_cog(Esports(bot))

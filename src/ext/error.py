@@ -22,12 +22,12 @@ def update_error_log(error_message: str):
         log_file.write(text + "\n")
 
 
-async def manage_context(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot):
+async def manage_context(ctx:commands.Context, error:errors.DiscordException, client:commands.Bot):
     """
     manages all the errors and sends them to the error log channel
     """
-    erl = bot.get_channel(config.erl)
-    cmdnf = bot.get_channel(config.cmdnf)
+    erl = client.get_channel(config.erl)
+    cmdnf = client.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.send(embed=Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `{config.prefix}help {ctx.command.name}` to get Instructions"))
@@ -101,4 +101,5 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
             update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:
+        update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         config.logger.warning(traceback.format_exception(e), "ext.error")
