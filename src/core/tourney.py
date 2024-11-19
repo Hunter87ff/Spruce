@@ -894,7 +894,7 @@ class Esports(commands.Cog):
             cch:discord.TextChannel = self.bot.get_channel(db["cch"])
             if not cch : 
                 return await interaction.response.send_message(
-                    f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name="tourney-mod")}", 
+                    f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name='tourney-mod')}", 
                     ephemeral=True
                 )
             if not crole:
