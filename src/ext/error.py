@@ -6,46 +6,9 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 """
-
-import traceback
-import pytz
-import datetime
-from modules import config
-from discord import Embed, File
-from ext.constants import TimeZone
-from discord.ext import commands
-from discord.ext.commands import errors
-
-def update_error_log(error_message: str):
-    timestamp = datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))
-    log_entry = f"{timestamp} : {error_message}"
-    with open("error.log", "a") as log_file:
-        log_file.write(log_entry + "\n")
-
-async def handle_standard_errors(ctx:commands.Context, error, error_map:dict[Exception:str]):
-    """Handles standard errors by sending predefined messages."""
-    response = error_map.get(type(error))
-    if response:
-        return await ctx.send(embed=Embed(color=0xff0000, description=response))
-
-async def handle_custom_error_strings(ctx:commands.Context, error, custom_errors:dict[str:str]):
-    """Handles errors based on custom string conditions in the error message."""
-    for condition, response in custom_errors.items():
-        if condition in str(error):
-            return await ctx.send(embed=Embed(color=0xff0000, description=response))
-
-
-"""
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2022 hunter87.dev@gmail.com
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-"""
-
 import traceback
 import pytz, datetime
+from discord import errors as derrors
 from modules import config
 from discord import Embed, File
 from ext.constants import TimeZone
@@ -57,6 +20,19 @@ def update_error_log(error_message: str):
     text = f"{datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))} : {error_message}"
     with open("error.log", "a") as log_file:
         log_file.write(text + "\n")
+
+
+async def manage_backend_error(error: Exception, bot: commands.Bot):
+    erl = bot.get_channel(config.erl)
+    if isinstance(error, derrors.HTTPException):
+        await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
+    elif isinstance(error, derrors.ConnectionClosed):
+        await erl.send(f"```json\n{error}\n```")
+    elif isinstance(error, derrors.GatewayNotFound):
+        await erl.send(f"```json\n{error}\n```")
+    elif isinstance(error, derrors.RateLimited):
+        await erl.send(f"```json\n{error}\n```")
+
 
 
 async def manage_context(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot):
@@ -129,14 +105,17 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.send(embed=Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
         else: 
-            text = f"<@885193210455011369>\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
-
+            text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
+            content=f"<@885193210455011369>\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
             if len(text) >= 1999:
                 with open("error.txt", "w") as file:
                     file.write(text)
-                await erl.send(file=File("error.txt"))
+                await erl.send(
+                    content=content,
+                    file=File("error.txt")
+                )
             else: 
-                await erl.send(text)
+                await erl.send(f"{content}{text}")
             update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:

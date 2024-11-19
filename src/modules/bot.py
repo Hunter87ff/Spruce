@@ -110,6 +110,10 @@ class Spruce(commands.AutoShardedBot):
     async def on_command_error(self, ctx:commands.Context, error):
         await error_handle.manage_context(ctx, error, self)
 
+    async def on_error(self, event, *args, **kwargs):
+        error = traceback.format_exc()
+        error_handle.manage_backend_error(error, self)
+
     async def  on_guild_channel_delete(self, channel:TextChannel):
         tourch = self.db.dbc.find_one({"rch" : channel.id})
         dlog = self.get_channel(config.tdlog)
