@@ -316,8 +316,11 @@ class Esports(commands.Cog):
         if tmrole == None:tmrole = await ctx.guild.create_role("tourney-mod")
         if ctx.author.guild_permissions.manage_channels or tmrole in ctx.author.roles:
             dbcd = dbc.find_one({"rch" : registration_channel.id})
+            if not dbcd:
+                return await ctx.send(embed=discord.Embed(description=f"**{self._tnotfound}**", color=config.red), delete_after=10)
             crole = discord.utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
-            reged = dbcd["reged"]
+            if not crole:return await ctx.send("Confirm Role Not Found", delete_after=10)
+            reged = dbcd.get("reged")
             cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
             if crole in member.roles:return await ctx.send("**Already Registered**", delete_after=50)
             if crole not in member.roles:
@@ -326,7 +329,8 @@ class Esports(commands.Cog):
                 emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {team_name.upper()}**\n**Added By** : {ctx.author.mention} ")
                 emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
                 emb.timestamp = datetime.datetime.now()
-                return await cch.send(f"{team_name} {member.mention}", embed=emb)     
+                await cch.send(f"{team_name} {member.mention}", embed=emb)
+                await ctx.send(f"**{reged}){team_name}{member.mention} Added**", delete_after=50)   
             
 
 
@@ -519,7 +523,7 @@ class Esports(commands.Cog):
                         embed=discord.Embed(
                             description=interaction.message.embeds[0].description.replace(f"Total Slot : {tourn.tslot}", f"Total Slot : {int(tsl)}"), 
                             color=config.cyan)
-                    )  if interaction.message else None
+                    )
                     tourn.tslot = int(tsl)
                 except ValueError:return await ctx.send("Numbers Only", delete_after=10)
     
@@ -535,7 +539,7 @@ class Esports(commands.Cog):
                         embed=discord.Embed(
                             description=interaction.message.embeds[0].description.replace(f"Mentions : {tourn.mentions}", f"Mentions : {int(mns)}"), 
                             color=config.cyan)
-                    )  if interaction.message else None
+                    )
                     tourn.mentions = int(mns)
                 except ValueError:return await ctx.send("Numbers Only", delete_after=5)
     
@@ -570,10 +574,11 @@ class Esports(commands.Cog):
                     if cndb == None:
                         dbc.update_one({"rch": rch.id}, {"$set":{"crole" : con_role.id}})
                         await ctx.send("Confirm Role Updated", delete_after=5)
-                        await interaction.message.edit(
+                        if interaction.message:
+                            await interaction.message.edit(
                             embed=discord.Embed(
                                 description=interaction.message.embeds[0].description.replace(f"<@&{tourn.crole}>", f"<@&{con_role.id}>"), color=config.cyan)
-                        )  if interaction.message else None
+                            )
                         tourn.crole = con_role.id
                     if cndb != None:return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
 
@@ -589,7 +594,7 @@ class Esports(commands.Cog):
                         embed=discord.Embed(
                             description=interaction.message.embeds[0].description.replace(f"Slot per group: {tourn.spg}", f"Slot per group: {spg}"), 
                             color=config.cyan)
-                    )  if interaction.message else None
+                    )
                     tourn.spg = spg
 
                 except Exception as e :
@@ -806,7 +811,7 @@ class Esports(commands.Cog):
         async def delete_t_confirmed(interaction:discord.Interaction):
             await interaction.message.edit(
                 content=f"**{config.loading} {constants.PROCESSING}**"
-            )  if interaction.message else None
+            )
             x = dbc.delete_one({"rch" : int(tlist.values[0])})
             if x:
                 await interaction.message.delete()
@@ -815,11 +820,12 @@ class Esports(commands.Cog):
                 if channel: await self.tconfig(ctx)
 
         async def manage_tournament(interaction:discord.Interaction):
-            ms = await interaction.message.edit(
-                content=f"**{config.loading} {constants.PROCESSING}**"
-            )  if interaction.message else None
+            if interaction.message:
+                ms = await interaction.message.edit(
+                    content=f"**{config.loading} {constants.PROCESSING}**"
+                )
             await self.tourney(ctx, registration_channel=ctx.guild.get_channel(int(tlist.values[0])))   
-            await ms.delete()
+            if ms: await ms.delete()
 
         tlist.callback = tourney_details
         bt10.callback = delete_tourney_confirm

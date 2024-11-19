@@ -7,7 +7,7 @@
  of this license document, but changing it is not allowed.
 """
 import ast, traceback
-import wavelink,requests
+import wavelink
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
@@ -62,7 +62,7 @@ class Spruce(commands.AutoShardedBot):
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
             config.logger.info(stmsg)
             await config.vote_add(self)
-            requests.post(
+            config.webpost(
                 url=self.db.cfdata.get("stwbh"), 
                 json={
                     "content":f"<@{config.owner_id}>",

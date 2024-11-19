@@ -27,8 +27,7 @@ class dev(commands.Cog):
     def __init__(self, bot):
         self.bot:spruce.Spruce = bot
 
-
-    @discord.app_commands.command(description="Use coupon code SP10 to get 10% Discount.")
+    @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @permissions.dev_only()
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
         ctx = interaction
@@ -59,7 +58,13 @@ class dev(commands.Cog):
         cpu_usage = psutil.cpu_percent()
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
-        detail = f"""Total RAM : {memory.total / (1024**3):.2f} GB\nCPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\nCPU Usage : {cpu_usage}%\nRAM Usage : {memory.used//10**6} MB({memory.percent}%)\nTotal Disk: {disk.total//10**9} GB\nDisk Usage: {disk.used//10**9} GB({disk.percent}%)
+        detail = f"""
+        Total RAM : {memory.total / (1024**3):.2f} GB\n
+        CPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\n
+        CPU Usage : {cpu_usage}%\n
+        RAM Usage : {memory.used//10**6} MB({memory.percent}%)\n
+        Total Disk: {disk.total//10**9} GB\n
+        Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         """
         await ctx.send(embed=discord.Embed(title="System Information", description=detail, color=0x00ff00))
         

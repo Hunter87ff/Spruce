@@ -7,10 +7,10 @@
  of this license document, but changing it is not allowed.
 """
 import os, time, platform
-from threading import Thread
-from modules import config
 if platform.system() == "Windows": os.system("cls")
 else: os.system("clear")
+from threading import Thread
+from modules import config
 
 db = config.get_db()
 def lavalink():

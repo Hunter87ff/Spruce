@@ -1,3 +1,12 @@
+"""
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2022 hunter87.dev@gmail.com
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+"""
+
 import traceback
 import pytz
 import datetime
@@ -25,92 +34,112 @@ async def handle_custom_error_strings(ctx:commands.Context, error, custom_errors
         if condition in str(error):
             return await ctx.send(embed=Embed(color=0xff0000, description=response))
 
-async def manage_context(ctx: commands.Context, error: errors.DiscordException, client: commands.Bot):
-    """
-    Manages all errors and sends them to the error log channel.
-    """
-    erl = client.get_channel(config.erl)
-    cmdnf = client.get_channel(config.cmdnf)
-    
-    # Standard error mappings
-    error_map = {
-        commands.MissingRequiredArgument: "Missing Required Arguments! Check command usage with `{config.prefix}help {ctx.command.name}`.",
-        commands.MissingPermissions: f"You don't have permissions to use this command.",
-        commands.DisabledCommand: "This command is currently disabled. Try again later.",
-        commands.MissingRole: str(error),
-        commands.MissingAnyRole: str(error),
-        commands.EmojiNotFound: "Emoji not found.",
-        commands.NotOwner: "This is an owner-only command.",
-        commands.MessageNotFound: "Message not found or deleted.",
-        commands.MemberNotFound: "Member not found.",
-        commands.ChannelNotFound: "Channel not found.",
-        commands.GuildNotFound: "I'm not in the server you want to see.",
-        commands.ChannelNotReadable: "Cannot read messages in the channel.",
-        commands.CommandOnCooldown: str(error),
-        commands.BotMissingPermissions: str(error),
-        commands.UserInputError: "Please enter valid arguments.",
-        commands.RoleNotFound: "Role not found.",
-        commands.BadArgument: "Invalid argument.",
 
-    }
-    
-    # Custom error strings
-    custom_errors = {
-        "Manage Messages": "Missing `Manage Messages` permission",
-        "Unknown file format.": "Invalid input",
-        "Send Messages": f"I don't have permission to send messages in this channel - {ctx.channel.mention}",
-        "This playlist type is unviewable.": "This playlist type is unsupported!",
-        "Maximum number of channels in category reached (50)": "Maximum number of channels in category reached (50)",
-        "error code: 10003": "Channel deleted or invalid",
-        "error code: 50013": "Missing permissions. Check my permissions.",
-        "Unknown Role": "Given role is invalid or deleted",
-        "Cannot delete a channel required for community servers": "Cannot delete a channel required for community servers",
-        "error code: 50001": "I don't have access to do this.",
-        "error code: 30005": "Maximum number of guild roles reached (250)",
-        "error code: 30007": "Maximum number of webhooks reached (15)",
-        "error code: 30008": "Maximum number of emojis reached",
-        "error code: 30010": "Maximum number of reactions reached (20)",
-        "error code: 30013": "Maximum number of guild channels reached (500)"
-    }
+"""
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
 
+ Copyright (C) 2022 hunter87.dev@gmail.com
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+"""
+
+import traceback
+import pytz, datetime
+from modules import config
+from discord import Embed, File
+from ext.constants import TimeZone
+from discord.ext import commands
+from discord.ext.commands import errors
+
+
+def update_error_log(error_message: str):
+    text = f"{datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))} : {error_message}"
+    with open("error.log", "a") as log_file:
+        log_file.write(text + "\n")
+
+
+async def manage_context(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot):
+    """
+    manages all the errors and sends them to the error log channel
+    """
+    erl = bot.get_channel(config.erl)
+    cmdnf = bot.get_channel(config.cmdnf)
     try:
-        # Check if the error is in the standard error map
-        if await handle_standard_errors(ctx, error, error_map):
-            return
-        
-        # Check if the error message contains any custom error strings
-        if await handle_custom_error_strings(ctx, error, custom_errors):
-            return
+        if isinstance(error, commands.MissingRequiredArgument):
+            return await ctx.send(embed=Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `{config.prefix}help {ctx.command.name}` to get Instructions"))
+        elif isinstance(error, commands.DisabledCommand):
+            return await ctx.send(embed=Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
+        elif isinstance(error, commands.CommandNotFound):
+            await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
+        elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
+        elif isinstance(error, commands.EmojiNotFound):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Emoji Not Found"))
+        elif isinstance(error, commands.NotOwner):
+            return await ctx.send(embed=Embed(color=0xff0000, description="This Is A Owner Only Command You Can't Use It"))
+        elif isinstance(error, commands.MessageNotFound):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Message Not Found Or Deleted"))
+        elif isinstance(error, commands.MemberNotFound):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Member Not Found"))
+        elif isinstance(error, commands.ChannelNotFound):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Channel Not Found"))
+        elif isinstance(error, commands.GuildNotFound):
+            return await ctx.send("**I'm Not In The Server! which You Want To See**", delete_after=19)
+        elif isinstance(error, commands.ChannelNotReadable):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Can Not Read Messages Of The Channel"))
+        elif isinstance(error, commands.CommandOnCooldown):
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
+        elif "Manage Messages" in str(error):
+            return await ctx.send(embed=Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
+        elif "Unknown file format." in str(error):
+            return await ctx.send(embed=Embed(description="Invalid Input", color=0xff0000))
+        elif "Send Messages" in str(error):
+            return await ctx.author.send(embed=Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
+        elif "This playlist type is unviewable." in str(error):
+            return await ctx.send(embed=Embed(description="This playlist type is unsupported!", color=0xff0000))
+        elif "Maximum number of channels in category reached (50)" in str(error):
+            return await ctx.send(embed=Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
+        elif isinstance(error, commands.BotMissingPermissions):
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
+        elif "error code: 10003" in str(error):
+            return await ctx.send(embed=Embed(description="Channel Deleted Or Invalid", color=0xff0000))
+        elif "error code: 50013" in str(error):
+            return await ctx.send(embed=Embed(description="**Missing Permissions! You Should Check My Permissions**", color=0xff0000), delete_after=30)
+        elif "Unknown Role" in str(error):
+            return await ctx.send(embed=Embed(description="**Given Role Is Invalid Or Deleted**", color=0xff0000), delete_after=30)
+        elif "Cannot delete a channel required for community servers" in str(error):
+            return await ctx.send(embed=Embed(description="**I Cannot delete a channel required for community servers**", color=0xff0000), delete_after=30)
+        elif "error code: 50001" in str(error):
+            return await ctx.send(embed=Embed(description="**I don't have access to do this**", color=0xff0000), delete_after=30)
+        elif "error code: 30005" in str(error):
+            return await ctx.send(embed=Embed(description="Maximum number of guild roles reached (250)", color=0xff0000))
+        elif "error code: 30007" in str(error):
+            return await ctx.send(embed=Embed(description="Maximum number of webhooks reached (15)", color=0xff0000))
+        elif "error code: 30008" in str(error):
+            return await ctx.send(embed=Embed(description="Maximum number of emojis reached", color=0xff0000))
+        elif "error code: 30010" in str(error):
+            return await ctx.send(embed=Embed(description="Maximum number of reactions reached (20)", color=0xff0000))
+        elif "error code: 30013" in str(error):
+            return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
+        elif isinstance(error, commands.UserInputError):
+            return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
+        elif isinstance(error, config.discord.HTTPException):
+            await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
+        elif isinstance(error, commands.MissingPermissions):
+            return await ctx.send(embed=Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
+        else: 
+            text = f"<@885193210455011369>\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
 
-        # Specific error handling for CommandNotFound
-        if isinstance(error, commands.CommandNotFound):
-            await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id: {ctx.guild.id}\nUser Tag: {ctx.author}\nUser Id: {ctx.author.id}\nCommand: {ctx.message.content}```")
-            return
-
-        # Specific error handling for HTTPException
-        if isinstance(error, config.discord.HTTPException):
-            await erl.send(f"```json\n{error.text}\nStatus Code: {error.status}\n```")
-            return
-
-        # Fallback for uncategorized errors
-        trace = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-        text = (f"<@{config.owner_id}>\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}\n\n\n"
-                f"```py\nCommand: {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id: {ctx.guild.id}\n"
-                f"Channel Id: {ctx.channel.id}\nUser Tag: {ctx.author}\nUser Id: {ctx.author.id}\n\n\n"
-                f"Error: {error}\nTraceback: {trace}\n```")
-
-        if len(text) >= 1999:
-            with open("error.txt", "w") as file:
-                file.write(text)
-            await erl.send(file=File("error.txt"))
-        else:
-            await erl.send(text)
-
-        # Log the error
-        update_error_log(trace)
+            if len(text) >= 1999:
+                with open("error.txt", "w") as file:
+                    file.write(text)
+                await erl.send(file=File("error.txt"))
+            else: 
+                await erl.send(text)
+            update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:
-        # Log any exceptions that occur during error handling
+        config.logger.warning(traceback.format_exception(e), "ext.error")
         update_error_log(''.join(traceback.format_exception(type(e), e, e.__traceback__)))
-        config.logger.warning("An error occurred while handling an error: %s", traceback.format_exception(e))
         

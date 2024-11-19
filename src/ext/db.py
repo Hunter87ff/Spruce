@@ -1,6 +1,14 @@
+"""
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2022 hunter87.dev@gmail.com
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+"""
+
 from pymongo import MongoClient
 import os
-from typing import Any
 from ext import Logger
 
 class Database:
@@ -44,12 +52,10 @@ class Database:
         except Exception as e:
             Logger.warning(f"Error loading database or configuration data: {e}")
 
-
-
-    
-
-
-
-# # Usage
-# db_instance = Database()  # The singleton instance
-# print(db_instance.token)   # Access the configuration data
+    @property
+    def registers(self):
+        """Returns the set of registration channel ids"""
+        if self._registers: return self._registers
+        else:
+            self._registers:set[int] = set([x['rch'] for x in list(self.dbc.find({}, {"_id":0, "rch":1}))])
+            return self._registers
