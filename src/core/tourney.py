@@ -16,7 +16,7 @@ from discord.utils import get
 from discord.ext import commands
 from discord.ui import Button, View
 from modules import config, checker
-from ext import constants, permissions
+from ext import constants, permissions, Tourney
 dbc = config.get_db().dbc
 
 
@@ -24,25 +24,6 @@ def get_front(name:str):
   li = []
   for i in name.split()[0:2]:li.append(i[0])
   return str("".join(li) + "-")
-
-class Tourney:
-    def __init__(self, obj):
-        self.tname:str = obj["t_name"]
-        self.rch:int = obj["rch"]
-        self.mentions:int = obj["mentions"]
-        self.cch:int = obj["cch"]
-        self.crole:int = obj["crole"]
-        self.gch:int= obj["gch"]
-        self.tslot:int = obj["tslot"]
-        self.prefix:str = obj["prefix"]
-        self.prize:str = obj["prize"]
-        self.faketag:str = obj["faketag"]
-        self.reged:int = obj["reged"]
-        self.status:str = obj["status"]
-        self.pub:str = obj["pub"]
-        self.spg:int = obj["spg"]
-        self.auto_grp = obj["auto_grp"]
-        self.cgp = obj["cgp"]
 
 
 class Esports(commands.Cog):
@@ -419,7 +400,7 @@ class Esports(commands.Cog):
         pub = ""
         rch = registration_channel
         tdb:dict = dbc.find_one({"rch": rch.id})   
-        tourn = Tourney(tdb)
+        tourn = Tourney(tdb) if tdb != None else None
         if tdb == None:
             emb = discord.Embed(
                 description=f"{config.cross} | Kindly Mention Registration Channel I'm Managing..", 
