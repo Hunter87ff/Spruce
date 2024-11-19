@@ -432,7 +432,7 @@ class Utility(commands.Cog):
             orole = utils.get(support_server.roles, id=1043134410029019176)
             link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
             msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
-            if guild.member_count >= 100 and guild.owner in support_server.members:
+            if guild.member_count >= 1000 and guild.owner in support_server.members:
                 m = utils.get(support_server.members, id=guild.owner.id)
                 await m.add_roles(orole)
             await ch.send(msg)
@@ -440,7 +440,7 @@ class Utility(commands.Cog):
         
 
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild): 
+    async def on_guild_remove(self, guild:Guild): 
         support_server = self.bot.get_guild(config.support_server_id)
         ch = self.bot.get_channel(config.gleave)
         orole = utils.get(support_server.roles, id=1043134410029019176)
