@@ -159,7 +159,11 @@ async def tourney(message:Message):
     td = dbc.find_one({"rch" : message.channel.id})
     if not td :return
     elif utils.get(message.author.roles, name="tourney-mod") : return
-    elif td["status"] == "paused":await message.author.send("Registration Paused")
+    elif td["status"] == "paused":
+        try:
+            return await message.author.send("Registration Paused")
+        except Exception:
+            return print(traceback.format_exc())
     elif message.channel.id  != int(td["rch"]) or td["status"] != "started": return
     messages = [message async for message in message.channel.history(limit=2000)]
     crole = utils.get(message.guild.roles, id=int(td["crole"]))

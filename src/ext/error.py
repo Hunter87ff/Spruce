@@ -100,7 +100,9 @@ async def manage_context(ctx: commands.Context, error: errors.DiscordException, 
                 f"Error: {error}\nTraceback: {trace}\n```")
 
         if len(text) >= 1999:
-            await erl.send(file=File(fp=text, filename="error.txt"))
+            with open("error.txt", "w") as file:
+                file.write(text)
+            await erl.send(file=File("error.txt"))
         else:
             await erl.send(text)
 
@@ -111,3 +113,4 @@ async def manage_context(ctx: commands.Context, error: errors.DiscordException, 
         # Log any exceptions that occur during error handling
         update_error_log(''.join(traceback.format_exception(type(e), e, e.__traceback__)))
         config.logger.warning("An error occurred while handling an error: %s", traceback.format_exception(e))
+        

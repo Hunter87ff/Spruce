@@ -68,7 +68,10 @@ class Channel(commands.Cog):
 					await sleep(1)
 					if len(category.channels) == 0:
 						await category.delete()
-						return await del_t_con.edit(embed=discord.Embed(description=f"**{config.tick} | Successfully Deleted ~~{category.name}~~ Category**"))
+						return await del_t_con.edit(
+							embed=discord.Embed(
+								description=f"**{config.tick} | Successfully Deleted ~~{category.name}~~ Category**")
+						) if del_t_con else None
 		async def del_msg(interaction:discord.Interaction):
 			await interaction.message.delete()
 		bt11.callback = dc_confirmed
