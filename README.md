@@ -1,4 +1,4 @@
-## Spruce Bot 
+## Spruce
 
 [![Tests](https://github.com/Hunter87ff/Spruce/actions/workflows/testing.yml/badge.svg)](#)
 [![Language](https://img.shields.io/badge/lang-Python%203.10-blue)](#)
