@@ -19,11 +19,11 @@
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=vulnerabilities)](#) -->
 <!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
 
-Spruce is a multi-functional Discord bot designed to streamline the management of Discord tournaments and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
+Spruce is a multi-functional Discord app designed to streamline the management of Discord tournaments and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
 
 
 ## Features
-Spruce is a multi-purpose discord bot that provides various kind of features like:
+Spruce is a multi-purpose discord app that provides various kind of features like:
 ```
 - Esports Tournament Management
 - Auto Group Setup
