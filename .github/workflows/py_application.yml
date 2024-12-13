@@ -17,6 +17,7 @@ env:
   tkn : ${{ secrets.TKN }}
   prefix : ${{ secrets.PREFIX }}
   version : "2.0.6"
+  LOCAL_LAVA : true
   
 jobs:
   deploy:
