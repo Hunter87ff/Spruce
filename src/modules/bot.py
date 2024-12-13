@@ -34,7 +34,7 @@ class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = config
         self.chat_client = ChatClient(self)
-        self.core = ("channel", "dev", "helpcog", "moderation", "music", "tourney", "role", "utils", "tasks")
+        self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks")
         super().__init__(
             shard_count=config.shards, 
             command_prefix= commands.when_mentioned_or(config.prefix),
