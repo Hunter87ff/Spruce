@@ -483,13 +483,13 @@ class Esports(commands.Cog):
                 if interaction.user == ctx.author and tdb["faketag"] == "yes":
                     dbc.update_one({"rch": rch.id}, {"$set":{"faketag" : "no"}})
                     bt1.disabled = True
-                    await interaction.response.edit_message(view=view)
+                    await interaction.response.edit_message(view=view) if interaction.message else None
                     await ctx.send("Enabled", delete_after=10)
 
                 if interaction.user == ctx.author and tdb["faketag"] == "no":
                     dbc.update_one({"rch": rch.id}, {"$set":{"faketag" : "yes"}})
                     bt1.disabled = True
-                    await interaction.response.edit_message(view=view)
+                    await interaction.response.edit_message(view=view) if interaction.message else None
                     await ctx.send("Disabled", delete_after=10)
 
 
@@ -504,7 +504,7 @@ class Esports(commands.Cog):
                         embed=discord.Embed(
                             description=interaction.message.embeds[0].description.replace(f"Total Slot : {tourn.tslot}", f"Total Slot : {int(tsl)}"), 
                             color=config.cyan)
-                    )
+                    )  if interaction.message else None
                     tourn.tslot = int(tsl)
                 except ValueError:return await ctx.send("Numbers Only", delete_after=10)
     
@@ -520,7 +520,7 @@ class Esports(commands.Cog):
                         embed=discord.Embed(
                             description=interaction.message.embeds[0].description.replace(f"Mentions : {tourn.mentions}", f"Mentions : {int(mns)}"), 
                             color=config.cyan)
-                    )
+                    )  if interaction.message else None
                     tourn.mentions = int(mns)
                 except ValueError:return await ctx.send("Numbers Only", delete_after=5)
     
@@ -531,14 +531,14 @@ class Esports(commands.Cog):
                         dbc.update_one({"rch": rch.id}, {"$set":{"status" : "paused"}})
                         await rch.send("**Tournament Paused**")
                         bt0.disabled = True
-                        await interaction.response.edit_message(view=view)
+                        await interaction.response.edit_message(view=view) if interaction.message else None
                         await ctx.send("Tournament Paused", delete_after=2)
 
                     if tdb["status"] == "paused":
                         dbc.update_one({"rch": rch.id}, {"$set":{"status" : "started"}})
                         await rch.send("**Tournament Statred**")
                         bt0.disabled = True
-                        await interaction.response.edit_message(view=view)
+                        await interaction.response.edit_message(view=view)  if interaction.message else None
                         await ctx.send("Tournament Started", delete_after=2)
     
 
