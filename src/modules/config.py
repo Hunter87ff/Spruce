@@ -1,8 +1,8 @@
+
+import discord
 from os import environ as env
 from dotenv import load_dotenv
 load_dotenv()
-
-import discord
 from discord import Embed, Message
 from discord.ext import commands
 from discord.ui import Button, View
@@ -56,7 +56,8 @@ async def vote_add(bot:commands.Bot):
     global votes
     vtl = bot.get_channel(votel)
     votes = [message async for message in vtl.history(limit=500)]
-	
+
+
 async def voted(ctx:commands.Context, bot:commands.Bot):
 	if get_db().cfdata["vote_only"] == False: return "yes"
 	vtl = bot.get_channel(votel)
@@ -67,32 +68,30 @@ async def voted(ctx:commands.Context, bot:commands.Bot):
 				else: return None
 		else: pass
 
+
 async def vote_check(message:Message):
     global votes
     if message.channel.id == votel:
         votes.append(message)
-			
+
+
 async def vtm(ctx:commands.Context):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{ctx.me.id}/vote")
 	await ctx.send(embed=Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
 
-
 def notuser(message:Message):
 	return True if message.author.bot or message.webhook_id else False
 
-async def is_dev(ctx:commands.Context | discord.Interaction):
+
+async def is_dev(ctx: commands.Context | discord.Interaction):
     """
     Checks if the user is a developer
     """
-    if isinstance(ctx, discord.Interaction): 
-        if ctx.user.id not in get_db().cfdata["devs"]:
-              await ctx.response.send_message("Command is under development", ephemeral=True)
-              return False
-
-    elif isinstance(ctx, commands.Context): 
-        if ctx.author.id not in get_db().cfdata["devs"]:
-              await ctx.send("Command is under development", ephemeral=True)
-              return False
+    user_id = ctx.user.id if isinstance(ctx, discord.Interaction) else ctx.author.id
+    if user_id not in get_db().cfdata["devs"]:
+        response = ctx.response.send_message if isinstance(ctx, discord.Interaction) else ctx.send
+        await response("Command is under development", ephemeral=True if isinstance(ctx, discord.Interaction) else False)
+        return False
     return True
     

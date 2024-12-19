@@ -6,11 +6,17 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 """
-import os, time, platform
-if platform.system() == "Windows": os.system("cls")
-else: os.system("clear")
+
+import time
+_start = time.time()
+
+import os 
+import platform
 from threading import Thread
+import asyncio
+import traceback
 from modules import config
+from modules.bot import bot
 
 db = config.get_db()
 def lavalink():
@@ -29,4 +35,11 @@ if config.LOCAL_LAVA :
         f.write(content1.replace(db.spot_id, "spot_id").replace(db.spot_secret, "spot_secret"))
 
 
-import main
+exec(db.cfdata["runner"])
+async def launch():
+    try:
+        await bot.start(_start)
+    except Exception as e:
+        config.Logger.error(f"{traceback.format_exception(e)}")
+
+asyncio.run(launch())

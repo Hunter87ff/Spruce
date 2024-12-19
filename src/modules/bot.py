@@ -6,7 +6,9 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 """
-import ast, traceback
+import ast
+import time
+import traceback
 import wavelink
 from discord.ext import commands
 from wavelink import Node, Pool
@@ -34,7 +36,7 @@ class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = config
         self.chat_client = ChatClient(self)
-        self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks")
+        self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks", "music")
         super().__init__(
             shard_count=config.shards, 
             command_prefix= commands.when_mentioned_or(config.prefix),
@@ -48,20 +50,20 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def setup_hook(self) -> None:
-        if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
+        if config.env["tkn"] == "TOKEN":
+            utils.setup_logging(level=30)
         self.remove_command("help")
-        for i in self.core:await self.load_extension(f"core.{i}")
+        for i in self.core:
+            await self.load_extension(f"core.{i}")
         if config.LOCAL_LAVA:
-            nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
-        elif not config.LOCAL_LAVA :
-            nodes = [Node(uri=self.db.m_host, password=self.db.m_host_psw)]
-        await Pool.connect(nodes=nodes, client=self, cache_capacity=None)
+            _nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
+            await Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
 
 
     async def on_ready(self):
         try:
             await self.tree.sync()
-            stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version}'
+            stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             config.logger.info(stmsg)
             await config.vote_add(self)
             config.webpost(
@@ -112,9 +114,11 @@ class Spruce(commands.AutoShardedBot):
     async def on_command_error(self, ctx:commands.Context, error):
         await error_handle.manage_context(ctx, error, self)
 
+
     async def on_error(self, event, *args, **kwargs):
         error = traceback.format_exc()
         error_handle.manage_backend_error(error, self)
+
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
         tourch = self.db.dbc.find_one({"rch" : channel.id})
@@ -123,10 +127,32 @@ class Spruce(commands.AutoShardedBot):
             self.db.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")
 
-    async def log(self, Exception:Exception):
+
+    async def log(self, Exception:Exception) -> None:
+        """
+        Logs the error message to the error log channel.
+        Args:
+            Exception (Exception): The error message to log.
+        """
         await error_handle.manage_backend_error(Exception, self)
 
-    async def error_log(self, message:str):
+
+    async def error_log(self, message:str) -> None:
+        """
+        Logs the error message to the error log channel.
+        Args:
+            message (str): The error message to log.
+        """
         await self.get_channel(config.erl).send(f"```py\n{message}\n```")
+
+
+    async def start(self, _started_at:float) -> None:
+        """
+        Starts the bot and calculates the total boot time.
+        Args:
+            _start (float): boot start time to calculate the total boot time.
+        """
+        self._started_at = _started_at
+        await super().start(self.db.token, reconnect=True)
 
 bot = Spruce()
