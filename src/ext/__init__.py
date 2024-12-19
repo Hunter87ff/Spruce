@@ -24,7 +24,6 @@ __all__ = (
     "constants",
     "emoji",
     "color",
-    "locale",
     "permissions",
     "error"
 )
