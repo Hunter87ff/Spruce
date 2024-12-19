@@ -112,8 +112,16 @@ class Esports(commands.Cog):
                 rchm = await r_ch.send(embed=discord.Embed(color=config.cyan, description=f"**{config.cup} | REGISTRATION STARTED | {config.cup}\n{config.tick} | TOTAL SLOT : {total_slot}\n{config.tick} | REQUIRED MENTIONS : {mentions}\n{config.cross} | FAKE TAGS NOT ALLOWED**"))
                 htr = ""
                 for i in range(1, mentions+1): htr+=f"\nPLAYER {i}:\nUID: PLAYER ID\nIGN : PLAYER NAME\n"
-                htrm = await htrc.send("**REGISTRATION FORM**", embed=discord.Embed(color=config.cyan, description=f"**TEAM NAME : YOUR TEAM NAME\n{htr}\nSUBSTITUTE PLAYER IF EXIST\nMENTION YOUR {mentions} TEAMMATES**"))
-                await rdmm.edit(content="https://tenor.com/view/coming-soon-coming-soon-its-coming-shortly-gif-21517225")
+                htrm = await htrc.send(
+                    "**REGISTRATION FORM**", 
+                    embed=discord.Embed(
+                        color=config.cyan, 
+                        description=f"**TEAM NAME : YOUR TEAM NAME\n{htr}\nSUBSTITUTE PLAYER IF EXIST\nMENTION YOUR {mentions} TEAMMATES**"
+                    )
+                )
+                await rdmm.edit(
+                    content="https://tenor.com/view/coming-soon-coming-soon-its-coming-shortly-gif-21517225"
+                ) if rdmm else None
                 await htrm.add_reaction(config.tick)
                 await rchm.add_reaction(config.tick)
                 await sleep(1)  #sleep
@@ -146,8 +154,9 @@ class Esports(commands.Cog):
                     content=None, 
                     embed=discord.Embed(
                         color=config.cyan, 
-                        description=f'{config.tick} | Successfully Created. Tournament Slot({tour_count+1}/5 used)'), 
-                    delete_after=20)
+                        description=f'{config.tick} | Successfully Created. Tournament Slot({tour_count+1}/5 used)'
+                    ), 
+                    delete_after=20) if ms else None
         except Exception:return
 
 
@@ -228,7 +237,9 @@ class Esports(commands.Cog):
         for i in range(1, amt):
             await cat.create_voice_channel(name=f"SLOT {i}", user_limit=6)
             await sleep(1)
-        await snd.edit(content=f"{config.tick} | {vc_amount} vc created access role is {crl.mention}")
+        await snd.edit(
+            content=f"{config.tick} | {vc_amount} vc created access role is {crl.mention}"
+            ) if snd else None
 
 
 
@@ -334,8 +345,9 @@ class Esports(commands.Cog):
 
         if len(emb.fields) > 0:
             await ctx.author.send(embed=emb)
-            await ms.edit(content="Please Check Your DM")
-        else: await ms.edit(content="Currently Unavailable")
+            await ms.edit(content="Please Check Your DM") if ms else None
+        else: 
+            await ms.edit(content="Currently Unavailable") if ms else None
         
 
 
@@ -450,7 +462,8 @@ class Esports(commands.Cog):
                     if tourn.reged >= tdb["tslot"]*0.1:
                         ms = await ctx.send("Enter The Prize Under 15 characters")
                         prize = str(await self.get_input(ctx))
-                        if len(prize) > 15:return await ms.edit("Word Limit Reached. Try Again Under 15 Characters")
+                        if len(prize) > 15:
+                            return await ms.edit("Word Limit Reached. Try Again Under 15 Characters") if ms else None
                         if len(prize) <= 15:
                             dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
                             await ms.delete()
@@ -575,7 +588,7 @@ class Esports(commands.Cog):
                         embed=discord.Embed(
                             description=interaction.message.embeds[0].description.replace(f"Slot per group: {tourn.spg}", f"Slot per group: {spg}"), 
                             color=config.cyan)
-                    )
+                    ) if interaction.message else None
                     tourn.spg = spg
 
                 except Exception as e :
@@ -622,7 +635,7 @@ class Esports(commands.Cog):
             overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
             await channel.set_permissions(role, overwrite=overwrite)
             await sleep(2)
-        await ms.edit(content=f"{config.tick} | Successfully Created")
+        await ms.edit(content=f"{config.tick} | Successfully Created") if ms else None
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["cs"])
@@ -636,14 +649,14 @@ class Esports(commands.Cog):
         if not ctx.message.reference:return await ctx.reply(discord.Embed(description=f"**{config.cross} | Please Run This Command By Replying The Group Message**", color=config.red), delete_after=30)
         msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         if slot not in msg.content: return await ctx.send("No Team Found")
-        dta = msg.content
         ask = await ctx.send("Enter New Team Name + Mention")
         new_slot = await self.get_input(ctx)
-        if not new_slot: return await ctx.send("Kindly Mention The New Slot")
-        dta = dta.replace(str(slot), str(new_slot))
-        if msg.author.id != self.bot.user.id: return await ctx.send("Got It!\n But I Can't Edit The Message.\nBecause I'm Not The Author Of The Message")
-        await msg.edit(content=dta)
-        await ask.delete()
+        if not new_slot: 
+            await ctx.send("Kindly Mention The New Slot")
+        if msg.author.id != self.bot.user.id: 
+            return await ctx.send("Got It!\n But I Can't Edit The Message.\nBecause I'm Not The Author Of The Message")
+        await msg.edit(content=msg.content.replace(str(slot), str(new_slot))) if msg else None
+        await ask.delete() if ask else None
         return await ctx.send("Group Updated", delete_after=10)
     
 
@@ -783,7 +796,7 @@ class Esports(commands.Cog):
             embed.description=f"**Total Slot : {db['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFakeTag Allowed: {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**"
             if bt10 not in view.children:view.add_item(bt10)
             if btmanage not in view.children:view.add_item(btmanage)
-            await msg.edit(embed=embed, view=view)
+            await msg.edit(embed=embed, view=view) if msg else None
         
         async def delete_tourney_confirm(interaction:discord.Interaction):
             view1 = View().add_item(bt11)
@@ -792,7 +805,7 @@ class Esports(commands.Cog):
         async def delete_t_confirmed(interaction:discord.Interaction):
             await interaction.message.edit(
                 content=f"**{config.loading} {constants.PROCESSING}**"
-            )
+            ) if interaction.message else None
             x = dbc.delete_one({"rch" : int(tlist.values[0])})
             if x:
                 await interaction.message.delete()
@@ -804,9 +817,10 @@ class Esports(commands.Cog):
             if interaction.message:
                 ms = await interaction.message.edit(
                     content=f"**{config.loading} {constants.PROCESSING}**"
-                )
+                ) if interaction.message else None
             await self.tourney(ctx, registration_channel=ctx.guild.get_channel(int(tlist.values[0])))   
-            if ms: await ms.delete()
+            if ms:
+                await ms.delete()
 
         tlist.callback = tourney_details
         bt10.callback = delete_tourney_confirm
@@ -954,7 +968,8 @@ class Esports(commands.Cog):
                             emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
                             emb.set_thumbnail(url=interaction.user.display_avatar or interaction.guild.icon or interaction.guild.me.avatar.url)
                             emb.timestamp = ms.created_at
-                            try:await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb)
+                            try:
+                                await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb) if ms else None
                             except Exception as e:return await interaction.response.send_message(f'Unable To Change Team Name At This Time!!\nReason : {e}', ephemeral=True)
                             return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
                     inp.on_submit = tname
