@@ -28,13 +28,17 @@ class Database:
             # Primary MongoDB client and collections
             Logger.info("Database Connecting...")
             self.maindb = MongoClient(os.environ["mongo_url"])
+            self.sprucedb = self.maindb["sprucedb"]
             self.cfdbc = self.maindb["configdb"]["configdbc"]
-            self.dbc = self.maindb["tourneydb"]["tourneydbc"]
-            self.scrimdbc = self.maindb["tourneydb"]["scrimdbc"]
-            self.paydbc = self.maindb["paymentdb"]["paymentdbc"]
-            self.primedbc = self.maindb["primedb"]["primedbc"]
-            self.guildbc = self.maindb["guildb"]["guildbc"]
 
+            self.dbc = self.sprucedb["tourney"]
+            self.primedbc = self.sprucedb["prime"]
+            self.paydbc = self.sprucedb["payment"]
+            self.scrims = self.sprucedb["scrims"]
+            self.guildbc = self.sprucedb["guilds"]
+            self.dbc = self.maindb["tourneydb"]["tourneydbc"]
+            
+            
             # Load configuration data from the main config collection
             self.cfdata:dict = dict(self.cfdbc.find_one({"config_id": 87}))
             self.token = self.cfdata.get(os.environ["tkn"])

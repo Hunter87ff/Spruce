@@ -3,6 +3,7 @@ from discord.ext import tasks
 import discord, re, pytz, json
 from datetime import datetime
 from modules import config
+from modules.bot import Spruce
 from enum import Enum
 import numpy as np
 
@@ -23,14 +24,47 @@ class TimeZone(Enum):
 class Scrim(commands.Cog):
     """Currently in development mode!!"""
     def __init__(self, bot) -> None:
-        self.bot:commands.Bot = bot
+        self.bot:Spruce = bot
         self.monitor_scrims.start()
 
 
     @discord.app_commands.command()
-    async def scrim(self, interaction:discord.Interaction, total_slots:int, time_zone:TimeZone, time:str):
+    async def scrim(
+        self, 
+        interaction:discord.Interaction, 
+        total_slots:int, 
+        time_zone:TimeZone, time:str,
+        registration_channel:discord.TextChannel, 
+        idp_role:discord.Role
+    ):
         if await config.is_dev(interaction) == False: return
-        self.create_scrim(total_slots, Scrim.convert_time(time=Scrim.to24h(time), fr=time_zone.value, to=TimeZone.Asia_Kolkata.value), time_zone.value)
+
+        if self.bot.db.scrims.find_one({"channel_id": registration_channel.id}):
+            return await interaction.response.send_message("Scrim already exists", ephemeral=True)
+        try:
+            _time = re.match(r"([0-9]{1,2}):([0-9]{1,2}) ([AP]M)", time)
+            if not _time:
+                return await interaction.response.send_message(
+                    "Invalid time format!! Follow something like this : 10:00 AM", 
+                    ephemeral=True
+                )
+            _time = datetime.strptime(time, "%I:%M %p").time().strftime("%H:%M")
+        except Exception:
+            return await interaction.response.send_message(
+                "Invalid time format!! Follow something like this : 10:00 AM", 
+                ephemeral=True
+            )
+        self.create_scrim(
+            total_slots, 
+            Scrim.convert_time(
+                time=str(_time), 
+                fr=time_zone.value, 
+                to=TimeZone.Asia_Kolkata.value
+            ), 
+            time_zone.value,
+            registration_channel,
+            idp_role
+        )
         await interaction.response.send_message("Scrim created successfully")
 
 
@@ -45,38 +79,26 @@ class Scrim(commands.Cog):
         await ms.edit(content="Done")
 
 
-    def create_scrim(self, total_slots:int, time:str, zone:str):
-        print(total_slots, time, zone)
-        try:
-            with open("scrim.json", "r") as f:
-                data:list = json.load(f)
-                data.append({
-                    "total_slots": total_slots,
-                    "time": time,
-                    "zone": zone
-                })
-        except FileNotFoundError:
-            data = [{
-                "total_slots": total_slots,
+    def create_scrim(
+            self, 
+            total_slots:int, 
+            time:str, zone:str, 
+            channel:discord.TextChannel,
+            idp_role:discord.Role
+        ):
+        """Creates a scrim in the database"""
+        _data = {
+                "slot": total_slots,
                 "time": time,
-                "zone": zone
-            }]
-        with open("scrim.json", "w") as f:
-            json.dump(data, f, indent=4)
-        return data
+                "zone": zone,
+                "channel_id": channel.id,
+                "role_id": idp_role.id,
+                "status": "active",
+                "started" : False,
+                "reged" : 0 # Number of registered teams
+            }
+        self.bot.db.scrims.insert_one(_data)
 
-
-    @staticmethod
-    def to24h(time: str) -> str:
-        if time[-2:].lower() == "am":
-            return time[:-2].strip()
-        else:
-            time = time[:-2].strip()
-            time = time.split(":")
-            if int(time[0]) == 12:
-                return ":".join(time)
-            else:
-                return str(int(time[0]) + 12) + ":" + time[1]
 
     @staticmethod
     def convert_time(time: str, fr: str = TimeZone.Asia_Kolkata.value, to: str = TimeZone.Asia_Kolkata.value):
@@ -87,6 +109,7 @@ class Scrim(commands.Cog):
         to_zone = pytz.timezone(to)
         converted_time = localized_time.astimezone(to_zone).time()
         return str(converted_time)
+
 
     @staticmethod
     def time_format(delta):
@@ -164,10 +187,15 @@ class Scrim(commands.Cog):
                 return await self.team_struct(message, crole, tmrole)
     
 
-    @tasks.loop(seconds=60)
+    @tasks.loop(seconds=30)
     async def monitor_scrims(self):
-        pass
+        _time = datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value)).strftime("%H:%M:00")
+        _test = self.bot.db.scrims.find_one({"status": "active", "started": False, "time" : _time})
+        if _test:
+            print(_test)
+        self.bot.db.scrims.update_many({"status": "active", "started":False, "time" : _time}, {"$set": {"started": True}})
+
 
 
 async def setup(bot:commands.Bot):
-    await bot.add_cog(Scrim(bot))
+ await bot.add_cog(Scrim(bot))

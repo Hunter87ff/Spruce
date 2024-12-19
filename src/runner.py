@@ -18,6 +18,7 @@ from threading import Thread
 from modules.bot import Spruce
 
 db = config.get_db()
+
 def lavalink():
     if platform.system() == "Windows":os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
     else:os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &

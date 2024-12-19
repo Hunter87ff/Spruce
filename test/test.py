@@ -1,10 +1,13 @@
-import traceback
-try:
-    x = 10/0
-except Exception as e :
-    print(traceback.format_exc())
+from datetime import datetime
+import re
 
-l = [92,34,32,423,423,42,342,34,2,12421,4]
-print(l)
-del l[6:]
-print(l)
+
+_time = "12:40 PM"
+_match = re.match(r"([0-9]{1,2}):([0-9]{1,2}) ([AP]M)", _time).group()
+print(_match)
+try:
+    _d = datetime.strptime(_time, "%H:%M %p").time().strftime("%H:%M")
+except Exception as e:
+    print(e)
+    _d = None
+print(_d)

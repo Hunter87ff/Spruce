@@ -40,6 +40,7 @@ class Spruce(commands.AutoShardedBot):
         self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks", "music")
+
         super().__init__(
             shard_count=config.shards, 
             command_prefix= commands.when_mentioned_or(config.prefix),
@@ -48,13 +49,17 @@ class Spruce(commands.AutoShardedBot):
             activity=Activity(type=ActivityType.listening, name="&help")
         )
 
-
     async def setup_hook(self) -> None:
         if config.env["tkn"] == "TOKEN":
             utils.setup_logging(level=30)
+
         self.remove_command("help")
+
         for i in self.core:
             await self.load_extension(f"core.{i}")
+        if config.shards==1:
+            await self.load_extension("core.scrim")
+        Logger.info("Core Extensions Loaded")
         if config.LOCAL_LAVA:
             _nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
             await Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
@@ -64,7 +69,7 @@ class Spruce(commands.AutoShardedBot):
         try:
             await self.tree.sync()
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
-            config.logger.info(stmsg)
+            Logger.info(stmsg)
             await config.vote_add(self)
             config.webpost(
                 url=self.db.cfdata.get("stwbh"), 
@@ -82,10 +87,10 @@ class Spruce(commands.AutoShardedBot):
         except Exception as ex:print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        config.logger.info(f"Node Connected")
+        Logger.info(f"Node Connected")
 
     async def on_disconnect(self):
-        config.logger.info('Disconnected from Discord. Reconnecting...')
+        Logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
     async def fetch_payment_hook(self, message:Message):
