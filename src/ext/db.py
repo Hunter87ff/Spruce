@@ -36,7 +36,7 @@ class Database:
             self.paydbc = self.sprucedb["payment"]
             self.scrims = self.sprucedb["scrims"]
             self.guildbc = self.sprucedb["guilds"]
-            self.dbc = self.maindb["tourneydb"]["tourneydbc"]
+            # self.dbc = self.maindb["tourneydb"]["tourneydbc"]
             
             
             # Load configuration data from the main config collection
