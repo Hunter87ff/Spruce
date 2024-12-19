@@ -459,7 +459,7 @@ class Esports(commands.Cog):
             async def publish(interaction:discord.Interaction):
                 await interaction.response.defer(ephemeral=True)
                 if tourn.pub == "no":
-                    if tourn.reged >= tdb["tslot"]*0.1:
+                    if tourn.reged >= tourn.tslot["tslot"]*0.1:
                         ms = await ctx.send("Enter The Prize Under 15 characters")
                         prize = str(await self.get_input(ctx))
                         if len(prize) > 15:
@@ -468,7 +468,12 @@ class Esports(commands.Cog):
                             dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
                             await ms.delete()
                             await ctx.send("Tournament Is Now Public", delete_after=5)
-                    if tourn.reged < tourn.tslot*0.1:return await interaction.response.send_message("**You Need To Fill 10% Slot To Publish**", ephemeral=True, delete_after=10)
+                    if tourn.reged < tourn.tslot*0.1:
+                        return await interaction.response.send_message(
+                            "**You Need To Fill 10% Slot To Publish**", 
+                            ephemeral=True, 
+                            delete_after=10
+                        )
                     
                     
                 if tdb["pub"] == "yes":
@@ -507,19 +512,24 @@ class Esports(commands.Cog):
 
 
             async def ttl_slot(interaction:discord.Interaction):
-                if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
+                if interaction.user != ctx.author:
+                    return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label="Enter Total Slot Between 2 and 1100"))
                 try:
-                    if int(tsl) > 1100 or int(tsl)<1:return await ctx.send("Only Number Between 1 and 1100", delete_after=20)
+                    if int(tsl) > 1100 or int(tsl)<1:
+                        return await ctx.send("Only Number Between 1 and 1100", delete_after=20)
                     dbc.update_one({"rch": rch.id}, {"$set":{"tslot" : int(tsl)}})
                     await ctx.send("Total Slots Updated", delete_after=5)
-                    await interaction.message.edit(
-                        embed=discord.Embed(
-                            description=interaction.message.embeds[0].description.replace(f"Total Slot : {tourn.tslot}", f"Total Slot : {int(tsl)}"), 
-                            color=config.cyan)
-                    )  if interaction.message else None
+                    if interaction.message:
+                        await interaction.message.edit(
+                            embed=discord.Embed(
+                                description=interaction.message.embeds[0].description.replace(f"Total Slot : {tourn.tslot}", f"Total Slot : {int(tsl)}"), 
+                                color=config.cyan
+                            )
+                        )
                     tourn.tslot = int(tsl)
-                except ValueError:return await ctx.send("Numbers Only", delete_after=10)
+                except ValueError:
+                    return await ctx.send("Numbers Only", delete_after=10)
     
             async def mnts(interaction:discord.Interaction):
                 if interaction.user != ctx.author:
@@ -561,8 +571,10 @@ class Esports(commands.Cog):
                     try:
                         con_role = await checker.check_role(ctx)
                         await interaction.delete_original_response()
-                        if not con_role:return await ctx.send("Kindly Mention A Role!!", delete_after=5)
-                    except Exception:return await ctx.send("Something went wrong!! please try again later!!", delete_after=5)
+                        if not con_role:
+                            return await ctx.send("Kindly Mention A Role!!", delete_after=5)
+                    except Exception:
+                        return await ctx.send("Something went wrong!! please try again later!!", delete_after=5)
                     cndb = dbc.find_one({"crole" : str(con_role.id)})
 
                     if cndb == None:
@@ -570,31 +582,62 @@ class Esports(commands.Cog):
                         await ctx.send("Confirm Role Updated", delete_after=5)
                         if interaction.message:
                             await interaction.message.edit(
-                            embed=discord.Embed(
-                                description=interaction.message.embeds[0].description.replace(f"<@&{tourn.crole}>", f"<@&{con_role.id}>"), color=config.cyan)
+                                embed=discord.Embed(
+                                    description=interaction.message.embeds[0].description.replace(f"<@&{tourn.crole}>", f"<@&{con_role.id}>"), 
+                                    color=config.cyan
+                                )
                             )
                         tourn.crole = con_role.id
-                    if cndb != None:return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
+                    if cndb != None:
+                        return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
 
             async def spg_change(interaction:discord.Interaction):
-                if not ctx.author:return await ctx.send(self.ONLY_AUTHOR_BUTTON)
+                if not ctx.author:
+                    return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 try:
                     spg = int(await checker.get_input(interaction=interaction, title="Slot Per Group"))
-                    if not spg:return await ctx.send(embed=discord.Embed(description="Kindly Mention the number of slot per group!!", color=config.red), delete_after=5)
-                    elif spg < 1 or type(spg)!= int: return await ctx.send(embed=discord.Embed(description="Slot per group must be a number 1 or above..", color=config.red), delete_after=5)
+                    if not spg:
+                        return await ctx.send(embed=discord.Embed(description="Kindly Mention the number of slot per group!!", color=config.red), delete_after=5)
+                    elif spg < 1 or type(spg)!= int: 
+                        return await ctx.send(
+                            embed=discord.Embed(
+                                description="Slot per group must be a number 1 or above..", 
+                                color=config.red
+                            ), 
+                            delete_after=5
+                        )
                     dbc.update_one({"rch":rch.id},{"$set":{"spg":spg}})
-                    await ctx.send(embed=discord.Embed(description=f"{config.tick} Updated the current slot per group to : {spg}", color=config.green), delete_after=2)
-                    await interaction.message.edit(
+                    await ctx.send(
                         embed=discord.Embed(
-                            description=interaction.message.embeds[0].description.replace(f"Slot per group: {tourn.spg}", f"Slot per group: {spg}"), 
-                            color=config.cyan)
-                    ) if interaction.message else None
+                            description=f"{config.tick} Updated the current slot per group to : {spg}", 
+                            color=config.green
+                        ), 
+                        delete_after=2
+                    )
+                    if interaction.message :
+                        await interaction.message.edit(
+                            embed=discord.Embed(
+                                description=interaction.message.embeds[0].description.replace(f"Slot per group: {tourn.spg}", f"Slot per group: {spg}"), 
+                                color=config.cyan
+                            )
+                        )
                     tourn.spg = spg
 
                 except Exception as e :
-                    await self.bot.get_channel(config.erl).send(content=f"<@{config.owner_id}>",embed=discord.Embed(title=f"Error | {ctx.command.name}", description=f"```{e}```", color=config.red))
-                    # config.logger.info(e)
-                    return await ctx.send(embed=discord.Embed(description=f"{config.reddot} Unable to update | Try again!!", color=config.red), delete_after=5)
+                    await self.bot.get_channel(config.erl).send(
+                        content=f"<@{config.owner_id}>",
+                        embed=discord.Embed(
+                            title=f"Error | {ctx.command.name}", description=f"```{e}```", 
+                            color=config.red
+                        )
+                    )
+                    return await ctx.send(
+                        embed=discord.Embed(
+                            description=f"{config.reddot} Unable to update | Try again!!", 
+                            color=config.red
+                            ), 
+                        delete_after=5
+                    )
 
 
             bt6.callback = c_ch
