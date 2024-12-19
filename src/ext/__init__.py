@@ -15,7 +15,7 @@ import ext.color as color
 from ext.db import Database
 import ext.error as error
 import ext.permissions as permissions
-import locale
+
 
 __all__ = (
     "Database", 
@@ -27,6 +27,6 @@ __all__ = (
     "locale",
     "permissions",
     "error"
-    )
+)
 
 

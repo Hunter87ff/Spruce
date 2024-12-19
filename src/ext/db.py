@@ -46,7 +46,7 @@ class Database:
             self.m_host_psw = self.cfdata.get("m_host_psw")
             self.gh_api = self.cfdata.get("git_api")
             # Secondary MongoDB client based on a config value, if necessary
-            self.spdb = MongoClient(self.cfdata.get("spdb"))
+            # self.spdb = MongoClient(self.cfdata.get("spdb"))
             Logger.info("Database Connected.")
    
         except Exception as e:

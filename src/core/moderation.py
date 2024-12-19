@@ -13,12 +13,13 @@ from asyncio import sleep
 from discord.ext import commands
 import datetime
 import humanfriendly
-from modules import config, bot as bt
+from modules import config
+from modules.bot import Spruce
 import typing
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
-        self.bot:bt.Spruce = bot
+        self.bot:Spruce = bot
 
     @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(manage_roles=True)

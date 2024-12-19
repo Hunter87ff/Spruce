@@ -178,13 +178,16 @@ class dev(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def add_dev(self, ctx:commands.Context, member:discord.Member):
-        if ctx.author.bot or ctx.author.id != config.owner_id:return await ctx.send("You are not allowed to use this command")
+        if ctx.author.bot or ctx.author.id != config.owner_id:
+            return await ctx.send("You are not allowed to use this command")
         if member.id not in self.bot.db.cfdata["devs"]:
             self.bot.devs.append(member.id)
             await ctx.send(f"Added {member.name} to devs")
         else:
             self.bot.devs.remove(member.id)
             await ctx.send(f"Removed {member.name} from devs")
+
+
 
     @commands.command()
     @commands.guild_only()

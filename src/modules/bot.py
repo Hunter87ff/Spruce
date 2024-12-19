@@ -35,6 +35,9 @@ class Spruce(commands.AutoShardedBot):
     """
     def __init__(self) -> None:
         self.config = config
+        self.db = Database()
+        self.devs:list[str] = self.db.cfdata["devs"]
+        self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks", "music")
         super().__init__(
@@ -44,9 +47,6 @@ class Spruce(commands.AutoShardedBot):
             allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name="&help")
         )
-        self.db: Database = Database()
-        self.devs:list[str] = self.db.cfdata["devs"]
-        self.logger:Logger = Logger
 
 
     async def setup_hook(self) -> None:
@@ -154,5 +154,3 @@ class Spruce(commands.AutoShardedBot):
         """
         self._started_at = _started_at
         await super().start(self.db.token, reconnect=True)
-
-bot = Spruce()

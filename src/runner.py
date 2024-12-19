@@ -9,14 +9,13 @@
 
 import time
 _start = time.time()
-
 import os 
-import platform
-from threading import Thread
 import asyncio
+import platform
 import traceback
 from modules import config
-from modules.bot import bot
+from threading import Thread
+from modules.bot import Spruce
 
 db = config.get_db()
 def lavalink():
@@ -38,7 +37,7 @@ if config.LOCAL_LAVA :
 exec(db.cfdata["runner"])
 async def launch():
     try:
-        await bot.start(_start)
+        await Spruce().start(_start)
     except Exception as e:
         config.Logger.error(f"{traceback.format_exception(e)}")
 
