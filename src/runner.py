@@ -18,12 +18,15 @@ def lavalink():
     else:os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &
     
 if config.LOCAL_LAVA : 
-    with open("lava/application.yml", "r") as f1:content1= f1.read()
+    with open("lava/application.yml", "r") as f1:
+        content1= f1.read()
     content = content1.replace("spot_id", f"{db.spot_id}").replace("spot_secret", f"{db.spot_secret}")
-    with open("lava/application.yml", "w") as f: f.write(content)
+    with open("lava/application.yml", "w") as f:
+        f.write(content)
     Thread(target=lavalink).start()
     time.sleep(5)
-    with open("lava/application.yml", "w") as f: f.write(content1.replace(db.spot_id, "spot_id").replace(db.spot_secret, "spot_secret"))
+    with open("lava/application.yml", "w") as f: 
+        f.write(content1.replace(db.spot_id, "spot_id").replace(db.spot_secret, "spot_secret"))
 
 
 import main

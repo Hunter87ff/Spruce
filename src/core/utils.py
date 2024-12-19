@@ -78,9 +78,13 @@ class Utility(commands.Cog):
     @commands.command()
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
-    async def ping(self, ctx):
-        await ctx.reply(embed=Embed(description=f'**{emoji.dot_green} Current Response Time : `{round(self.bot.latency*1000)}ms`**', color=color.green))
-        # else:await ctx.reply(embed=Embed(description=f'**{emoji.ping}Current Response Time : `{round(self.bot.latency*1000)}MS`**'))
+    async def ping(self, ctx:commands.Context):
+        await ctx.reply(
+            embed=Embed(
+                description=f'**{emoji.dot_green} Current Response Time : `{round(self.bot.latency*1000)}ms`**', 
+                color=color.green
+            )
+        )
 
 
 
@@ -93,12 +97,20 @@ class Utility(commands.Cog):
         await ctx.defer(ephemeral=True)
         user = user or ctx.author
         if "a_" in str(user.avatar):
-            eemb = Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", color=0xfff00f)			
+            eemb = Embed(
+                title=user, 
+                description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')}) | [GIF]({user.display_avatar})", 
+                color=0xfff00f
+            )			
             eemb.set_image(url=user.avatar)
             eemb.set_footer(text=f"Requested By {ctx.author}")
             return await ctx.send(embed=eemb)
         else:
-            eemb = Embed(title=user, description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')})", color=0x00fff0)
+            eemb = Embed(
+                title=user, 
+                description=f"[JPG]({user.display_avatar.with_format('jpg')}) | [PNG]({user.display_avatar.with_format('png')})",
+                color=0x00fff0
+            )
             eemb.set_image(url=user.display_avatar)
             eemb.set_footer(text=f"Requested By {ctx.author}")
             return await ctx.send(embed=eemb)

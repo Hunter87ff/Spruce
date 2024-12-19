@@ -46,6 +46,7 @@ class Spruce(commands.AutoShardedBot):
         self.devs:list[str] = self.db.cfdata["devs"]
         self.logger:Logger = Logger
 
+
     async def setup_hook(self) -> None:
         if config.env["tkn"] == "TOKEN":utils.setup_logging(level=30)
         self.remove_command("help")
@@ -55,6 +56,7 @@ class Spruce(commands.AutoShardedBot):
         elif not config.LOCAL_LAVA :
             nodes = [Node(uri=self.db.m_host, password=self.db.m_host_psw)]
         await Pool.connect(nodes=nodes, client=self, cache_capacity=None)
+
 
     async def on_ready(self):
         try:
@@ -120,5 +122,11 @@ class Spruce(commands.AutoShardedBot):
         if tourch:
             self.db.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")
+
+    async def log(self, Exception:Exception):
+        await error_handle.manage_backend_error(Exception, self)
+
+    async def error_log(self, message:str):
+        await self.get_channel(config.erl).send(f"```py\n{message}\n```")
 
 bot = Spruce()
