@@ -255,26 +255,31 @@ async def tourney(message:Message):
 ################# NITRO ######################
 async def nitrof(message:Message, bot:commands.Bot):
     if message.author.bot:return
-    try:gnitro = db.guildbc.find_one({"guild_id" : message.guild.id})
-    except Exception:return
-    if gnitro != None and gnitro["nitro"] == "enabled":
-        try:webhook = utils.get(await message.channel.webhooks(), name="Spruce")
-        except Exception:await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
-        if not webhook:
-            try:webhook = await message.channel.create_webhook(name="Spruce")
-            except Exception:await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
-        words = message.content.split()
-        for word in words:
-            if word[0] == ":" and word[-1] == ":":
-                emjn = word.replace(":", "")
-                emoji = utils.get(bot.emojis, name=emjn)
-                if emoji != None:
-                    if emoji.name in message.content:
-                        msg1 = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
-                        allowed_mentions = AllowedMentions(everyone = False, roles=False, users=True)
-                        nick = message.author.nick
-                        if message.author.nick == None:
-                            nick = message.author.name
-                        await message.delete()
-                        return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
-    else:return
+    try:
+      gnitro = db.guildbc.find_one({"guild_id" : message.guild.id})
+    except Exception:
+      return
+    if not gnitro  and gnitro["nitro"] != "enabled": return
+    try:
+      webhook = utils.get(await message.channel.webhooks(), name="Spruce")
+    except Exception:
+      await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
+    if not webhook:
+        try:
+          webhook = await message.channel.create_webhook(name="Spruce")
+        except Exception:
+          await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
+    words = message.content.split()
+    for word in words:
+        if word[0] == ":" and word[-1] == ":":
+            emjn = word.replace(":", "")
+            emoji = utils.get(bot.emojis, name=emjn)
+            if emoji != None:
+                if emoji.name in message.content:
+                    msg1 = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
+                    allowed_mentions = AllowedMentions(everyone = False, roles=False, users=True)
+                    nick = message.author.nick
+                    if message.author.nick == None:
+                        nick = message.author.name
+                    await message.delete()
+                    return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
