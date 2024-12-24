@@ -5,7 +5,7 @@ from datetime import datetime
 from modules import config
 from modules.bot import Spruce
 from enum import Enum
-import numpy as np
+
 
 
 class TimeZone(Enum):
@@ -137,11 +137,11 @@ class Scrim(commands.Cog):
 
     async def ft_ch(self, message:discord.Message) -> discord.Member|None:
         ctx = message
-        current_mentions = np.array(ctx.mentions)
+        current_mentions = set(ctx.mentions)
         messages = [message async for message in ctx.channel.history(limit=123)]  
         for fmsg in messages:
             previous_mentions = set(fmsg.mentions)
-            if len(np.intersect1d(current_mentions, previous_mentions)) > 0:
+            if len(current_mentions.intersection(previous_mentions)) > 0:
                 return fmsg.author
         return None
                     
