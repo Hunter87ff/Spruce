@@ -213,6 +213,8 @@ class Moderation(commands.Cog):
     async def clear(self, ctx:commands.Context, amount:int=None):
         if ctx.author.bot:
             return
+          # Initialised the _purged variable cause its gonna get out of scope!!
+        _purged=None
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
         if self.bot.is_ws_ratelimited():
@@ -223,13 +225,16 @@ class Moderation(commands.Cog):
                 )
         await ctx.defer()
         amount = min(amount or 10, 50)
-        _purged = await  ctx.channel.purge(
-            limit=amount,
-            # Fixed the issue with the bot being rate limited and Message not Found Exception
-            check=lambda message:self.bot.is_ws_ratelimited()==False and message,
-            reason=f"Clearing {amount} messages for {ctx.author}"
-        )
-        return await ctx.send(f'**{config.tick} | Successfully cleared {len(_purged)} messages**', delete_after=15)
+        try:
+          # If it cause overlap with another client then might return "Message not Found Exception"
+          _purged = await  ctx.channel.purge(
+              limit=amount,
+              check=lambda message:self.bot.is_ws_ratelimited()==False and message,
+              reason=f"Clearing {amount} messages for {ctx.author}"
+          )
+        except Exception as e:
+          await self.bot.error_log(str(e)) #Log the issue! instead of sending to server report multiple time.
+        return await ctx.send(f'**{config.tick} | Successfully cleared {len(_purged or amount)} messages**', delete_after=15)
 
 
     @commands.hybrid_command(with_app_command = True)
