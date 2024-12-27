@@ -31,7 +31,7 @@ class dev(commands.Cog):
     @permissions.dev_only()
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
         ctx = interaction
-        if ctx.user.bot:return
+        if ctx.user.bot or ctx.author.id not in self.bot.devs:return
         amount = plan.value if (interaction.user.id != config.owner_id) else 1
         url:str = f"{config.BASE_URL}/payment/prime?session="
         if plan != Plans.Custom:
