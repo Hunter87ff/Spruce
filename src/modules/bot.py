@@ -14,8 +14,13 @@ from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
 from ext import Database, Logger, error as error_handle
-from modules import (config, payment, message_handle)
+from modules import (config, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message
+
+try:
+    from modules import payment
+except ImportError:
+    pass
 
 intents = Intents.default()
 intents.message_content = True
@@ -95,7 +100,7 @@ class Spruce(commands.AutoShardedBot):
 
     async def fetch_payment_hook(self, message:Message):
         """Fetches the payment object from the message content in paylog channel and updates the primedbc"""
-        if message.channel.id != config.paylog or (not message.webhook_id): return
+        if message.channel.id != config.paylog or (not message.webhook_id) or not payment: return
         try:
             obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
             if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
