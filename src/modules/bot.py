@@ -17,10 +17,6 @@ from ext import Database, Logger, error as error_handle
 from modules import (config, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message
 
-try:
-    from modules import payment
-except ImportError:
-    pass
 
 intents = Intents.default()
 intents.message_content = True
@@ -98,23 +94,23 @@ class Spruce(commands.AutoShardedBot):
         Logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
-    async def fetch_payment_hook(self, message:Message):
-        """Fetches the payment object from the message content in paylog channel and updates the primedbc"""
-        if message.channel.id != config.paylog or (not message.webhook_id) or not payment: return
-        try:
-            obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
-            if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
-                return self.db.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
-            if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
-                return self.db.paydbc.delete_one({"guild_id":obj.guild_id})
-            print("Ignored the check")
-        except Exception:
-            traceback.print_exc()
+    # async def fetch_payment_hook(self, message:Message):
+    #     """Fetches the payment object from the message content in paylog channel and updates the primedbc"""
+    #     if message.channel.id != config.paylog or (not message.webhook_id) or not payment: return
+    #     try:
+    #         obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
+    #         if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
+    #             return self.db.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
+    #         if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
+    #             return self.db.paydbc.delete_one({"guild_id":obj.guild_id})
+    #         print("Ignored the check")
+    #     except Exception:
+    #         traceback.print_exc()
 
     async def on_message(self, message:Message):
-        if message.channel.id == config.paylog: 
-            await self.fetch_payment_hook(message)
-        elif config.notuser(message):return
+        # if message.channel.id == config.paylog: 
+        #     await self.fetch_payment_hook(message)
+        if config.notuser(message):return
         await self.process_commands(message)
         await self.chat_client.chat(message)
         if message.guild:
