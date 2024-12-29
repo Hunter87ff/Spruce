@@ -36,8 +36,8 @@ class Spruce(commands.AutoShardedBot):
     """
     def __init__(self) -> None:
         self.config = config
-        self.db = Database()
-        self.devs:list[int] = self.db.cfdata["devs"]
+        self.db = Database() 
+        self.devs:list[int] = self.db.cfdata.get("devs")
         self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
         self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks", "music")
