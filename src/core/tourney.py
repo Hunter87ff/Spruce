@@ -459,7 +459,7 @@ class Esports(commands.Cog):
             async def publish(interaction:discord.Interaction):
                 await interaction.response.defer(ephemeral=True)
                 if tourn.pub == "no":
-                    if tourn.reged >= tourn.tslot["tslot"]*0.1:
+                    if tourn.reged >= tourn.tslot*0.1:
                         ms = await ctx.send("Enter The Prize Under 15 characters")
                         prize = str(await self.get_input(ctx))
                         if len(prize) > 15:
