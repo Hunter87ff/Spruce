@@ -213,7 +213,6 @@ class Moderation(commands.Cog):
     async def clear(self, ctx:commands.Context, amount:int=None):
         if ctx.author.bot:
             return
-          # Initialised the _purged variable cause its gonna get out of scope!!
         _purged=None
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
@@ -226,7 +225,6 @@ class Moderation(commands.Cog):
         await ctx.defer()
         amount = min(amount or 10, 50)
         try:
-          # If it cause overlap with another client then might return "Message not Found Exception"
           _purged = await  ctx.channel.purge(
               limit=amount,
               check=lambda message:self.bot.is_ws_ratelimited()==False and message,

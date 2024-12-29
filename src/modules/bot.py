@@ -67,6 +67,7 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def on_ready(self):
+        """Event that triggers when the bot is ready."""
         try:
             await self.tree.sync()
             stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
