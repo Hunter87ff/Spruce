@@ -29,28 +29,25 @@ class Database:
             Logger.info("Database Connecting...")
             self.maindb = MongoClient(os.environ["mongo_url"])
             self.sprucedb = self.maindb["sprucedb"]
-            self.cfdbc = self.maindb["configdb"]["configdbc"]
+            self.cfdbc =self.sprucedb["configs"]
 
             self.dbc = self.sprucedb["tourney"]
             self.primedbc = self.sprucedb["prime"]
             self.paydbc = self.sprucedb["payment"]
             self.scrims = self.sprucedb["scrims"]
             self.guildbc = self.sprucedb["guilds"]
-            # self.dbc = self.maindb["tourneydb"]["tourneydbc"]
             
             
             # Load configuration data from the main config collection
             self.cfdata:dict = dict(self.cfdbc.find_one({"config_id": 87}))
-            self.token = self.cfdata.get(os.environ["tkn"])
-            self.GEMAPI = self.cfdata["gemapi"]
-            self.spot_id = self.cfdata["spot_id"]
-            self.spot_secret = self.cfdata["spot_secret"]
-            self.bws:list[str] = self.cfdata["bws"]
-            self.m_host = self.cfdata["m_host"]
-            self.m_host_psw = self.cfdata.get("m_host_psw")
-            self.gh_api = self.cfdata.get("git_api")
-            # Secondary MongoDB client based on a config value, if necessary
-            # self.spdb = MongoClient(self.cfdata.get("spdb"))
+            self.token:str = self.cfdata.get(os.environ["tkn"])
+            self.GEMAPI:str = self.cfdata.get("gemapi")
+            self.spot_id:str = self.cfdata.get("spot_id")
+            self.spot_secret:str = self.cfdata.get("spot_secret")
+            self.bws:list[str] = self.cfdata.get("bws")
+            self.m_host:str = self.cfdata.get("m_host")
+            self.m_host_psw:str = self.cfdata.get("m_host_psw")
+            self.gh_api:str = self.cfdata.get("git_api")
             Logger.info("Database Connected.")
    
         except Exception as e:

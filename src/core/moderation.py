@@ -211,28 +211,29 @@ class Moderation(commands.Cog):
     @commands.cooldown(2, 30, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, send_messages=True)
     async def clear(self, ctx:commands.Context, amount:int=None):
+        await ctx.defer()
         if ctx.author.bot:
             return
         _purged=None
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         if self.bot.is_ws_ratelimited():
             if ctx.me.guild_permissions.send_messages:
                 return await ctx.send(
-                    f"**{config.cross} | I'm being rate limited, please try again later**", 
+                    f"**Rate limited!!.. please try again later**", 
                     delete_after=5
                 )
-        await ctx.defer()
+        
         amount = min(amount or 10, 50)
         try:
           _purged = await  ctx.channel.purge(
               limit=amount,
-              check=lambda message:self.bot.is_ws_ratelimited()==False and message,
+              check=lambda message:self.bot.is_ws_ratelimited()==False and message !=None,
+              bulk=False,
               reason=f"Clearing {amount} messages for {ctx.author}"
           )
         except Exception as e:
-          await self.bot.error_log(str(e)) #Log the issue! instead of sending to server report multiple time.
-        return await ctx.send(f'**{config.tick} | Successfully cleared {len(_purged or amount)} messages**', delete_after=15)
+          await self.bot.error_log("core.moderation | Ln. 228\n", str(e))
+        return await ctx.send(f"**Successfully cleared {len(_purged) if isinstance(_purged, list) else ''} messages**", delete_after=15)
 
 
     @commands.hybrid_command(with_app_command = True)
