@@ -6,19 +6,22 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
  """
-
+from typing import TYPE_CHECKING
 from modules import config
 from discord import Message, File
 from discord.ext import commands
 import google.generativeai as genai
 from ext import constants, db
 
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+
 class ChatClient:
     """
     A class to chat with user
     """
-    def __init__(self, bot) -> None:
-        self.bot:commands.Bot = bot #Spruce instance
+    def __init__(self, bot:'Spruce') -> None:
+        self.bot= bot #Spruce instance
         self.db:db.Database = bot.db
         generation_config = {
             "temperature": 1.5,

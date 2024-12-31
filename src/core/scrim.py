@@ -1,23 +1,46 @@
 from discord.ext import commands
 from discord.ext import tasks
-import discord, re, pytz, json
+import discord, re, pytz
 from datetime import datetime
 from modules import config
 from modules.bot import Spruce
-from enum import Enum
+from ext.constants import TimeZone
 
 
+class ScrimData:
+    def __init__(self, data:dict, _bot:Spruce) -> None:
+        self._data = data
+        self._bot:Spruce = _bot
+        self.guild_id:int = data.get("guild_id")
+        self.slot:int = data.get("slot")
+        self.time:str = data.get("time")
+        self.zone:str = data.get("zone")
+        self.status:str = data.get("status")
+        self.started:bool = data.get("started")
 
-class TimeZone(Enum):
-    Asia_Kolkata = "Asia/Kolkata"
-    Asia_Tokyo = "Asia/Tokyo"
-    Asia_Shanghai = "Asia/Shanghai"
-    Asia_Singapore = "Asia/Singapore"
-    Asia_Dubai = "Asia/Dubai"
-    Asia_Bangkok = "Asia/Bangkok"
-    Asia_Hong_Kong = "Asia/Hong_Kong"
-    Asia_Bangladesh = "Asia/Dhaka"
-    Asia_Nepal = "Asia/Kathmandu"
+
+    @property
+    def channel(self) -> discord.TextChannel:
+        """Returns the registration channel for the scrim"""
+        return self._bot.get_channel(self._data.get("channel_id"))
+    
+    @property
+    def role(self) -> discord.Role:
+        """Returns the confirmation role for the registered teams"""
+        return discord.utils.get(self.channel.guild.roles, id=self._data.get("role_id"))
+    
+    @property
+    def reged(self) -> int:
+        """Returns the number of registered teams"""
+        return self._data.get("reged")
+    
+    def __str__(self) -> str:
+        return f"ScrimData({self.guild_id}, {self.slot}, {self.time}, {self.zone}, {self.channel.id}, {self.role.id}, {self.status}, {self.started}, {self.reged})"
+    
+    def to_dict(self) -> dict:
+        """Returns the data in dict format"""
+        return self._data
+    
 
 
 
@@ -29,6 +52,13 @@ class Scrim(commands.Cog):
 
 
     @discord.app_commands.command()
+    @discord.app_commands.describe(
+        total_slots="Total slots for the scrim min: 2, max: 100",
+        time_zone="Timezone for the scrim",
+        time="12H formated Time for the scrim eg: 10:00 AM",
+        registration_channel="Channel where the registration message is sent",
+        idp_role="Role for the registered teams"
+    )
     async def scrim(
         self, 
         interaction:discord.Interaction, 
@@ -37,18 +67,25 @@ class Scrim(commands.Cog):
         registration_channel:discord.TextChannel, 
         idp_role:discord.Role
     ):
-        if await config.is_dev(interaction) == False: return
+        if not await config.is_dev(interaction): return
 
+        # Check if the channel is already registered
         if self.bot.db.scrims.find_one({"channel_id": registration_channel.id}):
             return await interaction.response.send_message("Scrim already exists", ephemeral=True)
         try:
+            if total_slots < 2 or total_slots > 100:
+                return await interaction.response.send_message(
+                    "Total slots should be between 2 and 100", 
+                    ephemeral=True
+                )
             _time = re.match(r"([0-9]{1,2}):([0-9]{1,2}) ([AP]M)", time)
             if not _time:
                 return await interaction.response.send_message(
-                    "Invalid time format!! Follow something like this : 10:00 AM", 
+                    "Invalid time format!! Follow something like this 12h format : 10:00 AM", 
                     ephemeral=True
                 )
             _time = datetime.strptime(time, "%I:%M %p").time().strftime("%H:%M")
+
         except Exception:
             return await interaction.response.send_message(
                 "Invalid time format!! Follow something like this : 10:00 AM", 
@@ -60,7 +97,7 @@ class Scrim(commands.Cog):
                 time=str(_time), 
                 fr=time_zone.value, 
                 to=TimeZone.Asia_Kolkata.value
-            ), 
+            ),
             time_zone.value,
             registration_channel,
             idp_role
@@ -68,15 +105,15 @@ class Scrim(commands.Cog):
         await interaction.response.send_message("Scrim created successfully")
 
 
+
     @commands.hybrid_command()
     async def slotlist(self, ctx:commands.Context, channel:discord.TextChannel):
         if await config.is_dev(ctx) == False: return
-        message = [ms async for ms in channel.history(limit=2)][0]
-        crole = message.guild.get_role(1167424093574930432)
-        tmrole = discord.utils.get(channel.guild.roles, name="scrim-mod")
-        ms = await ctx.send("Processing")
-        await self.team_struct(message, crole, tmrole)
-        await ms.edit(content="Done")
+        _data = self.bot.db.scrims.find_one({"channel_id": channel.id})
+        if not _data:
+            return await ctx.send("No scrim found for this channel")
+        _scrim_data = ScrimData(_data, self.bot)
+        await self.team_struct(ctx.message, _scrim_data.role, _scrim_data.role)
 
 
     def create_scrim(
@@ -88,6 +125,7 @@ class Scrim(commands.Cog):
         ):
         """Creates a scrim in the database"""
         _data = {
+                "guild_id": channel.guild.id,
                 "slot": total_slots,
                 "time": time,
                 "zone": zone,
@@ -162,29 +200,6 @@ class Scrim(commands.Cog):
         mes = await msg.channel.send(embed=em)
         await mes.add_reaction("✅")
 
- 
-    async def team_reg(self, message:discord.Message):
-        msg = message
-        tmrole = discord.utils.get(msg.guild.roles, name="scrim-mod") 
-        if message.author.bot or message.author == self.bot.user or tmrole in msg.author.roles or message.channel.id != 1167331222494646302:
-            return None
-        req_men = 2
-        tslot = 12
-        crole = message.guild.get_role(1167424093574930432) 
-        ment = message.mentions
-        if not ment or len(ment) < req_men:
-            await message.reply(f"You must mention `{req_men}` or more members to register a team.", delete_after=5)
-            return await msg.delete()
-            
-        ft = await self.ft_ch(message) 
-        if ft != None:
-            return await message.reply(f"You've mentioned `{ft}` who is already in a team.")
-        else:
-            await message.author.add_roles(crole)
-            await message.add_reaction("✅")
-            if len(crole.members) == tslot:
-                await msg.channel.send("Registration closed")
-                return await self.team_struct(message, crole, tmrole)
     
 
     @tasks.loop(seconds=30)
@@ -192,7 +207,23 @@ class Scrim(commands.Cog):
         _time = datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value)).strftime("%H:%M:00")
         _test = self.bot.db.scrims.find_one({"status": "active", "started": False, "time" : _time})
         if _test:
-            print(_test)
+            _scrim_data = ScrimData(_test, self.bot)
+            _register_message = discord.Embed(
+                title="Scrim Registration",
+                description=f"React to this message to register your team for the scrim",
+                color=0x00ff00
+            )
+            _register_message.set_thumbnail(url=_scrim_data.channel.guild.icon.url or self.bot.user.avatar.url)
+            _registration_view = discord.ui.View()
+            _registration_view.add_item(
+                discord.ui.Button(
+                    custom_id=f"{self.bot.user.id}-scrim-registration-button",
+                    label="Register", 
+                    style=discord.ButtonStyle.green
+                )
+            )
+            await _scrim_data.channel.send(embed=_register_message, view=_registration_view)
+
         self.bot.db.scrims.update_many({"status": "active", "started":False, "time" : _time}, {"$set": {"started": True}})
 
 

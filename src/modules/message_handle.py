@@ -8,10 +8,14 @@
 """
 
 import re, traceback
-from discord.ext import commands
+from typing import TYPE_CHECKING
 from ext.error import update_error_log
-from discord import utils, AllowedMentions, Embed, errors, Message, TextChannel, File
+from discord import utils, AllowedMentions, Embed, Message, TextChannel
 from ext import Database
+
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+    
 db = Database()
 dbc = db.dbc
 #########################################################
@@ -24,7 +28,7 @@ def get_slot(ms:Message):
         if f"{i})" not in ms.content:return f"{i})"
 
 
-async def process_registration_group(group:int,  grpc:TextChannel, bot:commands.Bot, msg:Message, totalSlot:int):
+async def process_registration_group(group:int,  grpc:TextChannel, bot:'Spruce', msg:Message, totalSlot:int):
     """This function is basically a helper for managing automated group system. but there is a problem of customization.
     this function can manage group system for any group of 12 teams. which is kind of a limitation. but it can be customized!!
     i've not yet customised this function. but if you wanna customise it, you're welcome!!
@@ -38,7 +42,7 @@ async def process_registration_group(group:int,  grpc:TextChannel, bot:commands.
     grpc : TextChannel
         Group Channel
         
-    bot : commands.Bot
+    bot : Spruce
         Bot Object
         
     msg : Message
@@ -90,7 +94,7 @@ def get_group(reged:int):
 
 
 """This feature is no longer maintained!!"""
-async def auto_grp(message:Message, bot:commands.Bot):
+async def auto_grp(message:Message, bot:'Spruce'):
     try:td = dbc.find_one({"cch":message.channel.id})
     except Exception:return
     if td:
@@ -253,7 +257,7 @@ async def tourney(message:Message):
 
 
 ################# NITRO ######################
-async def nitrof(message:Message, bot:commands.Bot):
+async def nitrof(message:Message, bot:'Spruce'):
     if message.author.bot:return
     try:
       gnitro = db.guildbc.find_one({"guild_id" : message.guild.id})
