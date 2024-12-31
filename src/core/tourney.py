@@ -1008,7 +1008,9 @@ class Esports(commands.Cog):
                     await interaction.response.send_message(embed=emb, ephemeral=True)
                 cslotlist.callback = myteam
                         
-            if interaction.data["custom_id"] == "Cancel":await interaction.message.delete()
+            if interaction.data["custom_id"] == "Cancel":
+                if interaction.message:
+                    await interaction.message.delete()
 
             if interaction.data["custom_id"] == "Tname":
                 await interaction.response.send_message(view=view, ephemeral=True)
