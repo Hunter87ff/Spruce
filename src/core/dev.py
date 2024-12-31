@@ -8,11 +8,15 @@
  """
 
 import discord
-from modules import config, bot as spruce
+from modules import config
 from discord.ext import commands
 from ext import permissions
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import psutil, enum
+
+
+if TYPE_CHECKING:
+    from modules.bot import Spruce
 
 class Plans(enum.Enum):
     Monthly = 49
@@ -25,7 +29,7 @@ class Plans(enum.Enum):
 
 class dev(commands.Cog):
     def __init__(self, bot):
-        self.bot:spruce.Spruce = bot
+        self.bot:'Spruce' = bot
 
     # @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     # @permissions.dev_only()
