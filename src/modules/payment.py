@@ -136,3 +136,9 @@ def create_order(customer_id:str, customer_name:str, customer_ph:str="8474090589
     except Exception:
         traceback.print_exc()
         return None
+
+
+
+import warnings
+from urllib3.exceptions import InsecureRequestWarning
+warnings.simplefilter("ignore", InsecureRequestWarning)

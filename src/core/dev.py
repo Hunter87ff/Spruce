@@ -8,7 +8,7 @@
  """
 
 import discord
-from modules import config
+from modules import config, payment
 from discord.ext import commands
 from ext import permissions
 from typing import Any, TYPE_CHECKING
@@ -31,29 +31,29 @@ class dev(commands.Cog):
     def __init__(self, bot):
         self.bot:'Spruce' = bot
 
-    # @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
-    # @permissions.dev_only()
-    # async def getprime(self, interaction:discord.Interaction, plan:Plans):
-    #     ctx = interaction
-    #     if ctx.user.bot or ctx.author.id not in self.bot.devs:return
-    #     amount = plan.value if (interaction.user.id != config.owner_id) else 1
-    #     url:str = f"{config.BASE_URL}/payment/prime?session="
-    #     if plan != Plans.Custom:
-    #         url += payment.create_order(
-    #             customer_id=ctx.guild.id, 
-    #             customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), 
-    #             amount=amount
-    #         ).payment_session_id
-    #     if plan == Plans.Custom:
-    #         url = config.support_server
-    #     button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
-    #     await interaction.response.send_message(
-    #         embed=discord.Embed(
-    #             title="Get Prime", 
-    #             description="Click the button to get prime", 
-    #             color=0x00ff00
-    #             ),
-    #         view=discord.ui.View().add_item(button))
+    @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
+    @permissions.dev_only()
+    async def getprime(self, interaction:discord.Interaction, plan:Plans):
+        ctx = interaction
+        if ctx.user.bot or ctx.user.id not in self.bot.devs:return
+        amount = plan.value if (interaction.user.id != config.owner_id) else 1
+        url:str = f"{config.BASE_URL}/extras/pg.html?session="
+        if plan != Plans.Custom:
+            url += payment.create_order(
+                customer_id=ctx.guild.id, 
+                customer_name=str(ctx.user.display_name.replace("_", "").replace(".","")), 
+                amount=amount
+            ).payment_session_id
+        if plan == Plans.Custom:
+            url = config.support_server
+        button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title="Get Prime", 
+                description="Click the button to get prime", 
+                color=0x00ff00
+                ),
+            view=discord.ui.View().add_item(button))
 
     @commands.command(hidden=True)
     @permissions.dev_only()

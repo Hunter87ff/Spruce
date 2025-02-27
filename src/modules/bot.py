@@ -89,7 +89,7 @@ class Spruce(commands.AutoShardedBot):
         except Exception as ex:print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        Logger.info(f"Node Connected")
+        Logger.info(f"Node Connected {payload.node.identifier}")
 
     async def on_disconnect(self):
         Logger.info('Disconnected from Discord. Reconnecting...')
