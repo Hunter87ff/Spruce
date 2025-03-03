@@ -111,16 +111,14 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def remove_members(self, interaction: Interaction, role: Role, reason: str = None):
-        if interaction.user.bot:
-            return
-        await interaction.response.defer()
-        await interaction.response.send_message(f"{config.loading} | {constants.PROCESSING}")
+        if interaction.user.bot:return
+        await interaction.response.send_message(f"{config.loading} | {constants.PROCESSING}", ephemeral=True)
         if reason is None:
             reason = f"{role} removed from everyone by {interaction.user}"
         for member in role.members:
             await member.remove_roles(role, reason=reason)
             await sleep(2)
-        await interaction.response.edit_message(content=f"**{config.tick} | {role} Removed from everyone**", delete_after=30)
+        await interaction.followup.send(content=f"**{config.tick} | {role} Removed from everyone**", ephemeral=True)
 
 
 
