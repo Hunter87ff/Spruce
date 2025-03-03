@@ -33,7 +33,7 @@ class ChatClient:
         try:
             genai.configure(api_key=self.db.GEMAPI)
             model = genai.GenerativeModel(
-                model_name="gemini-pro", #"gemini-1.5-flash", 
+                model_name="gemini-2.0-flash", #"gemini-1.5-flash", 
                 generation_config=generation_config
             )
         except Exception as e:

@@ -106,6 +106,7 @@ class Music(commands.Cog):
 
     @commands.hybrid_command(with_app_command=True, aliases=["p"])
     @commands.bot_has_guild_permissions(connect=True, speak=True)
+    @commands.guild_only()
     async def play(self, ctx: commands.Context, *, query: str) -> None:
         await ctx.defer()
         if not ctx.guild or ctx.author.bot:return
@@ -127,6 +128,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True)
+    @commands.guild_only()
     async def skip(self, ctx: commands.Context) -> None:
         await ctx.defer()
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
@@ -136,6 +138,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True)
+    @commands.guild_only()
     async def nightcore(self, ctx: commands.Context) -> None:
         await ctx.defer()
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
@@ -148,6 +151,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True)
+    @commands.guild_only()
     async def speed(self, ctx: commands.Context, value: float) -> None:
         await ctx.defer()
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
@@ -162,6 +166,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True, description="Change the pitch of the current track. 1 is default")
+    @commands.guild_only()
     async def pitch(self, ctx: commands.Context, value: float) -> None:
         await ctx.defer()
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
@@ -175,6 +180,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True, name="toggle", aliases=["pause", "resume"], description="Pause or resume the current track.")
+    @commands.guild_only()
     async def pause_resume(self, ctx: commands.Context) -> None:
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if not player:return
@@ -184,6 +190,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True, aliases=["vol"])
+    @commands.guild_only()
     @commands.bot_has_guild_permissions(connect=True, speak=True)
     async def volume(self, ctx: commands.Context, value: int) -> None:
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
@@ -195,6 +202,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True, aliases=["stop", "leave"])
+    @commands.guild_only()
     async def disconnect(self, ctx: commands.Context) -> None:
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if not player:return
@@ -204,6 +212,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True)
+    @commands.guild_only()
     @commands.bot_has_guild_permissions(send_messages=True)
     async def queue(self, ctx:commands.Context):
         await ctx.defer()
@@ -219,6 +228,7 @@ class Music(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command=True)
+    @commands.guild_only()
     @commands.bot_has_guild_permissions(connect=True, speak=True, send_messages=True)
     async def spotify(self, ctx:commands.Context, playlist_url:str):
         tracks: wavelink.Search = await wavelink.Playable.search(playlist_url)
@@ -232,6 +242,7 @@ class Music(commands.Cog):
         
 
     @commands.hybrid_command(with_app_command=True, aliases= ['connect'])
+    @commands.guild_only()
     @commands.bot_has_guild_permissions(connect=True, speak=True)
     async def join(self, ctx:commands.Context):
         await ctx.defer()

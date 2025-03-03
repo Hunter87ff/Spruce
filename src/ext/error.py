@@ -106,7 +106,7 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
             return await ctx.send(embed=Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
         else: 
             text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
-            content=f"<@885193210455011369>\n{'Message : '+_msg}{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
+            content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
             if len(text) >= 1999:
                 with open("error.txt", "w") as file:
                     file.write(text)

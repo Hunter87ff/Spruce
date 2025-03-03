@@ -22,6 +22,7 @@ class Channel(commands.Cog):
 		
 
 	@commands.command(aliases=['chm'])
+	@commands.guild_only()
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def channel_make(self, ctx:commands.Context,  *names):
@@ -35,6 +36,7 @@ class Channel(commands.Cog):
 		
 
 	@commands.command(aliases=['chd'])
+	@commands.guild_only()
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True, send_messages=True)
 	async def channel_del(self, ctx:commands.Context,  *channels: discord.TextChannel):
@@ -46,6 +48,7 @@ class Channel(commands.Cog):
 		
 
 	@commands.hybrid_command(with_app_commands=True, aliases=['dc'])
+	@commands.guild_only()
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def delete_category(self, ctx:commands.Context,  category: discord.CategoryChannel):
@@ -79,6 +82,7 @@ class Channel(commands.Cog):
 		
 
 	@commands.command(aliases=["cch"])
+	@commands.guild_only()
 	@commands.has_permissions(manage_channels=True)
 	@commands.bot_has_permissions(manage_channels=True)
 	async def create_channel(self, ctx:commands.Context,  category:discord.CategoryChannel, *names:str):
@@ -91,5 +95,5 @@ class Channel(commands.Cog):
 
 
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
 	await bot.add_cog(Channel(bot))

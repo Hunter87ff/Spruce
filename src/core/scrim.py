@@ -52,6 +52,7 @@ class Scrim(commands.Cog):
 
 
     @discord.app_commands.command()
+    @commands.guild_only()
     @discord.app_commands.describe(
         total_slots="Total slots for the scrim min: 2, max: 100",
         time_zone="Timezone for the scrim",

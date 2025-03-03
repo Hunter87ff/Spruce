@@ -10,8 +10,8 @@ import os
 from asyncio import sleep
 from modules import config
 from discord.ext import commands
-from discord import  Embed, Role, File, Member, utils, Guild, Message
-from ext import constants
+from discord import  Embed, Role, File, Member, utils, Guild, Message, app_commands, Interaction
+from ext import constants,  color
 cmd = commands
 
 class Roles(commands.Cog):
@@ -105,45 +105,50 @@ class Roles(commands.Cog):
 
 
 
-    @cmd.hybrid_command(with_app_command=True, aliases=["ra_role"])
+    @app_commands.command(description="Remove a role from all members")
+    @app_commands.describe(role="The role to remove from all members", reason="The reason for removing the role")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
-    async def remove_role_members(self, ctx:commands.Context, role: Role, reason=None):
-        if ctx.author.bot:return
-        prs = await ctx.send(f"{config.loading} | {constants.PROCESSING}")
-        if reason == None:
-            reason = f"{role} removed by {ctx.author}"
+    async def remove_members(self, interaction: Interaction, role: Role, reason: str = None):
+        if interaction.user.bot:
+            return
+        await interaction.response.defer()
+        await interaction.response.send_message(f"{config.loading} | {constants.PROCESSING}")
+        if reason is None:
+            reason = f"{role} removed from everyone by {interaction.user}"
         for member in role.members:
             await member.remove_roles(role, reason=reason)
             await sleep(2)
-        return await prs.edit(content=f"**{config.tick} | {role} Removed from everyone**", delete_after=30)
+        await interaction.response.edit_message(content=f"**{config.tick} | {role} Removed from everyone**", delete_after=30)
 
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @app_commands.command(description="Get the list of members in a role ")
+    @app_commands.describe(role="Mention the role to get member list")
     @commands.guild_only()
-    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True, attach_files=True)
-    @commands.cooldown(1, 15, commands.BucketType.user)
-    async def inrole(self, ctx:commands.Context, role: Role):
-        await ctx.defer()
-        if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
-        filename = f"{role.members}_members.txt"
-        msg = ""
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(send_messages=True, manage_roles=True)
+    async def inrole(self, interaction:Interaction, role:Role):
+        if interaction.user.bot:return
+        elif not await config.voted(interaction, bot=self.bot):
+            return await interaction.response.send_message("You need to vote to use this command", ephemeral=True)
+        elif len(role.members) > 400:
+            return await interaction.response.send_message("Too many members to show!!", ephemeral=True)
+        elif (len(role.members) == 0):
+            return await interaction.response.send_message("No members in this role", ephemeral=True)
+        msg=""
         for i in role.members:
-            msg = msg + f"\n{i.display_name} : {i.id}"
-
-        if len(role.members) < 15:
-            await ctx.send(msg)
-
-        if len(role.members) > 15 and len(role.members) <= 1000000:
-            file = open(filename, "w", encoding="utf-8")
-            file.write(msg)
-            file.close()
-            await ctx.send(f"Total members : `{len(role.members)}`",file=File(filename))
-            os.remove(filename)
+            msg = msg + f"\n{i.display_name} : <@{i.id}>"
+        if len(msg) < 2000:
+            emb = Embed(title=f"{role.name}", description=msg, color=color.random(color.cyan))
+            await interaction.response.send_message(embed=emb)
+        else:
+            with open(file=f"{role.name}-{role.id}-members.txt", mode="w", encoding="utf-8") as f:
+                f.write(msg)
+            await interaction.response.send_message(file=File(f"{role.name}-{role.id}-members.txt"))
+            os.remove(f"{role.name}-{role.id}-members.txt")
+        
 
 
 

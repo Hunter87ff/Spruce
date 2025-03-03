@@ -119,6 +119,7 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command = True, aliases=['sav'])
+    @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     async def server_av(self, ctx:commands.Context, guild:Guild=None):
         await ctx.defer(ephemeral=True)
@@ -151,6 +152,7 @@ class Utility(commands.Cog):
 
 
     @commands.command(aliases=['emb'])
+    @commands.guild_only()
     @commands.bot_has_permissions(send_messages=True, manage_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def embed(self, ctx:commands.Context, *, message):
@@ -251,7 +253,7 @@ class Utility(commands.Cog):
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 8, commands.BucketType.user)
-    async def support(self, ctx):
+    async def support(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         invbtn = Button(label="Support", url="https://discord.gg/vMnhpAyFZm")
         view = View()
@@ -260,6 +262,7 @@ class Utility(commands.Cog):
         except Exception:return
 
     @commands.hybrid_command(with_app_command=True, aliases=["em"])
+    @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
@@ -272,6 +275,7 @@ class Utility(commands.Cog):
 
 
     @commands.command()
+    @commands.guild_only()
     @commands.cooldown(2, 360, commands.BucketType.user)
     @commands.has_permissions(add_reactions=True)
     @commands.bot_has_permissions(add_reactions=True)
@@ -284,14 +288,16 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command = True)
+    @commands.guild_only()
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
-    async def prefix(self, ctx):
+    async def prefix(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
         await ctx.send(f"My prefix is : {config.prefix}")
 
     @commands.hybrid_command(with_app_command = True, aliases=["mc"])
+    @commands.guild_only()
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
     async def member_count(self, ctx:commands.Context):
@@ -303,6 +309,8 @@ class Utility(commands.Cog):
 
         
     @commands.hybrid_command(with_app_command = True, aliases=["ui"])
+    @commands.guild_only()
+    @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True)
     async def userinfo(self, ctx:commands.Context, member : Member = None):
         await ctx.defer(ephemeral=True)
@@ -339,6 +347,7 @@ class Utility(commands.Cog):
         return await ctx.send(embed=emb)
     
     @commands.command()
+    @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
     async def nick(self, ctx:commands.Context, user:Member,  *, Nick:str):
@@ -352,6 +361,7 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["si", "server_info"])
+    @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def serverinfo(self, ctx:commands.Context):
@@ -376,6 +386,7 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(with_app_command = True)
+    @commands.guild_only()
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, embed_links=True, manage_messages=True, manage_channels=True, manage_roles=True)
     async def setup_ticket(self, ctx:commands.Context, mod_role:Role=None, button_label:str=None, button_emoji:Emoji=None, button_color:Buttons=None, *, message:str=None):
@@ -462,5 +473,5 @@ class Utility(commands.Cog):
         return await ch.send(msg)
 
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
 	await bot.add_cog(Utility(bot))

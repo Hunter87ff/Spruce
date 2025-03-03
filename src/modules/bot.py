@@ -118,7 +118,7 @@ class Spruce(commands.AutoShardedBot):
             await message_handle.tourney(message)
             await config.vote_check(message)
          
-    async def on_command_error(self, ctx:commands.Context, error):
+    async def on_command_error(self, ctx:commands.Context, error:Exception):
         await error_handle.manage_context(ctx, error, self)
 
 

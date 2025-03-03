@@ -11,7 +11,7 @@ from ext.logger import Logger
 from ext.modals import Tourney
 import ext.constants as constants
 import ext.emoji as emoji
-import ext.color as color
+from ext.color import Color as color
 from ext.db import Database
 import ext.error as error
 import ext.permissions as permissions
