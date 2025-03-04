@@ -102,19 +102,22 @@ class Music(commands.Cog):
             await interaction.response.send_message("Resumed", ephemeral=True)
             await vc.pause(False)
             await interaction.delete_original_response()
-                
 
+    #fixes needed -> player.channel !
     @commands.hybrid_command(with_app_command=True, aliases=["p"])
     @commands.bot_has_guild_permissions(connect=True, speak=True)
     @commands.guild_only()
     async def play(self, ctx: commands.Context, *, query: str) -> None:
         await ctx.defer()
-        if not ctx.guild or ctx.author.bot:return
-        elif "youtube" in query: return await ctx.reply(embed=Embed(description="I'm sorry, but I can't play YouTube links.", color=config.blue), delete_after=10)
+        if not ctx.guild or ctx.author.bot:
+          return
+        elif "youtube" in query: 
+          return await ctx.reply(embed=Embed(description="I'm sorry, but I can't play YouTube links.", color=config.blue), delete_after=10)
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
         player.autoplay = wavelink.AutoPlayMode.disabled
         tracks: wavelink.Search = await wavelink.Playable.search(query)
-        if not tracks: return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+        if not tracks: 
+          return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
         player.home = ctx.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await player.queue.put_wait(tracks)
@@ -122,8 +125,10 @@ class Music(commands.Cog):
         else:
             track: wavelink.Playable = tracks[0]
             await player.queue.put_wait(track)
-            if player.current:await ctx.send(embed=Embed(description=f"{config.music_disk} Added **`{track}`** to the queue.", color=config.green))
-        if not player.playing:await player.play(player.queue.get(), volume=100)
+            if player.current:
+              await ctx.send(embed=Embed(description=f"{config.music_disk} Added **`{track}`** to the queue.", color=config.green))
+        if not player.playing:
+          await player.play(player.queue.get(), volume=100)
 
 
 
