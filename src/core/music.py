@@ -11,6 +11,7 @@ from typing import cast
 from time import gmtime, strftime
 from modules import config
 from discord.ext import commands
+from ext.error import update_error_log
 from discord import ButtonStyle, Interaction, Embed, Message
 from discord.ui import Button, View
 import wavelink
@@ -24,6 +25,8 @@ controlButtons = [
 ]
 
 class Music(commands.Cog):
+    _disabled = False if config.LOCAL_LAVA else True
+
     def __init__(self, bot) -> None:
         self.bot:commands.Bot = bot
         self.message:Message  = None
@@ -42,12 +45,14 @@ class Music(commands.Cog):
             color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in controlButtons:view.add_item(button)
-        
-        messages:list[Message] = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
-        for i in messages:
-            if i and i.author.id == self.bot.user.id and i.embeds[0].title == f"{config.music_disk} Now Playing":
-                await i.delete() if i else None
-        self.message = await player.home.send(embed=embed, view=view)
+        try:
+            messages:list[Message] = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
+            for i in messages:
+                if i and i.author.id == self.bot.user.id and i.embeds[0].title == f"{config.music_disk} Now Playing":
+                    await i.delete() if i else None
+        except Exception as e:
+            update_error_log(f"{e}")
+        self.message and player.home = await player.home.send(embed=embed, view=view)
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
@@ -104,7 +109,7 @@ class Music(commands.Cog):
             await interaction.delete_original_response()
 
     #fixes needed -> player.channel !
-    @commands.hybrid_command(with_app_command=True, aliases=["p"])
+    @commands.command(disabled=_disabled, aliases=["p"])
     @commands.bot_has_guild_permissions(connect=True, speak=True)
     @commands.guild_only()
     async def play(self, ctx: commands.Context, *, query: str) -> None:

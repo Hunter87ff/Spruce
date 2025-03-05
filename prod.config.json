@@ -1,0 +1,12 @@
+{
+    "apps": [{
+        "name": "Spruce",
+        "script": "src/runner.py",
+        "args": ["-c"],
+        "instances": "1",
+        "wait_ready": true,
+        "autorestart": true,
+        "max_restarts": 5,
+        "interpreter" : "python"
+    }]
+}
