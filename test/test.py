@@ -1,24 +1,39 @@
-from random import randint
-class Colors:
-    blurple = 0x7289da
-    greyple = 0x99aab5
-    d_grey = 0x546e7a
-    d_theme = 0x36393F
-    l_grey = 0x979c9f
-    d_red = 0x992d22
-    red = 0xff0000
-    d_orange = 0xa84300
-    orange = 0xe67e22
-    d_gold = 0xc27c0e
-    gold = 0xf1c40f
-    magenta = 0xe91e63
-    purple = 0x9b59b6
-    d_blue = 0x206694
-    blue = 0x0000ff
-    green = 0x00ff00
-    d_green = 0x1f8b4c
-    pink = 0xff0066
-    teal = 0x1abc9c
-    cyan = 0x1abc9c
-    d_teal = 0x11806a
-    yellow = 0xffff00
+from datetime import datetime, timedelta
+import asyncio
+
+tz = "Asia/Kolkata"
+_scrimCache = {
+    "21:54:50" : [
+        "Scrim1", "Scrim2"
+    ],
+    "21:29:30" : [
+        "Scrim3", "Scrim4"
+    ]
+}
+
+async def callback(scrim, _timedelta:float):
+    print(f"Time Delta : {_timedelta}")
+    while True:
+        if _timedelta > 0:
+            await asyncio.sleep(_timedelta)
+            break
+    print(f"Starting : {scrim}")
+
+
+def getTimeDelta(target_time_str:str):
+    now = datetime.now()
+    target_time = datetime.strptime(target_time_str, "%H:%M:%S").replace(year=now.year, month=now.month, day=now.day)
+    time_delta = target_time - now
+    if time_delta.days < 0:
+        target_time += timedelta(days=1)
+        time_delta = target_time - now
+    return time_delta
+
+
+
+async def main():
+    for s in _scrimCache.keys():
+        time_delta = getTimeDelta(s).total_seconds()
+        asyncio.create_task(await callback(_scrimCache[s], time_delta))
+
+asyncio.run(main())
