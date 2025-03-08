@@ -40,7 +40,7 @@ class Spruce(commands.AutoShardedBot):
         self.devs:list[int] = self.db.cfdata.get("devs")
         self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
-        self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks", "music")
+        self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks")
 
         super().__init__(
             shard_count=config.shards, 
