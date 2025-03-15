@@ -16,6 +16,11 @@ class Tourney:
         self.obj = obj 
 
     @property
+    def tname(self) -> str:
+        """Returns the name of the tournament"""
+        return self.obj.get("tname", "")
+
+    @property
     def rch(self) -> int:
         """Returns the registration channel for the tournament"""
         return self.obj.get("rch", 0)
