@@ -21,6 +21,11 @@ class Tourney:
         return self.obj.get("tname", "")
 
     @property
+    def mentions(self)->int:
+        """Returns the number mentions required to register in mention based tournament"""
+        return self.obj.get("mentions", 0)
+
+    @property
     def rch(self) -> int:
         """Returns the registration channel for the tournament"""
         return self.obj.get("rch", 0)
