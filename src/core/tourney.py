@@ -68,7 +68,7 @@ class Esports(commands.Cog):
         overwrite.update(send_messages=False)
         await channel.set_permissions(role, overwrite=overwrite)
 
-    @commands.hybrid_command(with_app_command = True, aliases=['ts','tourneysetup','setup', 'tsetup'])
+    @commands.hybrid_command(description="Create tournament", with_app_command = True, aliases=['ts','tourneysetup','setup', 'tsetup'])
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, send_messages=True, add_reactions=True, read_message_history=True)
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -828,16 +828,18 @@ class Esports(commands.Cog):
         await ctx.send(f"{emoji.tick} | {mch.mention} created")
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True, description="list of all the ongoing tournaments")
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tconfig(self,ctx:commands.Context):
-        await ctx.defer(ephemeral=True)
+        await ctx.defer()
+        _msg :discord.Message
         data = list(self.dbc.find({"guild":ctx.guild.id}))
         if not data or len(data)<1:
             return await ctx.send(embed=discord.Embed(description="**No Ongoing Tournament Found**", color=color.red), delete_after=20)
+        
         options = [discord.SelectOption(label=i["t_name"], value=i["rch"]) for i in data]
         view = View()
         embed = discord.Embed(title="Select Tournament", color=color.cyan)
@@ -848,40 +850,52 @@ class Esports(commands.Cog):
         tlist = discord.ui.Select(min_values=1, max_values=1, options=options)
         view.add_item(tlist)
         view.add_item(bt12)
-        msg = await ctx.send(embed=embed, view=view, ephemeral=True)
+        _msg = await ctx.send(embed=embed, view=view)
+
         async def tourney_details(interaction:discord.Interaction):
             await interaction.response.defer()
-            db:dict = self.dbc.find_one({"rch":int(tlist.values[0])})
-            if not db: return await interaction.response.send_message(self._tnotfound, delete_after=10)
-            embed.title=db.get("t_name").upper()
-            embed.description=f"**Total Slot : {db['tslot']}\nRegistered : {db['reged']}\nMentions : {db['mentions']}\nStatus : {db['status']}\nPublished : {db['pub']}\nPrize : {db['prize']}\nSlot per group: {db['spg']}\nFakeTag Allowed: {db['faketag']}\nRegistration : <#{db['rch']}>\nConfirm Channel: <#{db['cch']}>\nGroup Channel: <#{db['gch']}>\nConfirm Role : <@&{db['crole']}>**"
-            if bt10 not in view.children:view.add_item(bt10)
-            if btmanage not in view.children:view.add_item(btmanage)
-            await msg.edit(embed=embed, view=view) if msg else None
+            db:Tourney = self.dbc.find_one({"rch":int(tlist.values[0])})
+            if not db: 
+                await interaction.response.send_message(self._tnotfound, delete_after=10)
+                return
+            
+            db = Tourney(db)
+            embed.title=db.tname.upper()
+            embed.description=f"**Total Slot : {db.tname}\nRegistered : {db.reged}\nMentions : {db.mentions}\nStatus : {db.status}\nPublished : {db.pub}\nPrize : {db.prize}\nSlot per group: {db.spg}\nFakeTag Allowed: {db.faketag}\nRegistration : <#{db.rch}>\nConfirm Channel: <#{db.cch}>\nGroup Channel: <#{db.gch}>\nConfirm Role : <@&{db.crole}>**"
+
+            if bt10 not in view.children:
+                view.add_item(bt10)
+            if btmanage not in view.children:
+                view.add_item(btmanage)
+
+            await _msg.edit(embed=embed, view=view) if _msg else None
         
         async def delete_tourney_confirm(interaction:discord.Interaction):
+            await interaction.response.defer()
             view1 = View().add_item(bt11)
-            await interaction.response.send_message("**Are You Sure To Delete The Tournament?**", view=view1)
+            await interaction.channel.send("**Are You Sure To Delete The Tournament?**", view=view1)
 
         async def delete_t_confirmed(interaction:discord.Interaction):
+            """This function will delete the tournament"""
+            await interaction.response.defer()
             await interaction.message.edit(
                 content=f"**{emoji.loading} {constants.PROCESSING}**"
             ) if interaction.message else None
             x = self.dbc.delete_one({"rch" : int(tlist.values[0])})
             if x:
                 await interaction.message.delete()
-                await msg.delete()
+                await _msg.delete()
                 channel:discord.TextChannel = ctx.guild.get_channel(int(tlist.values[0]))
                 if channel: await self.tconfig(ctx)
 
         async def manage_tournament(interaction:discord.Interaction):
-            if interaction.message:
-                ms = await interaction.message.edit(
+            await interaction.response.defer()
+            _msg = await interaction.message.edit(
                     content=f"**{emoji.loading} {constants.PROCESSING}**"
-                ) if interaction.message else None
-            await self.tourney(ctx, registration_channel=ctx.guild.get_channel(int(tlist.values[0])))   
-            if ms:
-                await ms.delete()
+            ) if  interaction.message else None
+            await self.tourney(await self.bot.get_context(ctx.message), registration_channel=ctx.guild.get_channel(int(tlist.values[0])))
+            if _msg: await _msg.delete()
+
 
         tlist.callback = tourney_details
         bt10.callback = delete_tourney_confirm
