@@ -232,7 +232,7 @@ class Moderation(commands.Cog):
               reason=f"Clearing {amount} messages for {ctx.author}"
           )
         except Exception as e:
-          await self.bot.error_log("core.moderation | Ln. 228\n", str(e))
+          await self.bot.error_log("core.moderation.clear | Ln. 228\n", str(e))
         return await ctx.send(f"**Successfully cleared {len(_purged) if isinstance(_purged, list) else ''} messages**", delete_after=15)
 
 
