@@ -144,13 +144,13 @@ class Spruce(commands.AutoShardedBot):
         await error_handle.manage_backend_error(Exception, self)
 
 
-    async def error_log(self, message:str) -> None:
+    async def error_log(self, *messages:str) -> None:
         """
         Logs the error message to the error log channel.
         Args:
-            message (str): The error message to log.
+            message (tuple[str]): The error message to log.
         """
-        await self.get_channel(config.erl).send(f"```py\n{message}\n```")
+        await self.get_channel(config.erl).send(f"```py\n{' '.join(messages)}\n```")
 
 
     async def start(self, _started_at:float) -> None:
