@@ -125,12 +125,11 @@ class dev(commands.Cog):
             return await ctx.send("deleted", delete_after=2)
         except Exception:return await ctx.send("Not Possible")
 
-    @commands.hybrid_command(with_app_command = True, hidden=True)
+    @commands.command()
     @permissions.dev_only()
     @commands.dm_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def cdm(self, ctx:commands.Context,amount:int):
-        await ctx.defer(ephemeral=True)
         dmchannel = await ctx.author.create_dm()
         async for message in dmchannel.history(limit=amount):
             if message.author == self.bot.user:await message.delete()

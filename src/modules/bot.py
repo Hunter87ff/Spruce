@@ -6,7 +6,7 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 """
-import ast
+# import ast
 import time
 import traceback
 import wavelink
@@ -53,7 +53,8 @@ class Spruce(commands.AutoShardedBot):
     async def setup_hook(self) -> None:
         if config.env["tkn"] == "TOKEN":
             utils.setup_logging(level=30)
-
+        
+        # Remove default help command 
         self.remove_command("help")
 
         for i in self.core:

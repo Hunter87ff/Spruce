@@ -73,16 +73,20 @@ def has_any_role(*roles:str): #type: ignore
 
 
 def owner_only():
-    def predicate(ctx:commands.Context):
-        return (ctx.message.author.id == config.owner_id)
+    async def predicate(ctx:commands.Context):
+        if ctx.message.author.id == config.owner_id : return True
+        else :
+            await ctx.send("Command is only for developers!!", ephemeral=True, delete_after=10)
+            return False
     return commands.check(predicate)
 
 
 def dev_only():
     """Check if the user is a developer"""
     async def predicate(ctx:commands.Context):
-        is_dev = ctx.message.author.id in db.cfdata["devs"]
+        is_dev = ctx.message.author.id in db.cfdata.get("devs", [])
         if not is_dev :
             await ctx.send("Command is under development or only for developers!!", ephemeral=True, delete_after=10)
-        return is_dev
+            return False
+        return True
     return commands.check(predicate)
