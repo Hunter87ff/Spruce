@@ -75,21 +75,19 @@ class Esports(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["export"])
+    @commands.command()
     @commands.guild_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     @permissions.tourney_mod()
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
     async def export_event_data(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:return
-        await ctx.defer()
         try:
             _event = Tourney.findOne(registration_channel.id)
             if not _event:
                 return await ctx.send("No event found in this channel")
             _teams = "" ## to store the teams data
-            _slot = 0 ## to store the slot number
-
+            _slot = 1 ## to store the slot number
 
             _confirm_channel = self.bot.get_channel(_event.cch) ##confirm channel to get the teams data
 
@@ -97,7 +95,7 @@ class Esports(commands.Cog):
             if not _confirm_channel:
                 return await ctx.send("No confirm channel found")
             
-            async for message in _confirm_channel.history(limit=100):
+            async for message in _confirm_channel.history(limit=_event.tslot+50):
                 # if the message author is not the bot, skip it
                 if message.author.id != self.bot.user.id: 
                     continue
@@ -110,7 +108,7 @@ class Esports(commands.Cog):
                 _team = message.content.replace(_captain.mention, "").replace(" ", "").replace("\n", "")
 
                 # fetches the teammates from embed description, currently it can can't handle the usernames, just the mentions
-                _players = message.embeds[0].description.split("\n")[-1].replace("**Players** : ", "") if message.embeds else "Added By Moderator"
+                _players = message.embeds[0].description.split("\n")[-1].replace("**Players** : ", "").replace(",", " ") if message.embeds else "Added By Moderator"
                 if _captain and _team:
                     _teams += f"{_slot},{_team},{_captain}, {_players}\n"
                     _slot += 1
@@ -717,10 +715,10 @@ class Esports(commands.Cog):
                 if interaction.user != ctx.author:
                     await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
                     return
-
-                await interaction.response.send_message("Exporting Event Data...")
+                await interaction.response.defer(ephemeral=True)
+                await interaction.edit_original_response(content="Exporting Event Data...")
                 await self.export_event_data(ctx, rch)
-                await interaction.message.delete()
+
                 
 
 

@@ -10,7 +10,6 @@
 
 import discord
 from discord.ext import commands
-from asyncio import sleep
 from discord.ui import Button, View
 from modules import config
 intents = discord.Intents.default()
@@ -24,7 +23,7 @@ support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhp
 donate_btn = Button(label="Donate", url="https://discord.gg/x4sUyxttnf")
 hel_p = f"• Prefix - `{config.prefix}`\n• Total Commands - `88` | Usable - `79`\n• Type `{config.prefix}help <command | category>` for more info\n\n"
 helpemb  = discord.Embed(title="Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
-musicemb = discord.Embed(description=f"{hel_p}__**Musics**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
+musicemb = discord.Embed(description=f"{hel_p}__**Musics[Disabled]**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
 modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
 espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`,`tconfig`, `add_slot`, `cancel_slot`,`auto_group` , `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `group_setup`", color=0xf0ff0f)
 roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
@@ -302,6 +301,13 @@ class Helper(commands.Cog):
 ######################	
 #Esports Help Commands
 ######################
+
+    @help.command(aliases=["tsetup"])
+    async def export_event_data(self, ctx:commands.Context):
+        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `export_event_data <registration_channel>`\nExample : `{config.prefix}export_event_data #register-here`\nDescription : Use this command to export event data", color=0x00ff00)
+        await ctx.send(embed=em)
+
+
     @help.command(aliases=["tc"])
     async def tconfig(self, ctx:commands.Context):
         em = discord.Embed(description=f"Aliases : `tc`\nUsage : `tconfig`\nExample : `{config.prefix}tconfig`\nUse this command to see the list of ongoing tournament on the server!!", color=0x00ff00)
