@@ -17,12 +17,46 @@ from discord.ext.commands import errors
 
 
 def update_error_log(error_message: str):
+    """
+    Appends an error message with a timestamp to the error log file.
+    
+    The function adds the current date and time in the Asia/Kolkata timezone
+    to the error message and writes it to the 'error.log' file.
+    
+    Args:
+        error_message (str): The error message to be logged.
+        
+    Returns:
+        None
+        
+    Example:
+        >>> update_error_log("Database connection failed")
+    """
     text = f"{datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))} : {error_message}"
     with open("error.log", "a") as log_file:
         log_file.write(text + "\n")
 
 
 async def manage_backend_error(error: Exception, bot: commands.Bot):
+    """
+    Manages backend errors by sending error details to a designated error log channel.
+    
+    This function handles different types of discord.py errors by formatting them
+    appropriately and sending them to the error log channel defined in the config.
+    
+    Args:
+        error (Exception): The exception that was raised
+        bot (commands.Bot): The bot instance to get the error log channel
+        
+    Supported error types:
+        - discord.errors.HTTPException: Sends status code and error text
+        - discord.errors.ConnectionClosed: Sends the error message
+        - discord.errors.GatewayNotFound: Sends the error message
+        - discord.errors.RateLimited: Sends the error message
+    
+    Returns:
+        None
+    """
     erl = bot.get_channel(config.erl)
     if isinstance(error, derrors.HTTPException):
         await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")

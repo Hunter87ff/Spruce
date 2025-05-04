@@ -235,7 +235,7 @@ class Moderation(commands.Cog):
                 if message.author.id == target.id:
                     await message.delete()
                     _purged += 1
-                    await sleep(0.5)
+                    await sleep(0.2)
             else: 
                 await message.delete()
                 _purged += 1
