@@ -6,8 +6,6 @@ requests
 PyNaCl
 bs4
 html5lib
-pandas
-openpyxl
 discord.py==2.5.2
 wavelink>=3.4.0
 humanfriendly>=10.0
