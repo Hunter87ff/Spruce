@@ -188,10 +188,11 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def unhide_category(self, ctx:commands.Context, category: discord.CategoryChannel, role :discord.Role = None):
         await ctx.defer()
-        if ctx.author.bot:return
+        if ctx.author.bot:
+            return
         if not await config.voted(ctx, bot=self.bot):
             return await config.vtm(ctx)
         role = role or ctx.guild.default_role
@@ -201,20 +202,21 @@ class Moderation(commands.Cog):
             await uhchannel.set_permissions(role, overwrite=overwrite)
             await sleep(1)
         em = discord.Embed(description=f'**<:vf:947194381172084767> {category.name} is Visible to `{role.name}`**', color=0x00ff00)
-        try:await ctx.send(embed=em, delete_after=5)
-        except Exception:return
+        if ctx.channel.permissions_for(ctx.guild.me).send_messages:
+            await ctx.send(embed=em, delete_after=5)
 
 
-    @commands.hybrid_command(aliases=['purge'], with_app_command = True)
-    @commands.has_permissions(manage_messages=True)
+
+    @commands.hybrid_command(description="clear message within a limit and target filter", aliases=['purge'], with_app_command = True)
     @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
     @commands.cooldown(2, 30, commands.BucketType.user)
     @commands.bot_has_permissions(manage_messages=True, send_messages=True)
-    async def clear(self, ctx:commands.Context, amount:int=None):
+    async def clear(self, ctx:commands.Context, amount:int=None, target:discord.Member=None):
         await ctx.defer()
         if ctx.author.bot:
             return
-        _purged=None
+        _purged=0
 
         if self.bot.is_ws_ratelimited():
             if ctx.me.guild_permissions.send_messages:
@@ -224,16 +226,21 @@ class Moderation(commands.Cog):
                 )
         
         amount = min(amount or 10, 50)
-        try:
-          _purged = await  ctx.channel.purge(
-              limit=amount,
-              check=lambda message:self.bot.is_ws_ratelimited()==False and message !=None,
-              bulk=False,
-              reason=f"Clearing {amount} messages for {ctx.author}"
-          )
-        except Exception as e:
-          await self.bot.error_log("core.moderation.clear | Ln. 228\n", str(e))
-        return await ctx.send(f"**Successfully cleared {len(_purged) if isinstance(_purged, list) else ''} messages**", delete_after=15)
+        async for message in ctx.channel.history(limit=amount):
+
+            if self.bot.is_ws_ratelimited():
+                await sleep(2)
+
+            if target is not None:
+                if message.author.id == target.id:
+                    await message.delete()
+                    _purged += 1
+                    await sleep(0.5)
+            else: 
+                await message.delete()
+                _purged += 1
+
+        return await ctx.send(f"**Successfully cleared {_purged} messages**", delete_after=15)
 
 
     @commands.hybrid_command(with_app_command = True)

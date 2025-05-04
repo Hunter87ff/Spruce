@@ -54,6 +54,32 @@ class Esports(commands.Cog):
             for i in members:await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
 
     async def get_input(self, ctx:commands.Context, check=None, timeout=30):
+        """
+        Asynchronously waits for user input in a Discord context.
+
+        This method waits for a message from the user in the specified Discord context and returns the content of the message.
+
+        Parameters
+        ----------
+        ctx : commands.Context
+            The Discord context in which to wait for input.
+        check : Callable, optional
+            A function that takes a message and returns a boolean indicating whether the message should be accepted.
+            If None, defaults to checking if the message is in the same channel and from the same author as the context.
+        timeout : int, optional
+            The maximum time to wait for input in seconds, defaults to 30.
+
+        Returns
+        -------
+        str or Coroutine
+            The content of the received message if successful.
+            If timeout occurs, returns the coroutine from sending a timeout message.
+
+        Raises
+        ------
+        asyncio.TimeoutError
+            If no message matching the check is received before the timeout.
+        """
         check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
         try:
             msg:discord.Message = await self.bot.wait_for("message", check=check, timeout=timeout)
@@ -62,12 +88,39 @@ class Esports(commands.Cog):
             return await ctx.send("Time Out! Try Again", delete_after=5)
 
     async def unlc_ch(self, channel:discord.TextChannel, role:discord.Role=None):
+        """
+        Unlocks a channel to allow a specific role to send messages.
+        This method updates the permissions overwrites for a channel to allow a role to send messages.
+
+        Args:
+            channel (discord.TextChannel): The channel to be unlocked.
+            role (discord.Role, optional): The role to grant send message permissions to.
+                Defaults to the guild's default role if not provided.
+
+        Returns:
+            None: This method doesn't return anything.
+
+        Raises:
+            discord.Forbidden: If the bot doesn't have permissions to modify channel permissions.
+            discord.HTTPException: If modifying the permissions fails.
+        """
         role = role or channel.guild.default_role
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
 
     async def lc_ch(self, channel:discord.TextChannel, role:discord.Role=None):
+        """
+        Lock a channel by setting permissions to disable send_messages for a specified role.
+        
+        Args:
+            channel (discord.TextChannel): The text channel to lock
+            role (discord.Role, optional): The role to restrict message permissions for. 
+                                           If None, the server's default role (@everyone) will be used.
+        
+        Returns:
+            None
+        """
         if role == None:role = channel.guild.default_role
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=False)
