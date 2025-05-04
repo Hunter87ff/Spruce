@@ -6,7 +6,9 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 """
- 
+from ext.db import Database
+tourneys = Database().dbc
+
 
 class Tourney:
     """
@@ -14,6 +16,14 @@ class Tourney:
     """
     def __init__(self, obj: dict):
         self.obj = obj 
+
+    @staticmethod
+    def findOne(registration_channel:int):
+        """
+        Find a tournament by registration channel and guild ID.
+        """
+        result = tourneys.find_one({"rch": registration_channel})
+        return Tourney(result) if result else None
 
     @property
     def tname(self) -> str:

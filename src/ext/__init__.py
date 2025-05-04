@@ -14,6 +14,7 @@ import ext.emoji as emoji
 from ext.color import Color as color
 from ext.db import Database
 import ext.error as error
+import ext.files as files
 import ext.permissions as permissions
 
 

@@ -28,9 +28,17 @@ invite_url2 = f"https://discord.com/oauth2/authorize?client_id={bot_id}&permissi
 support_server_id = 947443790053015623
 prefix = env.get("prefix", "&")
 DOMAIN = "sprucbot.tech"
+SLEEP_TIME = 21464 #service restart
 gh_action = f"https://api.github.com/repos/{MAINTAINER}/spruce/actions/workflows/py_application.yml/dispatches"
 gh_action_run = f"https://api.github.com/repos/{MAINTAINER}/Spruce/actions/workflows/py_application.yml/runs"
 
+class activeModules:
+      music = False
+      tourney = True
+      scrims = False
+      moderation = True
+      utils = True
+      role = True
 
 ################## LOG ####################
 erl = 1015166083050766366
@@ -77,7 +85,7 @@ async def vote_check(message:Message):
 
 async def vtm(ctx:commands.Context):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{ctx.me.id}/vote")
-	await ctx.send(embed=Embed(color=cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
+	await ctx.send(embed=Embed(color=Color.cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
 
 def notuser(message:Message):

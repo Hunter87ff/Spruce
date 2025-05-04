@@ -1,0 +1,23 @@
+[project]
+name = "spruce"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "bs4>=0.0.2",
+    "cashfree-pg>=4.0.0",
+    "discord-py==2.5.2",
+    "flask>=3.1.0",
+    "google-generativeai>=0.8.5",
+    "gtts>=2.3.2",
+    "html5lib>=1.1",
+    "humanfriendly>=10.0",
+    "psutil>=7.0.0",
+    "pymongo>=4.12.1",
+    "pynacl>=1.5.0",
+    "python-dotenv>=1.1.0",
+    "pytz>=2025.2",
+    "requests>=2.32.3",
+    "wavelink>=3.4.0",
+]

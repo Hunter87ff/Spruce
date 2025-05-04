@@ -13,9 +13,9 @@ import wavelink
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
-from ext import Database, Logger, error as error_handle
+from ext import Database, Logger, color, error as error_handle
 from modules import (config, message_handle)
-from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message
+from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, utils, Message, Embed
 
 
 intents = Intents.default()
@@ -40,6 +40,7 @@ class Spruce(commands.AutoShardedBot):
         self.devs:list[int] = self.db.cfdata.get("devs")
         self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
+        self.color = color
         self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks")
 
         super().__init__(
@@ -49,6 +50,8 @@ class Spruce(commands.AutoShardedBot):
             allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name="&help")
         )
+
+        self.log_channel:TextChannel = self.get_channel(config.erl)
 
     async def setup_hook(self) -> None:
         if config.env["tkn"] == "TOKEN":
@@ -62,7 +65,7 @@ class Spruce(commands.AutoShardedBot):
         if config.shards==1:
             await self.load_extension("core.scrim")
         Logger.info("Core Extensions Loaded")
-        if config.LOCAL_LAVA:
+        if config.LOCAL_LAVA==True:
             _nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
             await Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
 
@@ -143,6 +146,20 @@ class Spruce(commands.AutoShardedBot):
             Exception (Exception): The error message to log.
         """
         await error_handle.manage_backend_error(Exception, self)
+
+
+    async def embed_log(self, module:str, line:int, *message:str) -> None:
+        """
+        Logs the error message to the error log channel.
+        Args:
+            title (str): The title of the error message.
+            module (str): The module where the error occurred.
+            line (int): The line number where the error occurred.
+            message (str): The error message to log.
+        """
+        embed=Embed(title=f"Error {module.split('.')[-1]} | `Module : {module} | Line : {line}`", description=f"```{''.join(message)}```",  color=self.color.red)
+        await self.log_channel.send(embed=embed)
+        
 
 
     async def error_log(self, *messages:str) -> None:

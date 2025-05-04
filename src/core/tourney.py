@@ -13,11 +13,19 @@ import datetime
 import asyncio
 from asyncio import sleep
 from discord.utils import get
+from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord.ui import Button, View
 from modules import config, checker
-from modules.bot import Spruce
+from modules.bot import Spruce  # Added proper import here
+
 from ext import constants, permissions, Tourney, emoji, color
+
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+
+
+
 
 
 def get_front(name:str):
@@ -31,7 +39,7 @@ class Esports(commands.Cog):
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
     def __init__(self, bot:Spruce):
-        self.bot:Spruce = bot
+        self.bot = bot
         self.dbc = bot.db.dbc
         self._tnotfound = "Tournament Not Found"
 
@@ -801,7 +809,7 @@ class Esports(commands.Cog):
     @commands.guild_only()
     @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def set_manager(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:return
         view = View()

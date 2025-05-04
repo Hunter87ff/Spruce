@@ -47,7 +47,8 @@ class Database:
             self.bws:list[str] = self.cfdata.get("bws")
             self.m_host:str = self.cfdata.get("m_host")
             self.m_host_psw:str = self.cfdata.get("m_host_psw")
-            self.gh_api:str = self.cfdata.get("git_api")
+            self.gh_api:str = self.cfdata.get("gh_api")
+            self.gh_token:str = self.cfdata.get("gh_token", self.gh_api)
             Logger.info("Database Connected.")
    
         except Exception as e:

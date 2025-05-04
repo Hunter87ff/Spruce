@@ -19,11 +19,12 @@ from modules.bot import Spruce
 
 db = config.get_db()
 
+
 def lavalink():
     if platform.system() == "Windows":os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
     else:os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &
     
-if config.LOCAL_LAVA : 
+if config.LOCAL_LAVA and config.activeModules.music==True: 
     with open("lava/application.yml", "r") as f1:
         content1= f1.read()
     content = content1.replace("spot_id", f"{db.spot_id}").replace("spot_secret", f"{db.spot_secret}")

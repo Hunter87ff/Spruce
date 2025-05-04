@@ -1,39 +1,16 @@
-from datetime import datetime, timedelta
-import asyncio
+import pandas as pd
 
-tz = "Asia/Kolkata"
-_scrimCache = {
-    "21:54:50" : [
-        "Scrim1", "Scrim2"
-    ],
-    "21:29:30" : [
-        "Scrim3", "Scrim4"
-    ]
-}
+# Sample JSON data (list of dictionaries)
+json_data = [
+    {"Name": "Alice", "Age": 30, "City": "New York"},
+    {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
+    {"Name": "Charlie", "Age": 35, "City": "Chicago"}
+]
 
-async def callback(scrim, _timedelta:float):
-    print(f"Time Delta : {_timedelta}")
-    while True:
-        if _timedelta > 0:
-            await asyncio.sleep(_timedelta)
-            break
-    print(f"Starting : {scrim}")
+# Create a Pandas DataFrame
+df = pd.DataFrame(json_data)
 
+# Export DataFrame to Excel
+df.to_excel("output.xlsx", index=False, engine='openpyxl')
 
-def getTimeDelta(target_time_str:str):
-    now = datetime.now()
-    target_time = datetime.strptime(target_time_str, "%H:%M:%S").replace(year=now.year, month=now.month, day=now.day)
-    time_delta = target_time - now
-    if time_delta.days < 0:
-        target_time += timedelta(days=1)
-        time_delta = target_time - now
-    return time_delta
-
-
-
-async def main():
-    for s in _scrimCache.keys():
-        time_delta = getTimeDelta(s).total_seconds()
-        asyncio.create_task(await callback(_scrimCache[s], time_delta))
-
-asyncio.run(main())
+print("JSON data exported to output.xlsx")
