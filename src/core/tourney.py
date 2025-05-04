@@ -35,7 +35,7 @@ class Esports(commands.Cog):
     ONLY_AUTHOR_BUTTON = "Only Author Can Use This Button"
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
-    def __init__(self, bot):
+    def __init__(self, bot:Spruce):
         self.bot:Spruce = bot
         self.dbc = bot.db.dbc
         self._tnotfound = "Tournament Not Found"
@@ -56,7 +56,7 @@ class Esports(commands.Cog):
     async def get_input(self, ctx:commands.Context, check=None, timeout=30):
         check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
         try:
-            msg:discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
+            msg:discord.Message = await self.bot.wait_for("message", check=check, timeout=timeout)
             return msg.content
         except asyncio.TimeoutError:
             return await ctx.send("Time Out! Try Again", delete_after=5)
@@ -130,6 +130,9 @@ class Esports(commands.Cog):
         except Exception as e:
             await ctx.send(embed=discord.Embed(description="Something Went Wrong!! please try again later! or contact support server `/support`", color=color.red), delete_after=10)
             self.bot.embed_log("core.tourney.export_event_data", 84, e)
+
+
+
 
     @commands.hybrid_command(description="Create tournament", with_app_command = True, aliases=['ts','tourneysetup','setup', 'tsetup'])
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, send_messages=True, add_reactions=True, read_message_history=True)
@@ -1039,7 +1042,7 @@ class Esports(commands.Cog):
     async def on_interaction(self, interaction:discord.Interaction):
         if interaction.user.bot:return
         elif "custom_id" in interaction.data and interaction.data["custom_id"] in self.MANAGER_PREFIXES:
-            db = self.dbc.find_one({"mch":interaction.channel.id})
+            db = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
             if not db:
                 return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
             view = View()
@@ -1075,15 +1078,57 @@ class Esports(commands.Cog):
                     v2 = View()
                     for i in [conf]:v2.add_item(i)
                     await interact.response.send_message(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
+
+
                     async def cnf(cnfinteract:discord.Interaction):
+                        """
+                        Asynchronously cancels a slot and removes the associated role from the mentioned member.
+
+                        This function deletes the message containing the slot information and removes the specified role
+                        from the guild member mentioned in the message.
+
+                        Parameters:
+                            cnfinteract (discord.Interaction): The interaction object triggered by the user's confirmation.
+
+                        Returns:
+                            None: Sends an ephemeral message confirming the slot cancellation.
+                        """
                         ms = await cch.fetch_message(cslotlist.values[0])
+
+                        # maybe we can optimize it further by parsing the member through his id from the message content
                         for i in cnfinteract.guild.members:
+
                             if i.mention in ms.content:
+
+                                # check self permission before removing the role
+                                if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
+                                    await cnfinteract.response.send_message(
+                                        "I Don't Have Permission To Remove The Role\nRequired Perms : `manage_roles`, `manage_messages`", 
+                                        ephemeral=True
+                                    )
+                                    return
                                 await i.remove_roles(crole)
                                 await ms.delete()
-                        return await cnfinteract.response.send_message("Slot Cancelled!!", ephemeral=True)
+                                self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
+
+                        await cnfinteract.response.send_message("Slot Cancelled!!", ephemeral=True)
+                        return
                             
                     async def cnc(interact:discord.Interaction):
+                        """
+                        Cancels the current operation and deletes the interaction message.
+
+                        Parameters
+                        ----------
+                        interact : discord.Interaction
+                            The interaction to respond to.
+
+                        Returns
+                        -------
+                        None
+                            This function doesn't return anything, but has the side effect of deleting the message
+                            associated with the interaction.
+                        """
                         await interact.message.delete()
 
 

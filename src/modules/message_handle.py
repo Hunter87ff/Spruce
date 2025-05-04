@@ -146,11 +146,15 @@ def reg_update(message:Message):
 
 
 #duplicate Tag Check
-async def duplicate_tag_check(message:Message):
+async def duplicate_tag_check(crole, message:Message):
     ctx = message
-    messages = [message async for message in ctx.channel.history(limit=30)]  
+    messages = [message async for message in ctx.channel.history(limit=100)]  
     for fmsg in messages:
-        if fmsg.author.id != ctx.author.id:
+
+        if fmsg.author.bot:
+            return None
+        
+        if fmsg.author.id != ctx.author.id and crole in fmsg.author.roles:
             for mnt in fmsg.mentions:
                 if mnt in message.mentions:return mnt
     return None
@@ -225,7 +229,7 @@ async def tourney(message:Message):
                     dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
 
             if fmsg.author.id != message.author.id:
-                ftch = await duplicate_tag_check(message)
+                ftch = await duplicate_tag_check(crole, message)
                 if ftch != None:
                     fakeemb = Embed(title=f"The Member  {ftch}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
                     fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
