@@ -110,7 +110,7 @@ class Esports(commands.Cog):
                 # fetches the teammates from embed description, currently it can can't handle the usernames, just the mentions
                 _players = message.embeds[0].description.split("\n")[-1].replace("**Players** : ", "").replace(",", " ") if message.embeds else "Added By Moderator"
                 if _captain and _team:
-                    _teams += f"{_slot},{_team},{_captain}, {_players}\n"
+                    _teams += f"{_slot},Team {_team.replace('Team ')},{_captain}, {_players}\n"
                     _slot += 1
 
             _content = "Event,Slots,Registered,Mentions,Prize\n"
