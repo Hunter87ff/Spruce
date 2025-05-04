@@ -19,10 +19,7 @@ from discord.ui import Button, View
 from modules import config, checker
 from modules.bot import Spruce  # Added proper import here
 
-from ext import constants, permissions, Tourney, emoji, color
-
-if TYPE_CHECKING:
-    from modules.bot import Spruce
+from ext import constants, permissions, Tourney, emoji, color, files
 
 
 
@@ -38,8 +35,8 @@ class Esports(commands.Cog):
     ONLY_AUTHOR_BUTTON = "Only Author Can Use This Button"
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
-    def __init__(self, bot:Spruce):
-        self.bot = bot
+    def __init__(self, bot):
+        self.bot:Spruce = bot
         self.dbc = bot.db.dbc
         self._tnotfound = "Tournament Not Found"
 
@@ -75,6 +72,66 @@ class Esports(commands.Cog):
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=False)
         await channel.set_permissions(role, overwrite=overwrite)
+
+
+
+    @commands.hybrid_command(with_app_command = True, aliases=["export"])
+    @commands.guild_only()
+    @commands.cooldown(2, 20, commands.BucketType.user)
+    @permissions.tourney_mod()
+    @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
+    async def export_event_data(self, ctx:commands.Context, registration_channel:discord.TextChannel):
+        if ctx.author.bot:return
+        await ctx.defer()
+        try:
+            _event = Tourney.findOne(registration_channel.id)
+            if not _event:
+                return await ctx.send("No event found in this channel")
+            _teams = "" ## to store the teams data
+            _slot = 0 ## to store the slot number
+
+
+            _confirm_channel = self.bot.get_channel(_event.cch) ##confirm channel to get the teams data
+
+            # if the confirm channel is not found, return an error message
+            if not _confirm_channel:
+                return await ctx.send("No confirm channel found")
+            
+            async for message in _confirm_channel.history(limit=100):
+                # if the message author is not the bot, skip it
+                if message.author.id != self.bot.user.id: 
+                    continue
+                # if the message doesn't contains an embed, skip it
+                if not message.embeds:
+                    continue
+                # if the message doesn't contains a mention, skip it
+                _captain = message.mentions[0] if message.mentions else ""
+
+                _team = message.content.replace(_captain.mention, "").replace(" ", "").replace("\n", "")
+
+                # fetches the teammates from embed description, currently it can can't handle the usernames, just the mentions
+                _players = message.embeds[0].description.split("\n")[-1].replace("**Players** : ", "") if message.embeds else "Added By Moderator"
+                if _captain and _team:
+                    _teams += f"{_slot},{_team},{_captain}, {_players}\n"
+                    _slot += 1
+
+            _content = "Event,Slots,Registered,Mentions,Prize\n"
+            _content += f"{_event.tname or registration_channel.category.name},{_event.tslot},{_event.reged},{_event.mentions},{_event.prize}\n\n"
+            _content += "Slot, Team Name, Captain, players\n"
+            _content += _teams
+
+            _filename = f"event_data_{_event.rch}"
+            fp, cleanup = files.export_to_csv(
+                _content,  
+                _filename, 
+                lambda module, loc, e: self.bot.embed_log(module, loc, e)
+            )
+            await ctx.send(file=discord.File(fp, filename=fp))
+            cleanup()
+
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(description="Something Went Wrong!! please try again later! or contact support server `/support`", color=color.red), delete_after=10)
+            self.bot.embed_log("core.tourney.export_event_data", 84, e)
 
     @commands.hybrid_command(description="Create tournament", with_app_command = True, aliases=['ts','tourneysetup','setup', 'tsetup'])
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, send_messages=True, add_reactions=True, read_message_history=True)
@@ -431,8 +488,10 @@ class Esports(commands.Cog):
             bt10 = Button(label="Delete", style=discord.ButtonStyle.danger)
             bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
             bt12 = Button(label=pub, style=discord.ButtonStyle.blurple)
+            exportButton = Button(label="Export Data", style=discord.ButtonStyle.blurple)
+            
             spgbtn = Button(label="Slots per group")
-            buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4]
+            buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4, exportButton]
             view = View()
             emb = discord.Embed(
                 title=rch.category.name, 
@@ -550,7 +609,8 @@ class Esports(commands.Cog):
                 try:
                     if int(mns) > 20: 
                         return await ctx.send("Only Number upto 20", delete_after=5)
-                    self.dbc.update_one({"rch": rch.id}, {"$set":{"mentions" : int(mns)}})
+                    
+                    self.bot.db.dbc.update_one({"rch": rch.id}, {"$set":{"mentions" : int(mns)}})
                     await ctx.send("Mentions Updated", delete_after=5)
                     await interaction.message.edit(
                         embed=discord.Embed(
@@ -652,6 +712,16 @@ class Esports(commands.Cog):
                             ), 
                         delete_after=5
                     )
+                
+            async def export_event_data_callback(interaction:discord.Interaction, rch:discord.TextChannel):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
+                    return
+
+                await interaction.response.send_message("Exporting Event Data...")
+                await self.export_event_data(ctx, rch)
+                await interaction.message.delete()
+                
 
 
             bt6.callback = c_ch
@@ -665,6 +735,7 @@ class Esports(commands.Cog):
             bt11.callback = delete_t_confirmed
             bt12.callback = publish
             spgbtn.callback = spg_change
+            exportButton.callback = export_event_data_callback
 
 
 

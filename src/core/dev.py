@@ -64,7 +64,7 @@ class dev(commands.Cog):
         disk = psutil.disk_usage('/')
         detail = f"""
         Total RAM : {memory.total / (1024**3):.2f} GB\n
-        CPU Cores : {psutil.cpu_count(logical=False)+psutil.cpu_count(logical=True)}\n
+        CPU Cores : P: {psutil.cpu_count(logical=True)}, L: {psutil.cpu_count(logical=False)}\n
         CPU Usage : {cpu_usage}%\n
         RAM Usage : {memory.used//10**6} MB({memory.percent}%)\n
         Total Disk: {disk.total//10**9} GB\n
@@ -191,15 +191,12 @@ class dev(commands.Cog):
             await ctx.send(f"Removed {member.name} from devs")
 
 
-
     @commands.command()
     @commands.guild_only()
     @permissions.dev_only()
     async def get_log(self, ctx:commands.Context):
         if ctx.author.bot:return
         await ctx.send(file=discord.File("error.log"))
-
-
 
 
 async def setup(bot):

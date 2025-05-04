@@ -41,7 +41,7 @@ class Spruce(commands.AutoShardedBot):
         self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
         self.color = color
-        self.core = ("channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks")
+        self.core = {"channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks"}
 
         super().__init__(
             shard_count=config.shards, 
@@ -61,9 +61,12 @@ class Spruce(commands.AutoShardedBot):
         self.remove_command("help")
 
         for i in self.core:
-            await self.load_extension(f"core.{i}")
-        if config.shards==1:
-            await self.load_extension("core.scrim")
+            try:
+                await self.load_extension(f"core.{i}")
+            except Exception as e:
+                self.logger.error(f"Error loading {i} : {e}")
+                traceback.print_exc()
+
         Logger.info("Core Extensions Loaded")
         if config.LOCAL_LAVA==True:
             _nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]

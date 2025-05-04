@@ -55,13 +55,28 @@ def has_guild_permissions(**perms: bool):
 def has_role(role:str, ctx:commands.Context=None): #type: ignore
     """Check if the user has a role"""
     async def predicate(ctx:commands.Context):
-        if not ctx.guild:return False
+        if not ctx.guild:
+            raise commands.MissingRole(role)
         if is_dev(ctx):return True
         _role = discord.utils.get(ctx.guild.roles, name=role)
         if not _role:return False
         return _role in ctx.author.roles
     return commands.check(predicate)
 
+def tourney_mod():
+    """Check if the user is a tourney mod"""
+
+    async def predicate(ctx:commands.Context):
+        if not ctx.guild:
+            raise commands.MissingRole("tourney-mod")
+        if is_dev(ctx):
+            return True
+        _role = discord.utils.get(ctx.guild.roles, name="tourney-mod")
+        if not _role or not _role in ctx.author.roles:
+            raise commands.MissingRole("tourney-mod")
+        
+        return True
+    return commands.check(predicate)
 
 def has_any_role(*roles:str): #type: ignore
     """Check if the user has any of the roles"""
