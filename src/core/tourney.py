@@ -114,7 +114,7 @@ class Esports(commands.Cog):
                     _slot += 1
 
             _content = "Event,Slots,Registered,Mentions,Prize\n"
-            _content += f"{_event.tname or registration_channel.category.name},{_event.tslot},{_event.reged},{_event.mentions},{_event.prize}\n\n"
+            _content += f"{_event.tname or registration_channel.category.name},{_event.tslot},{_event.reged-1},{_event.mentions},{_event.prize}\n\n"
             _content += "Slot, Team Name, Captain, players\n"
             _content += _teams
 
