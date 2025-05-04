@@ -17,12 +17,10 @@ from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord.ui import Button, View
 from modules import config, checker
-from modules.bot import Spruce  # Added proper import here
-
 from ext import constants, permissions, Tourney, emoji, color, files
 
-
-
+if TYPE_CHECKING:
+    from modules.bot import Spruce  # Type checking
 
 
 def get_front(name:str):
@@ -35,8 +33,8 @@ class Esports(commands.Cog):
     ONLY_AUTHOR_BUTTON = "Only Author Can Use This Button"
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
-    def __init__(self, bot:Spruce):
-        self.bot:Spruce = bot
+    def __init__(self, bot:'Spruce'):
+        self.bot = bot
         self.dbc = bot.db.dbc
         self._tnotfound = "Tournament Not Found"
 
@@ -182,7 +180,7 @@ class Esports(commands.Cog):
 
         except Exception as e:
             await ctx.send(embed=discord.Embed(description="Something Went Wrong!! please try again later! or contact support server `/support`", color=color.red), delete_after=10)
-            self.bot.embed_log("core.tourney.export_event_data", 84, e)
+            await self.bot.embed_log("core.tourney.export_event_data", 134, e)
 
 
 
@@ -963,7 +961,7 @@ class Esports(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, description="list of all the ongoing tournaments")
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
+    @permissions.tourney_mod()
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tconfig(self,ctx:commands.Context):

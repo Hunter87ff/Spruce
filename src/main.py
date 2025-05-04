@@ -7,7 +7,9 @@
  of this license document, but changing it is not allowed.
 """
 
+
 import time
+_start=time.time()
 import os 
 import asyncio
 import platform
@@ -16,7 +18,7 @@ from modules import config
 from threading import Thread
 from modules.bot import Spruce
 
-_start = time.time()
+
 db = config.get_db()
 
 
