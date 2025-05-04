@@ -302,7 +302,7 @@ class Helper(commands.Cog):
 #Esports Help Commands
 ######################
 
-    @help.command(aliases=["tsetup"])
+    @help.command()
     async def export_event_data(self, ctx:commands.Context):
         em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `export_event_data <registration_channel>`\nExample : `{config.prefix}export_event_data #register-here`\nDescription : Use this command to export event data", color=0x00ff00)
         await ctx.send(embed=em)
