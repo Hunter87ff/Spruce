@@ -713,7 +713,7 @@ class Esports(commands.Cog):
                         delete_after=5
                     )
                 
-            async def export_event_data_callback(interaction:discord.Interaction, rch:discord.TextChannel):
+            async def export_event_data_callback(interaction:discord.Interaction):
                 if interaction.user != ctx.author:
                     await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
                     return
