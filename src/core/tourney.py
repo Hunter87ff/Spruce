@@ -129,7 +129,7 @@ class Esports(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
-    @permissions.tourney_mod()
+    @commands.has_role("tourney-mod")
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
     async def export_event_data(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:return
@@ -961,7 +961,7 @@ class Esports(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, description="list of all the ongoing tournaments")
     @commands.guild_only()
-    @permissions.tourney_mod()
+    @commands.has_role("tourney-mod")
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tconfig(self,ctx:commands.Context):
@@ -975,6 +975,7 @@ class Esports(commands.Cog):
         view = View()
         embed = discord.Embed(title="Select Tournament", color=color.cyan)
         bt10 = Button(label="Delete Tournament", style=discord.ButtonStyle.danger)
+        exportButton = Button(label="Export Data", style=discord.ButtonStyle.blurple)
         bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
         bt12 = Button(label="Cancel", custom_id="Cancel", style=discord.ButtonStyle.blurple)
         btmanage = Button(label="Manage", custom_id="btmanage", style=discord.ButtonStyle.green)
@@ -1028,10 +1029,20 @@ class Esports(commands.Cog):
             if _msg: await _msg.delete()
 
 
+        async def export_event_data_callback(interaction:discord.Interaction):
+            if interaction.user != ctx.author:
+                await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
+                return
+            await interaction.response.defer(ephemeral=True)
+            await interaction.edit_original_response(content="Exporting Event Data...")
+            await self.export_event_data(ctx, ctx.guild.get_channel(int(tlist.values[0])))
+
+
         tlist.callback = tourney_details
         bt10.callback = delete_tourney_confirm
         bt11.callback = delete_t_confirmed
         btmanage.callback = manage_tournament
+        exportButton.callback = export_event_data_callback
 
 
     # Currently it's a developer only command, and under development
