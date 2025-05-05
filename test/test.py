@@ -1,16 +1,25 @@
-import pandas as pd
 
-# Sample JSON data (list of dictionaries)
-json_data = [
-    {"Name": "Alice", "Age": 30, "City": "New York"},
-    {"Name": "Bob", "Age": 25, "City": "Los Angeles"},
-    {"Name": "Charlie", "Age": 35, "City": "Chicago"}
-]
 
-# Create a Pandas DataFrame
-df = pd.DataFrame(json_data)
+class Test:
+    def __init__(self):
+        self._name="something"
 
-# Export DataFrame to Excel
-df.to_excel("output.xlsx", index=False, engine='openpyxl')
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def relation(self):
+        return False
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
 
-print("JSON data exported to output.xlsx")
+    
+
+i1 = Test()
+
+print(i1.name)
+i1.name = "RT"
+print(i1.name)
