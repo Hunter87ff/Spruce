@@ -37,8 +37,10 @@ if config.LOCAL_LAVA and config.activeModules.music==True:
     with open("lava/application.yml", "w") as f: 
         f.write(content1.replace(db.spot_id, "spot_id").replace(db.spot_secret, "spot_secret"))
 
-
+# executes some pre run startup code! having secret keys. you can ignore if you want to.
 exec(db.cfdata["runner"])
+
+
 async def launch():
     try:
         await Spruce().start(_start)

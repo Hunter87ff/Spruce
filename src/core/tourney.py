@@ -270,9 +270,17 @@ class Esports(commands.Cog):
                 tour_count = len(list(self.dbc.find({"guild" : ctx.guild.id})))
 
                 if tour_count > 5:
-                    return await ctx.send(embed=discord.Embed(description="Tournament Limit Reached!! you can delete previous tournament to create another one. or contact us via support server!!", color=0xff0000), delete_after=30)
+                    return await ctx.send(
+                        embed=discord.Embed(
+                            description="Tournament Limit Reached!! you can delete previous tournament to create another one. or contact us via support server!!", 
+                            color=self.bot.color.red), 
+                            delete_after=30
+                        )
                 self.dbc.insert_one(tour)
+
+                # configures the slot manager for the tournament
                 await self.set_manager(ctx, r_ch)
+
                 return await ms.edit(
                     content=None, 
                     embed=discord.Embed(
@@ -563,10 +571,40 @@ class Esports(commands.Cog):
                 if msg1 : await msg1.delete()
 
             async def delete_tourney_confirm(interaction:discord.Interaction):
+                """
+                Confirms the deletion of a tournament with a confirmation message and a view containing a button.
+
+                Args:
+                    interaction (discord.Interaction): The interaction that triggered the confirmation.
+
+                Returns:
+                    None: Sends a confirmation message with a view to the channel where the interaction occurred.
+
+                Note:
+                    This function is intended to be used as a callback for a discord interaction.
+                    It requires a pre-defined button 'bt11' to be added to the view.
+                """
                 view = View().add_item(bt11)
                 await interaction.response.send_message("**Are You Sure To Delete The Tournament?**", view=view)
 
+
             async def delete_t_confirmed(interaction:discord.Interaction):
+                """
+                Process a confirmed tournament deletion request.
+
+                This asynchronous function updates the message with a processing indicator, 
+                removes the tournament from the database based on the registration channel ID,
+                saves the deletion action, and finally removes the confirmation message.
+
+                Parameters:
+                ----------
+                interaction : discord.Interaction
+                    The interaction that triggered the deletion confirmation
+
+                Returns:
+                -------
+                None
+                """
                 if interaction.message:
                     await interaction.message.edit(
                         content=f"**{emoji.loading} {constants.PROCESSING}**"
@@ -575,18 +613,36 @@ class Esports(commands.Cog):
                 await save_delete(interaction)
                 await interaction.message.delete()
 
+
             async def publish(interaction:discord.Interaction):
-                await interaction.response.defer(ephemeral=True)
+                """
+                Publishes or unpublishes a tournament.
+                If the tournament is not yet published:
+                - Checks if at least 10% of the tournament slots are filled
+                - If so, prompts for a prize description (max 15 characters)
+                - Updates the tournament to public status with the prize
+                - If slots requirement not met, sends an error message
+                If the tournament is already published:
+                - Updates the tournament to non-public status
+                - Sends confirmation message
+                Args:
+                    interaction (discord.Interaction): The interaction object from the button press
+                Returns:
+                    None: Responses are sent via Discord messages or interaction responses
+                """
                 if tourn.pub == "no":
                     if tourn.reged >= tourn.tslot*0.1:
                         ms = await ctx.send("Enter The Prize Under 15 characters")
                         prize = str(await self.get_input(ctx))
+
                         if len(prize) > 15:
-                            return await ms.edit("Word Limit Reached. Try Again Under 15 Characters") if ms else None
+                            return await ms.edit(content="Word Limit Reached. Try Again Under 15 Characters") if ms else None
+                        
                         if len(prize) <= 15:
                             self.dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
                             await ms.delete()
                             await ctx.send("Tournament Is Now Public", delete_after=5)
+
                     if tourn.reged < tourn.tslot*0.1:
                         return await interaction.response.send_message(
                             "**You Need To Fill 10% Slot To Publish**", 
@@ -599,13 +655,43 @@ class Esports(commands.Cog):
                     await interaction.response.send_message("Tournament Unpublished",  delete_after=5)
 
             async def c_ch(interaction:discord.Interaction):
-                if interaction.user != ctx.author: return await ctx.send(self.ONLY_AUTHOR_BUTTON)
+                """
+                Updates the confirmation channel for a tournament.
+                
+                This function allows the original command author to change the channel where tournament
+                confirmations will be sent. It checks if the user is authorized, validates that the specified
+                channel isn't already in use for another tournament, and updates the database accordingly.
+                
+                Parameters:
+                -----------
+                interaction : discord.Interaction
+                    The interaction object containing information about the button press event
+                    
+                Returns:
+                --------
+                None
+                    Function sends responses directly to Discord channels
+                    
+                Side Effects:
+                -------------
+                - Sends messages to Discord channels
+                - Updates tournament database record
+                - Modifies embed message to reflect the new confirmation channel
+                """
+                if interaction.user != ctx.author: 
+                    return await ctx.send(self.ONLY_AUTHOR_BUTTON)
+                
                 await interaction.response.send_message("Mention Confiration Channel")
                 cchannel = await checker.channel_input(ctx)
                 acch = self.dbc.find_one({"cch" : cchannel.id})
-                if cchannel.id == tourn.cch or acch != None:return await ctx.send("A Tournament Already Running In This channel", delete_after=10)
+
+                if cchannel.id == tourn.cch or acch != None:
+                    return await ctx.send("A Tournament Already Running In This channel", delete_after=10)
+                
                 await interaction.delete_original_response()
-                if not cchannel:return await ctx.send("Kindly Mention A Channel!!", delete_after=5)
+                if not cchannel:
+                    return await ctx.send("Kindly Mention A Channel!!", delete_after=5)
+                
                 self.dbc.update_one({"rch": rch.id}, {"$set":{"cch": cchannel.id}})
                 await ctx.send("Confirm Channel Updated", delete_after=5)
                 await interaction.message.edit(
@@ -635,6 +721,31 @@ class Esports(commands.Cog):
 
 
             async def ttl_slot(interaction:discord.Interaction):
+                """
+                Updates the total slot count for a tournament.
+                
+                This function handles the interaction when a user attempts to update the total slot count.
+                It verifies the user is the author, prompts for input, validates the input is between 1 and 1100,
+                updates the database, and refreshes the displayed information.
+                
+                Parameters
+                ----------
+                interaction : discord.Interaction
+                    The interaction object containing information about the user's interaction with the bot
+                
+                Returns
+                -------
+                None
+                    This function doesn't return anything but sends messages to the Discord channel
+                    
+                Notes
+                -----
+                - Only the author of the original command can update the total slot
+                - Total slots must be between 1 and 1100
+                - Updates are reflected in both the database and the displayed embed
+                """
+
+
                 if interaction.user != ctx.author:
                     return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label="Enter Total Slot Between 2 and 1100"))
@@ -655,6 +766,27 @@ class Esports(commands.Cog):
                     return await ctx.send("Numbers Only", delete_after=10)
     
             async def mnts(interaction:discord.Interaction):
+                """
+                Updates the number of mentions for a tournament.
+                Validates that the interaction is from the original author, then prompts for
+                a number of mentions between 1 and 20. Updates the database with the new mention
+                count, updates the message embed, and sets the new mentions value on the tournament object.
+
+                Parameters
+                ----------
+                interaction : discord.Interaction
+                    The interaction that triggered this function
+
+                Returns
+                -------
+                None
+                    Sends feedback messages to the channel based on input validation
+                    
+                Raises
+                ------
+                ValueError
+                    If the input cannot be converted to an integer
+                """
                 if interaction.user != ctx.author:
                     return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 mns = await checker.get_input(interaction=interaction, title="Mentions", label="Enter Number Between 1 and 20")
@@ -675,6 +807,22 @@ class Esports(commands.Cog):
     
 
             async def strtps(interaction:discord.Interaction):
+                """
+                Toggles the tournament status between 'started' and 'paused'.
+                This function checks if the user interacting is the author of the context,
+                then changes the tournament status in the database and sends appropriate
+                notifications.
+                Args:
+                    interaction (discord.Interaction): The interaction object from Discord.
+                Returns:
+                    None
+                Side effects:
+                    - Updates tournament status in database
+                    - Sends notification messages to the tournament channel
+                    - Disables a button (bt0) in the interaction view
+                    - Edits the interaction message if it exists
+                    - Sends a temporary confirmation message to the context channel
+                """
                 if interaction.user == ctx.author:
                     if tdb["status"] == "started":
                         self.dbc.update_one({"rch": rch.id}, {"$set":{"status" : "paused"}})
@@ -692,6 +840,19 @@ class Esports(commands.Cog):
     
 
             async def conro(interaction:discord.Interaction):
+                """
+                Async callback method for changing/setting the confirmation role of a tournament.
+                This method is called when the user interacts with a specific component (likely a button) 
+                to change the confirmation role for a tournament. It prompts the user to mention a role,
+                validates it, and updates the tournament configuration in the database.
+                Parameters:
+                    interaction (discord.Interaction): The interaction object representing the user's interaction.
+
+                Notes:
+                    - Only the original command author can trigger this action
+                    - Checks if the specified role is already being used for another tournament
+                    - Updates the database and refreshes the embedded message with the new role
+                """
                 if interaction.user == ctx.author:
                     await interaction.response.send_message("Mention The Confirm Role")
                     try:
@@ -718,6 +879,26 @@ class Esports(commands.Cog):
                         return await ctx.send("I'm Already Managing A Tournament With This Role", delete_after=20)
 
             async def spg_change(interaction:discord.Interaction):
+                """
+                Asynchronously handles the change of slots per group (SPG) in a tournament.
+                This coroutine allows authorized users to modify the number of slots available per group
+                in a tournament setup. It includes input validation and database updates.
+                Parameters:
+                    interaction (discord.Interaction): The interaction object from the Discord event
+                Returns:
+                    None
+                Raises:
+                    Exception: Any error during the execution is caught and reported to the error log channel
+                Flow:
+                    1. Validates if the user is the original author
+                    2. Gets and validates the new SPG value from user input
+                    3. Updates the database with new SPG value
+                    4. Updates the display message with new SPG value
+                    5. Updates the tournament object's SPG attribute
+                Requirements:
+                    - User must be the original author of the tournament
+                    - SPG value must be a positive integer (>= 1)
+                """
                 if not ctx.author:
                     return await ctx.send(self.ONLY_AUTHOR_BUTTON)
                 try:
@@ -766,6 +947,21 @@ class Esports(commands.Cog):
                     )
                 
             async def export_event_data_callback(interaction:discord.Interaction):
+                """
+                Callback handler for exporting event data.
+
+                This asynchronous function handles the button interaction for exporting tournament event data.
+                It verifies the user is the original command author and manages the export process.
+
+                Args:
+                    interaction (discord.Interaction): The interaction event from the button press
+
+                Returns:
+                    None: This function handles the interaction response directly and returns nothing
+
+                Raises:
+                    None: Exceptions are handled internally
+                """
                 if interaction.user != ctx.author:
                     await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
                     return
