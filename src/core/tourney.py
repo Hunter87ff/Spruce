@@ -759,7 +759,7 @@ class Esports(commands.Cog):
                     )
                     return await ctx.send(
                         embed=discord.Embed(
-                            description=f"{color.reddot} Unable to update | Try again!!", 
+                            description=f"Unable to update | Try again!!", 
                             color=color.red
                             ), 
                         delete_after=5
