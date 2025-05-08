@@ -162,38 +162,50 @@ async def duplicate_tag_check(crole, message:Message):
 
 #Tourney System
 async def tourney(message:Message):
-    if message.author.bot:return
-    elif not message.guild:return
-    td = dbc.find_one({"rch" : message.channel.id})
-    if not td :return
-    elif utils.get(message.author.roles, name="tourney-mod") : return
+    if message.author.bot or not message.guild:
+        return
+
+    td: dict[str] = dbc.find_one({"rch" : message.channel.id})
+    if not td :
+        return
+    elif utils.get(message.author.roles, name="tourney-mod") :
+        return
+
     elif td["status"] == "paused":
         try:
-            return await message.author.send("Registration Paused")
+            await message.author.send("Registration Paused")
+            return
         except Exception:
             return print(traceback.format_exc())
+        
+
     elif message.channel.id  != int(td["rch"]) or td["status"] != "started": return
     messages = [message async for message in message.channel.history(limit=2000)]
     crole = utils.get(message.guild.roles, id=int(td["crole"]))
     cch = utils.get(message.guild.channels, id = int(td["cch"]))
     rch = utils.get(message.guild.channels, id = int(td["rch"]))
-    ments = td["mentions"]
+    ments = td.get("mentions")
     rgs = td["reged"]
     tslot = td["tslot"]
+    valid_member_mentions = [mention for mention in message.mentions if not mention.bot] #filter out bots from the mentions
+
     if not crole:
         await message.author.send("Registration Paused") if message.author.dm_channel else None
         await message.reply("Confirm Role Not Found")
         return dbc.update_one({"rch" : message.channel.id}, {"$set" : {"status" : "paused"}})
+    
     elif crole in message.author.roles:
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
         return await message.channel.send("**Already Registered**", delete_after=5)
+    
     elif rgs > tslot:
         overwrite = rch.overwrites_for(message.guild.default_role)
         overwrite.update(send_messages=False)
         await rch.set_permissions(message.guild.default_role, overwrite=overwrite)
         await message.delete()
         return await rch.send("**Registration Closed**")
-    elif len(message.mentions) >= ments:
+    
+    elif len(valid_member_mentions) >= ments:
         for fmsg in messages:
 
             #IF DUPLICATE TAG ALLOWED
@@ -252,10 +264,10 @@ async def tourney(message:Message):
                     
 
 
-    elif len(message.mentions) < ments:
+    elif len(valid_member_mentions) < ments:
         meb = Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
-        try:await message.delete()
-        except Exception as e:print(f"line No 335, error: {e}")
+        await message.delete() if message.guild.me.guild_permissions.manage_messages else None
+
         return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
 
 
