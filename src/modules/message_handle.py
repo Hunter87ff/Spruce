@@ -205,7 +205,7 @@ async def tourney(message:Message):
         await message.delete()
         return await rch.send("**Registration Closed**")
     
-    elif len(message.mentions) >= ments:
+    elif len(valid_member_mentions) >= ments:
         for fmsg in messages:
 
             #IF DUPLICATE TAG ALLOWED
