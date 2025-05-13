@@ -10,7 +10,7 @@
 import discord
 from modules import config, payment
 from discord.ext import commands
-from ext import permissions
+from ext import permissions, Tourney
 from typing import Any, TYPE_CHECKING
 import psutil, enum
 
@@ -31,7 +31,29 @@ class dev(commands.Cog):
     def __init__(self, bot):
         self.bot:'Spruce' = bot
 
-    
+
+
+    @commands.command(hidden=True)
+    @commands.guild_only()
+    @permissions.tourney_mod()
+    async def teams(self, ctx:commands.Context, registration_channel:discord.TextChannel):
+        _event = Tourney.findOne(registration_channel.id)
+
+        # _event:dict = self.bot.db.dbc.find_one({"rch": registration_channel.id})
+        if not _event:
+            return await ctx.send("No event found for this channel")
+
+        _confirm_channel = self.bot.get_channel(_event.cch)
+        if not _confirm_channel:
+            return await ctx.send("No confirmation channel found for this event")
+        
+        await ctx.send("Fetching Teams...")
+        async for message in _confirm_channel.history(limit=_event.tslot):
+            print(message.content)
+
+        await ctx.send("Check Console")
+
+
 
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @permissions.dev_only()
@@ -56,6 +78,8 @@ class dev(commands.Cog):
                 color=0x00ff00
                 ),
             view=discord.ui.View().add_item(button))
+
+
 
     @commands.command(hidden=True)
     @permissions.dev_only()
@@ -101,8 +125,9 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         try:
             self.bot.db.cfdbc.update_one({"config_id": 87}, {"$set":{key:value}})
             await ctx.send(f"Updated {key} to {value}")
-        except Exception as e:await ctx.reply(e)
-        
+        except Exception as e:
+            await ctx.reply(f"Error updating {key}: {e}")
+
 
     @commands.command()
     @permissions.dev_only()

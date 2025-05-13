@@ -26,7 +26,8 @@ __all__ = (
     "emoji",
     "color",
     "permissions",
-    "error"
+    "error",
+    "files",
 )
 
 

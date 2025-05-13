@@ -146,6 +146,9 @@ class Esports(commands.Cog):
             if not _confirm_channel:
                 return await ctx.send("No confirm channel found")
             
+            if not _confirm_channel.permissions_for(ctx.guild.me).read_message_history:
+                return await ctx.send(f"I Don't Have Permission To Read Message History In {_confirm_channel.mention}")
+
             async for message in _confirm_channel.history(limit=_event.tslot+50):
                 # if the message author is not the bot, skip it
                 if message.author.id != self.bot.user.id: 
@@ -161,7 +164,7 @@ class Esports(commands.Cog):
                 # fetches the teammates from embed description, currently it can can't handle the usernames, just the mentions
                 _players = message.embeds[0].description.split("\n")[-1].replace("**Players** : ", "").replace(",", " ") if message.embeds else "Added By Moderator"
                 if _captain and _team:
-                    _teams += f"{_slot},Team {_team.replace('Team ')},{_captain}, {_players}\n"
+                    _teams += f"{_slot},Team {_team.replace('Team ','')},{_captain}, {_players}\n"
                     _slot += 1
 
             _content = "Event,Slots,Registered,Mentions,Prize\n"
@@ -180,7 +183,7 @@ class Esports(commands.Cog):
 
         except Exception as e:
             await ctx.send(embed=discord.Embed(description="Something Went Wrong!! please try again later! or contact support server `/support`", color=color.red), delete_after=10)
-            await self.bot.embed_log("core.tourney.export_event_data", 134, e)
+            await self.bot.embed_log("core.tourney.export_event_data", 134, str(e))
 
 
 
@@ -1185,7 +1188,7 @@ class Esports(commands.Cog):
         
         for i in buttons:
             view.add_item(i)
-            
+
         await mch.send(embed=emb, view=view)
         await self.lc_ch(channel=mch)
         self.dbc.update_one({"rch":channel.id},{"$set":{"mch":int(mch.id)}})
