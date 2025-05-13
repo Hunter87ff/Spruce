@@ -147,7 +147,7 @@ class Esports(commands.Cog):
                 return await ctx.send("No confirm channel found")
             
             if not _confirm_channel.permissions_for(ctx.guild.me).read_message_history:
-                return await ctx.send(f"I Don't Have Permission To Read Message History In {_confirm_channel.mention}")
+                return await ctx.send(f"insufficient permission to read message history in {_confirm_channel.mention}")
 
             async for message in _confirm_channel.history(limit=_event.tslot+50):
                 # if the message author is not the bot, skip it
