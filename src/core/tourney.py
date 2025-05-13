@@ -265,7 +265,7 @@ class Esports(commands.Cog):
                     "faketag": "no", 
                     "pub" : "no", 
                     "prize" : "No Data", 
-                    "auto_current_group":"no", 
+                    "auto_grp":"no", 
                     "spg":slot_per_group, 
                     "cgp":0, 
                     "created_at":datetime.datetime.now()
