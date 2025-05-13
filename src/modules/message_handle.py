@@ -232,9 +232,9 @@ async def tourney(message:Message):
                 reg_update(message)
                 team_name = find_team(message)
                 femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
-                femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
+                femb.set_author(name=message.guild.name, icon_url=message.guild.icon or message.guild.me.avatar.url)
                 femb.timestamp = message.created_at
-                femb.set_thumbnail(url=message.author.display_avatar or message.author.default_avatar or message.guild.icon or message.guild.me.avatar)
+                femb.set_thumbnail(url=message.author.display_avatar or message.author.default_avatar or message.guild.icon or message.guild.me.avatar.url)
                 await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                 await message.author.add_roles(crole)
                 if rgs >= tslot*0.1 and td["pub"] == "no":

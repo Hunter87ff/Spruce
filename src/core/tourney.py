@@ -265,7 +265,7 @@ class Esports(commands.Cog):
                     "faketag": "no", 
                     "pub" : "no", 
                     "prize" : "No Data", 
-                    "auto_grp":"no", 
+                    "auto_current_group":"no", 
                     "spg":slot_per_group, 
                     "cgp":0, 
                     "created_at":datetime.datetime.now()
@@ -1102,8 +1102,8 @@ class Esports(commands.Cog):
         if not group_channel:
             return await ctx.send("Group Channel Not Found")
 
-        spg = _event.spg # slots per group
-        cgp = _event.cgp # current group position
+        slot_per_group = _event.spg # slots per group
+        current_group_position = 0 # current group position
 
         # check permission for confirm channel for bot
         if not confirm_channel.permissions_for(ctx.guild.me).read_message_history:
@@ -1121,13 +1121,13 @@ class Esports(commands.Cog):
         category = await ctx.guild.create_category(name=f"{_event.prefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
 
-        group = int(len(teams)/spg)
+        group = int(len(teams)/slot_per_group)
 
         # Create groups
-        if len(teams)/spg > group:
+        if len(teams)/slot_per_group > group:
             group = group+1
 
-        if len(teams)/spg < 1:
+        if len(teams)/slot_per_group < 1:
             group = 1
 
         # private channels for each groups
@@ -1140,15 +1140,16 @@ class Esports(commands.Cog):
             ms = f"**__GROUP__ {i}\n"
 
             # get the messages for each group
-            grp:list[discord.Message] = teams[cgp:cgp+spg]
+            current_group:list[discord.Message] = teams[current_group_position:current_group_position+slot_per_group]
 
-            for p in grp:
-                ms = ms + f"{grp.index(p)+1}) {p.content}" + "\n"
+            for p in current_group:
+                ms = ms + f"{current_group.index(p)+1}) {p.content}" + "\n"
 
-            grp.clear()
-            ncgp = cgp+spg
-            self.dbc.update_one({"rch":rch.id},{"$set":{"cgp":ncgp}})
-            cgp = cgp+spg
+            current_group.clear()
+            self.dbc.update_one({"rch":rch.id},{"$set":{"cgp":current_group_position + slot_per_group}})
+
+            # increase the starting position for the next group
+            current_group_position += slot_per_group
             msg = await group_channel.send(f"{ms}**")
 
             for m in ctx.guild.members:
@@ -1293,13 +1294,23 @@ class Esports(commands.Cog):
     @commands.has_role("tourney-mod")
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     async def start_reg(self, ctx:commands.Context, registration_channel:discord.TextChannel):
-        if ctx.author.bot:return
+        if ctx.author.bot:
+            return
+        
         await ctx.defer(ephemeral=True)
         db = self.dbc.find_one({"rch":registration_channel.id})
-        if not db:return await ctx.send(embed=discord.Embed(description=self._tnotfound, color=color.red), delete_after=10)
+        if not db:
+            return await ctx.send(embed=discord.Embed(description=self._tnotfound, color=color.red), delete_after=10)
         tourObj:Tourney = Tourney(db)
-        emb:discord.Embed = discord.Embed(color=color.cyan, description=f"**{emoji.cup} | REGISTRATION STARTED | {emoji.cup}\n{emoji.tick} | TOTAL SLOT : {tourObj.tslot}\n{emoji.tick} | REQUIRED MENTIONS : {tourObj.mentions}\n{emoji.cross} | FAKE TAGS NOT ALLOWED**")
-        btn:Button = Button(label="Register Team", style=discord.ButtonStyle.red, custom_id=f"db_reg_btn_{self.bot.user.id}")
+        emb:discord.Embed = discord.Embed(
+            color=color.cyan, 
+            description=f"**{emoji.cup} | REGISTRATION STARTED | {emoji.cup}\n{emoji.tick} | TOTAL SLOT : {tourObj.tslot}\n{emoji.tick} | REQUIRED MENTIONS : {tourObj.mentions}\n{emoji.cross} | FAKE TAGS NOT ALLOWED**"
+        )
+        btn:Button = Button(
+            label="Register Team", 
+            style=discord.ButtonStyle.red, 
+            custom_id=f"db_reg_btn_{self.bot.user.id}"
+        )
         view:View = View().add_item(btn)
         await registration_channel.send(embed=emb, view=view)
 
@@ -1309,13 +1320,15 @@ class Esports(commands.Cog):
     # If you have any idea or suggestion please let me know in the issue section or raise a PR
     async def register(self, interaction:discord.Interaction):
         db = self.dbc.find_one({"rch":interaction.channel.id})
-        if not db:return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+        if not db:
+            return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+        
         if interaction.data["custom_id"] == f"db_reg_btn_{self.bot.user.id}":
             t:Tourney = Tourney(db)
             crole:discord.Role = interaction.guild.get_role(t.crole)
             cch:discord.TextChannel = self.bot.get_channel(t.cch)
 
-            inp = discord.ui.Modal(title="Registraion Form", timeout=30)
+            inp = discord.ui.Modal(title="Registration Form", timeout=30)
             fields = [
                 discord.ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="rg_teamname"),
                 discord.ui.TextInput(label="Enter Player Names", placeholder="playerX, playerR, player4 (comma as separator)", max_length=200, custom_id="rg_players"),
@@ -1326,8 +1339,10 @@ class Esports(commands.Cog):
 
             async def register_team(interaction:discord.Interaction):
                 teamname:str = inp.children[0].value.upper()
-                players = inp.children[1].value.split(",")
-                emb = discord.Embed(color=0xffff00, description=f"**{t.reged}) TEAM NAME: {teamname}**\n**Players** : {players} ")
+                players:list[str] = inp.children[1].value.split(",")
+                emb = discord.Embed(
+                    description=f"**{t.reged}) TEAM NAME: {teamname}**\n**Players** : {', '.join(players)} ")
+                emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
                 emb.timestamp = interaction.message.created_at
                 emb.set_thumbnail(url=interaction.user.display_avatar)
                 await cch.send(content=f"{interaction.user.mention} {teamname}", embed=emb)
