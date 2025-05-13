@@ -7,6 +7,7 @@
  of this license document, but changing it is not allowed.
 """
 from ext.db import Database
+from datetime import datetime
 tourneys = Database().dbc
 
 
@@ -16,6 +17,20 @@ class Tourney:
     """
     def __init__(self, obj: dict):
         self.obj = obj 
+        self.guild_id: int = obj.get("guild_id", 0)
+        self.registration_channel: int = obj.get("rch", 0)
+        self.confirmation_channel: int = obj.get("cch", 0)
+        self.confirmation_role: int = obj.get("crole", 0)
+        self.group_channel: int = obj.get("gch", 0)
+
+        self.total_slots:int = obj.get("tslot", 0)
+        self.registered:int = obj.get("reged", 0)
+        self.auto_group:str = obj.get("auto_grp", None)
+        self.published:str = obj.get("pub", None)
+        self.slot_per_group:int = obj.get("spg", 0)
+        self.current_group:int = obj.get("cgp", None)
+        self.created_at:datetime = obj.get("created_at", datetime.now())
+
 
 
     def __str__(self):
@@ -27,6 +42,23 @@ class Tourney:
         Get the value of a specific key from the tournament object.
         """
         return self.obj.get(key, None)
+    
+    
+    def set(self, key: str, value):
+        """
+        Set the value of a specific key in the tournament object.
+        """
+        self.obj[key] = value
+        tourneys.update_one({"rch": self.rch}, {"$set": {key: value}})
+
+
+    def save(self):
+        """
+        Save the tournament object to the database.
+        """
+        tourneys.update_one({"rch": self.rch}, {"$set": self.obj}, upsert=True)
+
+
 
     @staticmethod
     def findOne(registration_channel:int):
