@@ -1145,7 +1145,6 @@ class Esports(commands.Cog):
             for p in current_group:
                 ms = ms + f"{current_group.index(p)+1}) {p.content}" + "\n"
 
-            current_group.clear()
             self.dbc.update_one({"rch":rch.id},{"$set":{"cgp":current_group_position + slot_per_group}})
 
             # increase the starting position for the next group
