@@ -31,6 +31,8 @@ class dev(commands.Cog):
     def __init__(self, bot):
         self.bot:'Spruce' = bot
 
+    
+
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @permissions.dev_only()
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
