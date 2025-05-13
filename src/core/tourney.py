@@ -1076,7 +1076,6 @@ class Esports(commands.Cog):
     @commands.hybrid_command(with_app_command = True, aliases=["autogroup"])
     @commands.guild_only()
     @permissions.tourney_mod()
-    @commands.has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def auto_group(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:
