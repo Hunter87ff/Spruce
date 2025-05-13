@@ -32,29 +32,6 @@ class dev(commands.Cog):
         self.bot:'Spruce' = bot
 
 
-
-    @commands.command(hidden=True)
-    @commands.guild_only()
-    @permissions.tourney_mod()
-    async def teams(self, ctx:commands.Context, registration_channel:discord.TextChannel):
-        _event = Tourney.findOne(registration_channel.id)
-
-        # _event:dict = self.bot.db.dbc.find_one({"rch": registration_channel.id})
-        if not _event:
-            return await ctx.send("No event found for this channel")
-
-        _confirm_channel = self.bot.get_channel(_event.cch)
-        if not _confirm_channel:
-            return await ctx.send("No confirmation channel found for this event")
-        
-        await ctx.send("Fetching Teams...")
-        async for message in _confirm_channel.history(limit=_event.tslot):
-            print(message.content)
-
-        await ctx.send("Check Console")
-
-
-
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @permissions.dev_only()
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
