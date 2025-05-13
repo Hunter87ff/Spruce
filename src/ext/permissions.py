@@ -9,13 +9,12 @@
 
 
 import discord
-import discord.ext
-import discord.ext.commands
 from ext import Database
 from discord.ext import commands
 from modules import config
 db = Database()
 devs:list[int] = db.cfdata.get("devs", [])
+
 
 
 def is_dev(ctx:commands.Context):
@@ -28,6 +27,11 @@ def is_admin(ctx: commands.Context) -> bool:
         ctx.guild.owner_id == ctx.author.id or 
         is_dev(ctx)
     )
+
+
+def _is_manager(ctx:commands.Context):
+    """Check if the user is a manager"""
+    return bool(ctx.author.guild_permissions.manage_guild or ctx.guild.owner_id == ctx.author.id or is_dev(ctx))
 
 
 def has_guild_permissions(**perms: bool):
@@ -77,7 +81,7 @@ def tourney_mod():
             await ctx.send("This command can only be used in a server",ephemeral=True, delete_after=10)
             return False
         
-        if is_dev(ctx):
+        if is_dev(ctx) or is_admin(ctx) or _is_manager(ctx):
             return True
         
         return await commands.has_role("tourney-mod").predicate(ctx)
