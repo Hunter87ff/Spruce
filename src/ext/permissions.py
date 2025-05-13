@@ -9,6 +9,8 @@
 
 
 import discord
+import discord.ext
+import discord.ext.commands
 from ext import Database
 from discord.ext import commands
 from modules import config
@@ -40,59 +42,45 @@ def has_guild_permissions(**perms: bool):
     def predicate(ctx: commands.Context) -> bool:
         if not ctx.guild:
             return False
+        
         if is_dev(ctx):
             return True
-        if ctx.author.guild_permissions.administrator:
-            return True
-        permissions: discord.Permissions = ctx.author.guild_permissions
-        missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
-        return len(missing) == 0
+        return commands.has_guild_permissions(**perms).predicate(ctx)
 
     return commands.check(predicate)
 
 
 
-def has_role(role:str, ctx:commands.Context=None): #type: ignore
+def has_role(role:str): #type: ignore
     """Check if the user has a role"""
     async def predicate(ctx:commands.Context):
-        if not ctx.guild:
-            raise commands.MissingRole(role)
-        if is_dev(ctx):return True
-        _role = discord.utils.get(ctx.guild.roles, name=role)
-        if not _role:return False
-        return _role in ctx.author.roles
-    return commands.check(predicate)
-
-def tourney_mod():
-    """Check if the user is a tourney mod"""
-
-    async def predicate(ctx:commands.Context):
-        if not ctx.guild:
-            raise commands.MissingRole("tourney-mod")
         if is_dev(ctx):
             return True
-        _role = discord.utils.get(ctx.guild.roles, name="tourney-mod")
-        if not _role or not _role in ctx.author.roles:
-            raise commands.MissingRole("tourney-mod")
-        
-        return True
-    return commands.check(predicate)
-
-def has_any_role(*roles:str): #type: ignore
-    """Check if the user has any of the roles"""
-    async def predicate(ctx:commands.Context):
-        if not ctx.guild:return False
-        if is_dev(ctx):return True
-        return any(has_role(ctx, role) for role in roles)
+        return await commands.has_role(role).predicate(ctx)
     return commands.check(predicate)
 
 
 def owner_only():
     async def predicate(ctx:commands.Context):
-        if ctx.message.author.id == config.owner_id : return True
+        if ctx.message.author.id == config.owner_id :
+            return True
         else :
             await ctx.send("Command is only for developers!!", ephemeral=True, delete_after=10)
             return False
+    return commands.check(predicate)
+
+
+def tourney_mod():
+    """Check if the user is a tourney mod"""
+    async def predicate(ctx:commands.Context):
+        if not ctx.guild:
+            await ctx.send("This command can only be used in a server",ephemeral=True, delete_after=10)
+            return False
+        
+        if is_dev(ctx):
+            return True
+        
+        return await commands.has_role("tourney-mod").predicate(ctx)
     return commands.check(predicate)
 
 

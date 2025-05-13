@@ -17,6 +17,17 @@ class Tourney:
     def __init__(self, obj: dict):
         self.obj = obj 
 
+
+    def __str__(self):
+        return f"Tourney({str(self.obj)})"
+    
+
+    def get(self, key: str):
+        """
+        Get the value of a specific key from the tournament object.
+        """
+        return self.obj.get(key, None)
+
     @staticmethod
     def findOne(registration_channel:int):
         """
