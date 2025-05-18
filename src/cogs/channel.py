@@ -18,9 +18,10 @@ if TYPE_CHECKING:
     from modules.bot import Spruce
 
 
-
-
-class Channel(commands.Cog):
+class ChannelCog(commands.Cog):
+    """A class representing a Discord bot cog for managing channels.
+    This cog provides commands for creating and deleting channels, as well as deleting categories.
+    """
     def __init__(self, bot:'Spruce'):
         self.bot = bot
         
@@ -123,5 +124,3 @@ class Channel(commands.Cog):
         await ms.edit(embed=discord.Embed(description=f"**{config.default_tick} | All Channels Created**", color=0x00ff00))
     
 
-async def setup(bot:commands.Bot):
-	await bot.add_cog(Channel(bot))

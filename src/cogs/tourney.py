@@ -29,7 +29,11 @@ def get_front(name:str):
   return str("".join(li) + "-")
 
 
-class Esports(commands.Cog):
+class EsportsCog(commands.Cog):
+    """
+    ## EsportsCog
+    This class contains commands and event listeners for managing esports tournaments.
+    """
     ONLY_AUTHOR_BUTTON = "Only Author Can Use This Button"
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
@@ -1490,6 +1494,3 @@ class Esports(commands.Cog):
         # Currently Testing on this and not sure to impliment this or not
         elif "custom_id" in interaction.data and interaction.data["custom_id"].startswith("db_reg_btn"):
             await self.register(interaction)
-
-async def setup(bot:commands.Bot):
-    await bot.add_cog(Esports(bot))

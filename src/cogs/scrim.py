@@ -1,3 +1,7 @@
+
+
+
+
 from discord.ext import commands
 from discord.ext import tasks
 import discord, re, pytz
@@ -44,7 +48,7 @@ class ScrimData:
 
 
 
-class Scrim(commands.Cog):
+class ScrimCog(commands.Cog):
     """Currently in development mode!!"""
     def __init__(self, bot) -> None:
         self.bot:Spruce = bot
@@ -94,7 +98,7 @@ class Scrim(commands.Cog):
             )
         self.create_scrim(
             total_slots, 
-            Scrim.convert_time(
+            ScrimCog.convert_time(
                 time=str(_time), 
                 fr=time_zone.value, 
                 to=TimeZone.Asia_Kolkata.value
@@ -197,7 +201,7 @@ class Scrim(commands.Cog):
         teams += "```"
         time_taken = msgs[-1].created_at - msgs[0].created_at
         em = discord.Embed(title="Team List", description=teams, color=0x00ff00)
-        em.set_footer(text=f"Time Taken : {Scrim.time_format(time_taken)}")
+        em.set_footer(text=f"Time Taken : {ScrimCog.time_format(time_taken)}")
         mes = await msg.channel.send(embed=em)
         await mes.add_reaction("✅")
 
@@ -226,8 +230,3 @@ class Scrim(commands.Cog):
             await _scrim_data.channel.send(embed=_register_message, view=_registration_view)
 
         self.bot.db.scrims.update_many({"status": "active", "started":False, "time" : _time}, {"$set": {"started": True}})
-
-
-
-async def setup(bot:commands.Bot):
- await bot.add_cog(Scrim(bot))

@@ -10,6 +10,7 @@
 import time
 import traceback
 import wavelink
+import cogs
 from discord.ext import commands
 from wavelink import Node, Pool
 from modules.chat import ChatClient
@@ -41,7 +42,6 @@ class Spruce(commands.AutoShardedBot):
         self.logger:Logger = Logger
         self.chat_client = ChatClient(self)
         self.color = color
-        self.core = {"channel", "dev", "helpcog", "moderation", "tourney", "role", "utils", "tasks"}
 
         super().__init__(
             shard_count=config.shards, 
@@ -54,70 +54,59 @@ class Spruce(commands.AutoShardedBot):
         self.log_channel:TextChannel = self.get_channel(config.erl)
 
     async def setup_hook(self) -> None:
-        if config.env["tkn"] == "TOKEN":
-            utils.setup_logging(level=30)
+        # if config.env["TOKEN_KEY"] == "TOKEN":
+        #     utils.setup_logging(level=30)
         
         # Remove default help command 
         self.remove_command("help")
 
-        for i in self.core:
-            try:
-                await self.load_extension(f"core.{i}")
-            except Exception as e:
-                self.logger.error(f"Error loading {i} : {e}")
-                traceback.print_exc()
-
-        Logger.info("Core Extensions Loaded")
-        if config.LOCAL_LAVA==True:
-            _nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
-            await Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
+        # load the cogs
+        await cogs.setup(self)
+        
+        # music module currently disabled for some reason
+        # if config.LOCAL_LAVA:
+        #     _nodes = [Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
+        #     await Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
 
 
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
         try:
             await self.tree.sync()
-            stmsg = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
-            Logger.info(stmsg)
+
+            # connect wavelink nodes
+            # if config.LOCAL_LAVA:
+            #     _nodes = [wavelink.Node(uri=config.LOCAL_LAVA[0], password=config.LOCAL_LAVA[1])]
+            #     await Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
+
+            starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
+            self.logger.info(starter_message)
             await config.vote_add(self)
             config.webpost(
                 url=self.db.cfdata.get("stwbh"), 
                 json={
-                    "content":f"<@{config.owner_id}>",
-                    "embeds":[
+                    "content": f"<@{config.owner_id}>",
+                    "embeds": [
                         {
-                            "title":"Status",
-                            "description":stmsg,
-                            "color":0xff00
+                            "title": "Status",
+                            "description": starter_message,
+                            "color": self.color.green
                         }
                     ]
                 }
             )
-        except Exception as ex:print(ex)
+        except Exception as ex:
+            print(ex)
         
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
-        Logger.info(f"Node Connected {payload.node.identifier}")
+        self.logger.info(f"Node Connected {payload.node.identifier}")
 
     async def on_disconnect(self):
-        Logger.info('Disconnected from Discord. Reconnecting...')
+        self.logger.info('Disconnected from Discord. Reconnecting...')
         await self.wait_until_ready()
 
-    # async def fetch_payment_hook(self, message:Message):
-    #     """Fetches the payment object from the message content in paylog channel and updates the primedbc"""
-    #     if message.channel.id != config.paylog or (not message.webhook_id) or not payment: return
-    #     try:
-    #         obj:payment.PaymentHook = payment.PaymentHook(ast.literal_eval(message.content.replace("```", "").replace("\n", "")))
-    #         if isinstance(obj, payment.PaymentHook) and obj.payment_status == "SUCCESS":
-    #             return self.db.primedbc.update_one({"guild_id":obj.guild_id}, {"$set":obj.to_dict}, upsert=True)
-    #         if isinstance(obj, payment.PaymentHook) and obj.payment_status == "FAILED":
-    #             return self.db.paydbc.delete_one({"guild_id":obj.guild_id})
-    #         print("Ignored the check")
-    #     except Exception:
-    #         traceback.print_exc()
 
     async def on_message(self, message:Message):
-        # if message.channel.id == config.paylog: 
-        #     await self.fetch_payment_hook(message)
         if config.notuser(message):return
         await self.process_commands(message)
         await self.chat_client.chat(message)

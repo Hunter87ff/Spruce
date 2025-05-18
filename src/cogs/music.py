@@ -7,14 +7,20 @@
  of this license document, but changing it is not allowed.
  """
 
-from typing import cast
+
+import wavelink
+from typing import cast, TYPE_CHECKING
 from time import gmtime, strftime
 from modules import config
 from discord.ext import commands
 from ext.error import update_error_log
-from discord import ButtonStyle, Interaction, Embed, Message
+from discord import ButtonStyle, Interaction, Embed, Message, TextChannel
 from discord.ui import Button, View
-import wavelink
+
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+
+
 controlButtons = [
         Button(emoji=config.next_btn, custom_id="music_next_btn"),
         Button(emoji=config.pause_btn, custom_id="music_pause_btn"),
@@ -24,11 +30,16 @@ controlButtons = [
         Button(emoji=config.loop_btn, custom_id="music_loop_btn")
 ]
 
-class Music(commands.Cog):
+class MusicCog(commands.Cog):
+    """
+    Music commands for the bot.
+    
+    NOTE: For some issues, we've removed this cog from the bot for a while.
+    """
     _disabled = False if config.LOCAL_LAVA else True
 
-    def __init__(self, bot) -> None:
-        self.bot:commands.Bot = bot
+    def __init__(self, bot:"Spruce") -> None:
+        self.bot = bot
         self.message:Message  = None
         self.loop:bool = False
 
@@ -52,7 +63,9 @@ class Music(commands.Cog):
                     await i.delete() if i else None
         except Exception as e:
             update_error_log(f"{e}")
-        self.message and player.home = await player.home.send(embed=embed, view=view)
+        if self.message and player.home:
+            _home : TextChannel = player.home
+            await _home.send(embed=embed, view=view)
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
@@ -109,7 +122,7 @@ class Music(commands.Cog):
             await interaction.delete_original_response()
 
     #fixes needed -> player.channel !
-    @commands.command(disabled=_disabled, aliases=["p"])
+    @commands.command(aliases=["p"])
     @commands.bot_has_guild_permissions(connect=True, speak=True)
     @commands.guild_only()
     async def play(self, ctx: commands.Context, *, query: str) -> None:
@@ -264,5 +277,3 @@ class Music(commands.Cog):
                 await ctx.reply("Connected To VC", delete_after=10)
             except Exception:await ctx.reply("I'm Unable To Join VC", delete_after=10)
         
-async def setup(bot:commands.Bot):
-    await bot.add_cog(Music(bot))

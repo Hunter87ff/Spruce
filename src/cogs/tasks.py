@@ -5,7 +5,7 @@ from modules import config
 from ext import Database
 primedbc = Database().primedbc
 
-class Tasks(commands.Cog):
+class TaskCog(commands.Cog):
     def __init__(self, bot):
         self.bot:commands.Bot = bot
         self.update_prime.start()
@@ -17,5 +17,3 @@ class Tasks(commands.Cog):
         """Delete all the documents from the database where the expiry time is less than the current time. with inbuild features of pymongo"""
         primedbc.delete_many({"end_time": {"$lt": datetime.datetime.now()}})
 
-async def setup(bot:commands.Bot):
-    await bot.add_cog(Tasks(bot))

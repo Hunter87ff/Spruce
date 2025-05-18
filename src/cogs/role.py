@@ -14,7 +14,11 @@ from discord import  Embed, Role, File, Member, utils, Guild, Message, app_comma
 from ext import constants,  color
 cmd = commands
 
-class Roles(commands.Cog):
+class RoleCog(commands.Cog):
+    """
+    ## RoleCog Class
+    This class contains commands for managing roles in a Discord server.
+    """
     def __init__(self, bot):
         self.bot:commands.Bot = bot
 
@@ -297,7 +301,3 @@ class Roles(commands.Cog):
                 try:await role.edit(hoist=True)
                 except Exception:pass
         await msg.edit(content=f"{config.tick} Done", delete_after=10)
-
-
-async def setup(bot:commands.Bot):
-    await bot.add_cog(Roles(bot))
