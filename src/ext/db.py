@@ -40,7 +40,7 @@ class Database:
             
             # Load configuration data from the main config collection
             self.cfdata:dict = dict(self.cfdbc.find_one({"config_id": 87}))
-            self.token:str = self.cfdata.get(os.environ["tkn"])
+            self.token:str = self.cfdata.get(os.environ["TOKEN_KEY"])
             self.GEMAPI:str = self.cfdata.get("gemapi")
             self.spot_id:str = self.cfdata.get("spot_id")
             self.spot_secret:str = self.cfdata.get("spot_secret")
@@ -52,7 +52,7 @@ class Database:
             Logger.info("Database Connected.")
    
         except Exception as e:
-            Logger.warning(f"Error loading database or configuration data: {e}")
+            Logger.warning(message=f"Error loading database or configuration data: {e}", _module="ext.db.Database")
 
     @property
     def registers(self):

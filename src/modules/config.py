@@ -20,14 +20,17 @@ bot_id = 931202912888164474
 owner_id = 885193210455011369
 owner_tag = "hunter87ff"
 MAINTAINER = "hunter87ff"
+IS_DEV_ENV = env.get("MODE") == "development"
 LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if env.get("LOCAL_LAVA", None) else None
+
+DOMAIN = "sprucbot.tech"
 BASE_URL = "https://sprucbot.tech"
-support_server = "https://discord.gg/vMnhpAyFZm"
 invite_url = f"{BASE_URL}/invite"
+support_server = "https://discord.gg/vMnhpAyFZm"
+
 invite_url2 = f"https://discord.com/oauth2/authorize?client_id={bot_id}&permissions=8&scope=bot"
 support_server_id = 947443790053015623
 prefix = env.get("prefix", "&")
-DOMAIN = "sprucbot.tech"
 SLEEP_TIME = 21464 #service restart
 gh_action = f"https://api.github.com/repos/{MAINTAINER}/spruce/actions/workflows/py_application.yml/dispatches"
 gh_action_run = f"https://api.github.com/repos/{MAINTAINER}/Spruce/actions/workflows/py_application.yml/runs"

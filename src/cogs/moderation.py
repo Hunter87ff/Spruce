@@ -14,12 +14,18 @@ from discord.ext import commands
 import datetime
 import humanfriendly
 from modules import config
-from modules.bot import Spruce
 import typing
 
-class Moderation(commands.Cog):
-    def __init__(self, bot):
-        self.bot:Spruce = bot
+if typing.TYPE_CHECKING:
+    from modules.bot import Spruce
+
+class ModerationCog(commands.Cog):
+    """
+    ## ModerationCog Class
+    This class contains commands for moderating a Discord server.
+    """
+    def __init__(self, bot:"Spruce"):
+        self.bot = bot
 
     @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(manage_roles=True)
@@ -335,8 +341,3 @@ class Moderation(commands.Cog):
         else:
             await ctx.guild.ban(member, reason=reason or f"{member} banned by {ctx.author}")
             await ctx.send(f"{member} banned", delete_after=5)
-
-
-
-async def setup(bot:commands.Bot):
-    await bot.add_cog(Moderation(bot))

@@ -67,7 +67,7 @@ class DropdownView(discord.ui.View):
         super().__init__()
         self.add_item(Dropdown())
 
-class Helper(commands.Cog):
+class HelperCog(commands.Cog):
     def __init__(self, bot):
         self.bot:commands.Bot = bot
 
@@ -556,8 +556,3 @@ class Helper(commands.Cog):
     async def spotify(self, ctx:commands.Context):
         em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `spotify <playlist_url>`\nExample : `{config.prefix}spotify https://open.spotify.com/playlist/3WhVWKNAY2Y9DNU5GVPYE2`", color=0x00ff00)
         await ctx.send(embed=em)
-
-
-
-async def setup(bot):
-    await bot.add_cog(Helper(bot))

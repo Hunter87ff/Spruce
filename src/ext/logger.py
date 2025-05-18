@@ -78,10 +78,10 @@ class Logger:
         Logger._logger.warning(message)
 
     @staticmethod
-    def error( message):
+    def error(*message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('ERROR')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger._logger.error(message)
+        Logger._logger.error("\n".join(str(m) for m in message))
 
     @staticmethod
     def critical( message):

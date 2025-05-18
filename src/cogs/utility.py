@@ -44,7 +44,7 @@ def trn(token, fr:str, to:str, text:str):
 	if res.status_code==200: return res.json()[0]["translations"][0]["text"]
 	else: return "Something went wrong! please try again later."
 	
-class Utility(commands.Cog):
+class UtilityCog(commands.Cog):
     def __init__(self, bot):
         self.bot:commands.Bot = bot
         self.counter = 0
@@ -471,7 +471,3 @@ class Utility(commands.Cog):
         for i in support_server.members:
             if i.id == guild.owner.id and orole in i.roles:await i.remove_roles(orole, reason="Kicked Spruce")
         return await ch.send(msg)
-
-
-async def setup(bot:commands.Bot):
-	await bot.add_cog(Utility(bot))

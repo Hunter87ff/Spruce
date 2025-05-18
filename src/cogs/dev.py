@@ -27,7 +27,13 @@ class Plans(enum.Enum):
     Custom = 0
     
 
-class dev(commands.Cog):
+class DevCog(commands.Cog):
+    """
+    ## DevCog Class
+    This class contains commands for developers and admins to manage the bot and its features.
+    It includes commands for system information, managing guilds, and handling messages.
+    """
+
     def __init__(self, bot):
         self.bot:'Spruce' = bot
 
@@ -203,5 +209,3 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         await ctx.send(file=discord.File("error.log"))
 
 
-async def setup(bot):
-	await bot.add_cog(dev(bot))

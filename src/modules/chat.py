@@ -36,11 +36,10 @@ class ChatClient:
                 model_name="gemini-2.0-flash", #"gemini-1.5-flash", 
                 generation_config=generation_config
             )
+            self.chat_session = model.start_chat(history=constants.history)
+
         except Exception as e:
             config.webpost(url=self.db.cfdata["dml"], json={"content":f"```py\n{e}\n```"})
-
-
-        self.chat_session = model.start_chat(history=constants.history)
 
 
     def is_bws(self, query:str) -> bool:

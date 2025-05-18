@@ -14,7 +14,7 @@ permissions:
 env:
   mongo_url  : ${{ secrets.MONGO_URL }}
   shards : ${{ secrets.SHARDS }}
-  tkn : ${{ secrets.TKN }}
+  TOKEN_KEY : ${{ secrets.TKN }}
   prefix : ${{ secrets.PREFIX }}
   version : "2.0.6"
   LOCAL_LAVA : false
