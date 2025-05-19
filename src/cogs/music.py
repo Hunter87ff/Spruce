@@ -8,7 +8,8 @@
  """
 
 
-import wavelink
+import wavelink,time, os, platform
+from threading import Thread
 from typing import cast, TYPE_CHECKING
 from time import gmtime, strftime
 from modules import config
@@ -21,14 +22,7 @@ if TYPE_CHECKING:
     from modules.bot import Spruce
 
 
-controlButtons = [
-        Button(emoji=config.next_btn, custom_id="music_next_btn"),
-        Button(emoji=config.pause_btn, custom_id="music_pause_btn"),
-        Button(emoji=config.stop_btn, style=ButtonStyle.danger, custom_id="music_stop_btn"),
-        Button(emoji=config.queue_btn, style=ButtonStyle.blurple, custom_id="music_queue_btn"),
-        Button(emoji=config.play_btn, custom_id="music_play_btn"),
-        Button(emoji=config.loop_btn, custom_id="music_loop_btn")
-]
+
 
 class MusicCog(commands.Cog):
     """
@@ -36,12 +30,67 @@ class MusicCog(commands.Cog):
     
     NOTE: For some issues, we've removed this cog from the bot for a while.
     """
-    _disabled = False if config.LOCAL_LAVA else True
 
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
         self.message:Message  = None
         self.loop:bool = False
+        self.bot.loop.create_task(self.setup_lava_node())
+
+        self.controlButtons = [
+            Button(emoji=self.bot.emoji.next_btn, custom_id="music_next_btn"),
+            Button(emoji=self.bot.emoji.pause_btn, custom_id="music_pause_btn"),
+            Button(emoji=self.bot.emoji.stop_btn, style=ButtonStyle.danger, custom_id="music_stop_btn"),
+            Button(emoji=self.bot.emoji.queue_btn, style=ButtonStyle.blurple, custom_id="music_queue_btn"),
+            Button(emoji=self.bot.emoji.play_btn, custom_id="music_play_btn"),
+            Button(emoji=self.bot.emoji.loop_btn, custom_id="music_loop_btn")
+    ]
+
+
+    async def setup_lava_node(self):
+
+        def lavalink():
+            if platform.system() == "Windows":
+                os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
+            else:
+                os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &
+            
+        async def setup_lavalink():
+            """
+            Sets up the Lavalink server by modifying the application.yml file with the correct credentials.
+            """
+            self.bot.logger.info("Setting up Lavalink server...")
+            with open("lava/application.yml", "r") as f1:
+                content1= f1.read()
+
+            content = content1.replace("spot_id", f"{self.bot.db.spot_id}").replace("spot_secret", f"{self.bot.db.spot_secret}")
+            with open("lava/application.yml", "w") as f:
+                f.write(content)
+
+            self.bot.logger.info("Starting Lavalink server...")
+            Thread(target=lavalink).start()
+            time.sleep(5)
+            with open("lava/application.yml", "w") as f: 
+                f.write(content1.replace(self.bot.db.spot_id, "spot_id").replace(self.bot.db.spot_secret, "spot_secret"))
+
+
+            if self.bot.config.LOCAL_LAVA:
+                try:
+                    _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
+                    await wavelink.Pool.connect(nodes=_nodes, client=self.bot, cache_capacity=None)
+                    self.bot.logger.info("Lavalink server connected")
+
+                except Exception as e:
+                    self.bot.logger.error(f"Attempting to connect to Lavalink server failed: {e}")
+
+
+        if self.bot.config.LOCAL_LAVA and self.bot.ACTIVE_MODULES.music: 
+           await setup_lavalink()
+
+
+
+
+
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
@@ -52,14 +101,14 @@ class MusicCog(commands.Cog):
         if track.length//1000 < 3599:
             tm = "%M:%S"
         embed = Embed(
-            title=f"{config.music_disk} Now Playing", 
-            color=0x303136, description=f'**[{track.title}]({config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
+            title=f"{self.bot.emoji.music_disk} Now Playing", 
+            color=0x303136, description=f'**[{track.title}]({self.bot.config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
-        for button in controlButtons:view.add_item(button)
+        for button in self.controlButtons:view.add_item(button)
         try:
             messages:list[Message] = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
             for i in messages:
-                if i and i.author.id == self.bot.user.id and i.embeds[0].title == f"{config.music_disk} Now Playing":
+                if i and i.author.id == self.bot.user.id and i.embeds[0].title == f"{self.bot.emoji.music_disk} Now Playing":
                     await i.delete() if i else None
         except Exception as e:
             update_error_log(f"{e}")
@@ -77,21 +126,21 @@ class MusicCog(commands.Cog):
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
         if "custom_id" not in interaction.data or not interaction.data.get("custom_id").startswith("music_"):return
-        elif not interaction.user.voice:return await interaction.response.send_message(Embed(description="Please Join VC", color=config.blurple), ephemeral=True)
+        elif not interaction.user.voice:return await interaction.response.send_message(Embed(description="Please Join VC", color=self.bot.color.blurple), ephemeral=True)
         ctx:commands.Context = await self.bot.get_context(interaction.message)
         vc:wavelink.Player = cast(wavelink.Player, ctx.voice_client or await interaction.user.voice.channel.connect(self_deaf=True, cls=wavelink.Player))
 
         if interaction.data["custom_id"] == "music_stop_btn":
             await ctx.voice_client.disconnect()
-            await interaction.response.send_message(embed=Embed(description=f"{config.tick} | Successfully Disconnected", color=config.red), ephemeral=True)
+            await interaction.response.send_message(embed=Embed(description=f"{self.bot.emoji.tick} | Successfully Disconnected", color=self.bot.color.red), ephemeral=True)
             await interaction.message.delete()
 
         elif interaction.data["custom_id"] == "music_loop_btn":
             await interaction.response.defer(ephemeral=True)
             if not interaction.user.voice:return await ctx.reply(embed=Embed(description="Please Join A Voice Channel To Use This Command", color=0xff0000))
-            if not vc.current:return await ctx.reply(embed=Embed(description=f"{config.cross} | No Audio Available For Loop...", color=0xff0000))
+            if not vc.current:return await ctx.reply(embed=Embed(description=f"{self.bot.emoji.cross} | No Audio Available For Loop...", color=0xff0000))
             vc.loop = True
-            lemb = Embed(title="Loop Music", description=f"{config.tick} | Cuttent Audio'll Play In Loop", color=config.orange)
+            lemb = Embed(title="Loop Music", description=f"{self.bot.emoji.tick} | Cuttent Audio'll Play In Loop", color=self.bot.color.orange)
             await ctx.send(embed=lemb, delete_after=5)
 
         elif interaction.data["custom_id"] == "music_next_btn":
@@ -102,7 +151,7 @@ class MusicCog(commands.Cog):
 
         elif interaction.data["custom_id"] == "music_queue_btn":
             if vc.queue.is_empty:return await interaction.response.send_message("Queue is empty", ephemeral=True)
-            em = Embed(title="Queue", color=config.cyan)
+            em = Embed(title="Queue", color=self.bot.color.cyan)
             queue = vc.queue.copy()
             for song in queue:
                 em.add_field(name=f"Song Position {str(queue.count)}", value=f"`{song}`")
@@ -130,21 +179,21 @@ class MusicCog(commands.Cog):
         if not ctx.guild or ctx.author.bot:
           return
         elif "youtube" in query: 
-          return await ctx.reply(embed=Embed(description="I'm sorry, but I can't play YouTube links.", color=config.blue), delete_after=10)
+          return await ctx.reply(embed=Embed(description="I'm sorry, but I can't play YouTube links.", color=self.bot.color.blue), delete_after=10)
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
         player.autoplay = wavelink.AutoPlayMode.disabled
         tracks: wavelink.Search = await wavelink.Playable.search(query)
         if not tracks: 
-          return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+          return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=self.bot.color.blurple), delete_after=10)
         player.home = ctx.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await player.queue.put_wait(tracks)
-            await ctx.send(embed=Embed(description=f"{config.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=config.green))
+            await ctx.send(embed=Embed(description=f"{self.bot.emoji.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=self.bot.color.green))
         else:
             track: wavelink.Playable = tracks[0]
             await player.queue.put_wait(track)
             if player.current:
-              await ctx.send(embed=Embed(description=f"{config.music_disk} Added **`{track}`** to the queue.", color=config.green))
+              await ctx.send(embed=Embed(description=f"{self.bot.emoji.music_disk} Added **`{track}`** to the queue.", color=self.bot.color.green))
         if not player.playing:
           await player.play(player.queue.get(), volume=100)
 
@@ -170,7 +219,7 @@ class MusicCog(commands.Cog):
         filters.timescale.set(pitch=1.2, speed=1.2, rate=1)
         await player.set_filters(filters)
         await ctx.message.add_reaction("\u2705")
-        await ctx.send(embed=Embed(description=f"{config.tick} | Nightcore mode enabled.", color=config.green))
+        await ctx.send(embed=Embed(description=f"{self.bot.emoji.tick} | Nightcore mode enabled.", color=self.bot.color.green))
 
 
     @commands.hybrid_command(with_app_command=True)
@@ -231,7 +280,7 @@ class MusicCog(commands.Cog):
         if not player:return
         await player.disconnect()
         await ctx.message.add_reaction("\u2705")
-        await ctx.send(f"{config.tick} | Successfully Disconnected")
+        await ctx.send(f"{self.bot.emoji.tick} | Successfully Disconnected")
 
 
     @commands.hybrid_command(with_app_command=True)
@@ -243,7 +292,7 @@ class MusicCog(commands.Cog):
         elif not ctx.author.voice:return await ctx.send("join a voice channel first!!")
         vc:wavelink.Player = cast(wavelink.Player, ctx.voice_client)
         if vc.queue.is_empty:return await ctx.reply("Queue is empty")
-        em = Embed(title="Queue", color=config.blurple)
+        em = Embed(title="Queue", color=self.bot.color.blurple)
         queue = vc.queue.copy()
         for song in queue:
             em.add_field(name=f"Song Position {str(queue.count)}", value=f"`{song}`")
@@ -256,12 +305,13 @@ class MusicCog(commands.Cog):
     async def spotify(self, ctx:commands.Context, playlist_url:str):
         tracks: wavelink.Search = await wavelink.Playable.search(playlist_url)
         player:wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
-        if not tracks: return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=config.blurple), delete_after=10)
+        if not tracks: return await ctx.send(embed=Embed(description="Could not find any tracks with that query. Please try again.", color=self.bot.color.blurple), delete_after=10)
         player.home = ctx.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await player.queue.put_wait(tracks)
-            await ctx.send(embed=Embed(description=f"{config.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=config.green))
-        if not player.playing:await player.play(player.queue.get(), volume=100)
+            await ctx.send(embed=Embed(description=f"{self.bot.emoji.music_disk} Added the playlist **`{tracks.name}`** ({added} songs) to the queue.", color=self.bot.color.green))
+        if not player.playing:
+            await player.play(player.queue.get(), volume=100)
         
 
     @commands.hybrid_command(with_app_command=True, aliases= ['connect'])
@@ -277,3 +327,7 @@ class MusicCog(commands.Cog):
                 await ctx.reply("Connected To VC", delete_after=10)
             except Exception:await ctx.reply("I'm Unable To Join VC", delete_after=10)
         
+
+    @commands.Cog.listener()
+    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload) -> None:
+        self.bot.logger.info(f"Node Connected {payload.node.identifier}")

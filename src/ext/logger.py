@@ -38,8 +38,9 @@ class Logger:
 
     @staticmethod
     def get_time():
-        return str(datetime.datetime.now(pytz.timezone("Asia/Kolkata")))[:-7]
-    
+        _datetime = datetime.datetime.now(pytz.timezone("Asia/Kolkata")).strftime("%d-%m-%Y %H:%M:%S")
+        return _datetime
+
     @staticmethod
     def colors(level):
         colors = {
@@ -66,7 +67,7 @@ class Logger:
         Logger._logger.debug(message)
 
     @staticmethod
-    def info( message):
+    def info(message):
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('INFO')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
         Logger._logger.info(message)

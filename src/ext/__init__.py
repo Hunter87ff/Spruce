@@ -15,6 +15,7 @@ from ext.color import Color as color
 from ext.db import Database
 import ext.error as error
 import ext.files as files
+from ext import helper
 import ext.permissions as permissions
 
 
@@ -28,6 +29,7 @@ __all__ = (
     "permissions",
     "error",
     "files",
+    "helper",
 )
 
 

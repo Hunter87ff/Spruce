@@ -14,7 +14,7 @@ from ext import Logger
 from ext import Database
 
 logger = Logger
-shards =  int(env.get("shards")) or 20
+SHARDS =  int(env.get("SHARDS"), 20)
 version = env.get("version", "2.0.6")
 bot_id = 931202912888164474
 owner_id = 885193210455011369
@@ -36,7 +36,7 @@ gh_action = f"https://api.github.com/repos/{MAINTAINER}/spruce/actions/workflows
 gh_action_run = f"https://api.github.com/repos/{MAINTAINER}/Spruce/actions/workflows/py_application.yml/runs"
 
 class activeModules:
-      music = False
+      music = False # due to some issues this module will be disabled for a while
       tourney = True
       scrims = False
       moderation = True
@@ -52,7 +52,6 @@ gleave = 1028673254606508072
 votel = 1099588071986573362
 tdlog = 1112411458513408090
 paylog = 1233044089398755378
-################# emojis ####################
 
 
 def get_db():
@@ -89,20 +88,3 @@ async def vote_check(message:Message):
 async def vtm(ctx:commands.Context):
 	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{ctx.me.id}/vote")
 	await ctx.send(embed=Embed(color=Color.cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
-
-
-def notuser(message:Message):
-	return True if message.author.bot or message.webhook_id else False
-
-
-async def is_dev(ctx: commands.Context | discord.Interaction):
-    """
-    Checks if the user is a developer
-    """
-    user_id = ctx.user.id if isinstance(ctx, discord.Interaction) else ctx.author.id
-    if user_id not in get_db().cfdata["devs"]:
-        response = ctx.response.send_message if isinstance(ctx, discord.Interaction) else ctx.send
-        await response("Command is under development", ephemeral=True if isinstance(ctx, discord.Interaction) else False)
-        return False
-    return True
-    

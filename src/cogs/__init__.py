@@ -8,7 +8,7 @@ This module initializes and registers cogs for the Spruce bot. It conditionally 
 development-only cogs based on the configuration, then defines a setup function to load
 and attach these cogs to the bot instance.
 """
-from modules.config import IS_DEV_ENV
+from modules.config import activeModules
 from typing import TYPE_CHECKING
 from cogs.channel import ChannelCog
 from cogs.dev import DevCog
@@ -32,7 +32,7 @@ _cogs : list[Cog] = [
     TaskCog
 ]
 
-if IS_DEV_ENV:
+if activeModules.music:
     from cogs.music import MusicCog
     _cogs.append(MusicCog)
     
@@ -49,4 +49,4 @@ async def setup(bot: "Spruce") -> None:
         await bot.add_cog(cog(bot))
         bot.logger.info(f"Extension Loaded : {cog.__name__}")
 
-    bot.logger.info("All cogs loaded")
+    bot.logger.info("All Extensions loaded")

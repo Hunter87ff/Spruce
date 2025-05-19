@@ -72,7 +72,7 @@ class ScrimCog(commands.Cog):
         registration_channel:discord.TextChannel, 
         idp_role:discord.Role
     ):
-        if not await config.is_dev(interaction): return
+        if not await self.bot.helper.is_dev(interaction): return
 
         # Check if the channel is already registered
         if self.bot.db.scrims.find_one({"channel_id": registration_channel.id}):
@@ -110,10 +110,10 @@ class ScrimCog(commands.Cog):
         await interaction.response.send_message("Scrim created successfully")
 
 
-
+    
     @commands.hybrid_command()
     async def slotlist(self, ctx:commands.Context, channel:discord.TextChannel):
-        if await config.is_dev(ctx) == False: return
+        if await self.bot.helper.is_dev(ctx) == False: return
         _data = self.bot.db.scrims.find_one({"channel_id": channel.id})
         if not _data:
             return await ctx.send("No scrim found for this channel")

@@ -7,6 +7,7 @@
  of this license document, but changing it is not allowed.
 """
 import os
+from typing import TYPE_CHECKING
 from asyncio import sleep
 from modules import config
 from discord.ext import commands
@@ -14,13 +15,17 @@ from discord import  Embed, Role, File, Member, utils, Guild, Message, app_comma
 from ext import constants,  color
 cmd = commands
 
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+
+
 class RoleCog(commands.Cog):
     """
     ## RoleCog Class
     This class contains commands for managing roles in a Discord server.
     """
-    def __init__(self, bot):
-        self.bot:commands.Bot = bot
+    def __init__(self, bot:"Spruce"):
+        self.bot = bot
 
     @cmd.command(aliases=["croles"])
     @commands.has_permissions(manage_roles=True)
@@ -53,7 +58,7 @@ class RoleCog(commands.Cog):
             else:
                 await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
                 await sleep(2)
-        await msg.edit(content=None, embed=Embed(color=config.cyan, description=f"{config.tick} | Roles Successfully Deleted", delete_after=30))
+        await msg.edit(content=None, embed=Embed(color=self.bot.color.cyan, description=f"{config.tick} | Roles Successfully Deleted", delete_after=30))
 
 
     async def message_role(self, ctx:commands.Context, role:Role, ms:Message, bt:Member):

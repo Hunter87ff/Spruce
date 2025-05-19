@@ -13,7 +13,6 @@ from asyncio import sleep
 from discord.ext import commands
 import datetime
 import humanfriendly
-from modules import config
 import typing
 
 if typing.TYPE_CHECKING:
@@ -34,11 +33,11 @@ class ModerationCog(commands.Cog):
     async def lock(self, ctx:commands.Context, role: discord.Role=None):
         await ctx.defer()
         if ctx.author.bot: return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+       
         if not role:role = ctx.guild.default_role
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(send_messages=False)
-        await ctx.send(f'**{config.tick} Channel has been locked for `{role.name}`**', delete_after=5)
+        await ctx.send(f'**{self.bot.emoji.tick} Channel has been locked for `{role.name}`**', delete_after=5)
         await ctx.channel.set_permissions(role, overwrite=overwrite)
             
 
@@ -50,13 +49,13 @@ class ModerationCog(commands.Cog):
     async def unlock(self, ctx:commands.Context, role: discord.Role=None, channel:discord.TextChannel=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
+        
         channel = channel or ctx.channel
         role = role or ctx.guild.default_role
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
-        await ctx.send(f'**{config.tick} | {channel.mention} has been unlocked from `{role.name}`**', delete_after=5)
+        await ctx.send(f'**{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`**', delete_after=5)
 
 
 
@@ -67,13 +66,13 @@ class ModerationCog(commands.Cog):
     async def hide(self, ctx:commands.Context, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+       
         role = role or ctx.guild.default_role
         channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(view_channel=False)
         await channel.set_permissions(role, overwrite=overwrite)
-        return await ctx.send(embed=discord.Embed(description=f'{config.tick} | This channel is now hidden to {role.mention}'), delete_after=30)
+        return await ctx.send(embed=discord.Embed(description=f'{self.bot.emoji.tick} | This channel is now hidden to {role.mention}'), delete_after=30)
         
         
     @commands.hybrid_command(with_app_command = True)
@@ -85,12 +84,12 @@ class ModerationCog(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         bt = ctx.guild.get_member(self.bot.user.id)
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        ms:discord.Message = await ctx.send(f"**{config.loading} Processing...**")
+       
+        ms:discord.Message = await ctx.send(f"**{self.bot.emoji.loading} Processing...**")
         if role:
             if role.position < bt.top_role.position:
                 await role.edit(permissions=discord.Permissions(permissions=0))
-                emb = discord.Embed(description=f'{config.tick} | All Permissions Removed from {role.mention}')
+                emb = discord.Embed(description=f'{self.bot.emoji.tick} | All Permissions Removed from {role.mention}')
                 return await ms.edit(content=None, embed=emb)
             
         elif not role:
@@ -98,7 +97,7 @@ class ModerationCog(commands.Cog):
                 if role.position < bt.top_role.position:
                     await role.edit(permissions=discord.Permissions(permissions=0))
                     await sleep(1)
-            emb = discord.Embed(descriptio=f'{config.tick} | All permissions removed from all role below {bt.top_role.mention}')
+            emb = discord.Embed(descriptio=f'{self.bot.emoji.tick} | All permissions removed from all role below {bt.top_role.mention}')
             return await ms.edit(content=None, embed=emb)
 
 
@@ -111,15 +110,14 @@ class ModerationCog(commands.Cog):
     async def unhide(self, ctx:commands.Context, role: typing.Union[discord.Role, discord.Member]=None, channel:typing.Union[discord.TextChannel, discord.VoiceChannel]=None):
         if ctx.author.bot:return
         await ctx.defer()
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         role = role or ctx.guild.default_role
         channel = channel or ctx.channel
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(view_channel=True)
         await channel.set_permissions(role, overwrite=overwrite)
         return await ctx.send(
-            embed=discord.Embed(description=f'{config.tick} | This channel is now visible to {role.mention}'), 
+            embed=discord.Embed(description=f'{self.bot.emoji.tick} | This channel is now visible to {role.mention}'), 
             delete_after=30
         )
         
@@ -132,15 +130,15 @@ class ModerationCog(commands.Cog):
     async def lock_category(self, ctx:commands.Context, category: discord.CategoryChannel, role:discord.Role=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        ms = await ctx.send(f'**{config.loading} Processing...**')
+       
+        ms = await ctx.send(f'**{self.bot.emoji.loading} Processing...**')
         role:discord.Role = role or  ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
             overwrite.update(send_messages=False)
             await hchannel.set_permissions(role, overwrite=overwrite)
             await sleep(1)
-        try:await ms.edit(content=f'**{config.tick} | Successfully Locked {category.name} From `{role.name}`**')
+        try:await ms.edit(content=f'**{self.bot.emoji.tick} | Successfully Locked {category.name} From `{role.name}`**')
         except Exception:return
             
 
@@ -153,9 +151,8 @@ class ModerationCog(commands.Cog):
     async def unlock_category(self, ctx:commands.Context,category: discord.CategoryChannel, role:discord.Role=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
-        ms:discord.Message = await ctx.send(f'**{config.loading} Processing...**')
+        
+        ms:discord.Message = await ctx.send(f'**{self.bot.emoji.loading} Processing...**')
         role = role or ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
@@ -163,7 +160,7 @@ class ModerationCog(commands.Cog):
             await hchannel.set_permissions(role, overwrite=overwrite)
             await sleep(1)
             if ms:
-                await ms.edit(content=f'**{config.tick} | Successfully Unlocked {category.name}**')
+                await ms.edit(content=f'**{self.bot.emoji.tick} | Successfully Unlocked {category.name}**')
 
 
 
@@ -175,8 +172,7 @@ class ModerationCog(commands.Cog):
     async def hide_category(self, ctx:commands.Context,category: discord.CategoryChannel, role:discord.Role=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         role = role or ctx.guild.default_role
         for hchannel in category.channels:
             overwrite = hchannel.overwrites_for(role)
@@ -199,8 +195,7 @@ class ModerationCog(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:
             return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         role = role or ctx.guild.default_role
         for uhchannel in category.channels:
             overwrite = uhchannel.overwrites_for(role)
@@ -227,7 +222,7 @@ class ModerationCog(commands.Cog):
         if self.bot.is_ws_ratelimited():
             if ctx.me.guild_permissions.send_messages:
                 return await ctx.send(
-                    f"**Rate limited!!.. please try again later**", 
+                    "**Rate limited!!.. please try again later**", 
                     delete_after=5
                 )
         
@@ -257,8 +252,7 @@ class ModerationCog(commands.Cog):
     async def unmute(self, ctx:commands.Context, member: discord.Member, *, reason=None):
         await ctx.defer()
         if ctx.author.bot:return
-        elif not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         elif ctx.author.top_role.position <= member.top_role.position:
             return await ctx.reply("You Can Not Manage Him")
         elif ctx.me.top_role.position <= member.top_role.position:
@@ -283,8 +277,7 @@ class ModerationCog(commands.Cog):
     async def mute(self, ctx:commands.Context, member: discord.Member, time=None, *, reason=None):
         await ctx.defer()
         if ctx.author.bot:return
-        elif not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         elif ctx.author.top_role.position <= member.top_role.position:
             return await ctx.reply("You Can Not Manage Him")
         elif ctx.me.top_role.position <= member.top_role.position:
@@ -308,8 +301,7 @@ class ModerationCog(commands.Cog):
     async def kick(self, ctx:commands.Context, member: discord.Member, reason=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         if ctx.author.top_role.position < member.top_role.position:
             await ctx.send("You don't have enough permission")
         elif member == ctx.author:
@@ -330,8 +322,7 @@ class ModerationCog(commands.Cog):
     async def ban(self, ctx:commands.Context, member: discord.Member, reason=None):
         await ctx.defer()
         if ctx.author.bot: return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         if ctx.author.top_role.position < member.top_role.position:
             await ctx.send(f"{member}'s role is higher than yours", delete_after=5)
         elif member == ctx.author:
