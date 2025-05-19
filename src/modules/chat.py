@@ -6,8 +6,9 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
  """
+import traceback
+from requests import post
 from typing import TYPE_CHECKING
-from modules import config
 from discord import Message, File
 from discord.ext import commands
 import google.generativeai as genai
@@ -39,7 +40,7 @@ class ChatClient:
             self.chat_session = model.start_chat(history=constants.history)
 
         except Exception as e:
-            config.webpost(url=self.db.cfdata["dml"], json={"content":f"```py\n{e}\n```"})
+            post(url=self.db.cfdata["dml"], json={"content":f"```py\n{e}\n```"})
 
 
     def is_bws(self, query:str) -> bool:
@@ -57,7 +58,7 @@ class ChatClient:
         elif not message.reference or not message.reference.resolved:return False
         elif message.reference.resolved.author.id == bot.user.id:return True
         return None
-
+    
 
     async def chat(self, message:Message):
         """
@@ -78,7 +79,12 @@ class ChatClient:
                     self.chat_session.history.append({"role": "model","parts": [message.content]})
 
             text = message.content.replace(f"<@{self.bot.user.id}>", "").strip()
-            response = self.chat_session.send_message(text).text
+
+            # Check if the message is empty after stripping mentions and whitespace
+            if not text:
+                response = "I noticed you mentioned me, but didn't provide any message. How can I help you today?"
+            else:
+                response = self.chat_session.send_message(content=text).text
 
             # if the response is too long, send it as a file
             if len(response) > 2000:
@@ -87,6 +93,8 @@ class ChatClient:
                 return await message.reply(file=File("response.txt"))
             else:
                 return await message.reply(response)
+            
         except Exception as e:
-            config.webpost(url=self.db.cfdata["dml"], json={"content":f"{message.author}```\n{e}\n```"})
+            # traceback.print_exc()
+            post(url=self.db.cfdata["dml"], json={"content":f"{message.author}```\n{traceback.format_exc()}\n```"})
 

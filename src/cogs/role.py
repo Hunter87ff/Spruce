@@ -8,41 +8,44 @@
 """
 import os
 from asyncio import sleep
-from modules import config
 from discord.ext import commands
-from discord import  Embed, Role, File, Member, utils, Guild, Message, app_commands, Interaction
 from ext import constants,  color
-cmd = commands
+from discord import  Embed, Role, File, Member, utils, Message, app_commands, Interaction
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+
 
 class RoleCog(commands.Cog):
     """
     ## RoleCog Class
     This class contains commands for managing roles in a Discord server.
     """
-    def __init__(self, bot):
-        self.bot:commands.Bot = bot
+    def __init__(self, bot:"Spruce"):
+        self.bot = bot
 
-    @cmd.command(aliases=["croles"])
+    @commands.command(aliases=["croles"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def create_roles(self, ctx:commands.Context, *names:str):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+        
         for role in names:
             await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
             await sleep(1)
-        await ctx.send(embed=Embed(description=f"{config.tick} | All roles created"), delete_after=5)
+        await ctx.send(embed=Embed(description=f"{self.bot.emoji.tick} | All roles created"), delete_after=5)
 
 
-    @cmd.command(aliases=["droles"])
+    @commands.command(aliases=["droles"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def del_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
             
-        msg = await ctx.send(f"{config.loading} {constants.PROCESSING}")
+        msg = await ctx.send(f"{self.bot.emoji.loading} {constants.PROCESSING}")
         for role in roles:
             if ctx.author.top_role.position < role.position:
                 return await ctx.send("Role Is Higher Than Your Top Role", delete_after=5)
@@ -53,11 +56,12 @@ class RoleCog(commands.Cog):
             else:
                 await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
                 await sleep(2)
-        await msg.edit(content=None, embed=Embed(color=config.cyan, description=f"{config.tick} | Roles Successfully Deleted", delete_after=30))
+        await msg.edit(content=None, embed=Embed(color=self.bot.color.cyan, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted", delete_after=30))
 
 
     async def message_role(self, ctx:commands.Context, role:Role, ms:Message, bt:Member):
-        if not ctx.message.reference:return await ms.edit(content="**Please reply to a message or mention users to give them a role**")
+        if not ctx.message.reference:
+            return await ms.edit(content="**Please reply to a message or mention users to give them a role**")
         message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         given = []
         for user in message.mentions:
@@ -77,12 +81,12 @@ class RoleCog(commands.Cog):
 
 
 
-    @cmd.command(aliases=["role"])
+    @commands.command(aliases=["role"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def give_role(self, ctx:commands.Context, role: Role, *users: Member):
-        if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+        if ctx.author.bot:
+            return
         ms:Message = await ctx.send(f"{constants.PROCESSING}")
         given = []
         if ctx.me.top_role.position <= role.position and ms:return await ms.edit(content="```\nMy Top Role position Is not higher enough\n```")
@@ -115,14 +119,15 @@ class RoleCog(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def remove_members(self, interaction: Interaction, role: Role, reason: str = None):
-        if interaction.user.bot:return
-        await interaction.response.send_message(f"{config.loading} | {constants.PROCESSING}", ephemeral=True)
+        if interaction.user.bot:
+            return
+        await interaction.response.send_message(f"{self.bot.emoji.loading} | {constants.PROCESSING}", ephemeral=True)
         if reason is None:
             reason = f"{role} removed from everyone by {interaction.user}"
         for member in role.members:
             await member.remove_roles(role, reason=reason)
             await sleep(2)
-        await interaction.followup.send(content=f"**{config.tick} | {role} Removed from everyone**", ephemeral=True)
+        await interaction.followup.send(content=f"**{self.bot.emoji.tick} | {role} Removed from everyone**", ephemeral=True)
 
 
 
@@ -133,8 +138,7 @@ class RoleCog(commands.Cog):
     @commands.bot_has_guild_permissions(send_messages=True, manage_roles=True)
     async def inrole(self, interaction:Interaction, role:Role):
         if interaction.user.bot:return
-        elif not await config.voted(interaction, bot=self.bot):
-            return await interaction.response.send_message("You need to vote to use this command", ephemeral=True)
+
         elif len(role.members) > 400:
             return await interaction.response.send_message("Too many members to show!!", ephemeral=True)
         elif (len(role.members) == 0):
@@ -154,15 +158,14 @@ class RoleCog(commands.Cog):
 
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.guild_only()
     async def port(self, ctx:commands.Context, role1: Role, role2: Role, reason=None):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         bt = ctx.guild.get_member(self.bot.user.id)
         if role2.position > bt.top_role.position:
             return await ctx.send("I Can't Manage This Role, It is Higher Than My Top Role")
@@ -171,24 +174,23 @@ class RoleCog(commands.Cog):
         await ctx.reply("If You're Running this command by mistake! You Can Run `&help ra_role`")
         if reason == None:
             reason = f"{role2.name} added by {ctx.author}"
-        msg = await ctx.send(f"**{config.loading} {constants.PROCESSING}**")
+        msg = await ctx.send(f"**{self.bot.emoji.loading} {constants.PROCESSING}**")
         for m in role1.members:
             if m.top_role.position < bt.top_role.position:
                 await m.add_roles(role2, reason=reason)
                 await sleep(1)
 
-        await msg.edit(content=f"{config.tick} **Role Added Successfully.**", delete_after=30)
+        await msg.edit(content=f"{self.bot.emoji.tick} **Role Added Successfully.**", delete_after=30)
 
 
 
-    @cmd.command()
+    @commands.command()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.guild_only()
     async def remove_role(self, ctx:commands.Context, role:Role, *users: Member):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         bt = ctx.guild.get_member(self.bot.user.id)
         for user in users:
             if ctx.author.top_role.position < user.top_role.position:
@@ -203,14 +205,13 @@ class RoleCog(commands.Cog):
 
 
 
-    @cmd.command()
+    @commands.command()
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def add_roles(self, ctx:commands.Context, user:Member, *roles:Role):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         bt = ctx.guild.get_member(self.bot.user.id)
         for role in roles:
             if bt.top_role.position > role.position:
@@ -223,7 +224,7 @@ class RoleCog(commands.Cog):
         return await ctx.message.add_reaction("✅")
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
@@ -234,7 +235,7 @@ class RoleCog(commands.Cog):
         if role.permissions.administrator:
             return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
         if ctx.author.top_role.position <= role.position:
-            return await prs.edit(content=f"**{config.cross}You Can't Manage This Role | The role should be higher than your top role.**")
+            return await prs.edit(content=f"**{self.bot.emoji.cross}You Can't Manage This Role | The role should be higher than your top role.**")
 
         if utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
             return await prs.edit(content="I can't manage This role")
@@ -244,10 +245,10 @@ class RoleCog(commands.Cog):
             if not member.bot:
                 await member.add_roles(role, reason=f"role all command used by {ctx.author}")
                 await sleep(3)
-        await prs.edit(content=None, embed=Embed(color=0x00ff00, description=f"**{config.tick} | {role.mention} Given To All These Humans**"))
+        await prs.edit(content=None, embed=Embed(color=0x00ff00, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
@@ -270,34 +271,34 @@ class RoleCog(commands.Cog):
             if member.bot:
                 await member.add_roles(role, reason=f"role all command used by {ctx.author}")
                 await sleep(2)
-        await prs.edit(content=None, embed=Embed(color=0x000fff, description=f"**{config.tick} | {role.mention} Given To All Bots**"))
+        await prs.edit(content=None, embed=Embed(color=0x000fff, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All Bots**"))
 
 
-    @cmd.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def hide_roles(self, ctx:commands.Context):
         await ctx.defer()
         if ctx.author.bot:return
-        msg = await ctx.send(f'{config.loading}** {constants.PROCESSING}**')
+        msg = await ctx.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**')
         roles = ctx.guild.roles
         for role in roles:
             if role.position < ctx.author.top_role.position:
                     try:await role.edit(hoist=False)
                     except Exception:pass
-        await msg.edit(content=f"{config.tick} Done", delete_after=10)
+        await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10)
 
 
-    @cmd.command()
+    @commands.command()
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def unhide_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
-        msg = await ctx.send(f'{config.loading}** {constants.PROCESSING}**')
+        msg = await ctx.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**')
         for role in roles:
             if role.position < ctx.author.top_role.position:
                 try:await role.edit(hoist=True)
                 except Exception:pass
-        await msg.edit(content=f"{config.tick} Done", delete_after=10)
+        await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10)

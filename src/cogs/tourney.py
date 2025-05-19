@@ -12,11 +12,10 @@ import discord
 import datetime
 import asyncio
 from asyncio import sleep
-from discord.utils import get
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord.ui import Button, View
-from modules import config, checker
+from modules import checker
 from ext import constants, permissions, Tourney, emoji, color, files
 
 if TYPE_CHECKING:
@@ -38,7 +37,7 @@ class EsportsCog(commands.Cog):
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
 
     def __init__(self, bot:'Spruce'):
-        self.bot = bot
+        self.bot:"Spruce" = bot
         self.dbc = bot.db.dbc
         self._tnotfound = "Tournament Not Found"
 
@@ -198,11 +197,12 @@ class EsportsCog(commands.Cog):
     @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
     async def tourney_setup(self, ctx:commands.Context, total_slot:int, mentions:int, slot_per_group:int,  *, name:str):
+        if ctx.author.bot:
+            return None
+
         if slot_per_group < 1:
             return await ctx.send("Slot Per Group Should Be 1 or above")
-        if ctx.author.bot:return None
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)            
+    
         front = get_front(name)
         try:
             ms = await ctx.send(constants.PROCESSING)
@@ -308,8 +308,7 @@ class EsportsCog(commands.Cog):
     async def girls_lobby(self, ctx:commands.Context, vc_amount : int):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         snd = await ctx.send(f"{emoji.loading} | {constants.PROCESSING}")
         cat = await ctx.guild.create_category(name="GIRLS LOBBY")
         crl = await ctx.guild.create_role(name="GIRLS LOBBY", color=0xD02090)
@@ -354,7 +353,7 @@ class EsportsCog(commands.Cog):
         if not dbcd:
             return await ctx.send('No Tournament Running In This Channel')
         self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"status" : "paused"}})
-        await registration_channel.send(embed=discord.Embed(color=config.orange, description="Registration Paused"))
+        await registration_channel.send(embed=discord.Embed(color=self.bot.color.orange, description="Registration Paused"))
         await ctx.send("Paused", delete_after=10)
 
         
@@ -365,8 +364,7 @@ class EsportsCog(commands.Cog):
     async def cancel_slot(self, ctx:commands.Context, registration_channel : discord.TextChannel, member : discord.Member, reason:str="Not Provided"):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         dbcd = self.dbc.find_one({"rch" : registration_channel.id})
         if not dbcd:
             return await ctx.send(embed=discord.Embed(description=f"**{self._tnotfound}**", color=color.red), delete_after=10)
@@ -395,8 +393,7 @@ class EsportsCog(commands.Cog):
     async def add_slot(self, ctx:commands.Context, registration_channel: discord.TextChannel, member:discord.Member, *, team_name):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         if tmrole == None:tmrole = await ctx.guild.create_role("tourney-mod")
         if ctx.author.guild_permissions.manage_channels or tmrole in ctx.author.roles:
@@ -426,10 +423,10 @@ class EsportsCog(commands.Cog):
     @commands.guild_only()
     async def tourneys(self, ctx:commands.Context):
         if ctx.author.bot:return 
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+
         await ctx.defer(ephemeral=True)
         ms = await ctx.send(constants.PROCESSING)
-        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=config.invite_url, color=0x00ff00)
+        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=self.bot.config.invite_url, color=0x00ff00)
         data  = self.dbc.find({"pub" : "yes"})
         for i in data:
             obj = Tourney(i)
@@ -457,8 +454,7 @@ class EsportsCog(commands.Cog):
     async def publish(self, ctx:commands.Context, rch: discord.TextChannel, *, prize: str):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         if len(prize) > 30:
             return await ctx.reply("Only 30 Letters Allowed ")
         try:
@@ -529,8 +525,7 @@ class EsportsCog(commands.Cog):
     async def tourney(self, ctx:commands.Context, registration_channel: discord.TextChannel):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot): 
-            return await config.vtm(ctx)
+
         pub = ""
         rch = registration_channel
         tdb:dict = self.dbc.find_one({"rch": rch.id})   
@@ -568,7 +563,7 @@ class EsportsCog(commands.Cog):
             )
             emb.set_footer(
                 text=f"Requested By {ctx.author}", 
-                icon_url=ctx.author.avatar.url or ctx.me.avatar.url
+                icon_url=ctx.author.avatar or ctx.me.avatar
             )
             for button in buttons:
                 view.add_item(button)
@@ -938,8 +933,8 @@ class EsportsCog(commands.Cog):
                     tourn.spg = spg
 
                 except Exception as e :
-                    await self.bot.get_channel(config.erl).send(
-                        content=f"<@{config.owner_id}>",
+                    await self.bot.get_channel(self.bot.config.erl).send(
+                        content=f"<@{self.bot.config.owner_id}>",
                         embed=discord.Embed(
                             title=f"Error | {ctx.command.name}\n `Module : core.tourney | Line : 632`", description=f"```{e}```", 
                             color=color.red
@@ -1005,7 +1000,7 @@ class EsportsCog(commands.Cog):
     async def group_setup(self, ctx:commands.Context, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
-        elif not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
+
         elif start < 1:return await ctx.reply("Starting Number Should Not Be Lower Than 1")
         elif end < start:return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
         ms = await ctx.send(f"{emoji.loading}| {constants.PROCESSING}")
@@ -1028,8 +1023,7 @@ class EsportsCog(commands.Cog):
     @commands.bot_has_guild_permissions(send_messages=True, manage_messages=True)
     @commands.has_permissions(manage_messages=True)
     async def change_slot(self, ctx:commands.Context, *, slot:str):
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+
         await ctx.defer(ephemeral=True)
         if not ctx.message.reference:
             return await ctx.reply(
@@ -1063,7 +1057,6 @@ class EsportsCog(commands.Cog):
     @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
     async def tourney_reset(self, ctx:commands.Context, channel: discord.TextChannel):
         if ctx.author.bot:return 
-        if not await config.voted(ctx, bot=self.bot): return await config.vtm(ctx)
         td = self.dbc.find_one({"rch" : channel.id})
         tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
         if tmrole not in ctx.author.roles:return await ctx.reply("You Don't Have `tourney-mod` role")

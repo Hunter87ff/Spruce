@@ -11,7 +11,6 @@ import discord
 from discord.ext import commands
 from asyncio import sleep
 from discord.ui import Button, View
-from modules import config
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -32,12 +31,11 @@ class ChannelCog(commands.Cog):
     @commands.bot_has_permissions(manage_channels=True)
     async def channel_make(self, ctx:commands.Context,  *names):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
         ms = await ctx.send("Processing...")
         for name in names:
             await ctx.guild.create_text_channel(name, reason=f"created by : {ctx.author}")
             await sleep(1)
-        await ms.edit(content=f'**{config.tick} | All channels Created.**')
+        await ms.edit(content=f'**{self.bot.emoji.tick} | All channels Created.**')
         
 
     @commands.command(aliases=['chd'])
@@ -49,7 +47,7 @@ class ChannelCog(commands.Cog):
         for ch in channels:
             await ch.delete(reason=f"deleted by: {ctx.author}")
             await sleep(1)
-        await ms.edit(content=f'**{config.tick} | Channels deleted Successfully**')
+        await ms.edit(content=f'**{self.bot.emoji.tick} | Channels deleted Successfully**')
         
 
     @commands.hybrid_command(with_app_commands=True, aliases=['dc'])
@@ -59,8 +57,7 @@ class ChannelCog(commands.Cog):
     async def delete_category(self, ctx:commands.Context,  category: discord.CategoryChannel):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="dcd_btn")
         bt12 = Button(label="Cancel", style=discord.ButtonStyle.green, custom_id="dcc_btn")
         view = View()
@@ -90,7 +87,7 @@ class ChannelCog(commands.Cog):
                 - Sends a success message after completion
             """
 
-            emb = discord.Embed(color=0x00ff00, description=f"**{config.loading} | Deleting `{category.name}` Category**")
+            emb = discord.Embed(color=0x00ff00, description=f"**{self.bot.emoji.loading} | Deleting `{category.name}` Category**")
             await del_t_con.edit(content=None, embed=emb, view=None)
             for channel in category.channels:
                 try:
@@ -99,7 +96,7 @@ class ChannelCog(commands.Cog):
                     if len(category.channels) == 0:
                         await category.delete()
                         return await del_t_con.edit(
-                            embed=discord.Embed( description=f"**{config.tick} | Successfully Deleted ~~{category.name}~~ Category**")
+                            embed=discord.Embed( description=f"**{self.bot.emoji.tick} | Successfully Deleted ~~{category.name}~~ Category**")
                         ) if del_t_con else None
                 except Exception as e:
                     self.bot.logger.error(f"core.channel Line: 95 | Error deleting channel {channel.name}: {e}")
@@ -118,9 +115,11 @@ class ChannelCog(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_guild_permissions(manage_channels=True, manage_messages=True)
     async def create_channel(self, ctx:commands.Context,  category:discord.CategoryChannel, *names:str):
-        if ctx.author.bot:return
-        ms = await ctx.send(embed=discord.Embed(description=f"**{config.loading} | Creating Channels...**"))
-        for name in names:await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-        await ms.edit(embed=discord.Embed(description=f"**{config.default_tick} | All Channels Created**", color=0x00ff00))
+        if ctx.author.bot:
+            return
+        ms = await ctx.send(embed=discord.Embed(description=f"**{self.bot.emoji.loading} | Creating Channels...**"))
+        for name in names:
+            await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
+        await ms.edit(embed=discord.Embed(description=f"**{self.bot.emoji.default_tick} | All Channels Created**", color=0x00ff00))
     
 
