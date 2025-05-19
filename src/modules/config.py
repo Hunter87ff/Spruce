@@ -14,7 +14,7 @@ from ext import Logger
 from ext import Database
 
 logger = Logger
-SHARDS =  int(env.get("SHARDS"), 20)
+SHARDS = int(env.get("SHARDS", 20))
 version = env.get("version", "2.0.6")
 bot_id = 931202912888164474
 owner_id = 885193210455011369
