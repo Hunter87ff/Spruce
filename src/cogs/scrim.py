@@ -6,7 +6,6 @@ from discord.ext import commands
 from discord.ext import tasks
 import discord, re, pytz
 from datetime import datetime
-from modules import config
 from modules.bot import Spruce
 from ext.constants import TimeZone
 

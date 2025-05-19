@@ -30,7 +30,7 @@ support_server = "https://discord.gg/vMnhpAyFZm"
 
 invite_url2 = f"https://discord.com/oauth2/authorize?client_id={bot_id}&permissions=8&scope=bot"
 support_server_id = 947443790053015623
-prefix = env.get("prefix", "&")
+PREFIX = env.get("PREFIX", "&")
 SLEEP_TIME = 21464 #service restart
 gh_action = f"https://api.github.com/repos/{MAINTAINER}/spruce/actions/workflows/py_application.yml/dispatches"
 gh_action_run = f"https://api.github.com/repos/{MAINTAINER}/Spruce/actions/workflows/py_application.yml/runs"

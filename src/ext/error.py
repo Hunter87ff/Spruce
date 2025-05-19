@@ -77,7 +77,7 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
     cmdnf = bot.get_channel(config.cmdnf)
     try:
         if isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.send(embed=Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `{config.prefix}help {ctx.command.name}` to get Instructions"))
+            return await ctx.send(embed=Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `{config.PREFIX}help {ctx.command.name}` to get Instructions"))
         elif isinstance(error, commands.DisabledCommand):
             return await ctx.send(embed=Embed(color=0xff0000, description="This Command Is Currently Disabled! You Can Try Again Later"))
         elif isinstance(error, commands.CommandNotFound):

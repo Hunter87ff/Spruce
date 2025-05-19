@@ -11,10 +11,13 @@
 import datetime
 import os, random, requests, enum, uuid, psutil
 from discord.ext import commands
-from modules import config
+from typing import TYPE_CHECKING
 from discord.ui import Button, View 
 from gtts import gTTS
 from ext import constants, emoji, color
+if TYPE_CHECKING:
+    from modules.bot import Spruce
+
 from discord import (
     Embed,
     User, 
@@ -45,14 +48,14 @@ def trn(token, fr:str, to:str, text:str):
 	else: return "Something went wrong! please try again later."
 	
 class UtilityCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot:commands.Bot = bot
+    def __init__(self, bot:"Spruce"):
+        self.bot = bot
         self.counter = 0
 
 
     @app_commands.command()
     async def translate(self, interaction:Interaction, fr:constants.NaturalLang, to:constants.NaturalLang, *, message:str):
-        return await interaction.response.send_message(embed=Embed(description=trn(config.get_db().cfdata.get("trnsl"), fr.value, to.value, message), color=color.blurple), ephemeral=True)
+        return await interaction.response.send_message(embed=Embed(description=trn(self.bot.db.cfdata.get("trnsl"), fr.value, to.value, message), color=color.blurple), ephemeral=True)
 
 
 
@@ -60,10 +63,9 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def uptime(self, ctx:commands.Context):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         await ctx.defer(ephemeral=True)
-        try:sch = self.bot.get_channel(config.stl)
+        try:sch = self.bot.get_channel(self.bot.config.stl)
         except Exception:return
         messages = [message async for message in sch.history(limit=3)]
         uptime = ctx.message.created_at - messages[0].created_at
@@ -92,8 +94,7 @@ class UtilityCog(commands.Cog):
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def avatar(self, ctx:commands.Context, user: User = None):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         await ctx.defer(ephemeral=True)
         user = user or ctx.author
         if "a_" in str(user.avatar):
@@ -123,8 +124,7 @@ class UtilityCog(commands.Cog):
     @commands.bot_has_permissions(embed_links=True)
     async def server_av(self, ctx:commands.Context, guild:Guild=None):
         await ctx.defer(ephemeral=True)
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         guild = guild or ctx.guild
         if guild.icon != None:
             enm = Embed(title=guild.name, url=guild.icon, color=color.red)
@@ -139,8 +139,7 @@ class UtilityCog(commands.Cog):
     @commands.hybrid_command(with_app_command = True, aliases=["bnr"])
     async def banner(self, ctx:commands.Context, user:User=None):
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         if user == None:user = ctx.author
         usr = await self.bot.fetch_user(user.id)
         banner = usr.banner
@@ -158,8 +157,7 @@ class UtilityCog(commands.Cog):
     async def embed(self, ctx:commands.Context, *, message):
         await ctx.defer()
         if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):
-            return await config.vtm(ctx)
+        
         embed = Embed(description=message, color=color.blue)
         await ctx.channel.purge(limit=1)
         await ctx.send(embed=embed)
@@ -169,9 +167,10 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def tts(self, ctx:commands.Context, *, message:str):
         await ctx.defer(ephemeral=True)
-        if ctx.author.bot:return
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
-        bws:set[str] = set(config.get_db().bws)
+        if ctx.author.bot:
+            return
+        
+        bws:set[str] = set(self.bot.db.bws)
 
         if len(message.split()) > 150 and len(message)<=1000:
             return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
@@ -208,7 +207,7 @@ class UtilityCog(commands.Cog):
             msg = random.choice(constants.whois)
         if user.bot == True:
             return await ctx.send("**Bot is always awesome**")
-        elif user.id == config.owner_id:
+        elif user.id == self.bot.config.owner_id:
             owneremb = Embed(description=f"{user.mention} **Best Friend :heart:**", color=color.blue)
             return await ctx.send(embed=owneremb)
         else:
@@ -233,7 +232,7 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 8, commands.BucketType.user)
     async def invite(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        invbtn = Button(label="Invite Now", url=config.invite_url2)
+        invbtn = Button(label="Invite Now", url=self.bot.config.invite_url2)
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
@@ -294,7 +293,7 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def prefix(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        await ctx.send(f"My prefix is : {config.prefix}")
+        await ctx.send(f"My prefix is : {self.bot.config.PREFIX}")
 
     @commands.hybrid_command(with_app_command = True, aliases=["mc"])
     @commands.guild_only()
@@ -302,7 +301,7 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.user)
     async def member_count(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        if not await config.voted(ctx, bot=self.bot):return await config.vtm(ctx)
+        
         emb = Embed(title="Members", description=f"{ctx.guild.member_count}", color=color.teal)
         emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
         await ctx.send(embed=emb)
@@ -391,7 +390,8 @@ class UtilityCog(commands.Cog):
     @commands.bot_has_permissions(send_messages=True, embed_links=True, manage_messages=True, manage_channels=True, manage_roles=True)
     async def setup_ticket(self, ctx:commands.Context, mod_role:Role=None, button_label:str=None, button_emoji:Emoji=None, button_color:Buttons=None, *, message:str=None):
         if ctx.author.bot:return
-        if config.prefix in ctx.message.content:return await ctx.reply("Use Slash Command to manage other properties!!", delete_after=10)
+        if self.bot.config.PREFIX in ctx.message.content:
+            return await ctx.reply("Use Slash Command to manage other properties!!", delete_after=10)
         await ctx.defer(ephemeral=True)
         ms = await ctx.send("Creating Ticket Category...")
         overwrites = {
@@ -449,8 +449,8 @@ class UtilityCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild:Guild):
         try:
-            support_server = self.bot.get_guild(config.support_server_id)
-            ch = self.bot.get_channel(config.gjoin)
+            support_server = self.bot.get_guild(self.bot.config.support_server_id)
+            ch = self.bot.get_channel(self.bot.config.gjoin)
             channel = random.choice(guild.channels)
             orole = utils.get(support_server.roles, id=1043134410029019176)
             link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
@@ -464,8 +464,8 @@ class UtilityCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild:Guild): 
-        support_server = self.bot.get_guild(config.support_server_id)
-        ch = self.bot.get_channel(config.gleave)
+        support_server = self.bot.get_guild(self.bot.config.support_server_id)
+        ch = self.bot.get_channel(self.bot.config.gleave)
         orole = utils.get(support_server.roles, id=1043134410029019176)
         msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
         for i in support_server.members:

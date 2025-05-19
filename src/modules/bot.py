@@ -48,7 +48,7 @@ class Spruce(commands.AutoShardedBot):
 
         super().__init__(
             shard_count=config.SHARDS, 
-            command_prefix= commands.when_mentioned_or(config.prefix),
+            command_prefix= commands.when_mentioned_or(config.PREFIX),
             intents=intents,
             allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name="&help")
@@ -93,7 +93,8 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def on_message(self, message:Message):
-        if helper.notuser(message):return
+        if message.author.bot:
+            return
         await self.process_commands(message)
         await self.chat_client.chat(message)
         if message.guild:

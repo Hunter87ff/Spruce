@@ -12,7 +12,6 @@ import wavelink,time, os, platform
 from threading import Thread
 from typing import cast, TYPE_CHECKING
 from time import gmtime, strftime
-from modules import config
 from discord.ext import commands
 from ext.error import update_error_log
 from discord import ButtonStyle, Interaction, Embed, Message, TextChannel
@@ -50,6 +49,9 @@ class MusicCog(commands.Cog):
     async def setup_lava_node(self):
 
         def lavalink():
+            if not os.path.exists("lava"):
+                print("Lavalink is not configured")
+
             if platform.system() == "Windows":
                 os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
             else:
@@ -59,32 +61,30 @@ class MusicCog(commands.Cog):
             """
             Sets up the Lavalink server by modifying the application.yml file with the correct credentials.
             """
-            self.bot.logger.info("Setting up Lavalink server...")
-            with open("lava/application.yml", "r") as f1:
-                content1= f1.read()
+            try:
+                self.bot.logger.info("Setting up Lavalink server...")
+                with open("lava/application.yml", "r") as f1:
+                    content1= f1.read()
 
-            content = content1.replace("spot_id", f"{self.bot.db.spot_id}").replace("spot_secret", f"{self.bot.db.spot_secret}")
-            with open("lava/application.yml", "w") as f:
-                f.write(content)
+                content = content1.replace("spot_id", f"{self.bot.db.spot_id}").replace("spot_secret", f"{self.bot.db.spot_secret}")
+                with open("lava/application.yml", "w") as f:
+                    f.write(content)
 
-            self.bot.logger.info("Starting Lavalink server...")
-            Thread(target=lavalink).start()
-            time.sleep(5)
-            with open("lava/application.yml", "w") as f: 
-                f.write(content1.replace(self.bot.db.spot_id, "spot_id").replace(self.bot.db.spot_secret, "spot_secret"))
+                self.bot.logger.info("Starting Lavalink server...")
+                Thread(target=lavalink).start()
+                time.sleep(5)
+                with open("lava/application.yml", "w") as f: 
+                    f.write(content1.replace(self.bot.db.spot_id, "spot_id").replace(self.bot.db.spot_secret, "spot_secret"))
 
+                _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
+                await wavelink.Pool.connect(nodes=_nodes, client=self.bot, cache_capacity=None)
+                self.bot.logger.info("Lavalink server connected")
 
-            if self.bot.config.LOCAL_LAVA:
-                try:
-                    _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
-                    await wavelink.Pool.connect(nodes=_nodes, client=self.bot, cache_capacity=None)
-                    self.bot.logger.info("Lavalink server connected")
-
-                except Exception as e:
+            except Exception as e:
                     self.bot.logger.error(f"Attempting to connect to Lavalink server failed: {e}")
 
 
-        if self.bot.config.LOCAL_LAVA and self.bot.ACTIVE_MODULES.music: 
+        if self.bot.ACTIVE_MODULES.music: 
            await setup_lavalink()
 
 
