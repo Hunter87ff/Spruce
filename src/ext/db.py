@@ -44,7 +44,8 @@ class Database:
                 config_doc = {}
 
             self.cfdata = dict(config_doc)
-            self.token = self.cfdata.get(os.environ.get("TOKEN_KEY", "token")) or "paste bot token here"
+            self.token = self.cfdata.get(os.environ.get("TOKEN_KEY", "token")) or "YOUR_DISCORD_BOT_TOKEN"
+
             self.GEMAPI = self.cfdata.get("gemapi")
             self.spot_id = self.cfdata.get("spot_id")
             self.spot_secret = self.cfdata.get("spot_secret")
