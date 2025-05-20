@@ -13,88 +13,102 @@ from discord import Message, File
 from discord.ext import commands
 import google.generativeai as genai
 from ext import constants, db
+from collections import defaultdict
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
 class ChatClient:
     """
-    A class to chat with user
+    An advanced AI chatbot client that uses Gemini API with contextual memory per user.
     """
-    def __init__(self, bot:'Spruce') -> None:
-        self.bot= bot #Spruce instance
-        self.db:db.Database = bot.db
+    def __init__(self, bot: 'Spruce') -> None:
+        self.bot = bot
+        self.db: db.Database = bot.db
+        self.sessions = defaultdict(lambda: None)  # user_id -> session
+        self.histories = defaultdict(lambda: [])  # user_id -> history list
+
         generation_config = {
-            "temperature": 1.5,
-            "top_p": 0.95,
-            "top_k": 64,
-            "max_output_tokens": 2000
+            "temperature": 1.2,
+            "top_p": 0.9,
+            "top_k": 40,
+            "max_output_tokens": 2048,
         }
 
         try:
             genai.configure(api_key=self.db.GEMAPI)
-            model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash", #"gemini-1.5-flash", 
+            self.model = genai.GenerativeModel(
+                model_name="gemini-2.0-pro",  # advanced model
                 generation_config=generation_config
             )
-            self.chat_session = model.start_chat(history=constants.history)
-
         except Exception as e:
-            post(url=self.db.cfdata["dml"], json={"content":f"```py\n{e}\n```"})
+            post(url=self.db.cfdata.get("dml", ""), json={"content": f"Gemini Init Failed: ```py\n{e}\n```"})
 
+    def _is_valid(self, query: str) -> bool:
+        """Block message with bad words."""
+        if not query: return False
+        query_words = set(query.lower().split())
+        return not bool(set(self.db.bws or []).intersection(query_words))
 
-    def is_bws(self, query:str) -> bool:
-        """
-        Check if the message contains blocked words such as slang, etc.
-        """
-        bw = set(query.lower().split())
-        if len(set(self.db.bws or []).intersection(bw)) > 0:return True
+    def _should_respond(self, ctx: commands.Context, message: Message) -> bool:
+        """Check if the bot should respond to a given message."""
+        if ctx.author.bot:
+            return False
+        if not message.guild:
+            return True
+        if message.reference and getattr(message.reference.resolved, "author", None) and message.reference.resolved.author.id == self.bot.user.id:
+            return True
+        return False
 
+    def _get_or_create_session(self, user_id: int):
+        """Ensure a dedicated session with history per user."""
+        if self.sessions[user_id] is None:
+            self.sessions[user_id] = self.model.start_chat(history=self.histories[user_id])
+        return self.sessions[user_id]
 
-    def check_send(self, ctx:commands.Context, message:Message, bot:commands.Bot) -> bool|None:
-        """return `True` if triggered dm or mentioned in channel, else `None`"""
-        if ctx.author.bot:return None
-        elif not message.guild:return True
-        elif not message.reference or not message.reference.resolved:return False
-        elif message.reference.resolved.author.id == bot.user.id:return True
-        return None
-    
+    def _reset_user_session(self, user_id: int):
+        """Reset session after too much history."""
+        self.histories[user_id] = []
+        self.sessions[user_id] = self.model.start_chat(history=[])
 
-    async def chat(self, message:Message):
-        """
-        Chat with user
-        """
+    async def chat(self, message: Message):
         try:
             ctx = await self.bot.get_context(message)
-            if not self.check_send(ctx, message, self.bot):return
+            if not self._should_respond(ctx, message):
+                return
+
             await ctx.typing()
-            messages = [message async for message in ctx.channel.history(limit=16)][::-1]
-            self.chat_session.history = constants.history
-            for message in messages:
+            user_id = message.author.id
 
-                if not message.author.bot:
-                    self.chat_session.history.append({"role": "user","parts": [message.content]})
+            # Maintain recent history
+            messages = [m async for m in ctx.channel.history(limit=16)][::-1]
+            for m in messages:
+                role = "user" if not m.author.bot else "model"
+                self.histories[user_id].append({"role": role, "parts": [m.content]})
 
-                elif message.author.bot: 
-                    self.chat_session.history.append({"role": "model","parts": [message.content]})
+            # Reset if too long
+            if len(self.histories[user_id]) > 30:
+                self._reset_user_session(user_id)
 
-            text = message.content.replace(f"<@{self.bot.user.id}>", "").strip()
+            session = self._get_or_create_session(user_id)
+            prompt = message.content.replace(f"<@{self.bot.user.id}>", "").strip()
 
-            # Check if the message is empty after stripping mentions and whitespace
-            if not text:
-                response = "I noticed you mentioned me, but didn't provide any message. How can I help you today?"
+            if not prompt:
+                response = "You mentioned me, but I didn't catch any question. Could you try again?"
+            elif not self._is_valid(prompt):
+                response = "⚠️ Your message contains blocked or inappropriate words."
             else:
-                response = self.chat_session.send_message(content=text).text
+                response = session.send_message(prompt).text
 
-            # if the response is too long, send it as a file
-            if len(response) > 2000:
-                with open("response.txt", "w") as f:
+            if len(response) > 1900:
+                with open("ai_reply.txt", "w", encoding="utf-8") as f:
                     f.write(response)
-                return await message.reply(file=File("response.txt"))
+                await message.reply(file=File("ai_reply.txt"))
             else:
-                return await message.reply(response)
-            
-        except Exception as e:
-            # traceback.print_exc()
-            post(url=self.db.cfdata["dml"], json={"content":f"{message.author}```\n{traceback.format_exc()}\n```"})
+                await message.reply(response)
 
+        except Exception as e:
+            error_report = traceback.format_exc()
+            post(url=self.db.cfdata.get("dml", ""), json={"content": f"{message.author.mention}```py\n{error_report}\n```"})
+
+            
