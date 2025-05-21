@@ -39,7 +39,7 @@ class Spruce(commands.AutoShardedBot):
         self.db = Database() 
         self.devs:list[int] = self.db.cfdata.get("devs")
         self.logger:Logger = Logger
-        self.chat_client = ChatClient(self)
+        #self.chat_client = ChatClient(self)
         self.helper = helper
         self.color = color
         self.emoji = emoji
@@ -96,7 +96,7 @@ class Spruce(commands.AutoShardedBot):
         if message.author.bot:
             return
         await self.process_commands(message)
-        await self.chat_client.chat(message)
+        #await self.chat_client.chat(message) # emporarily disabled for the migration 
         if message.guild:
             await message_handle.tourney(message)
             await helper.vote_check(message)
