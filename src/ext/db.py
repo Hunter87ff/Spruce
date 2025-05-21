@@ -46,14 +46,14 @@ class Database:
             self.cfdata = dict(config_doc)
             self.token = self.cfdata.get(os.environ.get("TOKEN_KEY", "token")) or "YOUR_DISCORD_BOT_TOKEN"
 
-            self.GEMAPI = self.cfdata.get("gemapi")
-            self.spot_id = self.cfdata.get("spot_id")
-            self.spot_secret = self.cfdata.get("spot_secret")
-            self.bws = self.cfdata.get("bws")
-            self.m_host = self.cfdata.get("m_host")
-            self.m_host_psw = self.cfdata.get("m_host_psw")
-            self.gh_api = self.cfdata.get("gh_api")
-            self.gh_token = self.cfdata.get("gh_token", self.gh_api)
+            self.GEMAPI = self.cfdata.get("gemapi") # Gemini API key
+            self.spot_id = self.cfdata.get("spot_id") #spotify client id
+            self.spot_secret = self.cfdata.get("spot_secret") #spotify client secret
+            self.bws = self.cfdata.get("bws") # blacklisted words
+            self.m_host = self.cfdata.get("m_host") #lavalink host
+            self.m_host_psw = self.cfdata.get("m_host_psw") #lavalink password
+            self.gh_api = self.cfdata.get("gh_api") #github api
+            self.gh_token = self.cfdata.get("gh_token", self.gh_api) #github token
 
             Logger.info("Database Connected.")
 

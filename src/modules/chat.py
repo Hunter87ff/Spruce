@@ -6,14 +6,27 @@ from discord import Message, File, Interaction, Embed, ButtonStyle
 from discord.ext import commands
 from discord import app_commands, ui
 import google.generativeai as genai
-from ext import constants, db
+from ext import constants
+
+
+"""
+NOTE : 
+This entire module will be shifted to openai based handlers. so prefer not to configure gemini related features further
+"""
+
+
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
-# === SET YOUR LOG CHANNEL ID HERE ===
-LOG_CHANNEL_ID = 123456789012345678  # Replace with your Discord log channel ID
 
+class ChatSession:
+    """
+    AI Chat Session for a specific guild
+    """
+    def __init__(self, bot: 'Spruce', history: list[dict[str, str]]) -> None:
+        self.bot = bot
+        self.history = history
 
 class ChatClient:
     """
@@ -21,24 +34,23 @@ class ChatClient:
     """
     def __init__(self, bot: 'Spruce') -> None:
         self.bot = bot
-        self.db: db.Database = bot.db
-        self.sessions = {}  # {guild_id: ChatSession}
+        self.sessions : dict[ChatSession] = {}  # {guild_id: ChatSession}
 
         generation_config = {
-            "temperature": 1.5,
+            "temperature": 0.6,
             "top_p": 0.95,
             "top_k": 64,
             "max_output_tokens": 2000
         }
 
         try:
-            genai.configure(api_key=self.db.GEMAPI)
+            genai.configure(api_key=self.bot.db.GEMAPI)
             self.model = genai.GenerativeModel(
                 model_name="gemini-2.0-flash",
                 generation_config=generation_config
             )
         except Exception as e:
-            post(url=self.db.cfdata["dml"], json={"content": f"```py\n{e}\n```"})
+            post(url=self.bot.db.cfdata["dml"], json={"content": f"```py\n{e}\n```"})
 
     def _get_or_create_session(self, guild_id: int):
         if guild_id not in self.sessions:
@@ -50,7 +62,7 @@ class ChatClient:
 
     def is_bws(self, query: str) -> bool:
         bw = set(query.lower().split())
-        return len(set(self.db.bws or []).intersection(bw)) > 0
+        return len(set(self.bot.db.bws or []).intersection(bw)) > 0
 
     def check_send(self, ctx: commands.Context, message: Message, bot: commands.Bot) -> bool | None:
         if ctx.author.bot:
@@ -65,12 +77,12 @@ class ChatClient:
 
     async def log_to_channel(self, content: str, message: Message = None):
         """Send a log embed message to a dedicated Discord log channel."""
-        channel = self.bot.get_channel(LOG_CHANNEL_ID)
+        channel = self.bot.get_channel(self.bot.config.CHAT_ERROR_LOG)
         if channel is None:
             print("Log channel not found!")
             return
         
-        embed = Embed(title="ChatBot Log", color=0x3498db, timestamp=datetime.utcnow())
+        embed = Embed(title="ChatBot Log", color=0x3498db, timestamp=datetime.now())
         embed.description = content
         
         if message and message.guild:
