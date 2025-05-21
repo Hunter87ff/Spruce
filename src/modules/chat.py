@@ -114,9 +114,6 @@ class ChatClient:
             else:
                 await message.reply(response)
 
-            # Log usage
-            await self.log_to_channel("User sent a chat message and bot responded.", message)
-
         except Exception as e:
             await self.log_to_channel(f"Exception:\n```{traceback.format_exc()}```", message)
 
