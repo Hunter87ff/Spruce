@@ -14,7 +14,7 @@ from ext import Logger
 from ext import Database
 
 logger = Logger
-SHARDS = int(env.get("SHARDS", 20))
+SHARDS = int(env.get("SHARDS", 1))
 version = env.get("version", "2.0.6")
 bot_id = 931202912888164474
 owner_id = 885193210455011369
@@ -51,6 +51,7 @@ gjoin = 1028673206850179152
 gleave = 1028673254606508072
 votel = 1099588071986573362
 tdlog = 1112411458513408090
+CHAT_ERROR_LOG = 1110257961290440824
 paylog = 1233044089398755378
 
 
