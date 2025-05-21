@@ -1,7 +1,8 @@
 import traceback
+from datetime import datetime
 from requests import post
 from typing import TYPE_CHECKING
-from discord import Message, File, Interaction
+from discord import Message, File, Interaction, Embed, ButtonStyle
 from discord.ext import commands
 from discord import app_commands, ui
 import google.generativeai as genai
@@ -10,10 +11,13 @@ from ext import constants, db
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
+# === SET YOUR LOG CHANNEL ID HERE ===
+LOG_CHANNEL_ID = 123456789012345678  # Replace with your Discord log channel ID
+
 
 class ChatClient:
     """
-    AI Chat Client per guild with reset confirmation
+    AI Chat Client per guild with reset confirmation and logging
     """
     def __init__(self, bot: 'Spruce') -> None:
         self.bot = bot
@@ -59,6 +63,26 @@ class ChatClient:
             return True
         return None
 
+    async def log_to_channel(self, content: str, message: Message = None):
+        """Send a log embed message to a dedicated Discord log channel."""
+        channel = self.bot.get_channel(LOG_CHANNEL_ID)
+        if channel is None:
+            print("Log channel not found!")
+            return
+        
+        embed = Embed(title="ChatBot Log", color=0x3498db, timestamp=datetime.utcnow())
+        embed.description = content
+        
+        if message and message.guild:
+            embed.add_field(name="Guild", value=message.guild.name, inline=True)
+            embed.add_field(name="Guild ID", value=message.guild.id, inline=True)
+        if message:
+            embed.add_field(name="User", value=str(message.author), inline=True)
+            embed.add_field(name="User ID", value=message.author.id, inline=True)
+            embed.add_field(name="Message Content", value=message.content or "N/A", inline=False)
+        
+        await channel.send(embed=embed)
+
     async def chat(self, message: Message):
         try:
             ctx = await self.bot.get_context(message)
@@ -86,12 +110,15 @@ class ChatClient:
             if len(response) > 2000:
                 with open("response.txt", "w") as f:
                     f.write(response)
-                return await message.reply(file=File("response.txt"))
+                await message.reply(file=File("response.txt"))
             else:
-                return await message.reply(response)
+                await message.reply(response)
+
+            # Log usage
+            await self.log_to_channel("User sent a chat message and bot responded.", message)
 
         except Exception as e:
-            post(url=self.db.cfdata["dml"], json={"content": f"{message.author}```\n{traceback.format_exc()}\n```"})
+            await self.log_to_channel(f"Exception:\n```{traceback.format_exc()}```", message)
 
 
 # UI view for reset confirmation
@@ -101,12 +128,15 @@ class ResetConfirmView(ui.View):
         self.chat_client = chat_client
         self.guild_id = guild_id
 
-    @ui.button(label="✅ Confirm Reset", style=discord.ButtonStyle.danger)
+    @ui.button(label="✅ Confirm Reset", style=ButtonStyle.danger)
     async def confirm(self, interaction: Interaction, button: ui.Button):
         self.chat_client._reset_session(self.guild_id)
         await interaction.response.edit_message(content="🔄 Chat session reset for this server!", view=None)
+        # Log reset
+        content = f"Chat session reset confirmed.\nGuild: {interaction.guild.name} ({interaction.guild.id})\nBy User: {interaction.user} ({interaction.user.id})"
+        await self.chat_client.log_to_channel(content)
 
-    @ui.button(label="❌ Cancel", style=discord.ButtonStyle.secondary)
+    @ui.button(label="❌ Cancel", style=ButtonStyle.secondary)
     async def cancel(self, interaction: Interaction, button: ui.Button):
         await interaction.response.edit_message(content="❎ Reset cancelled.", view=None)
 
