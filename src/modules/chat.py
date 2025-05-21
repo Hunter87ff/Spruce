@@ -1,114 +1,122 @@
-"""
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2022 hunter87.dev@gmail.com
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
- """
 import traceback
 from requests import post
 from typing import TYPE_CHECKING
-from discord import Message, File
+from discord import Message, File, Interaction
 from discord.ext import commands
+from discord import app_commands, ui
 import google.generativeai as genai
 from ext import constants, db
-from collections import defaultdict
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
+
 class ChatClient:
     """
-    An advanced AI chatbot client that uses Gemini API with contextual memory per user.
+    AI Chat Client per guild with reset confirmation
     """
     def __init__(self, bot: 'Spruce') -> None:
         self.bot = bot
         self.db: db.Database = bot.db
-        self.sessions = defaultdict(lambda: None)  # user_id -> session
-        self.histories = defaultdict(lambda: [])  # user_id -> history list
+        self.sessions = {}  # {guild_id: ChatSession}
 
         generation_config = {
-            "temperature": 1.2,
-            "top_p": 0.9,
-            "top_k": 40,
-            "max_output_tokens": 2048,
+            "temperature": 1.5,
+            "top_p": 0.95,
+            "top_k": 64,
+            "max_output_tokens": 2000
         }
 
         try:
             genai.configure(api_key=self.db.GEMAPI)
             self.model = genai.GenerativeModel(
-                model_name="gemini-2.0-pro",  # advanced model
+                model_name="gemini-2.0-flash",
                 generation_config=generation_config
             )
         except Exception as e:
-            post(url=self.db.cfdata.get("dml", ""), json={"content": f"Gemini Init Failed: ```py\n{e}\n```"})
+            post(url=self.db.cfdata["dml"], json={"content": f"```py\n{e}\n```"})
 
-    def _is_valid(self, query: str) -> bool:
-        """Block message with bad words."""
-        if not query: return False
-        query_words = set(query.lower().split())
-        return not bool(set(self.db.bws or []).intersection(query_words))
+    def _get_or_create_session(self, guild_id: int):
+        if guild_id not in self.sessions:
+            self.sessions[guild_id] = self.model.start_chat(history=constants.history.copy())
+        return self.sessions[guild_id]
 
-    def _should_respond(self, ctx: commands.Context, message: Message) -> bool:
-        """Check if the bot should respond to a given message."""
+    def _reset_session(self, guild_id: int):
+        self.sessions[guild_id] = self.model.start_chat(history=constants.history.copy())
+
+    def is_bws(self, query: str) -> bool:
+        bw = set(query.lower().split())
+        return len(set(self.db.bws or []).intersection(bw)) > 0
+
+    def check_send(self, ctx: commands.Context, message: Message, bot: commands.Bot) -> bool | None:
         if ctx.author.bot:
+            return None
+        elif not message.guild:
+            return True
+        elif not message.reference or not message.reference.resolved:
             return False
-        if not message.guild:
+        elif message.reference.resolved.author.id == bot.user.id:
             return True
-        if message.reference and getattr(message.reference.resolved, "author", None) and message.reference.resolved.author.id == self.bot.user.id:
-            return True
-        return False
-
-    def _get_or_create_session(self, user_id: int):
-        """Ensure a dedicated session with history per user."""
-        if self.sessions[user_id] is None:
-            self.sessions[user_id] = self.model.start_chat(history=self.histories[user_id])
-        return self.sessions[user_id]
-
-    def _reset_user_session(self, user_id: int):
-        """Reset session after too much history."""
-        self.histories[user_id] = []
-        self.sessions[user_id] = self.model.start_chat(history=[])
+        return None
 
     async def chat(self, message: Message):
         try:
             ctx = await self.bot.get_context(message)
-            if not self._should_respond(ctx, message):
+            if not self.check_send(ctx, message, self.bot):
                 return
 
             await ctx.typing()
-            user_id = message.author.id
 
-            # Maintain recent history
-            messages = [m async for m in ctx.channel.history(limit=16)][::-1]
-            for m in messages:
-                role = "user" if not m.author.bot else "model"
-                self.histories[user_id].append({"role": role, "parts": [m.content]})
+            session = self._get_or_create_session(message.guild.id if message.guild else message.author.id)
+            session.history = constants.history.copy()
 
-            # Reset if too long
-            if len(self.histories[user_id]) > 30:
-                self._reset_user_session(user_id)
+            messages = [msg async for msg in ctx.channel.history(limit=16)][::-1]
 
-            session = self._get_or_create_session(user_id)
-            prompt = message.content.replace(f"<@{self.bot.user.id}>", "").strip()
+            for msg in messages:
+                role = "user" if not msg.author.bot else "model"
+                session.history.append({"role": role, "parts": [msg.content]})
 
-            if not prompt:
-                response = "You mentioned me, but I didn't catch any question. Could you try again?"
-            elif not self._is_valid(prompt):
-                response = "⚠️ Your message contains blocked or inappropriate words."
+            text = message.content.replace(f"<@{self.bot.user.id}>", "").strip()
+
+            if not text:
+                response = "I noticed you mentioned me, but didn't provide any message. How can I help you today?"
             else:
-                response = session.send_message(prompt).text
+                response = session.send_message(content=text).text
 
-            if len(response) > 1900:
-                with open("ai_reply.txt", "w", encoding="utf-8") as f:
+            if len(response) > 2000:
+                with open("response.txt", "w") as f:
                     f.write(response)
-                await message.reply(file=File("ai_reply.txt"))
+                return await message.reply(file=File("response.txt"))
             else:
-                await message.reply(response)
+                return await message.reply(response)
 
         except Exception as e:
-            error_report = traceback.format_exc()
-            post(url=self.db.cfdata.get("dml", ""), json={"content": f"{message.author.mention}```py\n{error_report}\n```"})
+            post(url=self.db.cfdata["dml"], json={"content": f"{message.author}```\n{traceback.format_exc()}\n```"})
 
-            
+
+# UI view for reset confirmation
+class ResetConfirmView(ui.View):
+    def __init__(self, chat_client: ChatClient, guild_id: int, timeout: int = 30):
+        super().__init__(timeout=timeout)
+        self.chat_client = chat_client
+        self.guild_id = guild_id
+
+    @ui.button(label="✅ Confirm Reset", style=discord.ButtonStyle.danger)
+    async def confirm(self, interaction: Interaction, button: ui.Button):
+        self.chat_client._reset_session(self.guild_id)
+        await interaction.response.edit_message(content="🔄 Chat session reset for this server!", view=None)
+
+    @ui.button(label="❌ Cancel", style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: Interaction, button: ui.Button):
+        await interaction.response.edit_message(content="❎ Reset cancelled.", view=None)
+
+
+# Slash command to trigger reset
+@app_commands.command(name="reset", description="Reset AI chat memory for this server")
+async def reset_chat(interaction: Interaction):
+    view = ResetConfirmView(interaction.client.chat_client, interaction.guild.id)
+    await interaction.response.send_message(
+        content="⚠️ Are you sure you want to reset AI memory for this server?",
+        view=view,
+        ephemeral=True
+    )
