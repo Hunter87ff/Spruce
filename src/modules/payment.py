@@ -18,10 +18,16 @@ from cashfree_pg.models.create_order_request import CreateOrderRequest
 from cashfree_pg.api_client import Cashfree
 from cashfree_pg.models.customer_details import CustomerDetails
 from cashfree_pg.models.order_meta import OrderMeta
-from ext import Database
+from ext import Database, Logger
+
+
 db = Database()
-Cashfree.XClientId = db.cfdata["xclient_id"]
-Cashfree.XClientSecret = db.cfdata["xclient_secret"]
+Cashfree.XClientId = db.cfdata.get("xclient_id", None)
+Cashfree.XClientSecret = db.cfdata.get("xclient_secret", None)
+
+if Cashfree.XClientId is None or Cashfree.XClientSecret is None:
+    Logger.warning("xclient_id or xclient_secret missing in config!")
+
 Cashfree.XEnvironment = Cashfree.PRODUCTION
 x_api_version = "2023-08-01"
 
