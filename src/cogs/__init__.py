@@ -18,6 +18,7 @@ from cogs.moderation import ModerationCog
 from cogs.role import RoleCog
 from cogs.tasks import TaskCog
 from cogs.utility import UtilityCog
+from cogs.scrim import ScrimCog
 from discord.ext.commands import Cog
 
 
@@ -29,7 +30,8 @@ _cogs : list[Cog] = [
     EsportsCog,
     UtilityCog,
     ModerationCog,
-    TaskCog
+    TaskCog,
+    # ScrimCog
 ]
 
 if activeModules.music:

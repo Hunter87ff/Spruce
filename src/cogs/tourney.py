@@ -426,7 +426,7 @@ class EsportsCog(commands.Cog):
 
         await ctx.defer(ephemeral=True)
         ms = await ctx.send(constants.PROCESSING)
-        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=self.bot.config.invite_url, color=0x00ff00)
+        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=self.bot.config.INVITE_URL, color=0x00ff00)
         data  = self.dbc.find({"pub" : "yes"})
         for i in data:
             obj = Tourney(i)
@@ -933,8 +933,8 @@ class EsportsCog(commands.Cog):
                     tourn.spg = spg
 
                 except Exception as e :
-                    await self.bot.get_channel(self.bot.config.erl).send(
-                        content=f"<@{self.bot.config.owner_id}>",
+                    await self.bot.log_channel.send(
+                        content=f"<@{self.bot.config.OWNER_ID}>",
                         embed=discord.Embed(
                             title=f"Error | {ctx.command.name}\n `Module : core.tourney | Line : 632`", description=f"```{e}```", 
                             color=color.red

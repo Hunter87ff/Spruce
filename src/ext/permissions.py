@@ -66,7 +66,7 @@ def has_role(role:str): #type: ignore
 
 def owner_only():
     async def predicate(ctx:commands.Context):
-        if ctx.message.author.id == config.owner_id :
+        if ctx.message.author.id == config.OWNER_ID :
             return True
         else :
             await ctx.send("Command is only for developers!!", ephemeral=True, delete_after=10)

@@ -125,7 +125,7 @@ def create_order(customer_id:str, customer_name:str, customer_ph:str="8474090589
         customer_details=customer_details
     )
     order_meta = OrderMeta()
-    order_meta.return_url =  config.support_server
+    order_meta.return_url =  config.SUPPORT_SERVER
     create_order.order_meta = order_meta
     try:
         api_response = Cashfree().PGCreateOrder(x_api_version, create_order, None, None)

@@ -43,7 +43,7 @@ class DevCog(commands.Cog):
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
         ctx = interaction
         if ctx.user.bot or ctx.user.id not in self.bot.devs:return
-        amount = plan.value if (interaction.user.id != config.owner_id) else 1
+        amount = plan.value if (interaction.user.id != config.OWNER_ID) else 1
         url:str = f"{config.BASE_URL}/extras/pg.html?session="
         if plan != Plans.Custom:
             url += payment.create_order(
@@ -52,7 +52,7 @@ class DevCog(commands.Cog):
                 amount=amount
             ).payment_session_id
         if plan == Plans.Custom:
-            url = config.support_server
+            url = config.SUPPORT_SERVER
         button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
         await interaction.response.send_message(
             embed=discord.Embed(
@@ -87,7 +87,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def leaveg(self, ctx:commands.Context, member:int, guild_id:int=None):
         if ctx.author.bot:return
-        if ctx.author.id != config.owner_id:return
+        if ctx.author.id != config.OWNER_ID:return
         if not guild_id:
             for guild in self.bot.guilds:
                 if guild.member_count < member:
@@ -163,13 +163,12 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     @permissions.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def sdm(self, ctx:commands.Context, member: discord.User, *, message):
-        if ctx.author.id == config.owner_id:
-            erl  = self.bot.get_channel(config.erl)
+        if ctx.author.id == config.OWNER_ID:
             try:
                 await member.send(message)
                 return await ctx.reply("Done")
-            except Exception as e:return await erl.send(e)
-        if ctx.author.id != config.owner_id:
+            except Exception as e:return await  self.bot.log_channel.send(e)
+        if ctx.author.id != config.OWNER_ID:
             return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
     @commands.command()
@@ -178,7 +177,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def owners(self, ctx:commands.Context):
         ms = await ctx.send(f"{config.loading} Processing...")
-        ofcg = self.bot.get_guild(config.support_server_id)
+        ofcg = self.bot.get_guild(config.SUPPORT_SERVER_ID)
         owner_role = ofcg.get_role(1043134410029019176)
         
         for i in self.bot.guilds:
@@ -191,7 +190,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     @commands.command()
     @commands.guild_only()
     async def add_dev(self, ctx:commands.Context, member:discord.Member):
-        if ctx.author.bot or ctx.author.id != config.owner_id:
+        if ctx.author.bot or ctx.author.id != config.OWNER_ID:
             return await ctx.send("You are not allowed to use this command")
         if member.id not in self.bot.db.cfdata["devs"]:
             self.bot.devs.append(member.id)

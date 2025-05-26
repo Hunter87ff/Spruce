@@ -1,8 +1,8 @@
-from discord import Message, Color, Embed, Interaction
-from discord.ui import Button, View
+from discord import Interaction
+from pytz import timezone
+import dateparser
 from ext import Database
 from discord.ext import commands
-
 
 
 def get_db():
@@ -10,28 +10,6 @@ def get_db():
     Returns a Database Object
     """
     return Database()
-
-
-votes = []
-async def vote_add(bot:commands.Bot):
-    global votes
-    vtl = bot.get_channel(votel)
-    votes = [message async for message in vtl.history(limit=500)]
-
-
-async def voted(ctx:commands.Context, bot:commands.Bot):
-	return True
-
-
-async def vote_check(message:Message):
-    global votes
-    if message.channel.id == message.guild.me:
-        votes.append(message)
-
-
-async def vtm(ctx:commands.Context):
-	btn = Button(label="Vote Now", url=f"https://top.gg/bot/{ctx.me.id}/vote")
-	await ctx.send(embed=Embed(color=Color.cyan, description="Vote Now To Unlock This Command"),view=View().add_item(btn))
 
 
 async def is_dev(ctx: commands.Context | Interaction):
@@ -44,4 +22,33 @@ async def is_dev(ctx: commands.Context | Interaction):
         await response("Command is under development", ephemeral=True if isinstance(ctx, Interaction) else False)
         return False
     return True
+     
+
+
+
+def time_parser(time:str, from_tz:str = 'Asia/Kolkata', to_tz:str = 'Asia/Kolkata'):
+    """
+    Parses a time string from one timezone to another and returns it in the format "hour-minute".
+    Args:
+        time (str): The time string to be parsed. for example, "12:56 pm".
+        from_tz (str): The timezone of the input time string. Default is 'Asia/Kolkata'.
+        to_tz (str): The timezone to convert the time string to. Default is 'Asia/Kolkata'.
+
+    Returns:
+        str: The converted time in the format "hour-minute" or None if parsing fails.
+    """
+    try:
+        parsed_time = dateparser.parse(
+            date_string=time, 
+            settings={
+                'TIMEZONE': from_tz, 
+                'RETURN_AS_TIMEZONE_AWARE': True
+            },
+            region="in"
+        )
+        ist = timezone(to_tz)
+        parsed_time = parsed_time.astimezone(ist).time()
+        return f"{parsed_time.hour}-{parsed_time.minute}"
     
+    except Exception:
+        return None

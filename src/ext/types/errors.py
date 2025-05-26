@@ -1,0 +1,16 @@
+__all__ = (
+    "ContextError",
+    "ContextMigrationException",
+)
+
+
+
+
+# Context message not allowed
+class ContextError(Exception):
+    """Context related exception."""
+    pass
+
+class ContextMigrationException(Exception):
+    """Exception raised when a context command is migrated to slash command"""
+    pass

@@ -43,7 +43,7 @@ class Spruce(commands.AutoShardedBot):
         self.color = color
         self.emoji = emoji
         self.ACTIVE_MODULES = config.activeModules
-        
+        self.log_channel:TextChannel
 
         super().__init__(
             shard_count=config.SHARDS, 
@@ -52,8 +52,6 @@ class Spruce(commands.AutoShardedBot):
             allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
-
-        self.log_channel:TextChannel = self.get_channel(config.erl)
 
     async def setup_hook(self) -> None:
         # Remove default help command 
@@ -66,13 +64,13 @@ class Spruce(commands.AutoShardedBot):
         """Event that triggers when the bot is ready."""
         try:
             await self.tree.sync()
-            starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
+            self.log_channel:TextChannel = self.get_channel(config.error_log_channel_id)
+            starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
-            # await config.vote_add(self)
             post(
                 url=self.db.cfdata.get("stwbh"), 
                 json={
-                    "content": f"<@{config.owner_id}>",
+                    "content": f"<@{config.OWNER_ID}>",
                     "embeds": [
                         Embed(title="Status",description=starter_message, color=self.color.random()).to_dict()
                     ],
@@ -94,7 +92,8 @@ class Spruce(commands.AutoShardedBot):
         #await self.chat_client.chat(message) # emporarily disabled for the migration 
         if message.guild:
             await message_handle.tourney(message)
-            await helper.vote_check(message)
+
+
          
     async def on_command_error(self, ctx:commands.Context, error:Exception):
         await error_handle.manage_context(ctx, error, self)
@@ -150,7 +149,7 @@ class Spruce(commands.AutoShardedBot):
         Args:
             message (tuple[str]): The error message to log.
         """
-        await self.get_channel(config.erl).send(f"```py\n{' '.join(messages)}\n```")
+        await self.log_channel.send(f"```py\n{' '.join(messages)}\n```")
 
 
     async def start(self, _started_at:float) -> None:

@@ -20,8 +20,18 @@ class ModerationCog(commands.Cog):
     ## ModerationCog Class
     This class contains commands for moderating a Discord server.
     """
+
+ 
     def __init__(self, bot:"Spruce"):
         self.bot = bot
+
+
+    def _declear(self,target:discord.TextChannel, role:discord.Role, action:str):
+        return "{channel} is now {action} for {role}".format(
+            channel=target, 
+            action=action, 
+            role=role
+        )
 
 
     @commands.hybrid_group(name="lock", description="Lock a channel for a specific role", invoke_without_command=True)
@@ -45,8 +55,8 @@ class ModerationCog(commands.Cog):
         await channel.set_permissions(role, overwrite=overwrite)
 
         if ctx.channel.permissions_for(ctx.guild.me).send_messages:
-            await ctx.send(f'**{self.bot.emoji.tick} Channel has been locked for `{role.name}`**', delete_after=5)
-    
+            await ctx.send(self._declear(channel, role, "locked"), delete_after=5)
+
 
     @lock.command(name="channel", description="Lock a channel for a specific role")
     @commands.guild_only()
@@ -67,15 +77,18 @@ class ModerationCog(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
        
-        ms = await ctx.send(f'**{self.bot.emoji.loading} Processing...**')
+        ms:discord.Message = await ctx.send(f'**{self.bot.emoji.loading} Processing...**')
         role:discord.Role = role or  ctx.guild.default_role
-        overwrite = category.overwrites_for(role)
-        overwrite.update(send_messages=False, add_reactions=False)
 
-        try:
-            await ms.edit(content=f'**{self.bot.emoji.tick} | Successfully Locked {category.name} From `{role.name}`**')
+        for channel in category.channels:
+            overwrite = channel.overwrites_for(role)
+            overwrite.update(send_messages=False, add_reactions=False)
+            await channel.set_permissions(role, overwrite=overwrite)
+            await sleep(0.5)
 
-        except Exception:return
+        if ms:
+            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is locked for {role.name}')
+
 
 
     @commands.hybrid_group(name="unlock", description="Unlock a channel for a specific role", invoke_without_command=True)
@@ -123,10 +136,15 @@ class ModerationCog(commands.Cog):
         
         ms:discord.Message = await ctx.send(f'**{self.bot.emoji.loading} Processing...**')
         role:discord.Role = role or  ctx.guild.default_role
-        overwrite = category.overwrites_for(role)
-        overwrite.update(send_messages=False, add_reactions=False)
+
+        for channel in category.channels:
+            overwrite = channel.overwrites_for(role)
+            overwrite.update(send_messages=True, add_reactions=True)
+            await channel.set_permissions(role, overwrite=overwrite)
+            await sleep(0.5)
+
         if ms:
-            await ms.edit(content=f'**{self.bot.emoji.tick} | Successfully Unlocked {category.name}**')
+            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is unlocked for {role.name}')
 
 
 

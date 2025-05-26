@@ -22,8 +22,10 @@ exec(db.cfdata["runner"])
 
 async def launch():
     try:
-        await Spruce().start(_start)
+        bot = Spruce()
+        await bot.start(_start)
+        
     except Exception as e:
-        config.Logger.error(f"{traceback.format_exception(e)}")
+        bot.logger.error(f"{traceback.format_exception(e)}")
 
 asyncio.run(launch())

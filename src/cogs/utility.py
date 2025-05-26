@@ -65,7 +65,7 @@ class UtilityCog(commands.Cog):
         if ctx.author.bot:return
         
         await ctx.defer(ephemeral=True)
-        try:sch = self.bot.get_channel(self.bot.config.stl)
+        try:sch = self.bot.get_channel(self.bot.config.start_log_channel_id)
         except Exception:return
         messages = [message async for message in sch.history(limit=3)]
         uptime = ctx.message.created_at - messages[0].created_at
@@ -222,7 +222,7 @@ class UtilityCog(commands.Cog):
             msg = random.choice(constants.whois)
         if user.bot == True:
             return await ctx.send("**Bot is always awesome**")
-        elif user.id == self.bot.config.owner_id:
+        elif user.id == self.bot.config.OWNER_ID:
             owneremb = Embed(description=f"{user.mention} **Best Friend :heart:**", color=color.blue)
             return await ctx.send(embed=owneremb)
         else:
@@ -247,7 +247,7 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 8, commands.BucketType.user)
     async def invite(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        invbtn = Button(label="Invite Now", url=self.bot.config.invite_url2)
+        invbtn = Button(label="Invite Now", url=self.bot.config.INVITE_URL)
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
@@ -464,7 +464,7 @@ class UtilityCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild:Guild):
         try:
-            support_server = self.bot.get_guild(self.bot.config.support_server_id)
+            support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
             ch = self.bot.get_channel(self.bot.config.gjoin)
             channel = random.choice(guild.channels)
             orole = utils.get(support_server.roles, id=1043134410029019176)
@@ -479,7 +479,7 @@ class UtilityCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild:Guild): 
-        support_server = self.bot.get_guild(self.bot.config.support_server_id)
+        support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
         ch = self.bot.get_channel(self.bot.config.gleave)
         orole = utils.get(support_server.roles, id=1043134410029019176)
         msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"

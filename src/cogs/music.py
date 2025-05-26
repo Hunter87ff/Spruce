@@ -102,7 +102,7 @@ class MusicCog(commands.Cog):
             tm = "%M:%S"
         embed = Embed(
             title=f"{self.bot.emoji.music_disk} Now Playing", 
-            color=0x303136, description=f'**[{track.title}]({self.bot.config.invite_url2})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
+            color=0x303136, description=f'**[{track.title}]({self.bot.config.INVITE_URL})**\nDuration : {strftime(tm, gmtime(track.length//1000))}\n').set_thumbnail(url=track.artwork)
         view = View()
         for button in self.controlButtons:view.add_item(button)
         try:
