@@ -7,6 +7,7 @@ _scrim_col = _db_.scrims
 
 
 class ScrimPayload(TypedDict, total=False):
+        status:bool
         registration_channel:int 
         guild_id:int 
         start_time:int 
@@ -22,18 +23,19 @@ class ScrimPayload(TypedDict, total=False):
 class ScrimModel:
 
     def __init__(self, **kwargs:Unpack[ScrimPayload]):
-        self.registration_channel:int = kwargs.get("registration_channel") #primary key
+        self.status: bool = kwargs.get("status", False) #represents whether the scrim is active or not
         self.guild_id:int = kwargs.get("guild_id")
-        self.start_time:int = kwargs.get("start_time")
-        self.end_time:int = kwargs.get("end_time")
+        self.registration_channel:int = kwargs.get("registration_channel") #primary key
+        self.start_time:int = kwargs.get("start_time", "10:00 AM")
+        self.end_time:int = kwargs.get("end_time", "4:00 PM")
         self.registered_teams:int = kwargs.get("registered_teams", 0)
-        self.slot_channel :int = kwargs.get("slot_channel", None)
-        self.total_slots:int = kwargs.get("total_slots", 0)
+        self.slot_channel :int = kwargs.get("slot_channel", self.registration_channel)
+        self.total_slots:int = kwargs.get("total_slots", 12)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self.start_message : str = kwargs.get("start_message", "")
         self.end_message : str = kwargs.get("end_message", "")
-        if kwargs.get("_id"):
-            self._id:str = str(kwargs.get("_id", None))
+        self._id:str = str(kwargs.get("_id", None))
+
 
 
     def __eq__(self, other):
@@ -86,6 +88,7 @@ class ScrimModel:
             dict: A dictionary representation of the ScrimModel instance.
         """
         return {
+            "status": self.status,
             "registration_channel": self.registration_channel,
             "guild_id": self.guild_id,
             "start_time": self.start_time,
@@ -103,7 +106,10 @@ class ScrimModel:
         if not self._id:
             _existing = ScrimModel.find_one(channel_id=self.registration_channel)
             if _existing and _existing == self:
-                return 
+                return
+            
+        if not self.validate():
+            raise ValueError("Invalid Arguments, please check input fields.")
 
         return _scrim_col.update_one(
             {"channel_id": self.registration_channel},
@@ -134,15 +140,11 @@ class ScrimModel:
     @staticmethod
     @functools.lru_cache(maxsize=128)
     def find_by_start_time(start_time):
-        return ScrimModel.find_one(start_time=start_time)
-        
+        return ScrimModel.find_one(start_time=start_time, status=True)
 
 
-    @staticmethod
     @functools.lru_cache(maxsize=128)
-    def find(
-        **kwargs: Unpack[ScrimPayload]
-    ) -> list["ScrimModel"]:
+    def find(**kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"]:
         """
         Finds all ScrimModel instances.
         Returns:

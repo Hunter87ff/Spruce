@@ -52,3 +52,9 @@ def time_parser(time:str, from_tz:str = 'Asia/Kolkata', to_tz:str = 'Asia/Kolkat
     
     except Exception:
         return None
+    
+
+def get_event_channel_prefix(name:str):
+  li = []
+  for i in name.split()[0:2]:li.append(i[0])
+  return str("".join(li) + "-")

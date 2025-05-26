@@ -82,7 +82,7 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
     manages all the errors and sends them to the error log channel
     """
     cmdnf = bot.get_channel(config.cmdnf)
-    print(type(error))
+
     try:
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.send(embed=Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `{config.PREFIX}help {ctx.command.name}` to get Instructions"))

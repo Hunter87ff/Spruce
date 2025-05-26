@@ -13,7 +13,7 @@ import asyncio
 import traceback
 from requests import post
 from discord.ext import commands
-from ext import Database, Logger, color, helper, emoji, error as error_handle
+from ext import Database, Logger, color, helper, emoji, constants, error as error_handle
 from modules import (config, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, Message, Embed
 
@@ -43,6 +43,7 @@ class Spruce(commands.AutoShardedBot):
         self.color = color
         self.emoji = emoji
         self.ACTIVE_MODULES = config.activeModules
+        self.constants = constants
         self.log_channel:TextChannel
 
         super().__init__(

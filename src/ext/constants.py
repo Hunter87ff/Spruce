@@ -51,15 +51,32 @@ class NaturalLang(Enum):
 
 
 class TimeZone(Enum):
+    America_New_York = "America/New_York"
+    America_Toronto = "America/Toronto"
     Asia_Kolkata = "Asia/Kolkata"
     Asia_Tokyo = "Asia/Tokyo"
-    Asia_Shanghai = "Asia/Shanghai"
-    Asia_Singapore = "Asia/Singapore"
-    Asia_Dubai = "Asia/Dubai"
-    Asia_Bangkok = "Asia/Bangkok"
     Asia_Hong_Kong = "Asia/Hong_Kong"
+    Asia_Singapore = "Asia/Singapore"
+    Asia_Bangkok = "Asia/Bangkok"
     Asia_Bangladesh = "Asia/Dhaka"
     Asia_Nepal = "Asia/Kathmandu"
+    Asia_Jakarta = "Asia/Jakarta"
+    Asia_Dubai = "Asia/Dubai"
+    Brazil_East = "Brazil/East"
+    Europe_Moscow = "Europe/Moscow"
+    Europe_London = "Europe/London"
+    Europe_Luxembourg = "Europe/Luxembourg"
+    Europe_Madrid = "Europe/Madrid"
+    Europe_Paris = "Europe/Paris"
+    Europe_Berlin = "Europe/Berlin"
+    Europe_Rome = "Europe/Rome"
+    Iceland = "Iceland"
+    Israel = "Israel"
+    Poland = "Poland"
+    Portugal = "Portugal"
+    UTC = "UTC"
+    US_Eastern = "US/Eastern"
+
 
 
 
