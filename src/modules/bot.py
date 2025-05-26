@@ -8,11 +8,10 @@
 """
 
 import time
-import traceback
 import cogs
+import traceback
 from requests import post
 from discord.ext import commands
-from modules.chat import ChatClient
 from ext import Database, Logger, color, helper, emoji, error as error_handle
 from modules import (config, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, Message, Embed
@@ -39,7 +38,6 @@ class Spruce(commands.AutoShardedBot):
         self.db = Database() 
         self.devs:list[int] = self.db.cfdata.get("devs")
         self.logger:Logger = Logger
-        #self.chat_client = ChatClient(self)
         self.helper = helper
         self.color = color
         self.emoji = emoji
@@ -51,7 +49,7 @@ class Spruce(commands.AutoShardedBot):
             command_prefix= commands.when_mentioned_or(config.PREFIX),
             intents=intents,
             allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
-            activity=Activity(type=ActivityType.listening, name="&help")
+            activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
 
         self.log_channel:TextChannel = self.get_channel(config.erl)
@@ -69,22 +67,18 @@ class Spruce(commands.AutoShardedBot):
             await self.tree.sync()
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.version} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
-            await config.vote_add(self)
+            # await config.vote_add(self)
             post(
                 url=self.db.cfdata.get("stwbh"), 
                 json={
                     "content": f"<@{config.owner_id}>",
                     "embeds": [
-                        {
-                            "title": "Status",
-                            "description": starter_message,
-                            "color": self.color.green
-                        }
-                    ]
+                        Embed(title="Status",description=starter_message, color=self.color.random()).to_dict()
+                    ],
                 }
             )
-        except Exception as ex:
-            print(ex)
+        except Exception:
+            self.logger.error(traceback.format_exc())
         
 
     async def on_disconnect(self):

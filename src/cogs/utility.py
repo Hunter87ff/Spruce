@@ -77,13 +77,28 @@ class UtilityCog(commands.Cog):
         except Exception:return
 
 
+    @commands.hybrid_command(name="sync", description="Syncs the commands to the server")
+    @commands.cooldown(1, 15, commands.BucketType.guild)
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context):
+        await ctx.defer()
+        if ctx.author.bot:return
+        await ctx.send("Syncing commands...")
+        try:
+            await self.bot.tree.sync(guild=ctx.guild)
+            await ctx.send("Commands synced successfully!")
+        except Exception as e:
+            await ctx.send(f"Failed to sync commands: {e}")
+            self.bot.logger.error(f"Failed to sync commands: {e}")
+
+
     @commands.command()
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def ping(self, ctx:commands.Context):
         await ctx.reply(
             embed=Embed(
-                description=f'**{emoji.dot_green} Current Response Time : `{round(self.bot.latency*1000)}ms`**', 
+                description=f'**{emoji.dot_green} Latency : `{round(self.bot.latency*1000)}ms`**', 
                 color=color.green
             )
         )
