@@ -7,6 +7,7 @@
  of this license document, but changing it is not allowed.
 """
 import traceback
+from ext import Logger
 import pytz, datetime
 from discord import errors as derrors
 from modules import config
@@ -34,6 +35,7 @@ def update_error_log(error_message: str):
     """
     text = f"{datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))} : {error_message}"
     with open("error.log", "a") as log_file:
+        Logger.error(error_message)
         log_file.write(text + "\n")
 
 
@@ -141,15 +143,12 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
         else: 
             text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
             content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
-            if len(text) >= 1999:
-                with open("error.txt", "w") as file:
-                    file.write(text)
-                await erl.send(
-                    content=content,
-                    file=File("error.txt")
-                )
-            else: 
-                await erl.send(f"{content}{text}")
+            with open("error.txt", "w") as file:
+                file.write(text)
+            await erl.send(
+                content=content,
+                file=File("error.txt")
+            )
             update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:

@@ -9,6 +9,7 @@
 
 import time
 import cogs
+import asyncio
 import traceback
 from requests import post
 from discord.ext import commands
@@ -132,8 +133,16 @@ class Spruce(commands.AutoShardedBot):
         """
         embed=Embed(title=f"Error {module.split('.')[-1]} | `Module : {module} | Line : {line}`", description=f"```{''.join(message)}```",  color=self.color.red)
         await self.log_channel.send(embed=embed)
-        
 
+
+    async def sleep(self, seconds:int) -> None:
+        """
+        Sleeps for the given number of seconds.
+        Args:
+            seconds (int): The number of seconds to sleep.
+        """
+        await asyncio.sleep(seconds)
+    
 
     async def error_log(self, *messages:str) -> None:
         """

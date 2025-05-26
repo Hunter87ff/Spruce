@@ -5,7 +5,7 @@ Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
 
-
+import time
 import discord
 from discord import app_commands
 from asyncio import sleep
@@ -265,26 +265,38 @@ class ModerationCog(commands.Cog):
                     "**Rate limited!!.. please try again later**", 
                     delete_after=5
                 )
-            
+        _limit= min(amount, max(amount, 50))
+        _processing = await ctx.send(f"**{self.bot.emoji.loading} | Deleting {amount} messages...**")
+
         def filter(m:discord.Message):
+            if m.id == _processing.id:
+                return False
+            
+            if self.bot.is_ws_ratelimited():
+                return False
+            
             if not target:
+                time.sleep(0.2)
                 return True
             
-            elif m.author.id == target.id:
+            if m.author.id == target.id:
+                time.sleep(0.2)
                 return True
             
             else:
                 return False
+            
         
-        await ctx.channel.purge(
-            limit= max(amount, 50),
-            check=filter,
-        )
-        await ctx.send(
-            f"**{self.bot.emoji.tick} | Cleared {amount} messages**",
-            delete_after=5
-        )    
-        
+        await self.bot.sleep(2)
+
+        if not ctx.channel.permissions_for(ctx.guild.me).manage_messages:
+            await _processing.edit(content=f"{self.bot.emoji.cross} | I don't have permission to manage messages in this channel!")
+
+        await ctx.channel.purge(limit=_limit, check=filter, bulk=True)
+        if _processing:
+            await _processing.edit(content=f"**{self.bot.emoji.tick} | Successfully deleted {amount} messages!**")
+
+
 
     @commands.hybrid_command(name="clear_perms", description="Clear all permissions from a role")
     @commands.guild_only()
