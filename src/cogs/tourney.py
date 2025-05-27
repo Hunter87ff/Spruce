@@ -107,9 +107,7 @@ class EsportsCog(commands.Cog):
     async def setup_tourney_log(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
 
-        if not  self.is_tourney_mod(ctx.author):
-            await ctx.send("You're missing either 'Manage Server' or 'Tourney Mod' role", ephemeral=True)
-            return
+        
         
         channel = self.bot.helper.get_tourney_log(ctx.guild)
 
