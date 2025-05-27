@@ -11,7 +11,8 @@ import re, traceback
 from typing import TYPE_CHECKING
 from ext.error import update_error_log
 from discord import utils, AllowedMentions, Embed, Message, TextChannel
-from ext import Database
+from ext import Database, helper, color as Color
+
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
@@ -164,10 +165,25 @@ async def duplicate_tag_check(crole, message:Message):
 async def tourney(message:Message):
     if message.author.bot or not message.guild:
         return
+    
+    log_channel = helper.get_tourney_log(message.guild)
+
+    async def log_event(desc:str, color:int=None):
+        if color is None:
+            color = Color.random()
+        if log_channel:
+
+            _embed = Embed(description=desc, color=color)
+            _embed.set_author(name=message.author, icon_url=message.author.display_avatar)
+            _embed.timestamp = message.created_at
+
+            return await log_channel.send(embed=_embed)
+
 
     td: dict[str] = dbc.find_one({"rch" : message.channel.id})
     if not td :
         return
+    
     elif utils.get(message.author.roles, name="tourney-mod") :
         return
 
@@ -192,10 +208,14 @@ async def tourney(message:Message):
     if not crole:
         await message.author.send("Registration Paused") if message.author.dm_channel else None
         await message.reply("Confirm Role Not Found")
-        return dbc.update_one({"rch" : message.channel.id}, {"$set" : {"status" : "paused"}})
-    
+        dbc.update_one({"rch" : message.channel.id}, {"$set" : {"status" : "paused"}})
+
+        #  tourney log the event
+        await log_event(f"{rch.mention} paused\nreason : confirm role not found! seems like someone deleted that..", color=Color.red)
+
     elif crole in message.author.roles:
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
+        await log_event(f"{message.author} tried to register again in {rch.mention} but already has the confirm role.")
         return await message.channel.send("**Already Registered**", delete_after=5)
     
     elif rgs > tslot:
@@ -203,6 +223,8 @@ async def tourney(message:Message):
         overwrite.update(send_messages=False)
         await rch.set_permissions(message.guild.default_role, overwrite=overwrite)
         await message.delete()
+        
+        await log_event(f"{rch.mention} registration is closed.")
         return await rch.send("**Registration Closed**")
     
     elif len(valid_member_mentions) >= ments:
@@ -239,6 +261,7 @@ async def tourney(message:Message):
                 await message.author.add_roles(crole)
                 if rgs >= tslot*0.1 and td["pub"] == "no":
                     dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                return await log_event(f"{message.author} registered in {rch.mention} with team name {team_name.upper()}", color=Color.green)
 
             if fmsg.author.id != message.author.id:
                 ftch = await duplicate_tag_check(crole, message)
@@ -247,6 +270,7 @@ async def tourney(message:Message):
                     fakeemb.add_field(name="Team", value=f"[Registration Link]({fmsg.jump_url})")
                     fakeemb.set_author(name=message.author, icon_url=message.author.avatar)
                     if message: await message.delete()
+                    await log_event(f"{message.author} tried to register in {rch.mention} but tagged {ftch} who is already registered in a team.", color=Color.red)
                     return await message.channel.send(embed=fakeemb, delete_after=60)
                 try:
                     await message.author.add_roles(crole)
@@ -259,12 +283,17 @@ async def tourney(message:Message):
                     femb.set_thumbnail(url=message.author.display_avatar)
                     if rgs >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
+                    await log_event(f"{message.author} registered in {rch.mention} with team name {team_name.upper()}", color=Color.green)
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
-                except Exception: update_error_log(traceback.format_exc())
-                    
+                
+                except Exception as e: 
+                    update_error_log(traceback.format_exc())
+                    await log_event(f"{message.author} failed to register in {rch.mention} with team name {team_name.upper()}\Issue raised : `{e}`", color=Color.red)
 
 
     elif len(valid_member_mentions) < ments:
+        await log_event(f"{message.author} tried to register in {rch.mention} but failed due to insufficient mentions.", color=Color.red)
+
         meb = Embed(description=f"**Minimum {ments} Mentions Required For Successfull Registration**", color=0xff0000)
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
 

@@ -15,6 +15,7 @@ from asyncio import sleep
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord.ui import Button, View
+from discord import app_commands
 from modules import checker
 from ext import constants, permissions, Tourney, emoji, color, files
 
@@ -87,45 +88,52 @@ class EsportsCog(commands.Cog):
             return msg.content
         except asyncio.TimeoutError:
             return await ctx.send("Time Out! Try Again", delete_after=5)
-
-    async def unlc_ch(self, channel:discord.TextChannel, role:discord.Role=None):
-        """
-        Unlocks a channel to allow a specific role to send messages.
-        This method updates the permissions overwrites for a channel to allow a role to send messages.
-
-        Args:
-            channel (discord.TextChannel): The channel to be unlocked.
-            role (discord.Role, optional): The role to grant send message permissions to.
-                Defaults to the guild's default role if not provided.
-
-        Returns:
-            None: This method doesn't return anything.
-
-        Raises:
-            discord.Forbidden: If the bot doesn't have permissions to modify channel permissions.
-            discord.HTTPException: If modifying the permissions fails.
-        """
-        role = role or channel.guild.default_role
-        overwrite = channel.overwrites_for(role)
-        overwrite.update(send_messages=True)
-        await channel.set_permissions(role, overwrite=overwrite)
-
-    async def lc_ch(self, channel:discord.TextChannel, role:discord.Role=None):
-        """
-        Lock a channel by setting permissions to disable send_messages for a specified role.
         
-        Args:
-            channel (discord.TextChannel): The text channel to lock
-            role (discord.Role, optional): The role to restrict message permissions for. 
-                                           If None, the server's default role (@everyone) will be used.
+
+
+    def is_tourney_mod(self, member:discord.Member):
+        return any([
+            member.guild_permissions.manage_guild,
+            member.guild_permissions.administrator,
+            discord.utils.get(member.guild.roles, name="tourney-mod") in member.roles,
+        ])
+
+
+    @commands.hybrid_command(name="tourney_log", description="Setup Tourney Log Channel", aliases=["tlog"])
+    @commands.guild_only()
+    @app_commands.guild_only()
+    @permissions.tourney_mod()
+    @commands.bot_has_guild_permissions(send_messages=True, attach_files=True, manage_channels=True)
+    async def setup_tourney_log(self, ctx:commands.Context):
+        await ctx.defer(ephemeral=True)
+
         
-        Returns:
-            None
-        """
-        if role == None:role = channel.guild.default_role
-        overwrite = channel.overwrites_for(role)
-        overwrite.update(send_messages=False)
-        await channel.set_permissions(role, overwrite=overwrite)
+        
+        channel = self.bot.helper.get_tourney_log(ctx.guild)
+
+        if not channel:
+            channel = await ctx.guild.create_text_channel(
+                name=f"{self.bot.user.name}-tourney-log",
+            )
+
+        await channel.set_permissions( ctx.guild.default_role, read_messages =False, )
+        await channel.set_permissions( ctx.guild.me, 
+                                read_messages =True, 
+                                send_messages=True, 
+                                attach_files=True, 
+                                manage_channels=True, 
+                                manage_messages=True, 
+                                add_reactions=True, 
+                                external_emojis=True
+        )
+        await ctx.send(f"**Tourney Log Channel Set To {channel.mention}**", delete_after=10)
+        await channel.send(
+            embed=discord.Embed(
+                title="Tourney Log Channel Created", 
+                description=f"**This Channel Will Be Used To Log Tourney Events**\n\n{emoji.tick} | **Created By** : {ctx.author.mention}", 
+                color=color.cyan
+            )
+        )
 
 
 
@@ -1193,7 +1201,7 @@ class EsportsCog(commands.Cog):
             view.add_item(i)
 
         await mch.send(embed=emb, view=view)
-        await self.lc_ch(channel=mch)
+        await self.bot.helper.lock_channel(channel=mch)
         self.dbc.update_one({"rch":channel.id},{"$set":{"mch":int(mch.id)}})
         await ctx.send(f"{emoji.tick} | {mch.mention} created")
 

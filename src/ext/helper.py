@@ -1,10 +1,8 @@
 import re
-import dateparser
-from pytz import timezone
+import discord
 from ext import Database
-from datetime import datetime
 from discord.ext import commands
-from discord import Message, TextChannel, Role, Interaction
+
 
 
 def get_db():
@@ -14,18 +12,18 @@ def get_db():
     return Database()
 
 
-async def is_dev(ctx: commands.Context | Interaction):
+async def is_dev(ctx: commands.Context | discord.Interaction):
     """
     Checks if the user is a developer
     """
-    user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.author.id
+    user_id = ctx.user.id if isinstance(ctx, discord.Interaction) else ctx.author.id
     if user_id not in get_db().cfdata["devs"]:
-        response = ctx.response.send_message if isinstance(ctx, Interaction) else ctx.send
-        await response("Command is under development", ephemeral=True if isinstance(ctx, Interaction) else False)
+        response = ctx.response.send_message if isinstance(ctx, discord.Interaction) else ctx.send
+        await response("Command is under development", ephemeral=True if isinstance(ctx, discord.Interaction) else False)
         return False
     return True
      
-def parse_team_name(message:Message):
+def parse_team_name(message:discord.Message):
     """
     Parses the team name from a message content.
     If the message contains a mention of a team, it extracts the name and formats it.
@@ -45,7 +43,7 @@ def parse_team_name(message:Message):
 
 
 
-async def duplicate_tag_check(crole:Role, message:Message):
+async def duplicate_tag_check(crole:discord.Role, message:discord.Message):
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
@@ -90,9 +88,20 @@ def get_event_prefix(name:str):
     return str("".join(li) + "-")
 
 
+def get_scrim_log(guild:discord.Guild):
+    channel = discord.utils.get(guild.text_channels, name=f"{guild.me.name.lower()}-scrim-log")
+    return channel
 
 
-async def unlock_channel(channel:TextChannel, role:Role=None):
+def get_tourney_log(guild:discord.Guild):
+    # channel = discord.utils.get(guild.text_channels, name=f"{guild.me.name}-tourney-log")
+    for channel in guild.text_channels:
+        if channel.name == f"{guild.me.name.lower()}-tourney-log":
+            return channel
+    return None
+
+
+async def unlock_channel(channel:discord.TextChannel, role:discord.Role=None):
     """
     Unlocks a channel to allow a specific role to send messages.
     This method updates the permissions overwrites for a channel to allow a role to send messages.
@@ -121,7 +130,7 @@ async def unlock_channel(channel:TextChannel, role:Role=None):
     await channel.set_permissions(role, overwrite=overwrite)
 
 
-async def lock_channel(channel:TextChannel, role:Role=None):
+async def lock_channel(channel:discord.TextChannel, role:discord.Role=None):
     """
     Locks a channel to prevent a specific role from sending messages.
     This method updates the permissions overwrites for a channel to deny a role from sending messages.
