@@ -108,7 +108,8 @@ def under_maintenance(message:str = "The command is currently under maintenance.
                 return True
             
             await ctx.response.defer(ephemeral=True)
-            return
+            return False
+        
         if ctx.author.id in config.DEVELOPERS:
             return True
         
