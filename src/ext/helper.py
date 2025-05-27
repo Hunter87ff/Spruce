@@ -89,14 +89,14 @@ def get_event_prefix(name:str):
 
 
 def get_scrim_log(guild:discord.Guild):
-    channel = discord.utils.get(guild.text_channels, name=f"{guild.me._user.name.lower()}-scrim-log")
+    channel = discord.utils.get(guild.text_channels, name=f"{guild.me.name.lower()}-scrim-log")
     return channel
 
 
 def get_tourney_log(guild:discord.Guild):
-    # channel = discord.utils.get(guild.text_channels, name=f"{guild.me._user.name}-tourney-log")
+    # channel = discord.utils.get(guild.text_channels, name=f"{guild.me.name}-tourney-log")
     for channel in guild.text_channels:
-        if channel.name == f"{guild.me._user.name.lower()}-tourney-log":
+        if channel.name == f"{guild.me.name.lower()}-tourney-log":
             return channel
     return None
 
