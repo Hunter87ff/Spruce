@@ -84,8 +84,7 @@ class MusicCog(commands.Cog):
                     self.bot.logger.error(f"Attempting to connect to Lavalink server failed: {e}")
 
 
-        if self.bot.ACTIVE_MODULES.music: 
-           await setup_lavalink()
+        await setup_lavalink()
 
 
 

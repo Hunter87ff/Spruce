@@ -11,6 +11,9 @@ import logging
 import datetime
 import pytz
 from discord.utils import setup_logging
+import discord
+
+
 
 class Logger:
     """
@@ -40,6 +43,19 @@ class Logger:
     def get_time():
         _datetime = datetime.datetime.now(pytz.timezone("Asia/Kolkata")).strftime("%d-%m-%Y %H:%M:%S")
         return _datetime
+    
+
+    @staticmethod
+    async def get_log_channel(guild:"discord.Guild", option:str="tourney") -> "discord.TextChannel | None":
+        _bot_name = guild.me._user.name.strip()
+        _log_channel_name = f"{_bot_name}-{option}-log"
+        
+        _log_channel = discord.utils.get(guild.text_channels, name=_log_channel_name)
+        if not _log_channel and guild.me.guild_permissions.manage_channels:
+            _log_channel = await guild.create_text_channel(_log_channel_name, reason="Creating log channel for the bot")
+
+        return _log_channel
+
 
     @staticmethod
     def colors(level):

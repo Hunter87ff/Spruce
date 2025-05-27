@@ -65,7 +65,7 @@ class UtilityCog(commands.Cog):
         if ctx.author.bot:return
         
         await ctx.defer(ephemeral=True)
-        try:sch = self.bot.get_channel(self.bot.config.start_log_channel_id)
+        try:sch = self.bot.get_channel(self.bot.config.client_start_log)
         except Exception:return
         messages = [message async for message in sch.history(limit=3)]
         uptime = ctx.message.created_at - messages[0].created_at
@@ -465,7 +465,7 @@ class UtilityCog(commands.Cog):
     async def on_guild_join(self, guild:Guild):
         try:
             support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
-            ch = self.bot.get_channel(self.bot.config.gjoin)
+            ch = self.bot.get_channel(self.bot.config.guild_join_log)
             channel = random.choice(guild.channels)
             orole = utils.get(support_server.roles, id=1043134410029019176)
             link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
@@ -480,7 +480,7 @@ class UtilityCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild:Guild): 
         support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
-        ch = self.bot.get_channel(self.bot.config.gleave)
+        ch = self.bot.get_channel(self.bot.config.guild_leave_log)
         orole = utils.get(support_server.roles, id=1043134410029019176)
         msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
         for i in support_server.members:

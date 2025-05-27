@@ -13,7 +13,7 @@ import asyncio
 import traceback
 from requests import post
 from discord.ext import commands
-from ext import Database, Logger, color, helper, emoji, constants, error as error_handle
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, error as error_handle
 from modules import (config, message_handle)
 from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, Message, Embed
 
@@ -42,15 +42,15 @@ class Spruce(commands.AutoShardedBot):
         self.helper = helper
         self.color = color
         self.emoji = emoji
-        self.ACTIVE_MODULES = config.activeModules
         self.constants = constants
         self.log_channel:TextChannel
+        self.time = ClientTime()
 
         super().__init__(
             shard_count=config.SHARDS, 
             command_prefix= commands.when_mentioned_or(config.PREFIX),
             intents=intents,
-            allowed_mentions=AllowedMentions(everyone=False, roles=False, replied_user=True, users=True),
+            allowed_mentions=AllowedMentions(everyone=False, roles=True, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
 
@@ -61,11 +61,18 @@ class Spruce(commands.AutoShardedBot):
         # load the cogs
         await cogs.setup(self)
 
+
+    @property
+    def current_datetime(self):
+        """Returns the current time in the specified format."""
+        now = self.helper.datetime.now(self.constants.TimeZone.Asia_Kolkata.value)
+        return now
+
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
         try:
             await self.tree.sync()
-            self.log_channel:TextChannel = self.get_channel(config.error_log_channel_id)
+            self.log_channel:TextChannel = self.get_channel(config.client_error_log)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
             post(
@@ -89,8 +96,8 @@ class Spruce(commands.AutoShardedBot):
     async def on_message(self, message:Message):
         if message.author.bot:
             return
+        
         await self.process_commands(message)
-        #await self.chat_client.chat(message) # emporarily disabled for the migration 
         if message.guild:
             await message_handle.tourney(message)
 
@@ -107,7 +114,7 @@ class Spruce(commands.AutoShardedBot):
 
     async def  on_guild_channel_delete(self, channel:TextChannel):
         tourch = self.db.dbc.find_one({"rch" : channel.id})
-        dlog = self.get_channel(config.tdlog)
+        dlog = self.get_channel(config.tourney_delete_log)
         if tourch:
             self.db.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")

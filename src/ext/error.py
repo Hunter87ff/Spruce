@@ -81,7 +81,7 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
     """
     manages all the errors and sends them to the error log channel
     """
-    cmdnf = bot.get_channel(config.cmdnf)
+    cmdnf = bot.get_channel(config.cmd_not_found_log)
 
     try:
         if isinstance(error, commands.MissingRequiredArgument):
