@@ -91,7 +91,7 @@ class EsportsCog(commands.Cog):
         
 
 
-    def is_tourney_mod(member:discord.Member) -> bool:
+    def is_tourney_mod(self, member:discord.Member):
         return any([
             member.guild_permissions.manage_guild,
             member.guild_permissions.administrator,
