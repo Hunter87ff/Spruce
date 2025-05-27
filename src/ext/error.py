@@ -7,13 +7,20 @@
  of this license document, but changing it is not allowed.
 """
 import traceback
+from ext import Logger
 import pytz, datetime
 from discord import errors as derrors
 from modules import config
+from discord.errors import HTTPException
 from discord import Embed, File
 from ext.constants import TimeZone
+from ext import types
 from discord.ext import commands
 from discord.ext.commands import errors
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from modules.bot import Spruce
 
 
 def update_error_log(error_message: str):
@@ -34,10 +41,11 @@ def update_error_log(error_message: str):
     """
     text = f"{datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))} : {error_message}"
     with open("error.log", "a") as log_file:
+        Logger.error(error_message)
         log_file.write(text + "\n")
 
 
-async def manage_backend_error(error: Exception, bot: commands.Bot):
+async def manage_backend_error(error: Exception, bot: "Spruce"):
     """
     Manages backend errors by sending error details to a designated error log channel.
     
@@ -57,24 +65,24 @@ async def manage_backend_error(error: Exception, bot: commands.Bot):
     Returns:
         None
     """
-    erl = bot.get_channel(config.erl)
+
     if isinstance(error, derrors.HTTPException):
-        await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
+        await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
     elif isinstance(error, derrors.ConnectionClosed):
-        await erl.send(f"```json\n{error}\n```")
+        await bot.log_channel.send(f"```json\n{error}\n```")
     elif isinstance(error, derrors.GatewayNotFound):
-        await erl.send(f"```json\n{error}\n```")
+        await bot.log_channel.send(f"```json\n{error}\n```")
     elif isinstance(error, derrors.RateLimited):
-        await erl.send(f"```json\n{error}\n```")
+        await bot.log_channel.send(f"```json\n{error}\n```")
 
 
 
-async def manage_context(ctx:commands.Context, error:errors.DiscordException, bot:commands.Bot, _msg: str = None, *args, **kwargs):
+async def manage_context(ctx:commands.Context, error:errors.DiscordException, bot:"Spruce", _msg: str = None, *args, **kwargs):
     """
     manages all the errors and sends them to the error log channel
     """
-    erl = bot.get_channel(config.erl)
-    cmdnf = bot.get_channel(config.cmdnf)
+    cmdnf = bot.get_channel(config.cmd_not_found_log)
+
     try:
         if isinstance(error, commands.MissingRequiredArgument):
             return await ctx.send(embed=Embed(color=0xff0000, description=f"Missing Required Arguments! You Should Check How To Use This Command.\nTip: use `{config.PREFIX}help {ctx.command.name}` to get Instructions"))
@@ -84,6 +92,10 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
             await cmdnf.send(f"```py\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\nCommand : {ctx.message.content}```")
         elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
             return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
+
+        elif isinstance(error, types.errors.ContextMigrationException):
+            return await ctx.send(embed=Embed(color=0xff0000, description="This command has been migrated to a slash command. Please use the new command format."))
+        
         elif isinstance(error, commands.EmojiNotFound):
             return await ctx.send(embed=Embed(color=0xff0000, description="Emoji Not Found"))
         elif isinstance(error, commands.NotOwner):
@@ -134,25 +146,22 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
             return await ctx.send(embed=Embed(description="Maximum number of guild channels reached (500)", color=0xff0000))
         elif isinstance(error, commands.UserInputError):
             return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
-        elif isinstance(error, config.discord.HTTPException):
-            await erl.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
+        elif isinstance(error, HTTPException):
+            await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.send(embed=Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
         else: 
             text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
             content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
-            if len(text) >= 1999:
-                with open("error.txt", "w") as file:
-                    file.write(text)
-                await erl.send(
-                    content=content,
-                    file=File("error.txt")
-                )
-            else: 
-                await erl.send(f"{content}{text}")
+            with open("error.txt", "w") as file:
+                file.write(text)
+            await bot.log_channel.send(
+                content=content,
+                file=File("error.txt")
+            )
             update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:
-        config.logger.warning(traceback.format_exception(e), "ext.error")
+        bot.logger.warning(traceback.format_exception(e), "ext.error")
         update_error_log(''.join(traceback.format_exception(type(e), e, e.__traceback__)))
         

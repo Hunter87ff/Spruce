@@ -16,6 +16,7 @@ from ext.db import Database
 import ext.error as error
 import ext.files as files
 from ext import helper
+from ext.time import ClientTime
 import ext.permissions as permissions
 
 
@@ -30,6 +31,7 @@ __all__ = (
     "error",
     "files",
     "helper",
+    "ClientTime",
 )
 
 

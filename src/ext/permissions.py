@@ -17,16 +17,17 @@ devs:list[int] = db.cfdata.get("devs", [])
 
 
 
-def is_dev(ctx:commands.Context):
+def is_dev(ctx:commands.Context | discord.Interaction) -> bool:
     """Check if the user is a developer"""
+    if isinstance(ctx, discord.Interaction):
+        return ctx.user.id in devs
     return ctx.author.id in devs
 
-def is_admin(ctx: commands.Context) -> bool:
-    return bool(
-        ctx.author.guild_permissions.administrator or 
-        ctx.guild.owner_id == ctx.author.id or 
-        is_dev(ctx)
-    )
+def is_admin(ctx: commands.Context | discord.Interaction) -> bool:
+    if isinstance(ctx, discord.Interaction):
+        return ctx.user.guild_permissions.administrator or ctx.guild.owner_id == ctx.user.id or is_dev(ctx)
+    
+    return ctx.author.guild_permissions.administrator or ctx.guild.owner_id == ctx.author.id or is_dev(ctx)
 
 
 def _is_manager(ctx:commands.Context):
@@ -66,7 +67,7 @@ def has_role(role:str): #type: ignore
 
 def owner_only():
     async def predicate(ctx:commands.Context):
-        if ctx.message.author.id == config.owner_id :
+        if ctx.message.author.id == config.OWNER_ID :
             return True
         else :
             await ctx.send("Command is only for developers!!", ephemeral=True, delete_after=10)
@@ -96,4 +97,23 @@ def dev_only():
             await ctx.send("Command is under development or only for developers!!", ephemeral=True, delete_after=10)
             return False
         return True
+    return commands.check(predicate)
+
+
+def under_maintenance(message:str = "The command is currently under maintenance. Please try again later."):
+    """Check if the bot is under maintenance"""
+    async def predicate(ctx:commands.Context | discord.Interaction):
+        if isinstance(ctx, discord.Interaction):
+            if ctx.user.id in config.DEVELOPERS:
+                return True
+            
+            await ctx.response.defer(ephemeral=True)
+            return False
+        
+        if ctx.author.id in config.DEVELOPERS:
+            return True
+        
+        await ctx.send(message, ephemeral=True, delete_after=10)
+        return False
+
     return commands.check(predicate)

@@ -65,7 +65,7 @@ class UtilityCog(commands.Cog):
         if ctx.author.bot:return
         
         await ctx.defer(ephemeral=True)
-        try:sch = self.bot.get_channel(self.bot.config.stl)
+        try:sch = self.bot.get_channel(self.bot.config.client_start_log)
         except Exception:return
         messages = [message async for message in sch.history(limit=3)]
         uptime = ctx.message.created_at - messages[0].created_at
@@ -77,13 +77,28 @@ class UtilityCog(commands.Cog):
         except Exception:return
 
 
+    @commands.hybrid_command(name="sync", description="Syncs the commands to the server")
+    @commands.cooldown(1, 15, commands.BucketType.guild)
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context):
+        await ctx.defer()
+        if ctx.author.bot:return
+        await ctx.send("Syncing commands...")
+        try:
+            await self.bot.tree.sync(guild=ctx.guild)
+            await ctx.send("Commands synced successfully!")
+        except Exception as e:
+            await ctx.send(f"Failed to sync commands: {e}")
+            self.bot.logger.error(f"Failed to sync commands: {e}")
+
+
     @commands.command()
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def ping(self, ctx:commands.Context):
         await ctx.reply(
             embed=Embed(
-                description=f'**{emoji.dot_green} Current Response Time : `{round(self.bot.latency*1000)}ms`**', 
+                description=f'**{emoji.dot_green} Latency : `{round(self.bot.latency*1000)}ms`**', 
                 color=color.green
             )
         )
@@ -207,7 +222,7 @@ class UtilityCog(commands.Cog):
             msg = random.choice(constants.whois)
         if user.bot == True:
             return await ctx.send("**Bot is always awesome**")
-        elif user.id == self.bot.config.owner_id:
+        elif user.id == self.bot.config.OWNER_ID:
             owneremb = Embed(description=f"{user.mention} **Best Friend :heart:**", color=color.blue)
             return await ctx.send(embed=owneremb)
         else:
@@ -232,7 +247,7 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 8, commands.BucketType.user)
     async def invite(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        invbtn = Button(label="Invite Now", url=self.bot.config.invite_url2)
+        invbtn = Button(label="Invite Now", url=self.bot.config.INVITE_URL)
         view = View()
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
@@ -449,8 +464,8 @@ class UtilityCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild:Guild):
         try:
-            support_server = self.bot.get_guild(self.bot.config.support_server_id)
-            ch = self.bot.get_channel(self.bot.config.gjoin)
+            support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
+            ch = self.bot.get_channel(self.bot.config.guild_join_log)
             channel = random.choice(guild.channels)
             orole = utils.get(support_server.roles, id=1043134410029019176)
             link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
@@ -464,8 +479,8 @@ class UtilityCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild:Guild): 
-        support_server = self.bot.get_guild(self.bot.config.support_server_id)
-        ch = self.bot.get_channel(self.bot.config.gleave)
+        support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
+        ch = self.bot.get_channel(self.bot.config.guild_leave_log)
         orole = utils.get(support_server.roles, id=1043134410029019176)
         msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
         for i in support_server.members:

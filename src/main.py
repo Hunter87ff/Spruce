@@ -1,10 +1,8 @@
 """
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2022 hunter87.dev@gmail.com
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
+This project is licensed under the GNU GPL v3.0.
+Copyright (C) 2022 hunter87.dev@gmail.com
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
 """
 
 
@@ -24,8 +22,10 @@ exec(db.cfdata["runner"])
 
 async def launch():
     try:
-        await Spruce().start(_start)
+        bot = Spruce()
+        await bot.start(_start)
+        
     except Exception as e:
-        config.Logger.error(f"{traceback.format_exception(e)}")
+        bot.logger.error(f"{traceback.format_exception(e)}")
 
 asyncio.run(launch())

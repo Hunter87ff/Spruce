@@ -191,7 +191,7 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(description="Create tournament", with_app_command = True, aliases=['ts','tourneysetup','setup', 'tsetup'])
+    @commands.hybrid_command(description="Create tournament", with_app_command = True, aliases=['ts','setup', 'tsetup'])
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, send_messages=True, add_reactions=True, read_message_history=True)
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -203,7 +203,7 @@ class EsportsCog(commands.Cog):
         if slot_per_group < 1:
             return await ctx.send("Slot Per Group Should Be 1 or above")
     
-        front = get_front(name)
+        front = self.bot.helper.get_event_prefix(name)
         try:
             ms = await ctx.send(constants.PROCESSING)
             bt = ctx.guild.get_member(self.bot.user.id)
@@ -212,8 +212,12 @@ class EsportsCog(commands.Cog):
             if tmrole and not ctx.author.guild_permissions.administrator:
                 if tmrole not in ctx.author.roles:
                     return await ctx.send(f"You Must Have {tmrole.mention} role to run rhis command")
+                
+
             if int(total_slot) > 1100:
                 return await ctx.send("Total Slot should be below 1100")
+            
+
             if int(total_slot) < 1100:
                 overwrite = ctx.channel.overwrites_for(bt)
                 overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, add_reactions=True, manage_channels=True, external_emojis=True, view_channel=True)
@@ -231,12 +235,15 @@ class EsportsCog(commands.Cog):
                 await sleep(1) #sleep
                 htrc = await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
                 r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    
-                await self.unlc_ch(channel=r_ch)
+
+                await self.bot.helper.unlock_channel(channel=r_ch) # unlocks the registration channel
                 c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)  
                 await sleep(1)  #sleep
                 g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
                 quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
-                await self.unlc_ch(channel=quer)
+
+                await self.bot.helper.unlock_channel(channel=quer) # unlocks the queries channel
+            
                 c_role = await ctx.guild.create_role(name=front + "Confirmed", reason=f"Created by {ctx.author}")
                 rchm = await r_ch.send(embed=discord.Embed(color=color.cyan, description=f"**{emoji.cup} | REGISTRATION STARTED | {emoji.cup}\n{emoji.tick} | TOTAL SLOT : {total_slot}\n{emoji.tick} | REQUIRED MENTIONS : {mentions}\n{emoji.cross} | FAKE TAGS NOT ALLOWED**"))
                 htr = ""
@@ -426,7 +433,7 @@ class EsportsCog(commands.Cog):
 
         await ctx.defer(ephemeral=True)
         ms = await ctx.send(constants.PROCESSING)
-        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=self.bot.config.invite_url, color=0x00ff00)
+        emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=self.bot.config.INVITE_URL, color=0x00ff00)
         data  = self.dbc.find({"pub" : "yes"})
         for i in data:
             obj = Tourney(i)
@@ -933,8 +940,8 @@ class EsportsCog(commands.Cog):
                     tourn.spg = spg
 
                 except Exception as e :
-                    await self.bot.get_channel(self.bot.config.erl).send(
-                        content=f"<@{self.bot.config.owner_id}>",
+                    await self.bot.log_channel.send(
+                        content=f"<@{self.bot.config.OWNER_ID}>",
                         embed=discord.Embed(
                             title=f"Error | {ctx.command.name}\n `Module : core.tourney | Line : 632`", description=f"```{e}```", 
                             color=color.red
