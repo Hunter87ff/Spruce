@@ -168,7 +168,9 @@ async def tourney(message:Message):
     
     log_channel = helper.get_tourney_log(message.guild)
 
-    async def log_event(desc:str, color:int=Color.random()):
+    async def log_event(desc:str, color:int=None):
+        if color is None:
+            color = Color.random()
         if log_channel:
 
             _embed = Embed(description=desc, color=color)
