@@ -19,7 +19,6 @@ class ScrimPayload(TypedDict, total=False):
         end_time:str
         total_slots:int
         team_count:int
-        auto_clean:bool
         time_zone:str
         ping_role:int
         reserved : list[int]
@@ -46,7 +45,6 @@ class ScrimModel:
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self.reserved : list[int] = kwargs.get("reserved", [])
-        self.auto_clean:bool = bool(kwargs.get("auto_clean", True))
         self._id:str = str(kwargs.get("_id", None))
 
 
@@ -114,10 +112,9 @@ class ScrimModel:
             "total_slots": self.total_slots,
             "team_count": self.team_count,
             "time_zone": self.time_zone,
-            "reserved": self.reserved,
-            "auto_clean" : False
+            "reserved": self.reserved
         }
-    
+
 
     def save(self):
         if not self._id:
