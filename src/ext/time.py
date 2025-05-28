@@ -105,13 +105,17 @@ class ClientTime:
                     'TO_TIMEZONE': tz,
                     }
                 )
-            #  if the parsed datetime is in the past, add a day to it
+            # Ensure parsed_datetime is not None
+            if parsed_datetime is None:
+                raise ValueError(f"Unable to parse {time_str}. Please provide a valid time in a valid format.")
+            
+            # If the parsed datetime is in the past, add a day to it
             if parsed_datetime < datetime.now(pytz.timezone(tz)):
                 parsed_datetime += timedelta(days=1)
 
             return parsed_datetime
-        except:
-            raise ValueError(f"Unable to parse {time_str}. please provide a valid time in valid format.")
+        except Exception:
+            raise ValueError(f"Unable to parse {time_str}. Please provide a valid time in a valid format.")
             
 
     def twelve_hour_format(self, time_str: str) -> str:
