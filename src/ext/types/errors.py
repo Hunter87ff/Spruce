@@ -14,3 +14,7 @@ class ContextError(Exception):
 class ContextMigrationException(Exception):
     """Exception raised when a context command is migrated to slash command"""
     pass
+
+class ScrimAlreadyExists(Exception):
+    """Exception raised when a scrim already exists."""
+    pass

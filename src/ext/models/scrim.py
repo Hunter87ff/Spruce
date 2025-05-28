@@ -1,11 +1,13 @@
-import functools
-from pymongo import MongoClient
+from discord import utils
+from datetime import datetime
+# from pymongo import MongoClient
 from typing import TypedDict, Unpack
+from ext.types.errors import ScrimAlreadyExists
 from ext.db import Database
 
 _db_ =  Database()   #MongoClient("mongodb://localhost:27017/")  # Adjust the connection string as needed
 _scrim_col = _db_.scrims    # _db_["test"]["scrims"]  # Adjust the database and collection names as needed
-
+_scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
 
 class ScrimPayload(TypedDict, total=False):
         status:bool
@@ -15,14 +17,44 @@ class ScrimPayload(TypedDict, total=False):
         reg_channel:int
         slot_channel :int
         idp_role : int
-        start_time:str
-        end_time:str
+        open_time:datetime
+        close_time:datetime
         total_slots:int
         team_count:int
         time_zone:str
         ping_role:int
+        duplicate_tag_check:bool
         reserved : list[int]
-        
+
+
+class ReservedSlotPayload(TypedDict, total=False):
+    team_name: str
+    captain_id: int
+
+
+
+class ReservedSlot:
+    def __init__(self, **kwargs: Unpack[ReservedSlotPayload]):
+        """
+        Initializes a ReservedSlot instance with the provided team name and captain ID.
+        Args:
+            team_name (str): The name of the team.
+            captain_id (int): Account ID of the captain.
+        """
+        self.team_name = kwargs.get("team_name")
+        self.captain_id = kwargs.get("captain_id")
+
+
+    def to_dict(self) -> dict:
+        """
+        Converts the ReservedSlot instance to a dictionary.
+        Returns:
+            dict: A dictionary representation of the ReservedSlot instance.
+        """
+        return {
+            "team_name": self.team_name,
+            "captain_id": self.captain_id
+        }
 
 
 class ScrimModel:
@@ -39,13 +71,18 @@ class ScrimModel:
         self.slot_channel:int = kwargs.get("slot_channel", self.reg_channel)
         self.idp_role: int = kwargs.get("idp_role")
         self.ping_role:int = kwargs.get("ping_role", None)
-        self.start_time:str = kwargs.get("start_time", "10:00 AM")
-        self.end_time:str = kwargs.get("end_time", "4:00 PM")
+        self.open_time:datetime = kwargs.get("open_time")
+        self.close_time:datetime = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
-        self.reserved : list[int] = kwargs.get("reserved", [])
         self._id:str = str(kwargs.get("_id", None))
+        self.created_at:datetime = kwargs.get("created_at", utils.utcnow()) #timestamp of when the scrim was created
+
+        self.duplicate_tag_check:bool = kwargs.get("duplicate_tag_check", True) #if true, it will check for duplicate tags in the registration channel
+        self.reserved : list[ReservedSlot] = []
+        if len(kwargs.get("reserved", [])) > 0:
+            self.reserved = [ReservedSlot(**slot) for slot in kwargs["reserved"]]
 
 
 
@@ -80,12 +117,15 @@ class ScrimModel:
             raise ValueError(f"Invalid registration channel ID. Expected an integer, got {type(self.reg_channel).__name__}.")
         if not self.guild_id or not isinstance(self.guild_id, int):
             raise ValueError(f"Invalid guild ID. Expected an integer, got {type(self.guild_id).__name__}.")
-        if not self.start_time or not isinstance(self.start_time, str):
-            raise ValueError(f"Invalid start time. Expected a string, got {type(self.start_time).__name__}.")
-        if not self.end_time or not isinstance(self.end_time, str):
-            raise ValueError(f"Invalid end time. Expected a string, got {type(self.end_time).__name__}.")
+        if not self.open_time or not isinstance(self.open_time, datetime):
+            raise ValueError(f"Invalid open time. Expected a datetime, got {type(self.open_time).__name__}.")
+        if not self.close_time or not isinstance(self.close_time, datetime):
+            raise ValueError(f"Invalid close time. Expected a datetime, got {type(self.close_time).__name__}.")
         if not self.total_slots or not isinstance(self.total_slots, int):
             raise ValueError(f"Invalid total slots. Expected an integer, got {type(self.total_slots).__name__}.")
+        if self.total_slots <= len(self.reserved):
+            raise ValueError(f"Reserved must be less than total slots. Reserved: {len(self.reserved)}, Total Slots: {self.total_slots}")
+        
         if not self.time_zone or not isinstance(self.time_zone, str):
             raise ValueError(f"Invalid time zone. Expected a string, got {type(self.time_zone).__name__}.")
         return True
@@ -105,29 +145,48 @@ class ScrimModel:
             "guild_id": self.guild_id,
             "reg_channel": self.reg_channel,
             "slot_channel": self.slot_channel,
+            "duplicate_tag_check": self.duplicate_tag_check,  
             "idp_role": self.idp_role,
             "ping_role": self.ping_role,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
+            "open_time": self.open_time,
+            "close_time": self.close_time,
             "total_slots": self.total_slots,
             "team_count": self.team_count,
             "time_zone": self.time_zone,
-            "reserved": self.reserved
+            "reserved": [slot.to_dict() for slot in self.reserved],
+            "created_at": self.created_at
         }
-
+    
 
     def save(self):
+        """
+        Saves the ScrimModel instance to the database.
+        Returns:
+            UpdateResult: The result of the update operation.
+                    
+        Raises:
+            ScrimAlreadyExists: If a scrim with the same registration channel already exists.
+            ValueError: If the instance is not valid.
+        """
         if not self._id:
-            _existing = ScrimModel.find_one(channel_id=self.reg_channel)
+            _existing = ScrimModel.find_one(reg_channel=self.reg_channel)
+
             if _existing and _existing == self:
                 return
+            
+            raise ScrimAlreadyExists("A scrim with this registration channel already exists.")
+
         self.validate()
 
-        return _scrim_col.update_one(
+        _saved = _scrim_col.update_one(
             {"channel_id": self.reg_channel},
             {"$set": self.to_dict()},
             upsert=True
         )
+        if _saved.modified_count > 0 or _saved.upserted_id:
+            _scrim_cache_by_channel[self.reg_channel] = self
+
+        return _saved
 
 
     def delete(self):
@@ -136,22 +195,55 @@ class ScrimModel:
         Returns:
             bool: True if the deletion was successful, False otherwise.
         """
+        if self.reg_channel in _scrim_cache_by_channel:
+            del _scrim_cache_by_channel[self.reg_channel]
+
         result = _scrim_col.delete_one({"reg_channel": self.reg_channel})
         return result.deleted_count > 0
 
 
     @staticmethod
-    @functools.lru_cache(maxsize=128)
-    def find_one(**kwargs:Unpack[ScrimPayload]) -> "ScrimModel":
-        data = _scrim_col.find_one(kwargs)
+    def find_by_reg_channel(channel_id:int) -> "ScrimModel | None":
+        """
+        Finds a ScrimModel instance by its registration channel ID.
+        Args:
+            channel_id (int): The registration channel ID.
+        Returns:
+            ScrimModel: The ScrimModel instance if found, None otherwise.
+        """
+        if channel_id in _scrim_cache_by_channel:
+            return _scrim_cache_by_channel[channel_id]
+        
+        data = _scrim_col.find_one({"reg_channel": channel_id})
         if data:
-            return ScrimModel(**data)
+            scrim = ScrimModel(**data)
+            _scrim_cache_by_channel[channel_id] = scrim
+            return scrim
+        _scrim_cache_by_channel[channel_id] = None
+
         return None
     
-
     @staticmethod
-    def find_by_start_time(start_time):
-        return ScrimModel.find_one(start_time=start_time, status=True)
+    def find_one(**kwargs:Unpack[ScrimPayload]) -> "ScrimModel | None":
+        """        Finds a single ScrimModel instance based on the provided keyword arguments.
+        Args:
+            **kwargs: Keyword arguments to filter the ScrimModel instances.
+        Returns:
+            ScrimModel: The first ScrimModel instance that matches the filter, or None if no match is found.
+        """
+        if "reg_channel" in kwargs:
+            channel_id = kwargs["reg_channel"]
+            if channel_id in _scrim_cache_by_channel:
+                return _scrim_cache_by_channel[channel_id]
+            
+        data = _scrim_col.find_one(kwargs)
+        if data:
+            scrim = ScrimModel(**data)
+            _scrim_cache_by_channel[scrim.reg_channel] = scrim
+            return scrim
+        
+        _scrim_cache_by_channel[kwargs.get("reg_channel", None)] = None
+        return None
 
 
     @staticmethod

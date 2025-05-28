@@ -10,7 +10,6 @@ and attach these cogs to the bot instance.
 """
 from modules.config import IS_DEV_ENV
 from typing import TYPE_CHECKING
-from cogs.channel import ChannelCog
 from cogs.dev import DevCog
 from cogs.tourney import EsportsCog
 from cogs.helpcog import HelperCog
@@ -27,7 +26,6 @@ if TYPE_CHECKING:
 
 
 _cogs : list[Cog] = [
-    ChannelCog,
     DevCog,
     HelperCog,
     RoleCog,
