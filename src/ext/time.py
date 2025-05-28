@@ -110,8 +110,8 @@ class ClientTime:
                 parsed_datetime += timedelta(days=1)
 
             return parsed_datetime
-        except:
-            raise ValueError(f"Unable to parse {time_str}. please provide a valid time in valid format.")
+        except Exception:
+            raise ValueError(f"Unable to parse {time_str}. Please provide a valid time in a valid format.")
             
 
     def twelve_hour_format(self, time_str: str) -> str:
