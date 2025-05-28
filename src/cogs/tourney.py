@@ -454,7 +454,7 @@ class EsportsCog(commands.Cog):
             
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(name="tourneys", description="Get Ongoing Tournaments in Your DM")
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.guild_only()
     async def tourneys(self, ctx:commands.Context):
@@ -463,22 +463,55 @@ class EsportsCog(commands.Cog):
         await ctx.defer(ephemeral=True)
         ms = await ctx.send(constants.PROCESSING)
         emb = discord.Embed(title="__ONGOING TOURNAMENTS__", url=self.bot.config.INVITE_URL, color=0x00ff00)
-        data  = self.dbc.find({"pub" : "yes"})
+        data  = self.dbc.find({"pub" : "yes"}).to_list()
+
+
+        def is_eligible(tourney_obj : Tourney) -> bool:
+            """
+            Check if the tournament is eligible to be displayed.
+            A tournament is eligible if it has less than 98% of its slots filled,
+            at least 10% of its slots filled, and its status is 'started'.
+            """
+            return all([
+                tourney_obj.reged < tourney_obj.tslot * 0.98, 
+                tourney_obj.reged >= tourney_obj.tslot * 0.1,
+                tourney_obj.status == "started"
+            ])
+        if len(data) == 0:
+            return await ctx.send("No Ongoing Tournaments", delete_after=30)
+
         for i in data:
-            obj = Tourney(i)
-            rch = self.bot.get_channel(int(i["rch"]))
-            if rch and obj.reged < obj.tslot*0.98 and obj.reged >= obj.tslot*0.1 and obj.status=="started":
-                link = await rch.create_invite(reason=None,max_age=360000,max_uses=0,temporary=False,unique=False,target_type=None,target_user=None,target_application_id=None)
-                emb.add_field(name=f'{obj.tname.upper()}', value=f"Prize: {obj.prize.upper()}\nServer: {rch.guild.name[0:20]}\n[Register]({link})\n---------------- ")
+            _tourney_obj = Tourney(i)
+            rch = self.bot.get_channel(int(_tourney_obj.rch))
+            if rch and is_eligible(_tourney_obj):
+                if not rch.permissions_for(ctx.guild.me).create_instant_invite:
+                    continue
+                
+                link = await rch.create_invite(
+                    max_age=360000,
+                    max_uses=0,
+                    temporary=False,
+                    unique=False,
+                    target_type=None,
+                    target_user=None,
+                    target_application_id=None
+                )
+                emb.add_field(
+                    name=f'{_tourney_obj.tname.upper()}', 
+                    value=f"Prize: {_tourney_obj.prize.upper()}\nServer: {rch.guild.name[0:20]}\n[Register]({link})\n---------------- "
+                )
 
         if len(emb.fields) > 0:
-            await ctx.author.send(embed=emb)
+            try:
+                await ctx.author.send(embed=emb)
+                await ctx.send("Please Check Your DM")
+                
+            except discord.Forbidden:
+                return await ctx.send("Please Enable Your DM to Receive Ongoing Tournaments", delete_after=30)
+                
             if ms:
                 await ms.edit(content="Please Check Your DM") 
-        else: 
-            if ms:
-                await ms.edit(content="Currently Unavailable")
-        
+                return
 
 
     @commands.hybrid_command(with_app_command = True, aliases=["pub"])
