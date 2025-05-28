@@ -281,7 +281,7 @@ class UtilityCog(commands.Cog):
     @commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
     async def embed_img(self, ctx:commands.Context, image, *, message):
-        await ctx.defer(ephemeral=True)
+        await ctx.defer(ephemeral=False)
         emb = Embed(description=message, color=color.blue)
         emb.set_image(url=image)
         await ctx.channel.purge(limit=1)

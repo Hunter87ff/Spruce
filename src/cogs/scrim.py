@@ -309,7 +309,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.followup.send(f"Scrim `{_scrim.name}` has been deleted successfully.", ephemeral=True)
 
 
-    @app.command(name="scrim_log", description="Setup or update the scrim log channel.")
+    @app.command(name="log", description="Setup or update the scrim log channel.")
     @app.guild_only()
     @app.checks.has_permissions(manage_guild=True)
     @app.checks.bot_has_permissions(manage_channels=True, send_messages=True, embed_links=True)
