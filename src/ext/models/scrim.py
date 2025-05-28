@@ -21,8 +21,38 @@ class ScrimPayload(TypedDict, total=False):
         team_count:int
         time_zone:str
         ping_role:int
+        duplicate_tag_check:bool
         reserved : list[int]
-        
+
+
+class ReservedSlotPayload(TypedDict, total=False):
+    team_name: str
+    captain_id: int
+
+
+
+class ReservedSlot:
+    def __init__(self, **kwargs: Unpack[ReservedSlotPayload]):
+        """
+        Initializes a ReservedSlot instance with the provided team name and captain ID.
+        Args:
+            team_name (str): The name of the team.
+            captain_id (int): Account ID of the captain.
+        """
+        self.team_name = kwargs.get("team_name")
+        self.captain_id = kwargs.get("captain_id")
+
+
+    def to_dict(self) -> dict:
+        """
+        Converts the ReservedSlot instance to a dictionary.
+        Returns:
+            dict: A dictionary representation of the ReservedSlot instance.
+        """
+        return {
+            "team_name": self.team_name,
+            "captain_id": self.captain_id
+        }
 
 
 class ScrimModel:
@@ -44,8 +74,12 @@ class ScrimModel:
         self.total_slots:int = kwargs.get("total_slots", 12)
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
-        self.reserved : list[int] = kwargs.get("reserved", [])
         self._id:str = str(kwargs.get("_id", None))
+
+        self.duplicate_tag_check:bool = kwargs.get("duplicate_tag_check", True) #if true, it will check for duplicate tags in the registration channel
+        self.reserved : list[ReservedSlot] = []
+        if len(kwargs.get("reserved", [])) > 0:
+            self.reserved = [ReservedSlot(**slot) for slot in kwargs["reserved"]]
 
 
 
@@ -86,6 +120,10 @@ class ScrimModel:
             raise ValueError(f"Invalid end time. Expected a string, got {type(self.end_time).__name__}.")
         if not self.total_slots or not isinstance(self.total_slots, int):
             raise ValueError(f"Invalid total slots. Expected an integer, got {type(self.total_slots).__name__}.")
+        
+        if self.total_slots <= len(self.reserved):
+            raise ValueError(f"Reserved must be less than total slots. Reserved: {len(self.reserved)}, Total Slots: {self.total_slots}")
+        
         if not self.time_zone or not isinstance(self.time_zone, str):
             raise ValueError(f"Invalid time zone. Expected a string, got {type(self.time_zone).__name__}.")
         return True
@@ -105,6 +143,7 @@ class ScrimModel:
             "guild_id": self.guild_id,
             "reg_channel": self.reg_channel,
             "slot_channel": self.slot_channel,
+            "duplicate_tag_check": self.duplicate_tag_check,  
             "idp_role": self.idp_role,
             "ping_role": self.ping_role,
             "start_time": self.start_time,
@@ -112,7 +151,7 @@ class ScrimModel:
             "total_slots": self.total_slots,
             "team_count": self.team_count,
             "time_zone": self.time_zone,
-            "reserved": self.reserved
+            "reserved": [slot.to_dict() for slot in self.reserved],
         }
 
 

@@ -53,7 +53,10 @@ class EsportsCog(commands.Cog):
             members = {m for msg in messages for m in role.guild.members if m.mention in msg.content}
             newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Role use &tourney command")
             self.dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
-            for i in members:await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
+            
+            for i in members:
+                await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
+
 
     async def get_input(self, ctx:commands.Context, check=None, timeout=30):
         """
@@ -107,8 +110,10 @@ class EsportsCog(commands.Cog):
     async def setup_tourney_log(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
 
-        
-        
+        if not self.is_tourney_mod(ctx.author):
+            return await ctx.send("You don't have `tourney-mod` role or `manager_server` permission to use this command.")
+
+
         channel = self.bot.helper.get_tourney_log(ctx.guild)
 
         if not channel:
@@ -126,7 +131,7 @@ class EsportsCog(commands.Cog):
                                 add_reactions=True, 
                                 external_emojis=True
         )
-        await ctx.send(f"**Tourney Log Channel Set To {channel.mention}**", delete_after=10)
+        await ctx.send(f"**Tourney Log Channel Set To {channel.mention}**")
         await channel.send(
             embed=discord.Embed(
                 title="Tourney Log Channel Created", 
@@ -137,13 +142,22 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.command()
+    @commands.hybrid_command(name="export_event_data", description="Export Tournament Data to CSV file", aliases=["export_tourney_data"])
+    @app_commands.guild_only()
     @commands.guild_only()
+    @app_commands.describe( registration_channel="The channel where the tournament is registered, usually the registration channel." )
     @commands.cooldown(2, 20, commands.BucketType.user)
     @permissions.tourney_mod()
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
     async def export_event_data(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:return
+
+        if not self.is_tourney_mod(ctx.author):
+            return await ctx.send("You don't have `tourney-mod` role or `manager_server` permission to use this command.", delete_after=10)
+
+        if not registration_channel:
+            return await ctx.send("Please provide a valid registration channel.", delete_after=10)
+
         try:
             _event = Tourney.findOne(registration_channel.id)
             if not _event:
@@ -200,8 +214,15 @@ class EsportsCog(commands.Cog):
 
 
     @commands.hybrid_command(description="Create tournament", with_app_command = True, aliases=['ts','setup', 'tsetup'])
+    @app_commands.describe(
+        total_slot="Total number of slots for the tournament",
+        mentions="Number of mentions required for registration",
+        slot_per_group="Number of slots per group",
+        name="Name of the tournament"
+    )
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, send_messages=True, add_reactions=True, read_message_history=True)
     @commands.guild_only()
+    @app_commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
     async def tourney_setup(self, ctx:commands.Context, total_slot:int, mentions:int, slot_per_group:int,  *, name:str):

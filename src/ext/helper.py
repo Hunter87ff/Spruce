@@ -53,16 +53,23 @@ async def duplicate_tag_check(crole:discord.Role, message:discord.Message):
     Returns:
         discord.Member | None: The first mentioned user with the same role, or None if no such user is found.
     """
-    ctx = message
-    messages = [message async for message in ctx.channel.history(limit=100)]  
+
+    class DuplicateTag:
+        def __init__(self, mention: discord.Member, message: discord.Message):
+            self.mention = mention
+            self.message = message
+
+    messages = [message async for message in message.channel.history(limit=100)]
     for fmsg in messages:
 
+        # Ignore bot messages
         if fmsg.author.bot:
-            return None
+            continue
         
-        if fmsg.author.id != ctx.author.id and crole in fmsg.author.roles:
-            for mnt in fmsg.mentions:
-                if mnt in message.mentions:return mnt
+        if fmsg.author.id != message.author.id and crole in fmsg.author.roles:
+            for mention in fmsg.mentions:
+                if mention in message.mentions:
+                    return DuplicateTag(mention, fmsg)
     return None
 
 
