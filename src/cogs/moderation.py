@@ -343,8 +343,6 @@ class ModerationCog(commands.Cog):
             emb = discord.Embed(descriptio=f'{self.bot.emoji.tick} | All permissions removed from all role below {bt.top_role.mention}')
             return await ms.edit(content=None, embed=emb)
 
-
-
     @commands.hybrid_command(name="kick", description="Kick a member from the server")
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_guild_permissions(kick_members=True, send_messages=True)
@@ -366,9 +364,6 @@ class ModerationCog(commands.Cog):
         await ctx.guild.kick(member, reason=reason or f"{member} kicked by {ctx.author}")
         await ctx.send(f"**{self.bot.emoji.tick} | {member} has been kicked**", delete_after=5)
 
-
-
-
     @commands.hybrid_command(name="ban", description="Ban a member from the server")
     @commands.bot_has_guild_permissions(ban_members=True, send_messages=True)
     @commands.has_permissions(ban_members=True)
@@ -388,3 +383,88 @@ class ModerationCog(commands.Cog):
         else:
             await ctx.guild.ban(member, reason=reason or f"{member} banned by {ctx.author}")
             await ctx.send(f"{member} banned", delete_after=5)
+
+    @commands.command(aliases=['chm'])
+    @commands.guild_only()
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True)
+    async def channel_make(self, ctx:commands.Context,  *names):
+        if ctx.author.bot:return
+        ms = await ctx.send("Processing...")
+        for name in names:
+            await ctx.guild.create_text_channel(name, reason=f"created by : {ctx.author}")
+            await sleep(1)
+        await ms.edit(content=f'**{self.bot.emoji.tick} | All channels Created.**')
+        
+
+    @commands.command(aliases=['chd'])
+    @commands.guild_only()
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True, send_messages=True)
+    async def channel_del(self, ctx:commands.Context,  *channels: discord.TextChannel):
+        ms =await ctx.send("Processing...")
+        for ch in channels:
+            await ch.delete(reason=f"deleted by: {ctx.author}")
+            await sleep(1)
+        await ms.edit(content=f'**{self.bot.emoji.tick} | Channels deleted Successfully**')
+        
+
+    @commands.hybrid_command(with_app_commands=True, aliases=['dc'])
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    @commands.bot_has_guild_permissions(manage_channels=True)
+    async def delete_category(self, ctx:commands.Context,  category: discord.CategoryChannel):
+        await ctx.defer()
+        if ctx.author.bot:return
+        
+        bt11 = discord.ui.Button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="dcd_btn")
+        bt12 = discord.ui.Button(label="Cancel", style=discord.ButtonStyle.green, custom_id="dcc_btn")
+        view = discord.ui.View()
+        for i in [bt11, bt12]:
+            view.add_item(i)
+        del_t_con = await ctx.reply(f"**Are You Sure To Delete `{category.name}`?**", view=view)
+
+
+        async def dc_confirmed(interaction:discord.Interaction):
+            emb = discord.Embed(color=0x00ff00, description=f"**{self.bot.emoji.loading} | Deleting `{category.name}` Category**")
+            await del_t_con.edit(content=None, embed=emb, view=None)
+            for channel in category.channels:
+                try:
+                    await channel.delete(reason=f'Deleted by {ctx.author.name}')
+                    await sleep(1)
+                    if len(category.channels) == 0:
+                        await category.delete()
+                        return await del_t_con.edit(
+                            embed=discord.Embed( description=f"**{self.bot.emoji.tick} | Successfully Deleted ~~{category.name}~~ Category**")
+                        ) if del_t_con else None
+                except Exception as e:
+                    self.bot.logger.error(f"core.channel Line: 95 | Error deleting channel {channel.name}: {e}")
+
+                    await del_t_con.edit(
+                        content=None,
+                        embed=discord.Embed(
+                            color=0xff0000,
+                            description=f"**{self.bot.emoji.cross} | Failed to Delete ~~{channel.name}~~ Channel**"
+                        ),
+                        view=None
+                    )
+
+        async def del_msg(interaction:discord.Interaction):
+            await interaction.message.delete()
+            
+            
+        bt11.callback = dc_confirmed
+        bt12.callback = del_msg
+
+    @commands.command(aliases=["cch"])
+    @commands.guild_only()
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_guild_permissions(manage_channels=True, manage_messages=True)
+    async def create_channel(self, ctx:commands.Context,  category:discord.CategoryChannel, *names:str):
+        if ctx.author.bot:
+            return
+        ms = await ctx.send(embed=discord.Embed(description=f"**{self.bot.emoji.loading} | Creating Channels...**"))
+        for name in names:
+            await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
+        await ms.edit(embed=discord.Embed(description=f"**{self.bot.emoji.default_tick} | All Channels Created**", color=0x00ff00))
+    

@@ -1,5 +1,5 @@
 import pytz, dateparser
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class ClientTime:
@@ -76,6 +76,43 @@ class ClientTime:
         except Exception:
             return None
         
+
+    def parse_datetime(self, time_str: str|datetime, tz: str="Asia/Tokyo", **kwargs) -> datetime:
+        """
+        Parses a time string into a datetime object in the specified timezone.
+        Args:
+            time_str (str): The time string to parse, e.g., "11 PM".
+            tz (str): The timezone to use for parsing. Default is "Asia/Tokyo".
+        Returns:
+            datetime: The parsed datetime object, adjusted to the specified timezone.
+        Raises:
+            ValueError: If the time string cannot be parsed.
+        """
+        try:
+            if kwargs.get("time"):
+                time_str = kwargs["time"]
+
+            if isinstance(time_str, datetime):
+                time_str =  time_str.strftime("%H:%M")
+                    
+            parsed_datetime = dateparser.parse(
+                time_str, 
+                
+                settings={
+                    'TIMEZONE': tz,
+                    'PREFER_DATES_FROM': 'current_period',
+                    'RETURN_AS_TIMEZONE_AWARE': True,
+                    'TO_TIMEZONE': tz,
+                    }
+                )
+            #  if the parsed datetime is in the past, add a day to it
+            if parsed_datetime < datetime.now(pytz.timezone(tz)):
+                parsed_datetime += timedelta(days=1)
+
+            return parsed_datetime
+        except:
+            raise ValueError(f"Unable to parse {time_str}. please provide a valid time in valid format.")
+            
 
     def twelve_hour_format(self, time_str: str) -> str:
         """
