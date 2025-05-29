@@ -1,10 +1,8 @@
 """
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2022 hunter87.dev@gmail.com
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
+This project is licensed under the GNU GPL v3.0.
+Copyright (C) 2022 hunter87.dev@gmail.com
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
 """
 
 import time
@@ -65,8 +63,8 @@ class Spruce(commands.AutoShardedBot):
     @property
     def current_datetime(self):
         """Returns the current time in the specified format."""
-        now = self.helper.datetime.now(self.constants.TimeZone.Asia_Kolkata.value)
-        return now
+        return self.time.now()
+
 
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
@@ -75,15 +73,17 @@ class Spruce(commands.AutoShardedBot):
             self.log_channel:TextChannel = self.get_channel(config.client_error_log)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
-            post(
-                url=self.db.cfdata.get("stwbh"), 
-                json={
-                    "content": f"<@{config.OWNER_ID}>",
-                    "embeds": [
-                        Embed(title="Status",description=starter_message, color=self.color.random()).to_dict()
-                    ],
-                }
-            )
+            if not self.config.IS_DEV_ENV:
+                post(
+                    url=self.db.cfdata.get("stwbh"),
+                    json={
+                        "content": f"<@{config.OWNER_ID}>",
+                        "embeds": [
+                            Embed(title="Status", description=starter_message, color=self.color.random()).to_dict()
+                        ],
+                    }
+                )
+                
         except Exception:
             self.logger.error(traceback.format_exc())
         
