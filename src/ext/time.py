@@ -19,8 +19,6 @@ class ClientTime:
         """Returns the current time in the specified timezone."""
         return datetime.now(self.timezone)
 
-
-
     def scrim_format(self, _time=None) -> str:
         """Returns the scrim time in the format 'HH:MM AM/PM'."""
         return (_time or self.now()).strftime("%H-%M").strip()

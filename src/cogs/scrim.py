@@ -456,6 +456,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                 await _channel.purge(limit=scrim.total_slots+10, check=purge_filter, before=start_message)
 
         scrim.status = True
+        scrim.open_time = self.bot.time.parse_datetime(scrim.open_time, tz=scrim.time_zone)  # make it customizable as future or current
         scrim.save()
 
 
@@ -592,8 +593,9 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
 
     @commands.Cog.listener()
-    async def on_close_time_hit(self, scrim:ScrimModel):
+    async def on_scrim_close_time_hit(self, scrim:ScrimModel):
         """Listener for when a scrim end time is hit."""
+        print("Close time hit for scrim:", scrim.name)
 
         _channel = self.bot.get_channel(scrim.slot_channel)
         scrim_log = self.bot.helper.get_scrim_log(_channel.guild)
@@ -643,7 +645,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         slot_embed.description = _slot_message_content
         await _channel.send(embed=slot_embed)
-        scrim.close_time = self.bot.time.parse_datetime(scrim.close_time, tz=scrim.time_zone)
+        scrim.close_time = self.bot.time.parse_datetime(scrim.close_time, tz=scrim.time_zone)  # make it customizable as future or current
         scrim.status = False
         scrim.save()
 
@@ -662,6 +664,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             "close_time": {"$lte": _time},
         }).to_list()
 
+        print(f"checking scrims at : {_time} \nOpen Scrims: {len(scrims_by_open_time)}, Close Scrims: {len(scrims_by_close_time)}")
 
         if len(scrims_by_open_time) > 0:
             for scrim in scrims_by_open_time:

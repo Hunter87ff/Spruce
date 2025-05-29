@@ -63,8 +63,8 @@ class Spruce(commands.AutoShardedBot):
     @property
     def current_datetime(self):
         """Returns the current time in the specified format."""
-        now = self.helper.datetime.now(self.constants.TimeZone.Asia_Kolkata.value)
-        return now
+        return self.time.now()
+
 
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
