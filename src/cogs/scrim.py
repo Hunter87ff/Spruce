@@ -462,7 +462,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                 await _channel.purge(limit=scrim.total_slots+10, check=purge_filter, before=start_message)
 
         scrim.status = True
-        scrim.open_time = scrim.open_time + self.ONE_DAY  # make it customizable as future or current
+        scrim.open_time = scrim.open_time + self.scrim_interval  # Interval is now configurable
         print("Set scrim open time:", self.time.parse_timestamp(scrim.open_time, tz=scrim.time_zone))
         scrim.save()
 
