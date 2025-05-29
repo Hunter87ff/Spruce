@@ -73,15 +73,17 @@ class Spruce(commands.AutoShardedBot):
             self.log_channel:TextChannel = self.get_channel(config.client_error_log)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
-            post(
-                url=self.db.cfdata.get("stwbh"), 
-                json={
-                    "content": f"<@{config.OWNER_ID}>",
-                    "embeds": [
-                        Embed(title="Status",description=starter_message, color=self.color.random()).to_dict()
-                    ],
-                }
-            )
+            if not self.config.IS_DEV_ENV:
+                post(
+                    url=self.db.cfdata.get("stwbh"),
+                    json={
+                        "content": f"<@{config.OWNER_ID}>",
+                        "embeds": [
+                            Embed(title="Status", description=starter_message, color=self.color.random()).to_dict()
+                        ],
+                    }
+                )
+                
         except Exception:
             self.logger.error(traceback.format_exc())
         

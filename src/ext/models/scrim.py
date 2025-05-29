@@ -17,8 +17,8 @@ class ScrimPayload(TypedDict, total=False):
         reg_channel:int
         slot_channel :int
         idp_role : int
-        open_time:datetime
-        close_time:datetime
+        open_time:int
+        close_time:int
         total_slots:int
         team_count:int
         time_zone:str
@@ -71,13 +71,13 @@ class ScrimModel:
         self.slot_channel:int = kwargs.get("slot_channel", self.reg_channel)
         self.idp_role: int = kwargs.get("idp_role")
         self.ping_role:int = kwargs.get("ping_role", None)
-        self.open_time:datetime = kwargs.get("open_time")
-        self.close_time:datetime = kwargs.get("close_time")
+        self.open_time:int = kwargs.get("open_time")
+        self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
-        self.created_at:datetime = kwargs.get("created_at", utils.utcnow()) #timestamp of when the scrim was created
+        self.created_at:int = kwargs.get("created_at", int(utils.utcnow().timestamp())) #timestamp of when the scrim was created
 
         self.duplicate_tag_check:bool = kwargs.get("duplicate_tag_check", True) #if true, it will check for duplicate tags in the registration channel
         self.reserved : list[ReservedSlot] = []
@@ -115,14 +115,19 @@ class ScrimModel:
         """
         if not self.reg_channel or not isinstance(self.reg_channel, int):
             raise ValueError(f"Invalid registration channel ID. Expected an integer, got {type(self.reg_channel).__name__}.")
+        
         if not self.guild_id or not isinstance(self.guild_id, int):
             raise ValueError(f"Invalid guild ID. Expected an integer, got {type(self.guild_id).__name__}.")
-        if not self.open_time or not isinstance(self.open_time, datetime):
-            raise ValueError(f"Invalid open time. Expected a datetime, got {type(self.open_time).__name__}.")
-        if not self.close_time or not isinstance(self.close_time, datetime):
-            raise ValueError(f"Invalid close time. Expected a datetime, got {type(self.close_time).__name__}.")
+        
+        if not self.open_time or not isinstance(self.open_time, int):
+            raise ValueError(f"Invalid open time. Expected an integer, got {type(self.open_time).__name__}.")
+        
+        if not self.close_time or not isinstance(self.close_time, int):
+            raise ValueError(f"Invalid close time. Expected an integer, got {type(self.close_time).__name__}.")
+        
         if not self.total_slots or not isinstance(self.total_slots, int):
             raise ValueError(f"Invalid total slots. Expected an integer, got {type(self.total_slots).__name__}.")
+        
         if self.total_slots <= len(self.reserved):
             raise ValueError(f"Reserved must be less than total slots. Reserved: {len(self.reserved)}, Total Slots: {self.total_slots}")
         
