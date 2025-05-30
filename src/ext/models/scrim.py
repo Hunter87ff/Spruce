@@ -1,4 +1,3 @@
-import functools
 from datetime import datetime
 # from pymongo import MongoClient
 from typing import TypedDict, Unpack
