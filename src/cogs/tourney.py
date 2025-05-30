@@ -470,11 +470,12 @@ class EsportsCog(commands.Cog):
             A tournament is eligible if it has less than 98% of its slots filled,
             at least 10% of its slots filled, and its status is 'started'.
             """
-            return all([
-                tourney_obj.reged < tourney_obj.tslot * 0.98, 
-                tourney_obj.reged >= tourney_obj.tslot * 0.1,
-                tourney_obj.status == "started"
+            return all([ 
+                tourney_obj.reged >= 40,
+                tourney_obj.status == "started",
+                tourney_obj.created_at > datetime.datetime.now() - datetime.timedelta(days=30),
             ])
+        
         if len(data) == 0:
             return await ctx.send("No Ongoing Tournaments", delete_after=30)
 
@@ -485,15 +486,7 @@ class EsportsCog(commands.Cog):
                 if not rch.permissions_for(ctx.guild.me).create_instant_invite:
                     continue
                 
-                link = await rch.create_invite(
-                    max_age=360000,
-                    max_uses=0,
-                    temporary=False,
-                    unique=False,
-                    target_type=None,
-                    target_user=None,
-                    target_application_id=None
-                )
+                link = await rch.create_invite(max_age=3600, unique=False)
                 emb.add_field(
                     name=f'{_tourney_obj.tname.upper()}', 
                     value=f"Prize: {_tourney_obj.prize.upper()}\nServer: {rch.guild.name[0:20]}\n[Register]({link})\n---------------- "
