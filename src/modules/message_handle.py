@@ -194,7 +194,7 @@ async def tourney(message:Message):
         
 
     elif message.channel.id  != int(td["rch"]) or td["status"] != "started": return
-    messages = [message async for message in message.channel.history(limit=2000)]
+    
     crole = utils.get(message.guild.roles, id=int(td["crole"]))
     cch = utils.get(message.guild.channels, id = int(td["cch"]))
     rch = utils.get(message.guild.channels, id = int(td["rch"]))
@@ -225,7 +225,9 @@ async def tourney(message:Message):
         await log_event(f"{rch.mention} registration is closed.")
         return await rch.send("**Registration Closed**")
     
-    elif len(valid_member_mentions) >= ments:
+    messages = [message async for message in message.channel.history(limit=1100)]
+    
+    if len(valid_member_mentions) >= ments:
         for fmsg in messages:
 
             #IF DUPLICATE TAG ALLOWED

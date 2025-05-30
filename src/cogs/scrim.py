@@ -9,14 +9,12 @@ import discord
 from typing import TYPE_CHECKING
 from ext import permissions, constants, color, emoji
 from discord.ext import commands, tasks
-from ext.models.scrim import ScrimModel
+from ext.models.scrim import ScrimModel, ReservedSlot
 from discord import Embed, TextChannel,  Interaction,   app_commands as app
 
 
 if TYPE_CHECKING:
     from modules.bot import Spruce    
-
-
 
 
 class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attrs={"help": "Manage scrims for the server."}):
@@ -30,16 +28,121 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         self.DEFAULT_TIMEZONE = constants.TimeZone.Asia_Kolkata.value
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
         self.TAG_IGNORE_ROLE = "scrim-ignore-tag"
-        self.ONE_DAY = 86400 # seconds in a day
-
-    set_group = app.Group(name="set",  description="Set or update scrim configurations.")
-    
+        self.scrim_interval = 86400 # seconds in 24 hours
 
 
-    def log_embed(self, message:str):
-        embed = Embed(title="Scrim Log", description=message, color=self.bot.color.random())
+    set_app = app.Group(name="set",  description="Set scrim configurations.")
+    setup_app = app.Group(name="setup", description="Setup scrim configurations.")
+
+
+    def log_embed(self, message:str, color=color.green):
+        embed = Embed(title="Scrim Log", description=message, color=color)
         return embed
     
+
+    async def update_open_time(self, scrim:ScrimModel, time_str:str):
+        """Update the open time of the scrim."""
+        if not scrim._id:
+            return None
+        scrim.open_time = int(self.time.parse_datetime(time_str=time_str, tz=scrim.time_zone).timestamp())
+        scrim.save()
+        return scrim
+
+
+    async def update_close_time(self, scrim:ScrimModel, time_str:str):
+        """Update the close time of the scrim."""
+        if not scrim._id:
+            return None
+        scrim.close_time = int(self.time.parse_datetime(time_str=time_str, tz=scrim.time_zone).timestamp())
+        scrim.save()
+        return scrim
+    
+
+    async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None):
+        """Setup the scrim group with the provided scrim model."""
+
+        if not scrim._id:
+            return None
+        
+        if not slot_per_group:
+            slot_per_group = scrim.total_slots
+        
+        reg_channel = self.bot.get_channel(scrim.reg_channel)
+
+        if not reg_channel:
+            raise ValueError("Registration channel not found in the scrim. Please update it.")
+        
+        if not reg_channel.permissions_for(reg_channel.guild.me).send_messages:
+            raise commands.BotMissingPermissions(
+                missing_permissions= [
+                    "send_messages",
+                    "manage_messages",
+                ]
+            )
+        
+        if not reg_channel.permissions_for(reg_channel.guild.me).read_message_history:
+            raise commands.BotMissingPermissions(
+                missing_permissions= [
+                    "read_message_history",
+                ]
+            )
+
+        slot_channel = self.bot.get_channel(scrim.slot_channel)
+        teams:list[ReservedSlot] = []
+        if scrim.reserved:
+            teams.extend(scrim.reserved)
+
+        async for message in slot_channel.history(limit=scrim.total_slots+10):
+            if message.author.id == self.bot.user.id:
+                continue
+            
+            team_name = self.bot.helper.parse_team_name(message)
+            if not team_name:
+                continue
+            
+            teams.append(ReservedSlot(team_name=team_name, captain_id=message.author.id))
+
+
+        def format_slot(number:int, team_name:str):
+            """Format the slot number and team name."""
+            return f"Slot {number:02d} -> {team_name}"
+        
+        time_taken = int(discord.utils.utcnow().timestamp()) - (scrim.open_time - self.scrim_interval)  # Interval is now configurable
+        group_embed = discord.Embed(
+            title=f"**{self.bot.emoji.cup} | {scrim.name.upper()} SLOT LIST | {self.bot.emoji.cup}**",
+            color=self.bot.color.random()
+        )
+        group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
+        _description = "```" + "\n".join(["Team "+format_slot(i, team.team_name) for i, team in enumerate(teams, start=1)]) + "```"
+        group_embed.description = _description
+
+        await reg_channel.send(embed=group_embed)
+
+
+    @setup_app.command(name="group", description="setup scrim group.")
+    @app.guild_only()
+    @app.describe(
+        reg_channel="Registration channel of the scrim to setup group (required)",
+        slot_per_group="Number of slots per group (default: 12)",   
+    )
+    @app.checks.has_permissions(manage_guild=True)
+    @app.checks.bot_has_permissions(manage_channels=True, send_messages=True, embed_links=True)
+    async def scrim_group_setup(self, ctx:Interaction, reg_channel:TextChannel, slot_per_group:app.Range[int, 1, 30] = 12):
+        """Setup the scrim group with the provided registration channel."""
+        await ctx.response.defer(ephemeral=True)
+
+        _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+
+        if not _scrim:
+            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+
+        try:
+            await self.setup_group(scrim=_scrim, slot_per_group=slot_per_group)
+            await ctx.followup.send("Scrim group setup successfully.", ephemeral=True)
+
+        except Exception as e:
+            return await ctx.followup.send(f"Error occurred while setting up scrim group: {str(e)}", ephemeral=True)
+
 
     @staticmethod
     def scrim_info_embed(scrim:ScrimModel):
@@ -84,7 +187,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         open_time: str = "10:00 AM",
         close_time: str = "4:00 PM",
         scrim_name: str = "Scrim",
-        total_slots: app.Range[int, 1, 50] = 12,
+        total_slots: app.Range[int, 1, 30] = 12,
         timezone: constants.TimeZone = constants.TimeZone.Asia_Kolkata,
         mentions: app.Range[int, 1, 5] = 4,
         idp_role: discord.Role | None = None,
@@ -317,7 +420,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.followup.send(f"Scrim `{_scrim.name}` has been deleted successfully.", ephemeral=True)
 
 
-    @set_group.command(name="log", description="Setup or update the scrim log channel.")
+    @set_app.command(name="log", description="Setup or update the scrim log channel.")
     @app.guild_only()
     @app.checks.has_permissions(manage_guild=True)
     @app.checks.bot_has_permissions(manage_channels=True, send_messages=True, embed_links=True)
@@ -377,7 +480,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             def __init__(self, bot:"Spruce", scrim: ScrimModel):
                 self.bot = bot
                 options = [
-                    discord.SelectOption(label="IDP Role", value=f"idp_role_{scrim.reg_channel}", description="View or update the IDP role for this scrim."),
+                    discord.SelectOption(label="IDP Role", value=f"idp_role_{scrim.reg_channel}", description="Update the IDP role for this scrim."),
                     discord.SelectOption(label="Ping Role", value=f"ping_role_{scrim.reg_channel}", description="View or update the ping role for this scrim."),
                     discord.SelectOption(label="Mentions", value=f"mentions_{scrim.reg_channel}", description="View or update the number of mentions required to register a team."),
                     discord.SelectOption(label="Total Slots", value=f"total_slots_{scrim.reg_channel}", description="View or update the total number of slots for this scrim."),
@@ -389,7 +492,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                     discord.SelectOption(label="Reserved Slots", value=f"reserved_slots_{scrim.reg_channel}", description="View the reserved slots for this scrim."),
                     discord.SelectOption(label="Cancel Slot", value=f"cancel_slot_{scrim.reg_channel}", description="Cancel a slot for this scrim."),
                 ]
-                super().__init__(placeholder="Select a scrim", options=options, custom_id=f"scrim_select_{scrim.reg_channel}")
+                super().__init__(placeholder="Select an action", options=options, custom_id=f"scrim_select_{scrim.reg_channel}")
                 self.scrim = scrim
 
 
@@ -652,7 +755,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         slot_embed.description = _slot_message_content
         await _channel.send(embed=slot_embed)
-        scrim.close_time += self.ONE_DAY  # make it customizable as future or current
+        scrim.close_time += self.scrim_interval  # make it customizable as future or current
         scrim.status = False
         scrim.save()
 

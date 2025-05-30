@@ -18,6 +18,22 @@ class ClientTime:
     def now(self) -> datetime:
         """Returns the current time in the specified timezone."""
         return datetime.now(self.timezone)
+    
+
+    def by_seconds(self, seconds:int):
+        """return the largest time unit and its value from the given seconds."""
+        if seconds < 60:
+            return f"{seconds} seconds"
+        elif seconds < 3600:
+            minutes = seconds // 60
+            return f"{minutes} minutes"
+        elif seconds < 86400:
+            hours = seconds // 3600
+            return f"{hours} hours"
+        else:
+            days = seconds // 86400
+            return f"{days} days"
+
 
     def scrim_format(self, _time=None) -> str:
         """Returns the scrim time in the format 'HH:MM AM/PM'."""
