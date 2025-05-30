@@ -278,12 +278,21 @@ class UtilityCog(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(send_messages=True, manage_messages=True, embed_links=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
-    async def embed_img(self, ctx:commands.Context, image, *, message):
+    async def embed_img(self, ctx:commands.Context, image:str, *, message:str):
         await ctx.defer(ephemeral=False)
-        emb = Embed(description=message, color=color.blue)
+
+        # validate image url
+        if not image.startswith("http"):
+            return await ctx.send("Invalid image URL.")
+
+
+        emb = Embed(description=message, color=self.bot.color.random())
         emb.set_image(url=image)
-        await ctx.channel.purge(limit=1)
-        await ctx.send(embed=emb) 
+
+        if ctx.message and ctx.guild.me.guild_permissions.manage_messages:
+            await ctx.message.delete()
+
+        await ctx.send(embed=emb)
 
 
     @commands.command()

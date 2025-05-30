@@ -1,4 +1,3 @@
-from discord import utils
 from datetime import datetime
 # from pymongo import MongoClient
 from typing import TypedDict, Unpack
@@ -8,6 +7,20 @@ from ext.db import Database
 _db_ =  Database()   #MongoClient("mongodb://localhost:27017/")  # Adjust the connection string as needed
 _scrim_col = _db_.scrims    # _db_["test"]["scrims"]  # Adjust the database and collection names as needed
 _scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
+
+
+class ReservedSlot:
+    def __init__(self, captain_id: int, team_name: str):
+        self.captain_id = captain_id
+        self.team_name = team_name
+
+    def to_dict(self) -> dict:
+        return {
+            "captain_id": self.captain_id,
+            "team_name": self.team_name
+        }
+
+
 
 class ScrimPayload(TypedDict, total=False):
         status:bool
@@ -24,37 +37,7 @@ class ScrimPayload(TypedDict, total=False):
         time_zone:str
         ping_role:int
         duplicate_tag_check:bool
-        reserved : list[int]
-
-
-class ReservedSlotPayload(TypedDict, total=False):
-    team_name: str
-    captain_id: int
-
-
-
-class ReservedSlot:
-    def __init__(self, **kwargs: Unpack[ReservedSlotPayload]):
-        """
-        Initializes a ReservedSlot instance with the provided team name and captain ID.
-        Args:
-            team_name (str): The name of the team.
-            captain_id (int): Account ID of the captain.
-        """
-        self.team_name = kwargs.get("team_name")
-        self.captain_id = kwargs.get("captain_id")
-
-
-    def to_dict(self) -> dict:
-        """
-        Converts the ReservedSlot instance to a dictionary.
-        Returns:
-            dict: A dictionary representation of the ReservedSlot instance.
-        """
-        return {
-            "team_name": self.team_name,
-            "captain_id": self.captain_id
-        }
+        reserved : dict[int,str]
 
 
 class ScrimModel:
@@ -77,12 +60,12 @@ class ScrimModel:
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
-        self.created_at:int = kwargs.get("created_at", int(utils.utcnow().timestamp())) #timestamp of when the scrim was created
+        self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
 
         self.duplicate_tag_check:bool = kwargs.get("duplicate_tag_check", True) #if true, it will check for duplicate tags in the registration channel
-        self.reserved : list[ReservedSlot] = []
-        if len(kwargs.get("reserved", [])) > 0:
-            self.reserved = [ReservedSlot(**slot) for slot in kwargs["reserved"]]
+        self.reserved : dict[int,str] = {}
+        if len(kwargs.get("reserved", {})) > 0:
+            self.reserved = {slot["captain_id"]: slot["team_name"] for slot in kwargs["reserved"]}
 
 
 
@@ -93,18 +76,18 @@ class ScrimModel:
 
 
     def __repr__(self):
-        _content = "\033[1;33mScrimModel\033[0m(\n"
+        _content = "\033[1;33mScrimModel\033[0m("
         for key, value in self.__dict__.items():
-            _content += f"  \033[1;35m{key}\033[0m = {value},\n"
+            _content += f"  \033[1;35m{key}\033[0m = {value},"
         return _content + ")"
 
 
     def __str__(self):
-        _content = "\033[1;33mScrimModel\033[0m(\n"
+        _content = "\033[1;33mScrimModel\033[0m("
         for key, value in self.__dict__.items():
-            _content += f"  \033[1;35m{key}\033[0m = {value},\n"
+            _content += f"  \033[1;35m{key}\033[0m = {value},"
         return _content + ")"
-    
+
 
 
     def validate(self) -> bool:
@@ -158,7 +141,7 @@ class ScrimModel:
             "total_slots": self.total_slots,
             "team_count": self.team_count,
             "time_zone": self.time_zone,
-            "reserved": [slot.to_dict() for slot in self.reserved],
+            "reserved": self.reserved,
             "created_at": self.created_at
         }
     
@@ -188,6 +171,8 @@ class ScrimModel:
             {"$set": self.to_dict()},
             upsert=True
         )
+
+
         if _saved.modified_count > 0 or _saved.upserted_id:
             _scrim_cache_by_channel[self.reg_channel] = self
 
@@ -227,7 +212,8 @@ class ScrimModel:
         _scrim_cache_by_channel[channel_id] = None
 
         return None
-    
+
+
     @staticmethod
     def find_one(**kwargs:Unpack[ScrimPayload]) -> "ScrimModel | None":
         """        Finds a single ScrimModel instance based on the provided keyword arguments.
@@ -252,7 +238,7 @@ class ScrimModel:
 
 
     @staticmethod
-    def find(**kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"]:
+    def find(**kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"] :
         """
         Finds all ScrimModel instances.
         Returns:
