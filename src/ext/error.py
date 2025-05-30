@@ -8,6 +8,7 @@ import traceback
 from ext import Logger
 import pytz, datetime
 from discord import errors as derrors
+from discord.app_commands import errors as app_errors
 from modules import config
 from discord.errors import HTTPException
 from discord import Embed, File
@@ -147,18 +148,14 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
         elif isinstance(error, HTTPException):
             await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         elif isinstance(error, commands.MissingPermissions):
-            return await ctx.send(embed=Embed(color=0xff0000, description="You don't have Permissions To Use This Command"))
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         else: 
             text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
             content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
             
-            with open("error.txt", "w", encoding="utf-8") as file:
-                file.write(text)
+            with open("error.txt", "w", encoding="utf-8") as file: file.write(text)
 
-            await bot.log_channel.send(
-                content=content,
-                file=File("error.txt")
-            )
+            await bot.log_channel.send( content=content,  file=File("error.txt")  )
             update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:

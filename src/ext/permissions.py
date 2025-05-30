@@ -86,6 +86,28 @@ def tourney_mod():
     return commands.check(predicate)
 
 
+def scrim_mod():
+    async def predicate(ctx:discord.Interaction ):
+        _is_eligible = any([
+            is_dev(ctx),
+            ctx.user.guild_permissions.manage_guild,
+            ctx.user.guild_permissions.administrator,
+            discord.utils.get(ctx.guild.roles, name="scrim-mod")
+        ])
+
+        if not _is_eligible:
+            raise discord.app_commands.errors.MissingPermissions([
+                "manage_guild",
+                "administrator",
+                "scrim-mod role"
+            ])
+        return True
+    
+    return discord.app_commands.check(predicate)
+    
+
+
+
 def dev_only():
     """Check if the user is a developer"""
     async def predicate(ctx:commands.Context):
@@ -97,20 +119,24 @@ def dev_only():
     return commands.check(predicate)
 
 
-def under_maintenance(message:str = "The command is currently under maintenance. Please try again later."):
+def under_maintenance(message:str = "The command is currently under maintenance. Please try again later.", interaction:bool = False):
     """Check if the bot is under maintenance"""
     async def predicate(ctx:commands.Context | discord.Interaction):
+
         if isinstance(ctx, discord.Interaction):
             if ctx.user.id in config.DEVELOPERS:
                 return True
             
-            await ctx.response.defer(ephemeral=True)
-            return False
+            raise discord.app_commands.errors.MissingPermissions(
+                ["developer"]
+            )
+        
         
         if ctx.author.id in config.DEVELOPERS:
             return True
         
-        await ctx.send(message, ephemeral=True, delete_after=10)
+        await ctx.send(message, delete_after=10)
         return False
-
+    if interaction:
+        return discord.app_commands.check(predicate)
     return commands.check(predicate)

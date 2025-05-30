@@ -20,6 +20,12 @@ class ClientTime:
         return datetime.now(self.timezone)
     
 
+    @staticmethod
+    def now() -> datetime:
+        """Returns the current time in the specified timezone."""
+        return datetime.now(tz=pytz.timezone("Asia/Kolkata"))
+
+
     def by_seconds(self, seconds:int):
         """return the largest time unit and its value from the given seconds."""
         if seconds < 60:
@@ -158,7 +164,7 @@ class ClientTime:
             return parsed_datetime
         
         except Exception as e:
-            raise ValueError(f"Unable to parse {time_str}. Please provide a valid time in a valid format: {e}")
+            raise ValueError(str(e))
 
     def twelve_hour_format(self, time_str: str) -> str:
         """
