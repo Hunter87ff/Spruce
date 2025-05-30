@@ -283,7 +283,7 @@ class UtilityCog(commands.Cog):
 
         # validate image url
         if not image.startswith("http"):
-            return await ctx.send("Invalid image URL.", ephemeral=True)
+            return await ctx.send("Invalid image URL.")
 
 
         emb = Embed(description=message, color=self.bot.color.random())
