@@ -142,7 +142,7 @@ async def manage_context(ctx:commands.Context, error:commands.errors.DiscordExce
         elif isinstance(error, HTTPException):
             await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         elif isinstance(error, commands.MissingPermissions):
-            return await ctx.send(embed=Embed(color=0xff0000, description=str(error).replace("and", "")))
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.")))
         else: 
             text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
             content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
@@ -175,7 +175,7 @@ async def handle_interaction_error(interaction: Interaction, error: app_commands
     """
     
     if isinstance(error, app_commands.MissingPermissions):
-        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("and", "")), ephemeral=True)
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.")), ephemeral=True)
     elif isinstance(error, app_commands.CommandOnCooldown):
         await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
     elif isinstance(error, app_commands.MissingRole):
