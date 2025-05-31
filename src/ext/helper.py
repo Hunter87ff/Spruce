@@ -47,7 +47,7 @@ def parse_team_name(message:discord.Message):
         return f"{message.author}'s team"
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
     teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
-    return teamname
+    return teamname.lower().strip()
 
 
 

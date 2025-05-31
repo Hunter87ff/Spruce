@@ -190,9 +190,12 @@ async def handle_interaction_error(interaction: Interaction, error: app_commands
         await interaction.response.send_message(embed=Embed(color=0xff0000, description="This command cannot be used in private messages."), ephemeral=True)
     elif isinstance(error, app_commands.BotMissingPermissions):
         await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("Bot", bot.user.name)), ephemeral=True)
-    
+
     else:
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.send_message(
+            embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
+            ephemeral=True
+        )
         with open("error.txt", "w", encoding="utf-8") as file: file.write("\n".join(traceback.format_exception(error)))
         if bot.log_channel.permissions_for(bot.log_channel.guild.me).attach_files:
             await bot.log_channel.send(content=f"<{bot.owner_id}>",  file=File("error.txt")  )
