@@ -15,7 +15,7 @@ from discord.ext import commands
 from discord.ui import Button, View
 from discord import app_commands
 from modules import checker
-from ext import constants, permissions, Tourney, emoji, color, files
+from ext import constants, checks, Tourney, emoji, color, files
 
 if TYPE_CHECKING:
     from modules.bot import Spruce  # Type checking
@@ -103,7 +103,7 @@ class EsportsCog(commands.Cog):
     @commands.hybrid_command(name="tourney_log", description="Setup Tourney Log Channel", aliases=["tlog"])
     @commands.guild_only()
     @app_commands.guild_only()
-    @permissions.tourney_mod()
+    @checks.tourney_mod()
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True, manage_channels=True)
     async def setup_tourney_log(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
@@ -145,7 +145,7 @@ class EsportsCog(commands.Cog):
     @commands.guild_only()
     @app_commands.describe( registration_channel="The channel where the tournament is registered, usually the registration channel." )
     @commands.cooldown(2, 20, commands.BucketType.user)
-    @permissions.tourney_mod()
+    @checks.tourney_mod()
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
     async def export_event_data(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:return
@@ -222,7 +222,7 @@ class EsportsCog(commands.Cog):
     @commands.guild_only()
     @app_commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.user)
-    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_messages=True, add_reactions=True, read_message_history=True)
+    @checks.tourney_mod()
     async def tourney_setup(self, ctx:commands.Context, total_slot:int, mentions:int, slot_per_group:int,  *, name:str):
         if ctx.author.bot:
             return None
@@ -333,12 +333,11 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["girlslobby"])
-    @commands.has_role("tourney-mod")
+    @commands.hybrid_command(description="Create a girls lobby")
     @commands.guild_only()
+    @checks.tourney_mod()
     @commands.cooldown(1, 30, commands.BucketType.user)
-    @commands.has_permissions(manage_channels=True, manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, send_messages=True)
+    @app_commands.describe(vc_amount="Number of voice channels to create")
     async def girls_lobby(self, ctx:commands.Context, vc_amount : int):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -361,10 +360,12 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Start a tournament", with_app_command = True)
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
-    @commands.bot_has_guild_permissions(manage_channels=True, send_messages=True)
+    @checks.tourney_mod()
+    @app_commands.describe(
+        registration_channel="The channel where the tournament is registered, usually the registration channel."
+    )
     async def start_tourney(self, ctx:commands.Context, registration_channel : discord.TextChannel):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -377,9 +378,12 @@ class EsportsCog(commands.Cog):
 
             
 
-    @commands.hybrid_command(with_app_command = True, aliases=['pt'])
+    @commands.hybrid_command(description="Pause a tournament", with_app_command = True, aliases=['pt'])
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
+    @checks.tourney_mod()
+    @app_commands.describe(
+        registration_channel="The channel where the tournament is registered, usually the registration channel."
+    )
     async def pause_tourney(self, ctx:commands.Context, registration_channel : discord.TextChannel):
         if ctx.author.bot:return
         await ctx.defer(ephemeral=True)
@@ -392,9 +396,14 @@ class EsportsCog(commands.Cog):
 
         
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Cancel a slot for a team", with_app_command = True)
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
+    @checks.tourney_mod()
+    @app_commands.describe(
+        registration_channel="The channel where the tournament is registered, usually the registration channel.",
+        member="The member whose slot you want to cancel",
+        reason="The reason for canceling the slot"
+    )
     async def cancel_slot(self, ctx:commands.Context, registration_channel : discord.TextChannel, member : discord.Member, reason:str="Not Provided"):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -420,10 +429,14 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Add a slot for a team", with_app_command = True)
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
-    @commands.bot_has_guild_permissions(send_messages=True, manage_roles=True)
+    @checks.tourney_mod()
+    @app_commands.describe(
+        registration_channel="The channel where the tournament is registered, usually the registration channel.",
+        member="The member to add to the slot",
+        team_name="The name of the team"
+    )
     async def add_slot(self, ctx:commands.Context, registration_channel: discord.TextChannel, member:discord.Member, *, team_name):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -505,33 +518,35 @@ class EsportsCog(commands.Cog):
                 return
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["pub"])
-    @commands.bot_has_permissions(create_instant_invite=True)
-    @commands.has_guild_permissions(manage_messages=True, manage_channels=True, manage_roles=True)
-    @commands.has_role("tourney-mod")
-    @commands.cooldown(2, 20, commands.BucketType.user)
+    @commands.hybrid_command(description="Publish a tournament", with_app_command = True, aliases=["pub"])
     @commands.guild_only()
-    async def publish(self, ctx:commands.Context, rch: discord.TextChannel, *, prize: str):
+    @commands.cooldown(2, 20, commands.BucketType.user)
+    @checks.tourney_mod()
+    @app_commands.describe(
+        reg_channel="The channel where the tournament is registered",
+        prize="The prize for the tournament"
+    )
+    async def publish(self, ctx:commands.Context, reg_channel: discord.TextChannel, *, prize: str):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
 
         if len(prize) > 30:
             return await ctx.reply("Only 30 Letters Allowed ")
         try:
-            dbcd = self.dbc.find_one({"rch" : rch.id})
+            dbcd = self.dbc.find_one({"rch" : reg_channel.id})
             if dbcd["reged"] < dbcd["tslot"]*0.1:
                 return await ctx.send("You need To Fill 10% Of Total Slot. To Publish This Tournament")
         except Exception:
             return await ctx.send(self._tnotfound)
-        self.dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
-        await ctx.send(f"**{rch.category.name} is now public**")
+        self.dbc.update_one({"rch" : reg_channel.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
+        await ctx.send(f"**{reg_channel.category.name} is now public**")
 
 
-            
-    @commands.hybrid_command(with_app_command = True)
+
+    @commands.hybrid_command(description="Toggle the fake tag filter for a tournament", with_app_command = True)
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
-    @commands.has_guild_permissions(manage_channels=True, manage_roles=True)
+    @checks.tourney_mod()
+    @app_commands.describe(registration_channel="The channel where the tournament is registered, usually the registration channel.")
     async def faketag(self, ctx:commands.Context, registration_channel: discord.TextChannel):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -578,10 +593,10 @@ class EsportsCog(commands.Cog):
         btn1.callback = disable_duplicate_tag_filter
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Manage tournament settings", with_app_command = True)
     @commands.guild_only()
-    @permissions.tourney_mod()
-    @commands.bot_has_guild_permissions(send_messages=True)
+    @checks.tourney_mod()
+    @app_commands.describe( registration_channel="The channel where the tournament is registered, usually the registration channel."  )
     async def tourney(self, ctx:commands.Context, registration_channel: discord.TextChannel):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -1051,12 +1066,11 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=['gsetup'])
-    @commands.has_role("tourney-mod")
+    @commands.hybrid_command(description="Setup group channels by position (it doesn't gives role to players)", with_app_command = True, aliases=['gsetup'])
     @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.guild)
-    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    @commands.bot_has_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    @checks.tourney_mod()
+    @app_commands.describe(prefix="Prefix for group channels", start="Starting Group Number", end="Ending Group Number", category="Category for group channels")
     async def group_setup(self, ctx:commands.Context, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
@@ -1077,13 +1091,11 @@ class EsportsCog(commands.Cog):
             await ms.edit(content=f"{emoji.tick} | Successfully Created") if ms else None
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["cs"])
+    @commands.command(name="change_slot", aliases=["cslot"])
     @commands.has_any_role("tourney-mod")
     @commands.guild_only()
-    @commands.bot_has_guild_permissions(send_messages=True, manage_messages=True)
-    @commands.has_permissions(manage_messages=True)
+    @checks.tourney_mod()
     async def change_slot(self, ctx:commands.Context, *, slot:str):
-
         await ctx.defer(ephemeral=True)
         if not ctx.message.reference:
             return await ctx.reply(
@@ -1112,9 +1124,7 @@ class EsportsCog(commands.Cog):
 
     @commands.command(enabled=False, aliases=["t_reset"])
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
-    @commands.has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    @checks.tourney_mod()
     async def tourney_reset(self, ctx:commands.Context, channel: discord.TextChannel):
         if ctx.author.bot:return 
         td = self.dbc.find_one({"rch" : channel.id})
@@ -1130,10 +1140,11 @@ class EsportsCog(commands.Cog):
         except Exception as e:return await ctx.send(f"Error : {e}")
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["autogroup"])
+    @commands.hybrid_command(description="Automatically create groups for the tournament", with_app_command = True, aliases=["autogroup"])
     @commands.guild_only()
-    @permissions.tourney_mod()
-    @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @checks.tourney_mod()
+    @app_commands.describe(registration_channel="mention the registration channel")
     async def auto_group(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:
             return
@@ -1215,11 +1226,10 @@ class EsportsCog(commands.Cog):
         await ctx.send(f"check this channel {group_channel.mention}")
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Set the manager for the tournament", with_app_command = True)
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
-    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    @checks.tourney_mod()
+    @app_commands.describe(registration_channel="The channel where the tournament is registered")
     async def set_manager(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:
             return
@@ -1253,9 +1263,7 @@ class EsportsCog(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, description="list of all the ongoing tournaments")
     @commands.guild_only()
-    @commands.has_role("tourney-mod")
-    @commands.has_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
-    @commands.bot_has_guild_permissions(send_messages=True, manage_channels=True, manage_roles=True, manage_permissions=True)
+    @checks.tourney_mod()
     async def tconfig(self,ctx:commands.Context):
         await ctx.defer()
         _msg :discord.Message
@@ -1345,7 +1353,7 @@ class EsportsCog(commands.Cog):
     # @commands.hybrid_command(with_app_command = True)
     @commands.command()
     @commands.guild_only()
-    @permissions.dev_only()
+    @checks.dev_only()
     @commands.has_role("tourney-mod")
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     async def start_reg(self, ctx:commands.Context, registration_channel:discord.TextChannel):
@@ -1411,7 +1419,7 @@ class EsportsCog(commands.Cog):
     async def on_interaction(self, interaction:discord.Interaction):
         if interaction.user.bot:return
         elif "custom_id" in interaction.data and interaction.data["custom_id"] in self.MANAGER_PREFIXES:
-            db = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
+            db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
             if not db:
                 return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
             view = View()
@@ -1422,18 +1430,27 @@ class EsportsCog(commands.Cog):
                     f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name='tourney-mod')}", 
                     ephemeral=True
                 )
+            
             if not crole:
-                return await interaction.response.send_message("Confirm Role Not Found!!")
+                self.bot.helper.get_tourney_log(interaction.guild).send(
+                    embed=discord.Embed(
+                        description=f"{emoji.cross} | Confirm Role Not Found For <#{db.get('rch')}>!!\nPlease Check The Tournament Configurations",
+                        color=self.bot.color.red
+                    )
+                )
+                return await interaction.response.send_message("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
+            
             teams = [message async for message in cch.history(limit=db["tslot"])]
             options = []
             for i in teams:
                 if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
-                    if f"<@{interaction.user.id}>" in i.embeds[0].description:
+                    if any([interaction.user.id in i.mentions, interaction.user.id in i.embeds[0].description]):
                         st = i.embeds[0].description.find("[")+1
                         en = i.embeds[0].description.find("]")
                         options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
+
             if len(options) == 0:
-                return await interaction.response.send_message("You Aren't Registered!!", ephemeral=True)
+                return await interaction.response.send_message("Unable to find your team!! ", ephemeral=True)
             cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
             view.add_item(cslotlist)
             cslotlist.callback = None    

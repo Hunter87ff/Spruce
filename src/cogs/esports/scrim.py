@@ -9,7 +9,7 @@ import discord
 import functools
 from enum import Enum
 from typing import TYPE_CHECKING
-from ext import permissions, constants, color, emoji
+from ext import constants, color, checks
 from discord.ext import commands, tasks
 from ext.models.scrim import ScrimModel, ReservedSlot
 from discord import Embed, TextChannel,  Interaction,   app_commands as app
@@ -42,18 +42,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
 
     def log_embed(self, message:str, color=color.green):
-        embed = Embed(title="Scrim Log", description=message, color=color)
+        embed = Embed(description=message, color=color)
         return embed
-    
-
-    def is_moderator(self, ctx:Interaction) -> bool:
-        """Check if the user is a moderator."""
-        return any([
-            permissions.is_dev(ctx),
-            ctx.user.guild_permissions.manage_guild,
-            ctx.user.guild_permissions.administrator,
-            discord.utils.get(ctx.guild.roles, name="scrim-mod")
-        ])
     
 
     async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None):
@@ -118,31 +108,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await reg_channel.send(embed=group_embed)
 
 
-    @setup_app.command(name="group", description="setup scrim group.")
-    @app.guild_only()
-    @app.describe(
-        reg_channel="Registration channel of the scrim to setup group (required)",
-        slot_per_group="Number of slots per group (default: 12)",   
-    )
-    
-    @app.checks.bot_has_permissions(manage_channels=True, send_messages=True, embed_links=True)
-    async def scrim_group_setup(self, ctx:Interaction, reg_channel:TextChannel, slot_per_group:app.Range[int, 1, 30] = 12):
-        """Setup the scrim group with the provided registration channel."""
-        await ctx.response.defer(ephemeral=True)
-
-        _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
-
-        if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
-
-        try:
-            await self.setup_group(scrim=_scrim, slot_per_group=slot_per_group)
-            await ctx.followup.send("Scrim group setup successfully.", ephemeral=True)
-
-        except Exception as e:
-            return await ctx.followup.send(f"Error occurred while setting up scrim group: {str(e)}", ephemeral=True)
-
-
     @staticmethod
     def scrim_info_embed(scrim:ScrimModel):
         embed = Embed(
@@ -185,7 +150,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         ping_role="Role to ping when the scrim starts (optional)",
     )
     @commands.cooldown(1, 15, commands.BucketType.guild)
-    @commands.bot_has_guild_permissions(embed_links=True, manage_messages=True, read_message_history=True)
+    @checks.scrim_mod(interaction=True)
     async def create_scrim(
         self,
         ctx: Interaction,
@@ -204,19 +169,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         """
 
         await ctx.response.defer(ephemeral=True)
-
-
-        _is_eligible = any([
-            permissions.is_dev(ctx),
-            ctx.user.guild_permissions.manage_guild,
-            ctx.user.guild_permissions.administrator,
-            discord.utils.get(ctx.guild.roles, name="scrim-mod")
-        ])
-
-        if not _is_eligible:
-            await ctx.followup.send("You do not have permission to create a scrim.", ephemeral=True)
-            return
-
 
         try:
             _parsed_open_time = int(self.time.parse_datetime(time_str=open_time, tz=timezone.value).timestamp())
@@ -294,10 +246,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @app.command(name="start", description="Start a scrim by its ID.")
     @app.guild_only()
-    
-    @app.describe(
-        reg_channel="ID of the scrim to start (required)",
-    )
+    @checks.scrim_mod(interaction=True)
+    @app.describe(  reg_channel="ID of the scrim to start (required)")
     async def start_scrim(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
         """Start a scrim by its ID."""
         await ctx.response.defer(ephemeral=True)
@@ -315,9 +265,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @app.command(name="audit", description="Audit a scrim by its ID.")
     @app.guild_only()
-    @app.describe(
-        reg_channel="Registration channel of the scrim to audit (required)",
-    )
+    @checks.scrim_mod(interaction=True)
+    @app.describe( reg_channel="Registration channel of the scrim to audit (required)")
     async def audit_scrim(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
         """Audit a scrim by its registration channel."""
         await ctx.response.defer(ephemeral=True)
@@ -397,6 +346,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
 
     @app.command(name="info", description="Get information about a scrim by its ID.")
+    @checks.scrim_mod(interaction=True)
     @app.guild_only()
     @app.describe(
         reg_channel="Registration channel of the scrim to get information about (required)",
@@ -424,7 +374,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         reg_channel="Registration channel of the scrim to set fake tag filter (required)",
         fake_tag="Enable or disable fake tag filter (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def set_fake_tag(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, fake_tag:DuplicateTagCheck):
         """Enable or disable fake tag filter for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -447,7 +397,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         reg_channel="Registration channel of the scrim to set IDP role (required)",
         idp_role="IDP role to set for the scrim (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def set_idp_role(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, idp_role:discord.Role):
         """Set or update the IDP role for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -469,7 +419,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         reg_channel="Registration channel of the scrim to set ping role (required)",
         ping_role="Ping role to set for the scrim (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def set_ping_role(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, ping_role:discord.Role):
         """Set or update the ping role for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -491,7 +441,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         reg_channel="Registration channel of the scrim to update mentions (required)",
         mentions="Number of mentions required to register a team (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def set_mentions(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, mentions:int):
         """Set or update the number of mentions required to register a team for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -514,7 +464,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         reg_channel="Registration channel of the scrim to update total slots (required)",
         total_slots="Total number of slots for the scrim (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def set_total_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, total_slots:int):
         """Set or update the total number of slots for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -533,11 +483,11 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @set_app.command(name="open_time", description="Set or update the open time for a scrim.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to update open time (required)",
         open_time="Open time for the scrim (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
     async def set_open_time(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, open_time:str):
         """Set or update the open time for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -557,9 +507,9 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @set_app.command(name="close_time", description="Set or update the close time for a scrim.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(reg_channel="Registration channel of the scrim to update close time (required)",
                   close_time="Close time for the scrim (required)")
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
     async def set_close_time(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, close_time:str):
         """Set or update the close time for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -583,6 +533,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @set_app.command(name="time_zone", description="Set or update the time zone for a scrim.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to update time zone (required)",
         time_zone="Time zone for the scrim (required)",
@@ -606,9 +557,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @set_app.command(name="reg_channel", description="Set or update the registration channel for a scrim.")
     @app.guild_only()
-    @app.describe(
-        reg_channel="Registration channel of the scrim to update (required)",
-    )
+    @checks.scrim_mod(interaction=True)
+    @app.describe( reg_channel="Registration channel of the scrim to update (required)")
     @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
     async def set_reg_channel(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
         """Set or update the registration channel for a scrim."""
@@ -627,6 +577,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @set_app.command(name="slot_channel", description="Set or update the slot channel for a scrim.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to update slot channel (required)",
         slot_channel="Slot channel for the scrim (required)",
@@ -647,15 +598,39 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.followup.send(f"Slot channel for scrim `{_scrim.name}` has been set to <#{slot_channel.id}>.", ephemeral=True)
 
 
+    @setup_app.command(name="group", description="setup scrim group.")
+    @app.guild_only()
+    @app.describe(
+        reg_channel="Registration channel of the scrim to setup group (required)",
+        slot_per_group="Number of slots per group (default: 12)",   
+    )
+    @checks.scrim_mod(interaction=True)
+    async def scrim_group_setup(self, ctx:Interaction, reg_channel:TextChannel, slot_per_group:app.Range[int, 1, 30] = 12):
+        """Setup the scrim group with the provided registration channel."""
+        await ctx.response.defer(ephemeral=True)
+
+        _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+
+        if not _scrim:
+            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+
+        try:
+            await self.setup_group(scrim=_scrim, slot_per_group=slot_per_group)
+            await ctx.followup.send("Scrim group setup successfully.", ephemeral=True)
+
+        except Exception as e:
+            return await ctx.followup.send(f"Error occurred while setting up scrim group: {str(e)}", ephemeral=True)
+
 
     @add_app.command(name="reserved_slots", description="View or update the reserved slots for a scrim.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to view or update reserved slots (required)",
         team_name="Name of the team to reserve a slot (required)",
         captain="ID of the captain of the team (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def add_reserved_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, team_name:str, captain:discord.Member):
         """View or update the reserved slots for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -680,11 +655,11 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     
     @remove_app.command(name="reserved_slots", description="View or remove a reserved slot for a scrim.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to view or remove reserved slots (required)",
         captain="ID of the captain of the team whose reserved slot you want to remove (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
     async def remove_reserved_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, captain:discord.Member):
         """View or remove a reserved slot for a scrim."""
         await ctx.response.defer(ephemeral=True)
@@ -705,16 +680,12 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
 
 
-
-
-
-
     @app.command(name="delete", description="Delete a scrim by its ID.")
     @app.guild_only()
+    @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to delete (required)",
     )
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, manage_messages=True, read_message_history=True)
     async def delete_scrim(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
         """Delete a scrim by its registration channel."""
         await ctx.response.defer(ephemeral=True)
@@ -733,11 +704,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @app.command(name="toggle", description="Toggle the status of a scrim by its ID.")
     @app.guild_only()
-    @app.describe(
-        reg_channel="Registration channel of the scrim to toggle (required)",
-    )
-    
-    @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
+    @app.describe(reg_channel="Registration channel of the scrim to toggle (required)",)
     async def toggle_scrim(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
         await ctx.response.defer(ephemeral=True)
         """Toggle the status of a scrim by its registration channel."""
@@ -757,8 +725,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @set_app.command(name="log", description="Setup or update the scrim log channel.")
     @app.guild_only()
-    
-    @app.checks.bot_has_permissions(manage_channels=True, send_messages=True, embed_links=True)
+    @checks.scrim_mod(interaction=True)
     async def scrim_log(self, ctx:discord.Interaction):
         await ctx.response.defer(ephemeral=True)
 
@@ -795,8 +762,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @app.command(name="list", description="List all scrims in the server.")
     @app.guild_only()
-    @permissions.under_maintenance()
-    
+    @checks.under_maintenance(interaction=True)
     async def list_scrims(self, ctx:discord.Interaction):
         """List all scrims in the server."""
         await ctx.response.defer(ephemeral=True)
@@ -874,7 +840,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         if not _channel.guild.me.guild_permissions.manage_roles:
 
             return await self.bot.helper.get_scrim_log(_channel.guild).send(
-                embed=self.log_embed(f"Scrim {scrim.name} could not be started as I don't have permission to manage roles.")
+                embed=self.log_embed(f"Scrim {scrim.name} could not be started as I don't have permission to manage roles.", color=self.bot.color.red)
             ) if self.bot.helper.get_scrim_log(_channel.guild) else None
 
         if _channel.permissions_for(_channel.guild.me).send_messages:
@@ -903,9 +869,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
             if _channel.permissions_for(_channel.guild.me).manage_messages:
                 await _channel.purge(limit=scrim.total_slots+10, check=purge_filter, before=start_message)
-
-
-
 
 
     @commands.Cog.listener()
@@ -1000,7 +963,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             )
             await message.delete()
             await log_channel.send(
-                embed=self.log_embed(f"{message.author.mention} tried to register a team but did not mention enough members. Required: {_scrim.mentions}, Mentioned: {len(message.mentions)}")
+                embed=self.log_embed(f"{message.author.mention} tried to register a team but did not mention enough members. Required: {_scrim.mentions}, Mentioned: {len(message.mentions)}", color=self.bot.color.red)
             ) if log_channel else None
             return
 

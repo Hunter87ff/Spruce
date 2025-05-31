@@ -10,7 +10,7 @@
 import discord
 from modules import config, payment
 from discord.ext import commands
-from ext import permissions, Tourney
+from ext import checks
 from typing import Any, TYPE_CHECKING
 import psutil, enum
 
@@ -39,7 +39,7 @@ class DevCog(commands.Cog):
 
 
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
-    @permissions.dev_only()
+    @checks.dev_only()
     async def getprime(self, interaction:discord.Interaction, plan:Plans):
         ctx = interaction
         if ctx.user.bot or ctx.user.id not in self.bot.devs:return
@@ -65,7 +65,7 @@ class DevCog(commands.Cog):
 
 
     @commands.command(hidden=True)
-    @permissions.dev_only()
+    @checks.dev_only()
     async def system(self, ctx:commands.Context):
         if ctx.author.bot:return
         cpu_usage = psutil.cpu_percent()
@@ -83,7 +83,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         
     @commands.command(hidden=True)
     @commands.guild_only()
-    @permissions.dev_only()
+    @checks.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def leaveg(self, ctx:commands.Context, member:int, guild_id:int=None):
         if ctx.author.bot:return
@@ -102,7 +102,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
                 await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
     @commands.command(aliases=["dbu"])
-    @permissions.dev_only()
+    @checks.dev_only()
     async def dbupdate(self, ctx:commands.Context, key:str, *, value:Any):
         if ctx.author.bot:return
         try:
@@ -113,7 +113,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
 
     @commands.command()
-    @permissions.dev_only()
+    @checks.dev_only()
     async def get_guild(self, ctx:commands.Context, guild:discord.Guild):
         if ctx.author.bot: return
         await ctx.defer()
@@ -127,7 +127,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command()
     @commands.guild_only()
-    @permissions.dev_only()
+    @checks.dev_only()
     async def dlm(self, ctx:commands.Context, msg:discord.Message):
         if ctx.author.bot:return
         try:
@@ -136,7 +136,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         except Exception:return await ctx.send("Not Possible")
 
     @commands.command()
-    @permissions.dev_only()
+    @checks.dev_only()
     @commands.dm_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def cdm(self, ctx:commands.Context,amount:int):
@@ -148,7 +148,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.hybrid_command(with_app_command = True, hidden=True)
     @commands.is_owner()
-    @permissions.dev_only()
+    @checks.dev_only()
     async def edm(self, ctx:commands.Context, msg:discord.Message, *, content):
         if ctx.author.bot: return
         await ctx.defer(ephemeral=True)
@@ -160,7 +160,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command(hidden=True)
     @commands.guild_only()
-    @permissions.dev_only()
+    @checks.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def sdm(self, ctx:commands.Context, member: discord.User, *, message):
         if ctx.author.id == config.OWNER_ID:
@@ -173,7 +173,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command()
     @commands.guild_only()
-    @permissions.dev_only()
+    @checks.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def owners(self, ctx:commands.Context):
         ms = await ctx.send(f"{config.loading} Processing...")
@@ -202,7 +202,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command()
     @commands.guild_only()
-    @permissions.dev_only()
+    @checks.dev_only()
     async def get_log(self, ctx:commands.Context):
         if ctx.author.bot:return
         await ctx.send(file=discord.File("error.log"))
