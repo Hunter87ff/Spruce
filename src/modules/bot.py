@@ -43,7 +43,6 @@ class Spruce(commands.AutoShardedBot):
         self.constants = constants
         self.log_channel:TextChannel
         self.time = ClientTime()
-
         super().__init__(
             shard_count=config.SHARDS, 
             command_prefix= commands.when_mentioned_or(config.PREFIX),
@@ -51,6 +50,14 @@ class Spruce(commands.AutoShardedBot):
             allowed_mentions=AllowedMentions(everyone=False, roles=True, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
+        self.tree.on_error = self.tree_error_handler
+
+
+
+    async def tree_error_handler(self, interaction, error):
+        await error_handle.handle_interaction_error(interaction, error, self)
+
+
 
     async def setup_hook(self) -> None:
         # Remove default help command 

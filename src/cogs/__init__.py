@@ -11,14 +11,14 @@ and attach these cogs to the bot instance.
 from modules.config import IS_DEV_ENV
 from typing import TYPE_CHECKING
 from cogs.dev import DevCog
-from cogs.tourney import EsportsCog
+from cogs.esports import EsportsCog
 from cogs.helpcog import HelperCog
 from cogs.moderation import ModerationCog
 from cogs.music import MusicCog
 from cogs.role import RoleCog
 from cogs.tasks import TaskCog
 from cogs.utility import UtilityCog
-from cogs.scrim import ScrimCog
+from cogs.esports import ScrimCog
 from discord.ext.commands import Cog
 
 if TYPE_CHECKING:

@@ -6,16 +6,15 @@ of this license document, but changing it is not allowed.
 """
 import traceback
 from ext import Logger
-import pytz, datetime
-from discord import errors as derrors
-from discord.app_commands import errors as app_errors
-from modules import config
-from discord.errors import HTTPException
-from discord import Embed, File
-from ext.constants import TimeZone
 from ext import types
+import pytz, datetime
+from modules import config
+import discord
+from discord.errors import HTTPException
+from discord import Embed, File, Interaction, app_commands, errors
+from ext.constants import TimeZone
 from discord.ext import commands
-from discord.ext.commands import errors
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -65,18 +64,18 @@ async def manage_backend_error(error: Exception, bot: "Spruce"):
         None
     """
 
-    if isinstance(error, derrors.HTTPException):
+    if isinstance(error, errors.HTTPException):
         await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
-    elif isinstance(error, derrors.ConnectionClosed):
+    elif isinstance(error, errors.ConnectionClosed):
         await bot.log_channel.send(f"```json\n{error}\n```")
-    elif isinstance(error, derrors.GatewayNotFound):
+    elif isinstance(error, errors.GatewayNotFound):
         await bot.log_channel.send(f"```json\n{error}\n```")
-    elif isinstance(error, derrors.RateLimited):
+    elif isinstance(error, errors.RateLimited):
         await bot.log_channel.send(f"```json\n{error}\n```")
 
 
 
-async def manage_context(ctx:commands.Context, error:errors.DiscordException, bot:"Spruce", _msg: str = None, *args, **kwargs):
+async def manage_context(ctx:commands.Context, error:commands.errors.DiscordException, bot:"Spruce", _msg: str = None, *args, **kwargs):
     """
     manages all the errors and sends them to the error log channel
     """
@@ -94,7 +93,8 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
 
         elif isinstance(error, types.errors.ContextMigrationException):
             return await ctx.send(embed=Embed(color=0xff0000, description="This command has been migrated to a slash command. Please use the new command format."))
-        
+        elif isinstance(error, commands.BotMissingPermissions):
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error).replace("Bot", bot.user.name)))
         elif isinstance(error, commands.EmojiNotFound):
             return await ctx.send(embed=Embed(color=0xff0000, description="Emoji Not Found"))
         elif isinstance(error, commands.NotOwner):
@@ -111,18 +111,12 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
             return await ctx.send(embed=Embed(color=0xff0000, description="Can Not Read Messages Of The Channel"))
         elif isinstance(error, commands.CommandOnCooldown):
             return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
-        elif "Manage Messages" in str(error):
-            return await ctx.send(embed=Embed(description="Missing `Manage Messages` Permission", color=0xff0000))
         elif "Unknown file format." in str(error):
             return await ctx.send(embed=Embed(description="Invalid Input", color=0xff0000))
-        elif "Send Messages" in str(error):
-            return await ctx.author.send(embed=Embed(description=f"I don't have Permissions To Send message in this channel - {ctx.channel.mention}", color=0xff0000))
         elif "This playlist type is unviewable." in str(error):
             return await ctx.send(embed=Embed(description="This playlist type is unsupported!", color=0xff0000))
         elif "Maximum number of channels in category reached (50)" in str(error):
             return await ctx.send(embed=Embed(description="Maximum number of channels in category reached (50)", color=0xff0000), delete_after=30)
-        elif isinstance(error, commands.BotMissingPermissions):
-            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
         elif "error code: 10003" in str(error):
             return await ctx.send(embed=Embed(description="Channel Deleted Or Invalid", color=0xff0000))
         elif "error code: 50013" in str(error):
@@ -148,7 +142,7 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
         elif isinstance(error, HTTPException):
             await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
         elif isinstance(error, commands.MissingPermissions):
-            return await ctx.send(embed=Embed(color=0xff0000, description=str(error)))
+            return await ctx.send(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.")))
         else: 
             text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
             content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
@@ -162,3 +156,43 @@ async def manage_context(ctx:commands.Context, error:errors.DiscordException, bo
         bot.logger.warning(traceback.format_exception(e), "ext.error")
         update_error_log(''.join(traceback.format_exception(type(e), e, e.__traceback__)))
         
+
+
+async def handle_interaction_error(interaction: Interaction, error: app_commands.AppCommandError, bot: "Spruce"):
+    """
+    Manages errors that occur during interaction commands.
+    
+    This function handles various types of errors that can occur during interaction commands
+    and sends appropriate error messages to the user.
+    
+    Args:
+        interaction (types.Interaction): The interaction object containing user and guild information.
+        error (app_errors.AppCommandError): The error that occurred during the interaction command.
+        bot (Spruce): The bot instance to send error messages.
+        
+    Returns:
+        None
+    """
+    
+    if isinstance(error, app_commands.MissingPermissions):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.")), ephemeral=True)
+    elif isinstance(error, app_commands.CommandOnCooldown):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
+    elif isinstance(error, app_commands.MissingRole):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
+    elif isinstance(error, app_commands.MissingAnyRole):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
+    elif isinstance(error, app_commands.CheckFailure):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
+    elif isinstance(error, app_commands.CommandNotFound):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
+    elif isinstance(error, app_commands.NoPrivateMessage):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description="This command cannot be used in private messages."), ephemeral=True)
+    elif isinstance(error, app_commands.BotMissingPermissions):
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("Bot", bot.user.name)), ephemeral=True)
+    
+    else:
+        await interaction.response.defer(ephemeral=True)
+        with open("error.txt", "w", encoding="utf-8") as file: file.write("\n".join(traceback.format_exception(error)))
+        if bot.log_channel.permissions_for(bot.log_channel.guild.me).attach_files:
+            await bot.log_channel.send(content=f"<{bot.owner_id}>",  file=File("error.txt")  )

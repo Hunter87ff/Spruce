@@ -7,6 +7,7 @@
  of this license document, but changing it is not allowed.
 """
 
+
 from ext.logger import Logger
 from ext.modals import Tourney
 import ext.constants as constants
@@ -15,9 +16,9 @@ from ext.color import Color as color
 from ext.db import Database
 import ext.error as error
 import ext.files as files
-from ext import helper
+from ext import helper, checks
 from ext.time import ClientTime
-import ext.permissions as permissions
+import ext.permissionss as permissionss
 
 
 __all__ = (
@@ -27,11 +28,12 @@ __all__ = (
     "constants",
     "emoji",
     "color",
-    "permissions",
+    "permissionss",
     "error",
     "files",
     "helper",
     "ClientTime",
+    "checks",
 )
 
 
