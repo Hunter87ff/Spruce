@@ -18,7 +18,7 @@ import ext.error as error
 import ext.files as files
 from ext import helper, checks
 from ext.time import ClientTime
-import ext.permissions as permissions
+import ext.permissionss as permissionss
 
 
 __all__ = (
@@ -28,7 +28,7 @@ __all__ = (
     "constants",
     "emoji",
     "color",
-    "permissions",
+    "permissionss",
     "error",
     "files",
     "helper",
