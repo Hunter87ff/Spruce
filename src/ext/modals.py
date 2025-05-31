@@ -242,22 +242,3 @@ class Tourney:
         self.obj["cgp"] = value
         tourneys.update_one({"rch": self.rch}, {"$set": {"cgp": value}})
 
-
-class Scrim:
-    def __init__(self, obj:dict):
-        self.guild_id:int = obj.get("guild_id")
-        self.slot:int = obj.get("slot")
-        self.time:str = obj.get("time")
-        self.zone:str = obj.get("zone")
-        self.channel_id:int = obj.get("channel_id")
-        self.role_id:int = obj.get("role_id")
-        self.status:str = obj.get("status")
-        self.started:bool = obj.get("started")
-        self.reged:int = obj.get("reged")
-
-
-class ScrimOpenPayload:
-    def __init__(self, obj:dict):
-        self.started=bool(obj.get("started", False))
-        self.slot:int = obj.get("slot")
-        self.channel_id:int = obj.get("channel_id")
