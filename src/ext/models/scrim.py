@@ -1,4 +1,5 @@
 from datetime import datetime
+import functools
 # from pymongo import MongoClient
 from typing import TypedDict, Unpack
 from ext.types.errors import ScrimAlreadyExists
@@ -16,11 +17,27 @@ class ReservedSlot:
 
     def to_dict(self) -> dict:
         return {
-            "captain_id": self.captain_id,
-            "team_name": self.team_name
+            "captain": self.captain_id,
+            "name": self.team_name
         }
 
 
+class Team:
+    def __init__(self, name: str, captain_id: int):
+        self.name = name
+        self.captain_id = captain_id
+
+    def __eq__(self, other):
+        if not isinstance(other, Team):
+            return NotImplemented
+        return self.name.lower() == other.name.lower() and self.captain_id == other.captain_id
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "captain": self.captain_id
+        }
+    
 
 class ScrimPayload(TypedDict, total=False):
         status:bool
@@ -58,15 +75,17 @@ class ScrimModel:
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
         self.team_count:int = kwargs.get("team_count", 0)
+        self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] #[{team_name, captain_id}, ...]
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
-
+        self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
+        self.duplicate_team:bool = kwargs.get("duplicate_team", False) #if true, it will allow duplicate teams to register
         self.duplicate_tag_check:bool = kwargs.get("duplicate_tag_check", True) #if true, it will check for duplicate tags in the registration channel
-        self.reserved : dict[int,str] = {}
-        if len(kwargs.get("reserved", {})) > 0:
-            self.reserved = {slot["captain_id"]: slot["team_name"] for slot in kwargs["reserved"]}
-
+        self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] #[{team_name, captain_id}, ...]
+        self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
+        self.clear_messages:bool = kwargs.get("clear_messages", True) #if true, it will purge the messages in the registration channel when the scrim is closed
+        self.clear_idp_role:bool = kwargs.get("clear_idp_role", True) #if true, it will remove the idp role from the users when the scrim is closed
 
 
     def __eq__(self, other):
@@ -127,26 +146,83 @@ class ScrimModel:
             dict: A dictionary representation of the ScrimModel instance.
         """
         return {
-            "name": self.name,
-            "status": self.status,
-            "mentions" : self.mentions,
+            "created_at": self.created_at,
+            "close_time": self.close_time,
+            "duplicate_team": self.duplicate_team,
+            "duplicate_tag_check": self.duplicate_tag_check, 
             "guild_id": self.guild_id,
+            "idp_role": self.idp_role,
+            "mentions": self.mentions,
+            "name": self.name,
+            "ping_role": self.ping_role,
+            "open_days": self.open_days,
+            "open_time": self.open_time,
+            "reserved": [team.to_dict() for team in self.reserved],
             "reg_channel": self.reg_channel,
             "slot_channel": self.slot_channel,
-            "duplicate_tag_check": self.duplicate_tag_check,  
-            "idp_role": self.idp_role,
-            "ping_role": self.ping_role,
-            "open_time": self.open_time,
-            "close_time": self.close_time,
+            "status": self.status,
             "total_slots": self.total_slots,
-            "team_count": self.team_count,
+            "team_count": self.team_count, #deprecated, use teams instead
             "time_zone": self.time_zone,
-            "reserved": self.reserved,
-            "created_at": self.created_at
+            "teams": [team.to_dict() for team in self.teams],
+            "team_compulsion": self.team_compulsion,
+            "clear_messages": self.clear_messages,
+            "clear_idp_role" : self.clear_idp_role,
         }
     
 
-    def save(self):
+    @functools.lru_cache(maxsize=128)
+    def find_teams(self, team_name:str=None, captain_id:int=None) -> list[Team]:
+        """
+        Finds a team by its name or captain ID.
+        Args:
+            team_name (str): The name of the team.
+            captain_id (int): The ID of the team captain.
+        Returns:
+            int: The captain ID if found, None otherwise.
+        """
+        teams : list[Team] = []
+        if team_name and not captain_id:
+            teams = [team for team in self.teams if team.name.lower() == team_name.lower()]
+
+        elif captain_id and not team_name:
+            teams = [team for team in self.teams if team.captain_id == captain_id]
+        
+        elif team_name and captain_id:
+            teams = [team for team in self.teams if team.name.lower() == team_name.lower() and team.captain_id == captain_id]
+        
+        return teams
+    
+
+    def add_team(self, captain_id:int, team_name:str) -> Team:
+        """
+        Adds a team to the scrim.
+        Args:
+            captain_id (int): The ID of the team captain.
+            team_name (str): The name of the team.
+        Returns:
+            Team: The added team.
+        """
+        new_team = Team(name=team_name, captain_id=captain_id)
+        if not self.duplicate_team and new_team in self.teams:
+            raise ValueError(f"Duplicate team is not allowed. <@{captain_id}> already has a team named {team_name}.")
+        
+        self.teams.append(new_team)
+        self.team_count += 1
+        return new_team
+
+
+
+    def clear_teams(self):
+        """
+        remove all the teams except the reserved teams. currently not implimented the next idea. for now it's just a wrapper
+        """
+        self.teams = []
+ 
+
+
+
+    async def save(self):
         """
         Saves the ScrimModel instance to the database.
         Returns:
@@ -167,7 +243,7 @@ class ScrimModel:
         self.validate()
 
         _saved = _scrim_col.update_one(
-            {"channel_id": self.reg_channel},
+            {"reg_channel": self.reg_channel},
             {"$set": self.to_dict()},
             upsert=True
         )

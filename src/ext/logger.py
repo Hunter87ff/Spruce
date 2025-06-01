@@ -8,9 +8,12 @@ of this license document, but changing it is not allowed.
 import logging
 import datetime
 import pytz
+import functools
+from .color import Color 
 from discord.utils import setup_logging
 import discord
 
+_log_channel_cache: dict[int, discord.TextChannel] = {}
 
 
 class Logger:
@@ -44,7 +47,11 @@ class Logger:
     
 
     @staticmethod
+    @functools.lru_cache(maxsize=1000)
     async def get_log_channel(guild:"discord.Guild", option:str="tourney") -> "discord.TextChannel | None":
+        if guild.id in _log_channel_cache:
+            return _log_channel_cache[guild.id]
+        
         _bot_name = guild.me._user.name.strip()
         _log_channel_name = f"{_bot_name}-{option}-log"
         
@@ -52,7 +59,24 @@ class Logger:
         if not _log_channel and guild.me.guild_permissions.manage_channels:
             _log_channel = await guild.create_text_channel(_log_channel_name, reason="Creating log channel for the bot")
 
+        if _log_channel:
+            _log_channel_cache[guild.id] = _log_channel
+            
         return _log_channel
+    
+
+    @staticmethod
+    async def scrim_log(guild:"discord.Guild", message:str, color=Color.cyan) -> "discord.Message | None":
+        """
+        Logs a message to the scrim log channel of the guild.
+        If the log channel does not exist, it will create one.
+        """
+
+        _log_channel = await Logger.get_log_channel(guild, "scrim")
+        embed = discord.Embed( description=message, color=color )
+        if all([_log_channel, _log_channel.permissions_for(guild.me).send_messages]):
+            await _log_channel.send(embed=embed)
+
 
 
     @staticmethod
