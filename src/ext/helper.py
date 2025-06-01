@@ -51,7 +51,7 @@ def parse_team_name(message:discord.Message):
 
 
 
-async def duplicate_tag_check(crole:discord.Role, message:discord.Message):
+async def duplicate_tag(crole:discord.Role, message:discord.Message):
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
