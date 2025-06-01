@@ -642,7 +642,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         if not _scrim.reserved:
             return await ctx.followup.send("No reserved slots found for this scrim.", ephemeral=True)
 
-        reserved_slots = "\n".join([f"Captain: <@{captain_id}>, Team: {team_name}" for captain_id, team_name in _scrim.reserved.items()])
+        reserved_slots = "\n".join([f"Captain: <@{team.captain_id}>, Team: {team.name}" for team in _scrim.reserved])
         embed = Embed(
             title=f"Reserved Slots for Scrim: {_scrim.name}",
             description=reserved_slots,
