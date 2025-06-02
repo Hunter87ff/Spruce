@@ -1564,3 +1564,12 @@ class EsportsCog(commands.Cog):
         # Currently Testing on this and not sure to impliment this or not
         elif "custom_id" in interaction.data and interaction.data["custom_id"].startswith("db_reg_btn"):
             await self.register(interaction)
+
+
+    @commands.Cog.listener()
+    async def  on_guild_channel_delete(self, channel:discord.TextChannel):
+        tourch = self.dbc.find_one({"rch" : channel.id})
+        dlog = self.bot.get_channel(self.bot.config.tourney_delete_log)
+        if tourch:
+            self.dbc.delete_one({"rch" : channel.id})
+            await dlog.send(f"```json\n{tourch}\n```")

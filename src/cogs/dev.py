@@ -7,10 +7,11 @@
  of this license document, but changing it is not allowed.
  """
 
-import discord
+import discord, os
 from modules import config, payment
 from discord.ext import commands
 from ext import checks
+from ext.models import Tester
 from typing import Any, TYPE_CHECKING
 import psutil, enum
 
@@ -61,6 +62,39 @@ class DevCog(commands.Cog):
                 color=0x00ff00
                 ),
             view=discord.ui.View().add_item(button))
+        
+
+    @commands.command(hidden=True)
+    @checks.dev_only()
+    async def add_tester(self, ctx:commands.Context, member:discord.Member, guild:discord.Guild=None):
+        """
+        Add a user to the tester list.
+        """
+        if ctx.author.bot:return
+        if member not in self.bot.config.TESTERS:
+            _tester = Tester(id=member.id, name=str(member),  guild=guild.id if guild else None,  level=0.0,  active=True  )
+            await _tester.save(self.bot)
+            self.bot.config.TESTERS.append(_tester)
+            
+            await ctx.send(f"Added {member.name} to testers")
+        else:
+            await ctx.send(f"{member.name} is already a tester")
+
+
+    # remove tester
+    @commands.command(hidden=True)
+    @checks.dev_only()
+    async def remove_tester(self, ctx:commands.Context, member:discord.Member):
+        """
+        Remove a user from the tester list.
+        """
+        if ctx.author.bot:return
+        if member in self.bot.config.TESTERS:
+            self.bot.config.TESTERS.remove(member)
+            self.bot.db.testers.delete_one({"id": member.id})
+            await ctx.send(f"Removed {member.name} from testers")
+        else:
+            await ctx.send(f"{member.name} is not a tester")
 
 
 
@@ -106,7 +140,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     async def dbupdate(self, ctx:commands.Context, key:str, *, value:Any):
         if ctx.author.bot:return
         try:
-            self.bot.db.cfdbc.update_one({"config_id": 87}, {"$set":{key:value}})
+            self.bot.db.config_col.update_one({"config_id": 87}, {"$set":{key:value}})
             await ctx.send(f"Updated {key} to {value}")
         except Exception as e:
             await ctx.reply(f"Error updating {key}: {e}")
@@ -146,12 +180,14 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         return await ctx.send("deleted", delete_after=3)
 
 
-    @commands.hybrid_command(with_app_command = True, hidden=True)
+    @commands.command(hidden=True)
     @commands.is_owner()
     @checks.dev_only()
     async def edm(self, ctx:commands.Context, msg:discord.Message, *, content):
+        """
+        Edit a message sent by the bot.
+        """
         if ctx.author.bot: return
-        await ctx.defer(ephemeral=True)
         if msg.author.id == self.bot.user.id:
             await msg.edit(content=content)
             await ctx.send('done')
@@ -163,11 +199,18 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     @checks.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
     async def sdm(self, ctx:commands.Context, member: discord.User, *, message):
+        """
+        Send a direct message to a user.
+        This command can only be used by the bot owner.
+        """
         if ctx.author.id == config.OWNER_ID:
             try:
                 await member.send(message)
                 return await ctx.reply("Done")
-            except Exception as e:return await  self.bot.log_channel.send(e)
+            
+            except Exception as e:
+                return await  self.bot.log_channel.send(e)
+            
         if ctx.author.id != config.OWNER_ID:
             return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
@@ -189,10 +232,11 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command()
     @commands.guild_only()
+    @checks.dev_only()
     async def add_dev(self, ctx:commands.Context, member:discord.Member):
         if ctx.author.bot or ctx.author.id != config.OWNER_ID:
             return await ctx.send("You are not allowed to use this command")
-        if member.id not in self.bot.db.cfdata["devs"]:
+        if member.id not in self.bot.db.config_data["devs"]:
             self.bot.devs.append(member.id)
             await ctx.send(f"Added {member.name} to devs")
         else:
@@ -205,6 +249,10 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     @checks.dev_only()
     async def get_log(self, ctx:commands.Context):
         if ctx.author.bot:return
+
+        if not os.path.exists("error.log"):
+            return await ctx.send("No error log found.")
+        
         await ctx.send(file=discord.File("error.log"))
 
 

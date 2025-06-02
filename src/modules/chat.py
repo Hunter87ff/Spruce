@@ -38,7 +38,7 @@ class ChatClient:
             self.chat_session = model.start_chat(history=constants.history)
 
         except Exception as e:
-            post(url=self.db.cfdata["dml"], json={"content":f"```py\n{e}\n```"})
+            post(url=self.db.config_data["dml"], json={"content":f"```py\n{e}\n```"})
 
 
     def is_bws(self, query:str) -> bool:
@@ -46,7 +46,7 @@ class ChatClient:
         Check if the message contains blocked words such as slang, etc.
         """
         bw = set(query.lower().split())
-        if len(set(self.db.bws or []).intersection(bw)) > 0:return True
+        if len(set(self.db.blocked_words or []).intersection(bw)) > 0:return True
 
 
     def check_send(self, ctx:commands.Context, message:Message, bot:commands.Bot) -> bool|None:
@@ -94,5 +94,5 @@ class ChatClient:
             
         except Exception as e:
             # traceback.print_exc()
-            post(url=self.db.cfdata["dml"], json={"content":f"{message.author}```\n{traceback.format_exc()}\n```"})
+            post(url=self.db.config_data["dml"], json={"content":f"{message.author}```\n{traceback.format_exc()}\n```"})
 

@@ -16,6 +16,14 @@ import discord
 _log_channel_cache: dict[int, discord.TextChannel] = {}
 
 
+def log_file(message: str):
+    """
+    Logs a message to a file.
+    """
+    with open("error.log", "a") as f:
+        f.write(f"{Logger.get_time()} - {message}\n")
+
+
 class Logger:
     """
     This class is used to log messages to the console with different format for different levels of logging.
@@ -118,9 +126,11 @@ class Logger:
 
     @staticmethod
     def error(*message):
+
+        log_file("\n".join(str(m) for m in message))
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('ERROR')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger._logger.error("\n".join(str(m) for m in message))
+        Logger._logger.error("\n".join(message))
 
     @staticmethod
     def critical( message):

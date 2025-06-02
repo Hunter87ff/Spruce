@@ -1,5 +1,5 @@
 from datetime import datetime
-import functools
+from modules.config import IS_DEV_ENV
 # from pymongo import MongoClient
 from typing import TypedDict, Unpack
 from ext.types.errors import ScrimAlreadyExists
@@ -17,14 +17,18 @@ class TeamPayload(TypedDict, total=False):
 
 class Team:
     def __init__(self, **kwargs: Unpack[TeamPayload]):
-        self.name = kwargs.get("name")
-        self.captain = kwargs.get("captain")
-
+        self.name = kwargs.get("name", "Unknown").lower().strip()
+        self.captain = kwargs.get("captain", 0)
 
     def __eq__(self, other):
-        if not isinstance(other, Team):
-            return NotImplemented
-        return self.name.lower() == other.name.lower() and self.captain == other.captain
+        if isinstance(other, Team):
+            return str(self.name).lower().strip() == other.name and self.captain == other.captain
+        
+        if isinstance(other, str):
+            return str(self.name).lower().strip() == other.lower().strip()
+        
+        if isinstance(other, int):
+            return self.captain == other
 
 
     def to_dict(self) -> dict:
@@ -32,7 +36,7 @@ class Team:
             "name": self.name,
             "captain": self.captain
         }
-    
+
 
 class ScrimPayload(TypedDict, total=False):
         status:bool
@@ -46,6 +50,15 @@ class ScrimPayload(TypedDict, total=False):
         total_slots:int
         time_zone:str
         ping_role:int
+
+
+
+def debug(message:str):
+    if IS_DEV_ENV:
+        debug(f"\033[1;34mDEBUG\033[0m: {message}")
+    else:
+        # In production, you might want to log this to a file or a logging service
+        pass
 
 
 class ScrimModel:
@@ -65,8 +78,7 @@ class ScrimModel:
         self.open_time:int = kwargs.get("open_time")
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
-        self.teams:list[Team] = []
-        self.reserved : list[Team] = []
+
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
@@ -78,29 +90,33 @@ class ScrimModel:
         self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
         self.clear_messages:bool = kwargs.get("clear_messages", True) #if true, it will purge the messages in the registration channel when the scrim is closed
         self.clear_idp_role:bool = kwargs.get("clear_idp_role", True) #if true, it will remove the idp role from the users when the scrim is closed
-        
-        # Initialize teams with proper type checking
-        teams_data = kwargs.get("teams", [])
-        if teams_data and len(teams_data) > 0:
-            # Handle both dict and Team instances
-            for team in teams_data:
-                if isinstance(team, dict):
-                    self.teams.append(Team(**team))
-                elif isinstance(team, Team):
-                    self.teams.append(team)
-                else:
-                    raise TypeError(f"Invalid team data: expected dict or Team instance, got {type(team).__name__}")
 
-        # Initialize reserved slots with proper type checking
-        reserved_data = kwargs.get("reserved", [])
-        if reserved_data and len(reserved_data) > 0:
-            for slot in reserved_data:
-                if isinstance(slot, dict):
-                    self.reserved.append(Team(**slot))
-                elif isinstance(slot, Team):
-                    self.reserved.append(slot)
-                else:
-                    raise TypeError(f"Invalid reserved slot data: expected dict or Team instance, got {type(slot).__name__}")
+        self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] # List of teams, initialized with Team instances
+        self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
+
+
+        # # Initialize teams with proper type checking
+        # teams_data = kwargs.get("teams", [])
+        # if teams_data and len(teams_data) > 0:
+        #     # Handle both dict and Team instances
+        #     for team in teams_data:
+        #         if isinstance(team, dict):
+        #             self.teams.append(Team(**team))
+        #         elif isinstance(team, Team):
+        #             self.teams.append(team)
+        #         else:
+        #             raise TypeError(f"Invalid team data: expected dict or Team instance, got {type(team).__name__}")
+
+        # # Initialize reserved slots with proper type checking
+        # reserved_data = kwargs.get("reserved", [])
+        # if len(reserved_data) > 0:
+        #     for slot in reserved_data:
+        #         if isinstance(slot, dict):
+        #             self.reserved.append(Team(**slot))
+        #         elif isinstance(slot, Team):
+        #             self.reserved.append(slot)
+        #         else:
+        #             raise TypeError(f"Invalid reserved slot data: expected dict or Team instance, got {type(slot).__name__}")
 
 
     def __eq__(self, other):
@@ -196,14 +212,31 @@ class ScrimModel:
         Returns:
             Team: The added team.
         """
-        print(f"Adding team {name} by captain <@{captain}>")
+
         new_team = Team(name=name, captain=captain)
         if not self.duplicate_team and new_team in self.teams:
-            print(f"Duplicate team found: {new_team.name} by captain <@{captain}>")
+            debug(f"Duplicate team found: {new_team.name} by captain <@{captain}>")
             raise ValueError(f"Duplicate team is not allowed. <@{captain}> already has a team named {name}.")
         
         self.teams.append(new_team)
         self.team_count += 1
+        return new_team
+    
+
+    def add_reserved(self, captain:int, name:str) -> Team:
+        """
+        Adds a reserved team to the scrim.
+        Args:
+            captain (int): The ID of the team captain.
+            name (str): The name of the team.
+        Returns:
+            Team: The added reserved team.
+        """
+        new_team = Team(name=name, captain=captain)
+        if not self.duplicate_team and new_team in self.reserved:
+            raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team named {name.upper()}.")
+        
+        self.reserved.append(new_team)
         return new_team
 
 

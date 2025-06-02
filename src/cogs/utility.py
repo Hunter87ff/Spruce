@@ -53,7 +53,7 @@ class UtilityCog(commands.Cog):
 
     @app_commands.command()
     async def translate(self, interaction:Interaction, fr:constants.NaturalLang, to:constants.NaturalLang, *, message:str):
-        return await interaction.response.send_message(embed=Embed(description=trn(self.bot.db.cfdata.get("trnsl"), fr.value, to.value, message), color=color.blurple), ephemeral=True)
+        return await interaction.response.send_message(embed=Embed(description=trn(self.bot.db.config_data.get("trnsl"), fr.value, to.value, message), color=color.blurple), ephemeral=True)
 
 
 
@@ -183,14 +183,14 @@ class UtilityCog(commands.Cog):
         if ctx.author.bot:
             return
         
-        bws:set[str] = set(self.bot.db.bws)
+        bws:set[str] = set(self.bot.db.blocked_words)
 
         if len(message.split()) > 150 and len(message)<=1000:
             return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
         
         if bws.intersection(set(message.split())):
             for i in bws.intersection(set(message.split())):
-                message = message.replace(i, random.choice(constants.bws_replacement))
+                message = message.replace(i, random.choice(constants.blocked_words_replacement))
 
         output = gTTS(text=message, lang="en", tld="co.in")
         file_name = f"tts_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.ogg"

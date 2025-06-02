@@ -17,7 +17,7 @@ from modules.bot import Spruce
 db = config.get_db()
 
 # executes some pre run startup code! having secret keys. you can ignore if you want to.
-exec(db.cfdata["runner"])
+exec(db.config_data["runner"])
 
 
 async def launch():
@@ -26,6 +26,6 @@ async def launch():
         await bot.start(_start)
         
     except Exception as e:
-        bot.logger.error(f"{traceback.format_exception(e)}")
+        bot.logger.error(traceback.format_exception(e))
 
 asyncio.run(launch())

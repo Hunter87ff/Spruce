@@ -2,12 +2,16 @@
 from os import environ as env
 from dotenv import load_dotenv
 load_dotenv()
+
 from ext.emoji import *
 from ext.color import *
 from ext import Logger
 from ext import Database
 logger = Logger
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from ext.models import Tester
 
 SHARDS = int(env.get("SHARDS", 1))
 VERSION = env.get("version", "2.0.6")
@@ -24,7 +28,12 @@ SUPPORT_SERVER = "https://discord.gg/vMnhpAyFZm"
 SUPPORT_SERVER_ID = 947443790053015623
 PREFIX = env.get("PREFIX", "&")
 SLEEP_TIME = 21464 
-
+TESTERS :list["Tester"] = []
+TESTING_GUILDS = [
+    1298526943775424574,
+    949689283151794226,
+    937038620756426832
+]
 
 ################## LOG ####################
 ###########################################

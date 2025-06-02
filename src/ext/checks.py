@@ -127,3 +127,36 @@ def under_maintenance(interaction:bool = False):
     """Check if the bot is under maintenance"""
     return dev_only(interaction=interaction)  # Reusing dev_only for maintenance check, as it serves a similar purpose.
         
+
+
+def testers_only(interaction:bool = True):
+    """
+    Checks if the user is a tester.
+    Args:
+        ctx (commands.Context | Interaction): The context or interaction to check.
+    Returns:
+        bool: True if the user is a tester, False otherwise.
+    """
+    async def predicate(ctx:commands.Context | discord.Interaction):
+        if isinstance(ctx, discord.Interaction):
+            if any([
+                ctx.user.id in config.DEVELOPERS,
+                ctx.user in config.TESTERS,
+                ctx.guild and ctx.guild in config.TESTERS
+            ]):
+                return True
+            raise discord.app_commands.MissingPermissions(["`tester`", "`developer`"])
+        
+        if any([
+            ctx.author.id in config.DEVELOPERS,
+            ctx.author in config.TESTERS,
+            ctx.guild and ctx.guild in config.TESTERS
+        ]):
+            return True
+        raise commands.MissingPermissions(["`tester`", "`developer`"])
+    
+    if interaction:
+        return discord.app_commands.check(predicate)
+    return commands.check(predicate)
+
+

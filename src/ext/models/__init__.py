@@ -1,6 +1,7 @@
-from ext.models.scrim import ScrimModel
-
+from .scrim import ScrimModel
+from .tester import Tester
 
 __all__ = (
     "ScrimModel",
+    "Tester",
 )
