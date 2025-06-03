@@ -31,13 +31,14 @@ async def is_dev(ctx: commands.Context | discord.Interaction):
         return False
     return True
      
-def parse_team_name(message:discord.Message):
+def parse_team_name(message:discord.Message, strict:bool=False) -> str:
     """
     Parses the team name from a message content.
     If the message contains a mention of a team, it extracts the name and formats it.
     If no team name is found, it defaults to the author's name followed by "'s team".
     Args:
         message (discord.Message): The message object containing the content to parse.
+        strict (bool): If True, it will only return the team name if it is explicitly mentioned.
     Returns:
         str: The formatted team name.
     """
@@ -46,8 +47,29 @@ def parse_team_name(message:discord.Message):
     if teamname is None:
         return f"{message.author}'s team"
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
-    teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
-    return teamname.lower().strip()
+    if strict and not teamname:
+        return None
+    teamname = teamname if teamname else f"{message.author}'s team"
+    return teamname.lower().strip()[0:20]
+
+
+
+def parse_prize_pool(message:discord.Message) -> str | None:
+    """
+    Parses the prize pool from a message content.
+    It looks for patterns like "prize pool", "prizes", or "prize money" followed by a value.
+    If no prize pool is found, it returns None.
+    
+    Args:
+        message (discord.Message): The message object containing the content to parse.
+    
+    Returns:
+        str|None: The extracted prize pool value or None if not found.
+    """
+    content = str(message.content.lower())
+    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*(.+?)(?:\s*$)'
+    match = re.search(prize_pattern, content)
+    return match.group(1).strip() if match else None
 
 
 

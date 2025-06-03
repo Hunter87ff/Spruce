@@ -5,7 +5,7 @@ Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
 
-import re, traceback
+import re, traceback, functools
 from typing import TYPE_CHECKING
 from ext.error import update_error_log
 from discord import utils, AllowedMentions, Embed, Message, TextChannel
@@ -108,25 +108,14 @@ async def auto_grp(message:Message, bot:'Spruce'):
                 return await process_registration_group(group=group, grpc=grpch, bot=bot, msg=message.content, totalSlot=td["tslot"])
 
 
-
-def gp(info:str):
-    match = ["INR", "inr" , "₹", "Inr", "$"]
-    for i in match:
-        if i in info:
-            ad =  info.split(i)[0].split()[-1]
-            return f"{ad} {i}"
-        else:return "No Data"
-
-
 async def get_prize(cch:TextChannel):
     info = cch.category.channels[0]
-    finder = ["Prize", "prize", "PRIZE", "POOL", "Pool", "PrizE"]
     messages = [message async for message in info.history(limit=10, oldest_first=True)]
-    if len(messages) == 0:return "No Data Given"
-    for i in messages:
-        for p in finder:
-            if p in str(i.content).split():return gp(info=i.content)
-            else:return "No Data"
+
+    if len(messages) == 0:
+        return "No Data Given"
+    
+    return helper.parse_prize_pool(messages[0]) or "No Data Given"
 
 
 def find_team(message:Message):
@@ -159,6 +148,11 @@ async def duplicate_tag(crole, message:Message):
     return None
 
 
+@functools.lru_cache(maxsize=400)
+def find_by_reg(message:Message) -> dict | None:
+    return dbc.find_one({"rch" : message.channel.id})
+
+
 #Tourney System
 async def tourney(message:Message):
     if message.author.bot or not message.guild:
@@ -172,13 +166,13 @@ async def tourney(message:Message):
         if log_channel:
 
             _embed = Embed(description=desc, color=color)
-            _embed.set_author(name=message.author, icon_url=message.author.display_avatar)
+            _embed.set_author(name=message.author, icon_url=message.author.display_avatar if message.author.display_avatar else None)
             _embed.timestamp = message.created_at
 
             return await log_channel.send(embed=_embed)
 
 
-    td: dict[str] = dbc.find_one({"rch" : message.channel.id})
+    td: dict[str] = find_by_reg(message)
     if not td :
         return
     
@@ -194,12 +188,14 @@ async def tourney(message:Message):
         
 
     elif message.channel.id  != int(td["rch"]) or td["status"] != "started": return
+
+    crole = message.guild.get_role(td.get("crole"))
+    cch = message.guild.get_channel(td.get("cch"))
+    rch = message.guild.get_channel(td.get("rch"))
+
     
-    crole = utils.get(message.guild.roles, id=int(td["crole"]))
-    cch = utils.get(message.guild.channels, id = int(td["cch"]))
-    rch = utils.get(message.guild.channels, id = int(td["rch"]))
     ments = td.get("mentions")
-    rgs = td["reged"]
+    team_count = td["reged"]
     tslot = td["tslot"]
     valid_member_mentions = [mention for mention in message.mentions if not mention.bot] #filter out bots from the mentions
 
@@ -216,7 +212,7 @@ async def tourney(message:Message):
         await log_event(f"{message.author} tried to register again in {rch.mention} but already has the confirm role.")
         return await message.channel.send("**Already Registered**", delete_after=5)
     
-    elif rgs > tslot:
+    elif team_count > tslot:
         overwrite = rch.overwrites_for(message.guild.default_role)
         overwrite.update(send_messages=False)
         await rch.set_permissions(message.guild.default_role, overwrite=overwrite)
@@ -237,11 +233,11 @@ async def tourney(message:Message):
                 await message.add_reaction("✅")
                 reg_update(message)
                 team_name = find_team(message)
-                nfemb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
+                nfemb = Embed(color=0xffff00, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
                 nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                 nfemb.timestamp = message.created_at
                 nfemb.set_thumbnail(url=message.author.display_avatar)
-                if rgs >= tslot*0.1 and td["pub"] == "no":
+                if team_count >= tslot*0.1 and td["pub"] == "no":
                     dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                 return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
             
@@ -253,13 +249,13 @@ async def tourney(message:Message):
                 await message.add_reaction("✅")
                 reg_update(message)
                 team_name = find_team(message)
-                femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
+                femb = Embed(color=0xffff00, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
                 femb.set_author(name=message.guild.name, icon_url=message.guild.icon.url if message.guild.icon else message.guild.me.avatar.url)
                 femb.timestamp = message.created_at
                 femb.set_thumbnail(url=message.author.display_avatar or message.author.default_avatar or message.guild.icon or message.guild.me.avatar.url)
                 await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
                 await message.author.add_roles(crole)
-                if rgs >= tslot*0.1 and td["pub"] == "no":
+                if team_count >= tslot*0.1 and td["pub"] == "no":
                     dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                 return await log_event(f"{message.author} registered in {rch.mention} with team name {team_name.upper()}", color=Color.green)
 
@@ -277,11 +273,11 @@ async def tourney(message:Message):
                     await message.add_reaction("✅")
                     reg_update(message)
                     team_name = find_team(message)
-                    femb = Embed(color=0xffff00, description=f"**{rgs}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
+                    femb = Embed(color=0xffff00, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
                     femb.set_author(name=message.guild.name, icon_url=message.guild.icon)
                     femb.timestamp = message.created_at   
                     femb.set_thumbnail(url=message.author.display_avatar)
-                    if rgs >= tslot*0.1 and td["pub"] == "no":
+                    if team_count >= tslot*0.1 and td["pub"] == "no":
                         dbc.update_one({"rch" : td["rch"]}, {"$set" : {"pub" : "yes", "prize" : await get_prize(cch)}})
                     await log_event(f"{message.author} registered in {rch.mention} with team name {team_name.upper()}", color=Color.green)
                     return await cch.send(f"{team_name.upper()} {message.author.mention}", embed=femb)
