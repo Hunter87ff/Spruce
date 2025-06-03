@@ -18,7 +18,7 @@ from discord import Embed, TextChannel,  Interaction,   app_commands as app
 if TYPE_CHECKING:
     from modules.bot import Spruce    
 
-DEBUG=True
+DEBUG=False
 _resolved_scrims: dict[str, bool] = {}
 
 
