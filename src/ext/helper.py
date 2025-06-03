@@ -25,19 +25,20 @@ async def is_dev(ctx: commands.Context | discord.Interaction):
     Checks if the user is a developer
     """
     user_id = ctx.user.id if isinstance(ctx, discord.Interaction) else ctx.author.id
-    if user_id not in get_db().cfdata["devs"]:
+    if user_id not in get_db().config_data["devs"]:
         response = ctx.response.send_message if isinstance(ctx, discord.Interaction) else ctx.send
         await response("Command is under development", ephemeral=True if isinstance(ctx, discord.Interaction) else False)
         return False
     return True
      
-def parse_team_name(message:discord.Message):
+def parse_team_name(message:discord.Message, strict:bool=False) -> str:
     """
     Parses the team name from a message content.
     If the message contains a mention of a team, it extracts the name and formats it.
     If no team name is found, it defaults to the author's name followed by "'s team".
     Args:
         message (discord.Message): The message object containing the content to parse.
+        strict (bool): If True, it will only return the team name if it is explicitly mentioned.
     Returns:
         str: The formatted team name.
     """
@@ -46,12 +47,35 @@ def parse_team_name(message:discord.Message):
     if teamname is None:
         return f"{message.author}'s team"
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
-    teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
-    return teamname.lower().strip()
+    if strict and not teamname:
+        return None
+    teamname = teamname if teamname else f"{message.author}'s team"
+    return teamname.lower().strip()[0:20]
 
 
 
-async def duplicate_tag_check(crole:discord.Role, message:discord.Message):
+def parse_prize_pool(message:discord.Message) -> str | None:
+    """
+    Parses the prize pool from a message content.
+    It looks for patterns like "prize pool", "prizes", or "prize money" followed by a value.
+    If no prize pool is found, it returns None.
+    
+    Args:
+        message (discord.Message): The message object containing the content to parse.
+    
+    Returns:
+        str|None: The extracted prize pool value or None if not found.
+    """
+    content = str(message.content.lower())
+    if len(content) == 0:
+        return None
+    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*(.+?)(?:\s*$)'
+    match = re.search(prize_pattern, content)
+    return match.group(1).strip() if match else None
+
+
+
+async def duplicate_tag(crole:discord.Role, message:discord.Message):
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.

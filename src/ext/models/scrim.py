@@ -1,5 +1,5 @@
 from datetime import datetime
-import functools
+from modules.config import IS_DEV_ENV
 # from pymongo import MongoClient
 from typing import TypedDict, Unpack
 from ext.types.errors import ScrimAlreadyExists
@@ -10,34 +10,33 @@ _scrim_col = _db_.scrims    # _db_["test"]["scrims"]  # Adjust the database and 
 _scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
 
 
-class ReservedSlot:
-    def __init__(self, captain_id: int, team_name: str):
-        self.captain_id = captain_id
-        self.team_name = team_name
-
-    def to_dict(self) -> dict:
-        return {
-            "captain": self.captain_id,
-            "name": self.team_name
-        }
+class TeamPayload(TypedDict, total=False):
+    name: str
+    captain: int
 
 
 class Team:
-    def __init__(self, name: str, captain_id: int):
-        self.name = name
-        self.captain_id = captain_id
+    def __init__(self, **kwargs: Unpack[TeamPayload]):
+        self.name = kwargs.get("name", "Unknown").lower().strip()
+        self.captain = kwargs.get("captain", 0)
 
     def __eq__(self, other):
-        if not isinstance(other, Team):
-            return NotImplemented
-        return self.name.lower() == other.name.lower() and self.captain_id == other.captain_id
+        if isinstance(other, Team):
+            return str(self.name).lower().strip() == other.name and self.captain == other.captain
+        
+        if isinstance(other, str):
+            return str(self.name).lower().strip() == other.lower().strip()
+        
+        if isinstance(other, int):
+            return self.captain == other
+
 
     def to_dict(self) -> dict:
         return {
             "name": self.name,
-            "captain": self.captain_id
+            "captain": self.captain
         }
-    
+
 
 class ScrimPayload(TypedDict, total=False):
         status:bool
@@ -45,16 +44,21 @@ class ScrimPayload(TypedDict, total=False):
         guild_id:int
         mentions:int
         reg_channel:int
-        slot_channel :int
         idp_role : int
         open_time:int
         close_time:int
         total_slots:int
-        team_count:int
         time_zone:str
         ping_role:int
-        duplicate_tag_check:bool
-        reserved : dict[int,str]
+
+
+
+def debug(message:str):
+    if IS_DEV_ENV:
+        debug(f"\033[1;34mDEBUG\033[0m: {message}")
+    else:
+        # In production, you might want to log this to a file or a logging service
+        pass
 
 
 class ScrimModel:
@@ -74,18 +78,44 @@ class ScrimModel:
         self.open_time:int = kwargs.get("open_time")
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
+
         self.team_count:int = kwargs.get("team_count", 0)
-        self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] #[{team_name, captain_id}, ...]
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
         self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
         self.duplicate_team:bool = kwargs.get("duplicate_team", False) #if true, it will allow duplicate teams to register
-        self.duplicate_tag_check:bool = kwargs.get("duplicate_tag_check", True) #if true, it will check for duplicate tags in the registration channel
-        self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] #[{team_name, captain_id}, ...]
+        self.duplicate_tag:bool = kwargs.get("duplicate_tag", False) #if true, it will check for duplicate tags in the registration channel        
         self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
         self.clear_messages:bool = kwargs.get("clear_messages", True) #if true, it will purge the messages in the registration channel when the scrim is closed
         self.clear_idp_role:bool = kwargs.get("clear_idp_role", True) #if true, it will remove the idp role from the users when the scrim is closed
+
+        self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] # List of teams, initialized with Team instances
+        self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
+
+
+        # # Initialize teams with proper type checking
+        # teams_data = kwargs.get("teams", [])
+        # if teams_data and len(teams_data) > 0:
+        #     # Handle both dict and Team instances
+        #     for team in teams_data:
+        #         if isinstance(team, dict):
+        #             self.teams.append(Team(**team))
+        #         elif isinstance(team, Team):
+        #             self.teams.append(team)
+        #         else:
+        #             raise TypeError(f"Invalid team data: expected dict or Team instance, got {type(team).__name__}")
+
+        # # Initialize reserved slots with proper type checking
+        # reserved_data = kwargs.get("reserved", [])
+        # if len(reserved_data) > 0:
+        #     for slot in reserved_data:
+        #         if isinstance(slot, dict):
+        #             self.reserved.append(Team(**slot))
+        #         elif isinstance(slot, Team):
+        #             self.reserved.append(slot)
+        #         else:
+        #             raise TypeError(f"Invalid reserved slot data: expected dict or Team instance, got {type(slot).__name__}")
 
 
     def __eq__(self, other):
@@ -149,7 +179,7 @@ class ScrimModel:
             "created_at": self.created_at,
             "close_time": self.close_time,
             "duplicate_team": self.duplicate_team,
-            "duplicate_tag_check": self.duplicate_tag_check, 
+            "duplicate_tag": self.duplicate_tag, 
             "guild_id": self.guild_id,
             "idp_role": self.idp_role,
             "mentions": self.mentions,
@@ -171,44 +201,41 @@ class ScrimModel:
         }
     
 
-    @functools.lru_cache(maxsize=128)
-    def find_teams(self, team_name:str=None, captain_id:int=None) -> list[Team]:
-        """
-        Finds a team by its name or captain ID.
-        Args:
-            team_name (str): The name of the team.
-            captain_id (int): The ID of the team captain.
-        Returns:
-            int: The captain ID if found, None otherwise.
-        """
-        teams : list[Team] = []
-        if team_name and not captain_id:
-            teams = [team for team in self.teams if team.name.lower() == team_name.lower()]
 
-        elif captain_id and not team_name:
-            teams = [team for team in self.teams if team.captain_id == captain_id]
-        
-        elif team_name and captain_id:
-            teams = [team for team in self.teams if team.name.lower() == team_name.lower() and team.captain_id == captain_id]
-        
-        return teams
-    
-
-    def add_team(self, captain_id:int, team_name:str) -> Team:
+    def add_team(self, captain:int, name:str) -> Team:
         """
         Adds a team to the scrim.
         Args:
-            captain_id (int): The ID of the team captain.
+            captain (int): The ID of the team captain.
             team_name (str): The name of the team.
         Returns:
             Team: The added team.
         """
-        new_team = Team(name=team_name, captain_id=captain_id)
+
+        new_team = Team(name=name, captain=captain)
         if not self.duplicate_team and new_team in self.teams:
-            raise ValueError(f"Duplicate team is not allowed. <@{captain_id}> already has a team named {team_name}.")
+            debug(f"Duplicate team found: {new_team.name} by captain <@{captain}>")
+            raise ValueError(f"Duplicate team is not allowed. <@{captain}> already has a team named {name}.")
         
         self.teams.append(new_team)
         self.team_count += 1
+        return new_team
+    
+
+    def add_reserved(self, captain:int, name:str) -> Team:
+        """
+        Adds a reserved team to the scrim.
+        Args:
+            captain (int): The ID of the team captain.
+            name (str): The name of the team.
+        Returns:
+            Team: The added reserved team.
+        """
+        new_team = Team(name=name, captain=captain)
+        if not self.duplicate_team and new_team in self.reserved:
+            raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team named {name.upper()}.")
+        
+        self.reserved.append(new_team)
         return new_team
 
 

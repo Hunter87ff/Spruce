@@ -11,9 +11,20 @@ import asyncio
 import traceback
 from requests import post
 from discord.ext import commands
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, error as error_handle
+from ext.models import Tester
 from modules import (config, message_handle)
-from discord import AllowedMentions, Intents, ActivityType, Activity, TextChannel, Message, Embed
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, error as error_handle
+from discord import (
+    AllowedMentions, 
+    Intents, 
+    ActivityType, 
+    Activity, 
+    TextChannel, 
+    Message, Embed, 
+    Interaction, 
+    app_commands, 
+    Guild
+)
 
 
 intents = Intents.default()
@@ -35,7 +46,7 @@ class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = config
         self.db = Database() 
-        self.devs:list[int] = self.db.cfdata.get("devs")
+        self.devs:list[int] = self.db.config_data.get("devs")
         self.logger:Logger = Logger
         self.helper = helper
         self.color = color
@@ -43,6 +54,7 @@ class Spruce(commands.AutoShardedBot):
         self.constants = constants
         self.log_channel:TextChannel
         self.time = ClientTime()
+        self.testers:list[Tester] = self.config.TESTERS
         super().__init__(
             shard_count=config.SHARDS, 
             command_prefix= commands.when_mentioned_or(config.PREFIX),
@@ -51,6 +63,7 @@ class Spruce(commands.AutoShardedBot):
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
         self.tree.on_error = self.tree_error_handler
+        
 
 
 
@@ -63,9 +76,11 @@ class Spruce(commands.AutoShardedBot):
         # Remove default help command 
         self.remove_command("help")
 
-        # load the cogs
+        # Set up the database
         await cogs.setup(self)
 
+        #load testers
+        self.config.TESTERS = await Tester.all(self)
 
     @property
     def current_datetime(self):
@@ -76,23 +91,19 @@ class Spruce(commands.AutoShardedBot):
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
         try:
+            # load the cogs
+            
             await self.tree.sync()
             self.log_channel:TextChannel = self.get_channel(config.client_error_log)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
             if not self.config.IS_DEV_ENV:
                 post(
-                    url=self.db.cfdata.get("stwbh"),
-                    json={
-                        "content": f"<@{config.OWNER_ID}>",
-                        "embeds": [
-                            Embed(title="Status", description=starter_message, color=self.color.random()).to_dict()
-                        ],
-                    }
+                    url=self.db.config_data.get("stwbh"),
+                    json={"embeds": [Embed(title="Status", description=starter_message, color=self.color.random()).to_dict()],}
                 )
-                
-        except Exception:
-            self.logger.error(traceback.format_exc())
+        except Exception as e:
+            self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
         
 
     async def on_disconnect(self):
@@ -119,12 +130,6 @@ class Spruce(commands.AutoShardedBot):
         await error_handle.manage_backend_error(error, self)
 
 
-    async def  on_guild_channel_delete(self, channel:TextChannel):
-        tourch = self.db.dbc.find_one({"rch" : channel.id})
-        dlog = self.get_channel(config.tourney_delete_log)
-        if tourch:
-            self.db.dbc.delete_one({"rch" : channel.id})
-            await dlog.send(f"```json\n{tourch}\n```")
 
 
     async def log(self, Exception:Exception) -> None:
@@ -165,6 +170,9 @@ class Spruce(commands.AutoShardedBot):
             message (tuple[str]): The error message to log.
         """
         await self.log_channel.send(f"```py\n{' '.join(messages)}\n```")
+
+
+
 
 
     async def start(self, _started_at:float) -> None:

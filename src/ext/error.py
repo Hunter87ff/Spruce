@@ -150,11 +150,11 @@ async def manage_context(ctx:commands.Context, error:commands.errors.DiscordExce
             with open("error.txt", "w", encoding="utf-8") as file: file.write(text)
 
             await bot.log_channel.send( content=content,  file=File("error.txt")  )
-            update_error_log(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+            update_error_log('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
 
     except Exception as e:
         bot.logger.warning(traceback.format_exception(e), "ext.error")
-        update_error_log(''.join(traceback.format_exception(type(e), e, e.__traceback__)))
+        update_error_log('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
         
 
 
@@ -175,7 +175,7 @@ async def handle_interaction_error(interaction: Interaction, error: app_commands
     """
     
     if isinstance(error, app_commands.MissingPermissions):
-        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.")), ephemeral=True)
+        await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.").replace("(s)", "")), ephemeral=True)
     elif isinstance(error, app_commands.CommandOnCooldown):
         await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error)), ephemeral=True)
     elif isinstance(error, app_commands.MissingRole):

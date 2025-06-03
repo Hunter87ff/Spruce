@@ -16,6 +16,14 @@ import discord
 _log_channel_cache: dict[int, discord.TextChannel] = {}
 
 
+def log_file(message: str):
+    """
+    Logs a message to a file.
+    """
+    with open("error.log", "a") as f:
+        f.write(f"{Logger.get_time()} - {message}\n")
+
+
 class Logger:
     """
     This class is used to log messages to the console with different format for different levels of logging.
@@ -72,7 +80,7 @@ class Logger:
         If the log channel does not exist, it will create one.
         """
 
-        _log_channel = await Logger.get_log_channel(guild, "scrim")
+        _log_channel = discord.utils.get(guild.text_channels, name=f"{guild.me._user.name.strip()}-scrim-log")
         embed = discord.Embed( description=message, color=color )
         if all([_log_channel, _log_channel.permissions_for(guild.me).send_messages]):
             await _log_channel.send(embed=embed)
@@ -118,9 +126,11 @@ class Logger:
 
     @staticmethod
     def error(*message):
+
+        log_file("\n".join(str(m) for m in message))
         formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('ERROR')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
-        Logger._logger.error("\n".join(str(m) for m in message))
+        Logger._logger.error("\n".join(message))
 
     @staticmethod
     def critical( message):
