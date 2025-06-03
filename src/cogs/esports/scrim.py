@@ -177,7 +177,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         except ValueError as e:
             return await ctx.followup.send(f"{str(e)}. Please use HH:MM AM/PM format.", ephemeral=True)
 
-        if _parsed_open_time is None or _parsed_close_time is None:
+        if _parsed_open_time is None:
             return await ctx.followup.send("Invalid time format. Please use HH:MM AM/PM format.", ephemeral=True)
 
         _event_prefix = self.bot.helper.get_event_prefix(scrim_name)
