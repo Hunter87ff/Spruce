@@ -67,6 +67,8 @@ def parse_prize_pool(message:discord.Message) -> str | None:
         str|None: The extracted prize pool value or None if not found.
     """
     content = str(message.content.lower())
+    if len(content) == 0:
+        return None
     prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*(.+?)(?:\s*$)'
     match = re.search(prize_pattern, content)
     return match.group(1).strip() if match else None
