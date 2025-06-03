@@ -115,7 +115,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             title=f"{scrim.name}",
             color=color.cyan
         )
-        available_slots = scrim.total_slots - len(scrim.reserved) + len(scrim.teams)
+        available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         embed.add_field(name="Open Time", value=f"<t:{scrim.open_time}:t>(<t:{scrim.open_time}:R>)")
         embed.add_field(name="Close Time", value=f"<t:{scrim.close_time}:t>(<t:{scrim.close_time}:R>)")
         embed.add_field(name="Status", value="`Open`" if scrim.status else "`Closed`")
@@ -883,7 +883,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     @commands.Cog.listener()
     async def on_scrim_open_time_hit(self, scrim:ScrimModel):
         """Listener for when a scrim start time is hit."""
-        self.self.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}")
+        self.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}")
 
         available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         _channel = self.bot.get_channel(scrim.reg_channel)

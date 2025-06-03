@@ -103,7 +103,7 @@ class Spruce(commands.AutoShardedBot):
                     json={"embeds": [Embed(title="Status", description=starter_message, color=self.color.random()).to_dict()],}
                 )
         except Exception as e:
-            self.logger.error("\n".join(traceback.format_exception(e)))
+            self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
         
 
     async def on_disconnect(self):

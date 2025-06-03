@@ -82,7 +82,6 @@ class ScrimModel:
         self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
-        self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
         self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
         self.duplicate_team:bool = kwargs.get("duplicate_team", False) #if true, it will allow duplicate teams to register

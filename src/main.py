@@ -26,6 +26,6 @@ async def launch():
         await bot.start(_start)
         
     except Exception as e:
-        bot.logger.error(traceback.format_exception(e))
+        bot.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
 
 asyncio.run(launch())
