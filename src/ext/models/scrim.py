@@ -1,12 +1,12 @@
 from datetime import datetime
+from discord import Member
 from modules.config import IS_DEV_ENV
-# from pymongo import MongoClient
 from typing import TypedDict, Unpack
 from ext.types.errors import ScrimAlreadyExists
 from ext.db import Database
 
-_db_ =  Database()   #MongoClient("mongodb://localhost:27017/")  # Adjust the connection string as needed
-_scrim_col = _db_.scrims    # _db_["test"]["scrims"]  # Adjust the database and collection names as needed
+_db_ =  Database()  
+_scrim_col = _db_.scrims
 _scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
 
 
@@ -17,7 +17,7 @@ class TeamPayload(TypedDict, total=False):
 
 class Team:
     def __init__(self, **kwargs: Unpack[TeamPayload]):
-        self.name = kwargs.get("name", "Unknown").lower().strip()
+        self.name = kwargs.get("name", "Unknown")
         self.captain = kwargs.get("captain", 0)
 
     def __eq__(self, other):
@@ -33,7 +33,7 @@ class Team:
 
     def to_dict(self) -> dict:
         return {
-            "name": self.name,
+            "name": self.name.lower().strip(),
             "captain": self.captain
         }
 
@@ -44,12 +44,15 @@ class ScrimPayload(TypedDict, total=False):
         guild_id:int
         mentions:int
         reg_channel:int
+        manage_channel:int
+        slot_channel:int
         idp_role : int
         open_time:int
         close_time:int
         total_slots:int
         time_zone:str
         ping_role:int
+        
 
 
 
@@ -73,13 +76,13 @@ class ScrimModel:
         self.mentions:int = kwargs.get("mentions", 4) #number of mentions required to register a team
         self.reg_channel:int = kwargs.get("reg_channel") #primary key
         self.slot_channel:int = kwargs.get("slot_channel", self.reg_channel)
+        self.manage_channel = kwargs.get("manage_channel", None) #channel where the scrim is managed
         self.idp_role: int = kwargs.get("idp_role")
         self.ping_role:int = kwargs.get("ping_role", None)
         self.open_time:int = kwargs.get("open_time")
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
 
-        self.team_count:int = kwargs.get("team_count", 0)
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self._id:str = str(kwargs.get("_id", None))
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
@@ -93,29 +96,6 @@ class ScrimModel:
         self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] # List of teams, initialized with Team instances
         self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
 
-
-        # # Initialize teams with proper type checking
-        # teams_data = kwargs.get("teams", [])
-        # if teams_data and len(teams_data) > 0:
-        #     # Handle both dict and Team instances
-        #     for team in teams_data:
-        #         if isinstance(team, dict):
-        #             self.teams.append(Team(**team))
-        #         elif isinstance(team, Team):
-        #             self.teams.append(team)
-        #         else:
-        #             raise TypeError(f"Invalid team data: expected dict or Team instance, got {type(team).__name__}")
-
-        # # Initialize reserved slots with proper type checking
-        # reserved_data = kwargs.get("reserved", [])
-        # if len(reserved_data) > 0:
-        #     for slot in reserved_data:
-        #         if isinstance(slot, dict):
-        #             self.reserved.append(Team(**slot))
-        #         elif isinstance(slot, Team):
-        #             self.reserved.append(slot)
-        #         else:
-        #             raise TypeError(f"Invalid reserved slot data: expected dict or Team instance, got {type(slot).__name__}")
 
 
     def __eq__(self, other):
@@ -175,7 +155,7 @@ class ScrimModel:
         Returns:
             dict: A dictionary representation of the ScrimModel instance.
         """
-        return {
+        _obj =  {
             "created_at": self.created_at,
             "close_time": self.close_time,
             "duplicate_team": self.duplicate_team,
@@ -192,14 +172,17 @@ class ScrimModel:
             "slot_channel": self.slot_channel,
             "status": self.status,
             "total_slots": self.total_slots,
-            "team_count": self.team_count, #deprecated, use teams instead
             "time_zone": self.time_zone,
             "teams": [team.to_dict() for team in self.teams],
             "team_compulsion": self.team_compulsion,
             "clear_messages": self.clear_messages,
             "clear_idp_role" : self.clear_idp_role,
         }
+        
+        if self.manage_channel:
+            _obj["manage_channel"] = self.manage_channel
     
+        return _obj
 
 
     def add_team(self, captain:int, name:str) -> Team:
@@ -212,13 +195,18 @@ class ScrimModel:
             Team: The added team.
         """
 
+        if len(self.teams) + len(self.reserved) >= self.total_slots:
+            raise Exception(f"Cannot add more teams. Total slots ({self.total_slots}) already filled with {len(self.teams) + len(self.reserved)} teams.")
+
+        if isinstance(captain, Member):
+            captain = captain.id
+
         new_team = Team(name=name, captain=captain)
         if not self.duplicate_team and new_team in self.teams:
             debug(f"Duplicate team found: {new_team.name} by captain <@{captain}>")
             raise ValueError(f"Duplicate team is not allowed. <@{captain}> already has a team named {name}.")
         
         self.teams.append(new_team)
-        self.team_count += 1
         return new_team
     
 
@@ -231,6 +219,9 @@ class ScrimModel:
         Returns:
             Team: The added reserved team.
         """
+        if  isinstance(captain, Member):
+            captain = captain.id
+
         new_team = Team(name=name, captain=captain)
         if not self.duplicate_team and new_team in self.reserved:
             raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team named {name.upper()}.")
@@ -278,6 +269,9 @@ class ScrimModel:
 
         if _saved.modified_count > 0 or _saved.upserted_id:
             _scrim_cache_by_channel[self.reg_channel] = self
+            
+            if self.manage_channel:
+                _scrim_cache_by_channel[self.manage_channel] = self
 
         return _saved
 
@@ -330,12 +324,21 @@ class ScrimModel:
             if channel_id in _scrim_cache_by_channel:
                 return _scrim_cache_by_channel[channel_id]
             
+        if "manage_channel" in kwargs:
+            channel_id = kwargs["manage_channel"]
+            if channel_id in _scrim_cache_by_channel:
+                return _scrim_cache_by_channel[channel_id]
+            
+
         data = _scrim_col.find_one(kwargs)
         if data:
             scrim = ScrimModel(**data)
             _scrim_cache_by_channel[scrim.reg_channel] = scrim
+
+            if scrim.manage_channel:
+                _scrim_cache_by_channel[scrim.manage_channel] = scrim
             return scrim
-        
+
         _scrim_cache_by_channel[kwargs.get("reg_channel", None)] = None
         return None
 

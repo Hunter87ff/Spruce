@@ -1,7 +1,7 @@
 [project]
 name = "spruce"
-version = "0.1.0"
-description = "Add your description here"
+version = "2.1.0"
+description = "An open-source multi-functional Discord app designed to streamline the management of Discord esports and servers"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

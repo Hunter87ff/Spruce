@@ -40,7 +40,7 @@ from discord import (
 class UtilityCog(commands.Cog):
     def __init__(self, bot:"Spruce"):
         self.bot = bot
-        self.total_members = sum(guild.member_count for guild in self.bot.guilds)
+       
 
 
     @app_commands.command(name="translate", description="Translate a message from one language to another")
@@ -390,7 +390,7 @@ class UtilityCog(commands.Cog):
         system_info = f"`{memory.total / (1024**3):.2f} GB`/ `{psutil.Process(os.getpid()).memory_info().rss//2**20} MB`/ `{mem_percent}%`"
         emb = Embed(title="Spruce Bot", color=color.green)
         emb.add_field(name=f"{emoji.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
-        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(self.total_members)}`", inline=True)
+        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(len(self.bot.users))}`", inline=True)
         emb.add_field(name=f"{emoji.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
         emb.add_field(name=f"{emoji.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
@@ -398,18 +398,31 @@ class UtilityCog(commands.Cog):
     
 
 
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(2, 10, commands.BucketType.user)
-    @commands.bot_has_permissions(send_messages=True, manage_nicknames=True)
-    async def nick(self, ctx:commands.Context, user:Member,  *, Nick:str):
-        if ctx.author.bot:return
-        bt = ctx.guild.get_member(self.bot.user.id)
-        if ctx.author.top_role < user.top_role:return await ctx.send("You don't have enough permission")
-        if bt.top_role < user.top_role:return await ctx.send("I don't have enough permission")
-        else:
-            await user.edit(nick=Nick)
-            await ctx.send("Done")
+    @app_commands.command(name="nick", description="Change a user's nickname")
+    @app_commands.describe(
+        user="The user whose nickname you want to change",
+        nickname="The new nickname for the user"
+    )
+    @app_commands.checks.cooldown(2, 10, key=lambda i: i.user.id)
+    @app_commands.default_permissions(manage_nicknames=True)
+    @app_commands.guild_only()
+    async def nick(self, interaction: Interaction, user: Member, nickname: str):
+        if interaction.user.bot:
+            return
+        
+        if interaction.user.top_role < user.top_role:
+            return await interaction.response.send_message("You don't have enough permission", ephemeral=True)
+
+        if interaction.guild.me.top_role < user.top_role:
+            return await interaction.response.send_message("I don't have enough permission as ", ephemeral=True)
+        
+        try:
+            await user.edit(nick=nickname)
+            await interaction.response.send_message(f"Successfully changed {user.mention}'s nickname to `{nickname}`", ephemeral=True)
+        except discord.Forbidden:
+            await interaction.response.send_message("I don't have permission to change that user's nickname", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"An error occurred: {e}", ephemeral=True)
 
 
 

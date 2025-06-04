@@ -19,7 +19,7 @@ DEVELOPERS = [ OWNER_ID ]
 
 SHARDS = int(env.get("SHARDS", 1))
 PREFIX = env.get("PREFIX", "&")
-VERSION = env.get("VERSION", "2.0.6")
+VERSION = env.get("VERSION", "2.1.0")
 IS_DEV_ENV = env.get("MODE") == "development"
 TRANSLATE_KEY = env.get("TRANSLATE_KEY", None)
 BOT_TOKEN = env.get("BOT_TOKEN")
