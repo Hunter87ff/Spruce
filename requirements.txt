@@ -1,6 +1,5 @@
 python-dotenv
 psutil
-flask
 pymongo
 requests
 PyNaCl

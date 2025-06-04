@@ -935,7 +935,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                         # await callback_interaction.response.send_message(f"Updating IDP role {_role_input.values[0]}...", ephemeral=True)
                         await callback_interaction.response.defer(ephemeral=True)
                         scrim.idp_role = _role_input.values[0].id
-                        print(_role_input.values[0])
+
                         # _role_input.disabled = True
                         # view.remove_item(_role_input)
                         embed = ScrimCog.scrim_info_embed(self.scrim)
