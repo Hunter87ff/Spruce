@@ -33,6 +33,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         self.DEFAULT_TIMEZONE = constants.TimeZone.Asia_Kolkata.value
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
         self.DEFAULT_NO_SCRIM_MSG = "No scrim found for the provided registration channel."
+        self.DEFAULT_NO_IDP_ROLE = "No IDP role found for the scrim. Please set it using `/scrim set idp_role` command."
         self.TAG_IGNORE_ROLE = "scrim-ignore-tag"
         self.SCRIM_MOD_ROLE = "scrim-mod"
         self.SCRIM_LIMIT = 4
@@ -646,8 +647,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         # Update the IDP channel in the scrim
         idp_role = ctx.guild.get_role(scrim.idp_role)
         if not idp_role:
-            await self.log(ctx.guild, f"IDP role not found in the scrim. Please update it.", color=self.bot.color.red)
-            return await ctx.followup.send("IDP role not found in the scrim. Please update it.", ephemeral=True)
+            await self.log(ctx.guild, self.DEFAULT_NO_IDP_ROLE, color=self.bot.color.red)
+            return await ctx.followup.send(self.DEFAULT_NO_IDP_ROLE, ephemeral=True)
 
         event_prefix = self.bot.helper.get_event_prefix(scrim.name)
         idp_channel = idp_channel or await ctx.guild.create_text_channel(
