@@ -72,13 +72,12 @@ def parse_prize_pool(message:discord.Message) -> str | None:
     
     # Additional input sanitization - remove potential problematic characters
     content = re.sub(r'[^\w\s$€£¥₹.,\-+:()]', '', content)
-    
-    # Secure regex pattern to prevent ReDoS attacks
+      # Secure regex pattern to prevent ReDoS attacks
     # - Limited character set: alphanumeric, spaces, currency symbols, basic punctuation
     # - Strict length limit (50 chars max for prize value)
     # - Non-greedy quantifiers with atomic grouping
     # - Removed lookahead/lookbehind patterns that can cause backtracking
-    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*([a-zA-Z0-9\s$€£¥₹.,\-+]{1,50})'
+    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s)?\s*:\s*([a-zA-Z0-9\s$€£¥₹.,\-+]{1,50})'
     
     match = re.search(prize_pattern, content)
     if match:

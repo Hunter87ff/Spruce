@@ -184,7 +184,7 @@ class UtilityCog(commands.Cog):
         interaction: Interaction, 
         title: str="Title", 
         description: str="Description", 
-        color:ColorOptions = color.random(), 
+        color:ColorOptions = ColorOptions.teal, 
         footer: str="Footer",
         thumbnail: str=None,
         image: str=None,
