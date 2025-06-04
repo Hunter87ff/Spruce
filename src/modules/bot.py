@@ -13,7 +13,7 @@ from requests import post
 from discord.ext import commands
 from ext.models import Tester
 from modules import (config, message_handle)
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, error as error_handle
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
 from discord import (
     AllowedMentions, 
     Intents, 
@@ -21,9 +21,6 @@ from discord import (
     Activity, 
     TextChannel, 
     Message, Embed, 
-    Interaction, 
-    app_commands, 
-    Guild
 )
 
 
@@ -54,6 +51,7 @@ class Spruce(commands.AutoShardedBot):
         self.constants = constants
         self.log_channel:TextChannel
         self.time = ClientTime()
+        self.validator = validator
         self.testers:list[Tester] = self.config.TESTERS
         super().__init__(
             shard_count=config.SHARDS, 

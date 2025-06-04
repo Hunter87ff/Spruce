@@ -19,9 +19,7 @@ from discord import Embed, TextChannel,  Interaction,   app_commands as app
 if TYPE_CHECKING:
     from modules.bot import Spruce    
 
-DEBUG=IS_DEV_ENV
 _resolved_scrims: dict[str, bool] = {}
-
 
 class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
     """Currently in development mode!!"""
@@ -45,7 +43,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     async def log(self, guild:discord.Guild, message:str, color=None):
         """Log scrim related messages to the scrim log channel."""
-        scrim_log_channel = discord.utils.get(guild.text_channels, name="scrim-log")
+        scrim_log_channel = discord.utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}scrim-log")
         if scrim_log_channel:
             await scrim_log_channel.send(embed=self.log_embed(message=message, color=color or self.bot.color.green))
 
@@ -53,7 +51,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     @staticmethod
     def debug(message: str):
         """Debug function to print messages if DEBUG is True."""
-        if DEBUG:
+
+        if IS_DEV_ENV:
             print(f"[DEBUG] {message}")
 
 
@@ -267,6 +266,36 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await self.log(ctx.guild, f"Scrim `{_scrim.name}` has been started by {ctx.user.mention} in {reg_channel.mention}.")
         await ctx.followup.send(f"Scrim {reg_channel.mention} has been started.", ephemeral=True)
 
+    
+    @app.command(name="idp", description="send the IDP for a scrim by it's channel ID")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    @app.describe(
+        room_id = "room id for the match",
+        password = "password for the match",
+        map= "map for the match",
+        ping_role = "Ping role to notify IDP (optional)",
+        reg_channel = "Registration channel of the scrim to send IDP (optional)",
+        thumbnail = "Thumbnail image url for the embed (optional)",
+        image = "Image url for the embed (optional)"
+    )
+    async def send_idp(self, ctx:discord.Interaction, room_id: str, password: str, map: str, ping_role: discord.Role = None, reg_channel: discord.TextChannel = None, thumbnail: str = None, image: str = None):
+        await ctx.response.defer(ephemeral=True)
+        channel = reg_channel or ctx.channel
+        embed = discord.Embed(
+            description=f"```\nRoom ID: {room_id}\nPassword: {password}\nMap: {map}\n```"
+        )
+        embed.set_author(name=ctx.user.name, icon_url=ctx.user.display_avatar.url if ctx.user.display_avatar else None)
+        embed.set_footer(text="Please Join within time.")
+
+        if thumbnail and self.bot.validator.is_valid_url(thumbnail):
+            embed.set_thumbnail(url=thumbnail)
+
+        if image and self.bot.validator.is_valid_url(image):
+            embed.set_image(url=image)
+
+        await channel.send(content=ping_role.mention if ping_role else None, embed=embed)
+
 
     @app.command(name="audit", description="Audit a scrim by its ID.")
     @app.guild_only()
@@ -368,10 +397,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             ephemeral=True
         )
 
-    class DuplicateTagCheck(Enum):
-        ALLOW = 1
-        DISALLOW = 0
-
 
     @set_app.command(name="idp_channel", description="Set or update the IDP channel for a scrim.")
     @app.guild_only()
@@ -419,7 +444,9 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                 color=self.bot.color.green
         ))
 
-
+    class DuplicateTagCheck(Enum):
+        ALLOW = 1
+        DISALLOW = 0
 
 
     @set_app.command(name="fake_tag", description="Enable or disable fake tag filter for a scrim.")
@@ -593,19 +620,27 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to update time zone (required)",
-        time_zone="Time zone for the scrim (required)",
+        time_zone="Time zone for the scrim",
+        custom_zone="If your time zone is not listed, you can provide a custom time zone (optional<priority>, e.g., 'Asia/Tokyo')",
     )
     @app.checks.bot_has_permissions(manage_roles=True, manage_channels=True, send_messages=True, embed_links=True)
-    async def set_time_zone(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, time_zone:constants.TimeZone):
+    async def set_time_zone(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, time_zone:constants.TimeZone=constants.TimeZone.Asia_Kolkata, custom_zone:str=None):
         """Set or update the time zone for a scrim."""
         await ctx.response.defer(ephemeral=True)
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
             return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+        
+        if all([time_zone, custom_zone]):
+            return await ctx.followup.send("please select a time zone or provide a custom one if not listed", ephemeral=True)
 
-        #  update the time zone in the scrim
-        _scrim.time_zone = time_zone.value
+        if custom_zone and self.time.is_valid_tz(custom_zone):
+            _scrim.time_zone = custom_zone
+
+        elif not custom_zone and time_zone:
+            _scrim.time_zone = time_zone.value
+
         await _scrim.save()
 
         await ctx.followup.send(f"Time zone for scrim <#{reg_channel.id}> has been set to {time_zone.value}.", ephemeral=True)
@@ -775,7 +810,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
 
         #  delete the scrim from the database
-        _scrim.delete()
+        await _scrim.delete()
 
         await ctx.followup.send(f"Scrim `{_scrim.name}` has been deleted successfully.", ephemeral=True)
 
@@ -1189,4 +1224,24 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     async def before_monitor_scrims(self):
         """Wait for the bot to be ready before starting the monitor loop."""
         await self.bot.wait_until_ready()
+
+
+
+    @commands.Cog.listener()
+    async def on_guild_channel_delete(self, channel:discord.abc.GuildChannel):
+        """Listener for when a scrim registration channel is deleted."""
+        if not isinstance(channel, discord.TextChannel):
+            return
+
+        _scrim = ScrimModel.find_by_reg_channel(channel.id)
+        if not _scrim:
+            return
+
+        #  delete the scrim from the database
+        await _scrim.delete()
+        await self.bot.logger.scrim_log(
+            channel.guild,
+            f"Scrim `{_scrim.name}` has been deleted as its registration channel <#{channel.id}> was deleted.",
+            self.bot.color.red
+        )
 

@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 class ClientTime:
     def __init__(self):
         self.timezone = pytz.timezone("Asia/Kolkata")
+        self.all_zones = pytz.all_timezones
         
 
     def now(self, tz="Asia/Kolkata") -> datetime:
@@ -23,6 +24,17 @@ class ClientTime:
             datetime: The current time in the specified timezone.
         """
         return datetime.now(tz)
+    
+    
+    def is_valid_tz(self, tz: str) -> bool:
+        """
+        Checks if the given timezone is valid.
+        Args:
+            tz (str): The timezone to check.
+        Returns:
+            bool: True if the timezone is valid, False otherwise.
+        """
+        return tz in self.all_zones
 
 
     @staticmethod
