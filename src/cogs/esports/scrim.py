@@ -379,11 +379,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         )
 
 
-
-        await ctx.followup.send(embed=self.scrim_info_embed(scrim=_scrim), ephemeral=True)
-
-
-
     @app.command(name="info", description="Get information about a scrim by its ID.")
     @checks.scrim_mod(interaction=True)
     @app.guild_only()
