@@ -13,20 +13,25 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ext.models import Tester
 
-SHARDS = int(env.get("SHARDS", 1))
-VERSION = env.get("version", "2.0.6")
+
 OWNER_ID = 885193210455011369
-DEVELOPERS = [
-     885193210455011369
-]
+DEVELOPERS = [ OWNER_ID ]
+
+SHARDS = int(env.get("SHARDS", 1))
+PREFIX = env.get("PREFIX", "&")
+VERSION = env.get("VERSION", "2.0.6")
 IS_DEV_ENV = env.get("MODE") == "development"
+TRANSLATE_KEY = env.get("TRANSLATE_KEY", None)
+BOT_TOKEN = env.get("BOT_TOKEN")
+
 LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if env.get("LOCAL_LAVA", None) else None
 DOMAIN = "sprucebot.tech"
 BASE_URL = f"https://{DOMAIN}"
 INVITE_URL = f"{BASE_URL}/invite"
+
 SUPPORT_SERVER = "https://discord.gg/vMnhpAyFZm"
 SUPPORT_SERVER_ID = 947443790053015623
-PREFIX = env.get("PREFIX", "&")
+
 SLEEP_TIME = 21464 
 TESTERS :list["Tester"] = []
 TESTING_GUILDS = [

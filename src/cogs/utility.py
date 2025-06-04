@@ -6,13 +6,15 @@ of this license document, but changing it is not allowed.
 """
 
 
-import datetime
-import os, random, requests, enum, uuid, psutil
+import discord
+import os, random, enum, psutil
 from discord.ext import commands
 from typing import TYPE_CHECKING
 from discord.ui import Button, View 
 from gtts import gTTS
-from ext import constants, emoji, color
+from ext import constants, emoji, color, ColorOptions
+
+
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
@@ -32,32 +34,34 @@ from discord import (
     Emoji
 )
 
-def trn(token, fr:str, to:str, text:str):
-	print({"api-version":"3.0", "from":fr, "to":to})
-	api = "https://api.cognitive.microsofttranslator.com/translate"
-	headers = {
-				'Ocp-Apim-Subscription-Key': token,
-				'Ocp-Apim-Subscription-Region': 'centralindia',
-				'Content-type': 'application/json',
-				'X-ClientTraceId': str(uuid.uuid4()),
-			}
-	res = requests.post(api, params={"api-version":"3.0", "from":fr, "to":to}, headers=headers, json=[{"text":text}])
-	if res.status_code==200: return res.json()[0]["translations"][0]["text"]
-	else: return "Something went wrong! please try again later."
+
 	
+
 class UtilityCog(commands.Cog):
     def __init__(self, bot:"Spruce"):
         self.bot = bot
-        self.counter = 0
+        self.total_members = sum(guild.member_count for guild in self.bot.guilds)
 
 
-    @app_commands.command()
-    async def translate(self, interaction:Interaction, fr:constants.NaturalLang, to:constants.NaturalLang, *, message:str):
-        return await interaction.response.send_message(embed=Embed(description=trn(self.bot.db.config_data.get("trnsl"), fr.value, to.value, message), color=color.blurple), ephemeral=True)
+    @app_commands.command(name="translate", description="Translate a message from one language to another")
+    @app_commands.describe(
+        from_lang="Language to translate from",
+        to_lang="Language to translate to",
+        message="Message to translate"
+    )
+    @app_commands.checks.cooldown(2, 50, key=lambda i: i.user.id)
+    async def translate(self, interaction:Interaction, from_lang:constants.NaturalLang, to_lang:constants.NaturalLang, *, message:str):
+        return await interaction.response.send_message(
+            embed=Embed(
+                description=self.bot.helper.translate(self.bot.config.TRANSLATE_KEY, from_lang.value, to_lang.value, message), 
+                color=color.blurple
+            ), ephemeral=True
+        )
 
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Get the current uptime of the bot")
+    @commands.guild_only()
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def uptime(self, ctx:commands.Context):
         if ctx.author.bot:return
@@ -103,7 +107,7 @@ class UtilityCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=['av', "pfp"])
+    @commands.hybrid_command(description="Get the avatar of a user", aliases=['av', "pfp"])
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def avatar(self, ctx:commands.Context, user: User = None):
         if ctx.author.bot:return
@@ -132,7 +136,7 @@ class UtilityCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=['sav'])
+    @commands.hybrid_command(description="Get the server avatar", aliases=['sav'])
     @commands.guild_only()
     @commands.bot_has_permissions(embed_links=True)
     async def server_av(self, ctx:commands.Context, guild:Guild=None):
@@ -149,7 +153,7 @@ class UtilityCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["bnr"])
+    @commands.hybrid_command(description="Get the banner of a user", aliases=["bnr"])
     async def banner(self, ctx:commands.Context, user:User=None):
         if ctx.author.bot:return
         
@@ -163,20 +167,49 @@ class UtilityCog(commands.Cog):
         await ctx.send(embed=emb)
 
 
-    @commands.command(aliases=['emb'])
-    @commands.guild_only()
-    @commands.bot_has_permissions(send_messages=True, manage_messages=True)
-    @commands.cooldown(2, 60, commands.BucketType.user)
-    async def embed(self, ctx:commands.Context, *, message):
-        await ctx.defer()
-        if ctx.author.bot:return
-        
-        embed = Embed(description=message, color=color.blue)
-        await ctx.channel.purge(limit=1)
-        await ctx.send(embed=embed)
+
+    @app_commands.command(name="embed", description="Create an embed message")
+    @app_commands.describe(
+        title="Title of the embed",
+        description="Description of the embed",
+        color="Color of the embed (hex code or color name)",
+        footer="Footer text for the embed",
+        thumbnail="Thumbnail image URL",
+        image="Main image URL"
+
+    )
+    @app_commands.checks.cooldown(2, 60, key=lambda i: i.user.id)
+    async def embed_command(
+        self, 
+        interaction: Interaction, 
+        title: str="Title", 
+        description: str="Description", 
+        color:ColorOptions = color.random(), 
+        footer: str="Footer",
+        thumbnail: str=None,
+        image: str=None,
+        channel: discord.TextChannel=None
+        ):
+        channel = channel or interaction.channel
+        embed = Embed(title=title, description=description, color=color.value)
+
+        if self.bot.validator.is_valid_url(thumbnail):
+            embed.set_thumbnail(url=thumbnail)
+
+        if self.bot.validator.is_valid_url(image):
+            embed.set_image(url=image)
+            
+        embed.set_footer(text=footer)
+        await channel.send(embed=embed)
+        await interaction.response.send_message(
+            f"Embed sent to {channel.mention}", 
+            embed=embed,
+            ephemeral=True
+        )
 
 
-    @commands.hybrid_command(with_app_command = True)
+
+    @commands.hybrid_command(description="Convert text to speech")
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def tts(self, ctx:commands.Context, *, message:str):
         await ctx.defer(ephemeral=True)
@@ -190,13 +223,14 @@ class UtilityCog(commands.Cog):
         
         if bws.intersection(set(message.split())):
             for i in bws.intersection(set(message.split())):
-                message = message.replace(i, random.choice(constants.blocked_words_replacement))
+                message = message.replace(i, random.choice(constants.bws_replacement))
 
         output = gTTS(text=message, lang="en", tld="co.in")
-        file_name = f"tts_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.ogg"
+        file_name = f"tts_{self.bot.time.now().timestamp()}_{ctx.author.id}.ogg"
         output.save(file_name)
         await ctx.send(ctx.author.mention, file=File(file_name))
         os.remove(file_name)
+
 
 
     @commands.hybrid_command(with_app_command = True)
@@ -208,6 +242,7 @@ class UtilityCog(commands.Cog):
         emoji_bytes = await emoji.read()
         new = await ctx.guild.create_custom_emoji(name=emoji.name, image=emoji_bytes, reason=f'Emoji Added By {ctx.author}')
         return await ctx.send(f"{new} added", delete_after=10)
+
 
 
     @commands.hybrid_command(with_app_command = True)
@@ -227,6 +262,8 @@ class UtilityCog(commands.Cog):
             msg = random.choice(constants.whois)
             emb = Embed(description=f"{user.mention}  {msg}", color=color.blurple)
             await ctx.send(embed=emb)
+
+
 
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
@@ -251,6 +288,8 @@ class UtilityCog(commands.Cog):
         try:await ctx.send("**Click On The Button To Invite Me:**", view=view)
         except Exception:return
 
+
+
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 8, commands.BucketType.user)
@@ -261,6 +300,8 @@ class UtilityCog(commands.Cog):
         view.add_item(invbtn)
         try:await ctx.send("**Click On The Button To Vote Me ^_^**", view=view)
         except Exception:return
+
+
 
     @commands.hybrid_command(with_app_command = True)
     @commands.bot_has_permissions(send_messages=True)
@@ -273,6 +314,8 @@ class UtilityCog(commands.Cog):
         try:await ctx.send("**Click On The Button To Join Our Support Server For Any Issue**", view=view)
         except Exception:return
 
+
+
     @commands.hybrid_command(with_app_command=True, aliases=["em"])
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
@@ -282,9 +325,8 @@ class UtilityCog(commands.Cog):
         await ctx.defer(ephemeral=False)
 
         # validate image url
-        if not image.startswith("http"):
-            return await ctx.send("Invalid image URL.")
-
+        if self.bot.validator.is_valid_url(image) is False:
+            return await ctx.send("**Invalid image URL provided. Please provide a valid image URL.**", delete_after=10)
 
         emb = Embed(description=message, color=self.bot.color.random())
         emb.set_image(url=image)
@@ -295,20 +337,7 @@ class UtilityCog(commands.Cog):
         await ctx.send(embed=emb)
 
 
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(2, 360, commands.BucketType.user)
-    @commands.has_permissions(add_reactions=True)
-    @commands.bot_has_permissions(add_reactions=True)
-    async def react(self, ctx:commands.Context, msg_id, *emojis):
-        for emoji in emojis:
-            msg = await ctx.channel.fetch_message(msg_id)
-            await ctx.channel.purge(limit=1)
-            await msg.add_reaction(emoji)
-
-
-
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Get the current prefix of the bot", aliases=["pr"])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(send_messages=True)
@@ -317,7 +346,8 @@ class UtilityCog(commands.Cog):
         await ctx.defer(ephemeral=True)
         await ctx.send(f"My prefix is : {self.bot.config.PREFIX}")
 
-    @commands.hybrid_command(with_app_command = True, aliases=["mc"])
+
+    @commands.hybrid_command(description="Get the current member count of the server", aliases=["mc"])
     @commands.guild_only()
     @commands.bot_has_permissions(send_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
@@ -328,10 +358,10 @@ class UtilityCog(commands.Cog):
         emb.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar)
         await ctx.send(embed=emb)
 
-        
-    @commands.hybrid_command(with_app_command = True, aliases=["ui"])
+
+    @commands.hybrid_command(description="Get information about a user", aliases=["ui"])
     @commands.guild_only()
-    @commands.cooldown(2, 10, commands.BucketType.user)
+    @commands.cooldown(2, 30, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True)
     async def userinfo(self, ctx:commands.Context, member : Member = None):
         await ctx.defer(ephemeral=True)
@@ -347,8 +377,7 @@ class UtilityCog(commands.Cog):
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=embed)
  
-    def mmbrs(self):
-        return sum(guild.member_count for guild in self.bot.guilds)    
+
 
     @commands.hybrid_command(with_app_command = True, aliases=["bi","stats", "about", "info", "status", "botstats"])
     @commands.cooldown(2, 60, commands.BucketType.user)
@@ -361,12 +390,14 @@ class UtilityCog(commands.Cog):
         system_info = f"`{memory.total / (1024**3):.2f} GB`/ `{psutil.Process(os.getpid()).memory_info().rss//2**20} MB`/ `{mem_percent}%`"
         emb = Embed(title="Spruce Bot", color=color.green)
         emb.add_field(name=f"{emoji.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
-        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(self.mmbrs())}`", inline=True)
+        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(self.total_members)}`", inline=True)
         emb.add_field(name=f"{emoji.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
         emb.add_field(name=f"{emoji.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
         return await ctx.send(embed=emb)
     
+
+
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.user)
@@ -381,7 +412,8 @@ class UtilityCog(commands.Cog):
             await ctx.send("Done")
 
 
-    @commands.hybrid_command(with_app_command = True, aliases=["si", "server_info"])
+
+    @commands.hybrid_command(description="Get information about the server", aliases=["si", "server_info"])
     @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)

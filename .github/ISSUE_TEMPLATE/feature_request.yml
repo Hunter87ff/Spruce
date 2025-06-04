@@ -1,0 +1,163 @@
+name: 🚀 Feature Request
+description: Suggest a new feature or enhancement for Spruce Discord Bot
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request", "feature"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature for Spruce! 
+        Please fill out this template to help us understand your request better.
+
+  - type: checkboxes
+    id: category
+    attributes:
+      label: Feature Category
+      description: Which category does this feature belong to?
+      options:
+        - label: 🎵 Music (Lavalink integration, playback controls, queue management)
+        - label: 🛡️ Moderation (Auto-mod, user management, server protection)
+        - label: 🎮 Esports (Scrims, tournaments, team management)
+        - label: 🔧 Utility (General bot utilities, server tools)
+        - label: 👤 Roles (Role management, auto-roles, permissions)
+        - label: ❓ Help System (Documentation, guides, support)
+        - label: 📊 Tasks/Automation (Scheduled tasks, background processes)
+        - label: 🔗 API Integration (External service integration)
+        - label: 🎨 User Interface (Embeds, buttons, menus)
+        - label: 📈 Analytics/Logging (Statistics, monitoring, reporting)
+        - label: 🔧 Bot Administration (Configuration, maintenance)
+        - label: 🆕 Other (Something else)
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: Provide a clear and detailed description of the feature you'd like to see
+      placeholder: Describe the feature you want...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem/Use Case
+      description: What problem does this feature solve? What's the use case?
+      placeholder: |
+        Example: 
+        - As a server owner, I want to automatically assign roles based on user activity so that active members get special privileges
+        - Currently there's no way to track music listening history, which makes it hard to create playlists
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work? Be as specific as possible.
+      placeholder: |
+        Example:
+        - Add a new slash command `/music history` that shows the last 10 songs played
+        - Create an auto-role system that assigns roles based on message count thresholds
+        - Implement tournament bracket generation for esports events
+    validations:
+      required: true
+
+  - type: textarea
+    id: commands
+    attributes:
+      label: Suggested Commands/Interactions
+      description: If this feature involves new commands, what should they look like?
+      placeholder: |
+        Example:
+        `/feature command [required_parameter] [optional_parameter]`
+        `/music playlist create <name>`
+        `/tournament create <name> <max_teams>`
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve user experience
+        - High - Important for server functionality
+        - Critical - Essential for server operation
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user_type
+    attributes:
+      label: User Type
+      description: Who would primarily benefit from this feature?
+      options:
+        - Server Members (regular users)
+        - Server Moderators
+        - Server Administrators/Owners
+        - Bot Developers
+        - Tournament Organizers
+        - Music Listeners
+        - All Users
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative approaches or workarounds?
+      placeholder: Describe any alternative solutions you've thought of...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Any other information, screenshots, or examples that would help explain this feature
+      placeholder: |
+        - Links to similar features in other bots
+        - Screenshots or mockups
+        - Discord server size/type where this would be used
+        - Any technical considerations
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: discord_features
+    attributes:
+      label: Discord Features Used
+      description: Would this feature utilize any specific Discord features?
+      options:
+        - label: Slash Commands
+        - label: Context Menus (right-click)
+        - label: Buttons/Interactive Components
+        - label: Select Menus/Dropdowns
+        - label: Modals/Forms
+        - label: Threads
+        - label: Voice Channels
+        - label: Webhooks
+        - label: Scheduled Events
+        - label: Forum Channels
+        - label: Stage Channels
+        - label: Application Commands Permissions
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to make sure this feature hasn't been requested already
+          required: true
+        - label: I have provided a clear description of the feature and its use case
+          required: true
+        - label: I understand this is a feature request and not a bug report
+          required: true
+        - label: I'm willing to provide additional information if needed
+          required: true

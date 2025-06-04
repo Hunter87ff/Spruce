@@ -282,7 +282,7 @@ class ScrimModel:
         return _saved
 
 
-    def delete(self):
+    async def delete(self):
         """
         Deletes the ScrimModel instance from the database.
         Returns:

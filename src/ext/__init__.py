@@ -12,12 +12,12 @@ from ext.logger import Logger
 from ext.modals import Tourney
 import ext.constants as constants
 import ext.emoji as emoji
-from ext.color import Color as color
 from ext.db import Database
 import ext.error as error
-import ext.files as files
-from ext import helper, checks
-from ext.time import ClientTime
+from .color import ColorOptions, Color as color
+from . import  files, helper, checks, validator
+from .time import ClientTime
+
 
 
 __all__ = (
@@ -32,6 +32,8 @@ __all__ = (
     "helper",
     "ClientTime",
     "checks",
+    "validator",
+    "ColorOptions",
 )
 
 

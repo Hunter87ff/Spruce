@@ -8,6 +8,7 @@ of this license document, but changing it is not allowed.
 
 import re
 import discord
+import requests, uuid
 from ext import Database
 from discord.ext import commands
 
@@ -61,17 +62,31 @@ def parse_prize_pool(message:discord.Message) -> str | None:
     If no prize pool is found, it returns None.
     
     Args:
-        message (discord.Message): The message object containing the content to parse.
-    
-    Returns:
+        message (discord.Message): The message object containing the content to parse.    Returns:
         str|None: The extracted prize pool value or None if not found.
     """
     content = str(message.content.lower())
-    if len(content) == 0:
+    # Input validation - check length and basic sanity
+    if len(content) == 0 or len(content) > 2000:  # Discord message limit + safety check
         return None
-    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*(.+?)(?:\s*$)'
+    
+    # Additional input sanitization - remove potential problematic characters
+    content = re.sub(r'[^\w\s$€£¥₹.,\-+:()]', '', content)
+    
+    # Secure regex pattern to prevent ReDoS attacks
+    # - Limited character set: alphanumeric, spaces, currency symbols, basic punctuation
+    # - Strict length limit (50 chars max for prize value)
+    # - Non-greedy quantifiers with atomic grouping
+    # - Removed lookahead/lookbehind patterns that can cause backtracking
+    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*([a-zA-Z0-9\s$€£¥₹.,\-+]{1,50})'
+    
     match = re.search(prize_pattern, content)
-    return match.group(1).strip() if match else None
+    if match:
+        result = match.group(1).strip()
+        # Additional validation on the result
+        if len(result) > 0 and len(result) <= 50:
+            return result
+    return None
 
 
 
@@ -198,3 +213,28 @@ async def lock_channel(channel:discord.TextChannel, role:discord.Role=None):
     overwrite = channel.overwrites_for(role)
     overwrite.update(send_messages=False, add_reactions=False)
     await channel.set_permissions(role, overwrite=overwrite)
+
+
+def translate(token, from_lang:str, to_lang:str, text:str):
+    """
+    Translates text from one language to another using Microsoft Translator API.
+    Args:
+        token (str): The subscription key for the Microsoft Translator API.
+
+        from_lang (str): The source language code (e.g., 'en' for English).
+        to_lang (str): The target language code (e.g., 'es' for Spanish).
+        text (str): The text to be translated.
+
+    Returns:
+        str: The translated text if successful, otherwise an error message.
+    """
+    api = "https://api.cognitive.microsofttranslator.com/translate"
+    headers = {
+                'Ocp-Apim-Subscription-Key': token,
+                'Ocp-Apim-Subscription-Region': 'eastus2',
+                'Content-type': 'application/json',
+                'X-ClientTraceId': str(uuid.uuid4()),
+            }
+    res = requests.post(api, params={"api-version":"3.0", "from":from_lang, "to":to_lang}, headers=headers, json=[{"text":text}])
+    if res.status_code==200: return res.json()[0]["translations"][0]["text"]
+    else: return "Something went wrong! please try again later."
