@@ -17,7 +17,7 @@ env:
   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
   TRANSLATE_KEY : ${{ secrets.TRANSLATE_KEY }}
   PREFIX : ${{ secrets.PREFIX }}
-  VERSION : "2.0.6"
+  VERSION : "2.1.0"
   LOCAL_LAVA : false
   
 jobs:

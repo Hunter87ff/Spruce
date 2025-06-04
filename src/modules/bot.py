@@ -8,6 +8,7 @@ of this license document, but changing it is not allowed.
 import time
 import cogs
 import asyncio
+import inspect
 import traceback
 from requests import post
 from discord.ext import commands
@@ -115,7 +116,7 @@ class Spruce(commands.AutoShardedBot):
         
         await self.process_commands(message)
         if message.guild:
-            await message_handle.tourney(message)
+            await message_handle.tourney(message, self)
 
 
          
@@ -126,6 +127,17 @@ class Spruce(commands.AutoShardedBot):
     async def on_error(self, event, *args, **kwargs):
         error = traceback.format_exc()
         await error_handle.manage_backend_error(error, self)
+
+
+
+    def debug(self, message: str):
+        """Debug function to print messages if DEBUG is True."""
+        frame = inspect.currentframe().f_back
+        line_number = inspect.getframeinfo(frame).lineno
+        module_name = frame.f_globals["__name__"]
+        if self.config.IS_DEV_ENV:
+            print(f"[{module_name}:{line_number}] {message} ")
+
 
 
 

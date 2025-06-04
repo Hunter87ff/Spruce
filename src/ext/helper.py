@@ -114,7 +114,7 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message):
         
         if fmsg.author.id != message.author.id and crole in fmsg.author.roles:
             for mention in fmsg.mentions:
-                if mention in message.mentions:
+                if mention in message.mentions :
                     return DuplicateTag(mention, fmsg)
     return None
 
