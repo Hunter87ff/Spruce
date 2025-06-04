@@ -17,8 +17,8 @@ async def channel_input(ctx:commands.Context, check=None, timeout=20):
     try:message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
     except asyncio.TimeoutError:return await ctx.send("Time Out! Try Again")
     else:
-        try:await message.delete()
-        except:pass
+        await message.delete() if message.guild.me.guild_permissions.manage_messages else None
+
         channel = await TextChannelConverter().convert(ctx, message.content)
         return channel
 
@@ -27,8 +27,7 @@ async def check_role(ctx:commands.Context, check=None, timeout=20):
     try:message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
     except asyncio.TimeoutError:return await ctx.send("Time Out! Try Again")
     else:
-        try:await message.delete()
-        except:pass
+        await message.delete() if message.guild.me.guild_permissions.manage_messages else None
         role = await RoleConverter().convert(ctx, message.content)
         return role
 
@@ -40,8 +39,7 @@ async def ttl_slots(ctx:commands.Context, check=None, timeout=20) -> int|None:
         await ctx.send("Time Out! Try Again")
         return None
     else:
-        try:await msg.delete()
-        except:pass
+        await msg.delete() if msg.guild.me.guild_permissions.manage_messages else None
         return int(msg.content)
     
 async def get_input(interaction:discord.Interaction, title:str="Enter Value", label:str="Enter Value", style:discord.TextStyle=discord.TextStyle.short, max_length:int=None, placeholder:str=None):

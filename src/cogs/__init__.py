@@ -14,7 +14,6 @@ from cogs.dev import DevCog
 from cogs.esports import EsportsCog
 from cogs.helpcog import HelperCog
 from cogs.moderation import ModerationCog
-from cogs.music import MusicCog
 from cogs.role import RoleCog
 from cogs.tasks import TaskCog
 from cogs.utility import UtilityCog
@@ -33,13 +32,11 @@ _cogs : list[Cog] = [
     UtilityCog,
     ModerationCog,
     TaskCog,
-    # MusicCog,
     ScrimCog
 ]
 
 _DEV_COGS = [
     ScrimCog,
-    MusicCog
 ]
 
 

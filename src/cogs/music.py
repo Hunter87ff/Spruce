@@ -50,7 +50,8 @@ class MusicCog(commands.Cog):
 
         def lavalink():
             if not os.path.exists("lava"):
-                print("Lavalink is not configured")
+                self.bot.logger.warning("Lavalink is not configured")
+                return
 
             if platform.system() == "Windows":
                 os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
