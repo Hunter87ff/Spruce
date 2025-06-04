@@ -1,4 +1,7 @@
 from random import randint
+from enum import Enum
+
+
 
 class Color:
     blurple = 0x7289da
@@ -27,3 +30,26 @@ class Color:
     @staticmethod
     def random(colorRange: int = 0xFFFFFF):
         return randint(0, colorRange)
+    
+
+
+
+class ColorOptions(Enum):
+    blurple = Color.purple
+    red = Color.red
+    orange = Color.orange
+    gold = Color.gold
+    magenta = Color.magenta
+    purple = Color.purple
+    blue = Color.blue
+    green = Color.green
+    deep_green = Color.d_green
+    pink = Color.pink
+    teal = Color.teal
+    cyan = Color.cyan
+    deep_teal = Color.d_teal
+    yellow = Color.yellow
+    grey = Color.greyple
+    dark_grey = Color.d_grey
+    dark_theme = Color.d_theme
+    dark_red = Color.d_red

@@ -20,10 +20,13 @@ DEVELOPERS = [
      885193210455011369
 ]
 IS_DEV_ENV = env.get("MODE") == "development"
+TRANSLATE_KEY = env.get("TRANSLATE_KEY", None)
+
 LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if env.get("LOCAL_LAVA", None) else None
 DOMAIN = "sprucebot.tech"
 BASE_URL = f"https://{DOMAIN}"
 INVITE_URL = f"{BASE_URL}/invite"
+
 SUPPORT_SERVER = "https://discord.gg/vMnhpAyFZm"
 SUPPORT_SERVER_ID = 947443790053015623
 PREFIX = env.get("PREFIX", "&")

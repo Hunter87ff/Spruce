@@ -8,6 +8,7 @@ of this license document, but changing it is not allowed.
 
 import re
 import discord
+import requests, uuid
 from ext import Database
 from discord.ext import commands
 
@@ -198,3 +199,28 @@ async def lock_channel(channel:discord.TextChannel, role:discord.Role=None):
     overwrite = channel.overwrites_for(role)
     overwrite.update(send_messages=False, add_reactions=False)
     await channel.set_permissions(role, overwrite=overwrite)
+
+
+def translate(token, from_lang:str, to_lang:str, text:str):
+    """
+    Translates text from one language to another using Microsoft Translator API.
+    Args:
+        token (str): The subscription key for the Microsoft Translator API.
+
+        from_lang (str): The source language code (e.g., 'en' for English).
+        to_lang (str): The target language code (e.g., 'es' for Spanish).
+        text (str): The text to be translated.
+
+    Returns:
+        str: The translated text if successful, otherwise an error message.
+    """
+    api = "https://api.cognitive.microsofttranslator.com/translate"
+    headers = {
+                'Ocp-Apim-Subscription-Key': token,
+                'Ocp-Apim-Subscription-Region': 'eastus2',
+                'Content-type': 'application/json',
+                'X-ClientTraceId': str(uuid.uuid4()),
+            }
+    res = requests.post(api, params={"api-version":"3.0", "from":from_lang, "to":to_lang}, headers=headers, json=[{"text":text}])
+    if res.status_code==200: return res.json()[0]["translations"][0]["text"]
+    else: return "Something went wrong! please try again later."

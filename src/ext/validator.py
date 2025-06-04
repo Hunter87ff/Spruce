@@ -1,7 +1,9 @@
 import re
 
 def is_valid_url(url:str) -> bool:
-    # Protect against ReDoS attacks by limiting input length and using atomic groups
+    if not url:
+        return False
+
     if len(url) > 2048:  # Reasonable URL length limit
         return False
     
@@ -10,5 +12,6 @@ def is_valid_url(url:str) -> bool:
     
     try:
         return re.match(regex, url, re.IGNORECASE) is not None
+    
     except re.error:
         return False
