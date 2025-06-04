@@ -525,7 +525,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     @app.command(name="list", description="List all scrims in the server.")
     @app.guild_only()
     @checks.dev_only(interaction=True)
-    @checks.under_maintenance(interaction=True)
     async def list_scrims(self, ctx:discord.Interaction):
         """List all scrims in the server."""
         await ctx.response.defer()
@@ -948,7 +947,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     @app.command(name="reserved_slots", description="View the reserved slots for a scrim.")
     @app.guild_only()
     @checks.scrim_mod(interaction=True)
-    @checks.under_maintenance(interaction=True)
     @app.describe(reg_channel="Registration channel of the scrim to view or update reserved slots (required)")
     async def view_reserved_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
         await ctx.response.defer(ephemeral=True)
@@ -1027,7 +1025,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     @remove_app.command(name="reserved_slots", description="View or remove a reserved slot for a scrim.")
     @app.guild_only()
-    @checks.under_maintenance(interaction=True)
     @checks.scrim_mod(interaction=True)
     @app.describe(
         reg_channel="Registration channel of the scrim to view or remove reserved slots (required)",

@@ -36,7 +36,7 @@ _cogs : list[Cog] = [
 ]
 
 _DEV_COGS = [
-    ScrimCog,
+
 ]
 
 
