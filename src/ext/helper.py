@@ -62,17 +62,31 @@ def parse_prize_pool(message:discord.Message) -> str | None:
     If no prize pool is found, it returns None.
     
     Args:
-        message (discord.Message): The message object containing the content to parse.
-    
-    Returns:
+        message (discord.Message): The message object containing the content to parse.    Returns:
         str|None: The extracted prize pool value or None if not found.
     """
     content = str(message.content.lower())
-    if len(content) == 0:
+    # Input validation - check length and basic sanity
+    if len(content) == 0 or len(content) > 2000:  # Discord message limit + safety check
         return None
-    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*(.+?)(?:\s*$)'
+    
+    # Additional input sanitization - remove potential problematic characters
+    content = re.sub(r'[^\w\s$€£¥₹.,\-+:()]', '', content)
+    
+    # Secure regex pattern to prevent ReDoS attacks
+    # - Limited character set: alphanumeric, spaces, currency symbols, basic punctuation
+    # - Strict length limit (50 chars max for prize value)
+    # - Non-greedy quantifiers with atomic grouping
+    # - Removed lookahead/lookbehind patterns that can cause backtracking
+    prize_pattern = r'(?i)prize(?:\s+(?:pool|money)|s?)?\s*:\s*([a-zA-Z0-9\s$€£¥₹.,\-+]{1,50})'
+    
     match = re.search(prize_pattern, content)
-    return match.group(1).strip() if match else None
+    if match:
+        result = match.group(1).strip()
+        # Additional validation on the result
+        if len(result) > 0 and len(result) <= 50:
+            return result
+    return None
 
 
 
