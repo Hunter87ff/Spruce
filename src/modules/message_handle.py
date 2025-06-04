@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from ext.error import update_error_log
 from ext.modals import Tourney
 from discord import utils, AllowedMentions, Embed, Message, TextChannel
-from ext import Database, helper, helper, color as Color
+from ext import Database, helper, color as Color
 
 
 if TYPE_CHECKING:
