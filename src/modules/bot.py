@@ -171,13 +171,19 @@ class Spruce(commands.AutoShardedBot):
 
 
 
-
-
     async def start(self, _started_at:float) -> None:
         """
         Starts the bot and calculates the total boot time.
         Args:
             _start (float): boot start time to calculate the total boot time.
         """
-        self._started_at = _started_at
-        await super().start(self.db.token, reconnect=True)
+        try:
+            self._started_at = _started_at
+            await super().start(self.config.BOT_TOKEN, reconnect=True)
+
+        except Exception as e:
+            import os
+            self.logger.error(f"Failed to start the bot: {e}")
+            os._exit(1)
+
+

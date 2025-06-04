@@ -40,7 +40,6 @@ class Database:
             
             # Load configuration data from the main config collection
             self.config_data:dict = dict(self.config_col.find_one({"config_id": 87}))
-            self.token:str = self.config_data.get(os.environ["TOKEN_KEY"])
             self.GEMAPI:str = self.config_data.get("gemapi")
             self.spot_id:str = self.config_data.get("spot_id")
             self.spot_secret:str = self.config_data.get("spot_secret")

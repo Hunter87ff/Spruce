@@ -12,11 +12,12 @@ permissions:
   contents: read
   
 env:
-  mongo_url  : ${{ secrets.MONGO_URL }}
+  MONGO_URI  : ${{ secrets.MONGO_URL }}
   SHARDS : ${{ secrets.SHARDS }}
-  TOKEN_KEY : ${{ secrets.TKN }}
+  BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
+  TRANSLATE_KEY : ${{ secrets.TRANSLATE_KEY }}
   PREFIX : ${{ secrets.PREFIX }}
-  version : "2.0.6"
+  VERSION : "2.0.6"
   LOCAL_LAVA : false
   
 jobs:
