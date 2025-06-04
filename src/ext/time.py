@@ -7,16 +7,17 @@ of this license document, but changing it is not allowed.
 
 
 import pytz, dateparser
+from .constants import TimeZone
 from datetime import datetime, timedelta
 
 
 class ClientTime:
     def __init__(self):
-        self.timezone = pytz.timezone("Asia/Kolkata")
+        self.timezone = pytz.timezone(TimeZone.Asia_Kolkata.value)
         self.all_zones = pytz.all_timezones
         
 
-    def now(self, tz="Asia/Kolkata") -> datetime:
+    def now(self, tz=TimeZone.Asia_Kolkata.value) -> datetime:
         """Returns the current time in the specified timezone.
         Args:
             tz (str, optional): The timezone to use. Defaults is `Asia/Kolkata`, which uses the instance's timezone.
@@ -38,7 +39,7 @@ class ClientTime:
 
 
     @staticmethod
-    def now(tz="Asia/Kolkata") -> datetime:
+    def now(tz=TimeZone.Asia_Kolkata.value) -> datetime:
         """Returns the current time in the specified timezone."""
         return datetime.now(tz=pytz.timezone(tz))
 

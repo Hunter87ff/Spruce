@@ -31,6 +31,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         self.DEFAULT_END_TIME = "4:00 PM"
         self.DEFAULT_TIMEZONE = constants.TimeZone.Asia_Kolkata.value
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
+        self.DEFAULT_NO_SCRIM_MSG = "No scrim found for the provided registration channel."
         self.TAG_IGNORE_ROLE = "scrim-ignore-tag"
         self.scrim_interval = 86400 # seconds in 24 hours
 
@@ -176,8 +177,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         except ValueError as e:
             return await ctx.followup.send(f"{str(e)}. Please use HH:MM AM/PM format.", ephemeral=True)
 
-        if _parsed_open_time is None:
-            return await ctx.followup.send("Invalid time format. Please use HH:MM AM/PM format.", ephemeral=True)
 
         _event_prefix = self.bot.helper.get_event_prefix(scrim_name)
         _scrim_category: discord.CategoryChannel
@@ -253,7 +252,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.response.defer(ephemeral=True)
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         # Start the scrim
         _scrim.status = True
@@ -283,10 +282,12 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.response.defer(ephemeral=True)
         channel = reg_channel or ctx.channel
         embed = discord.Embed(
-            description=f"```\nRoom ID: {room_id}\nPassword: {password}\nMap: {map}\n```"
+            description=f"```\nRoom ID: {room_id}\nPassword: {password}\nMap: {map}\n```",
+            color=self.bot.color.random()
         )
         embed.set_author(name=ctx.user.name, icon_url=ctx.user.display_avatar.url if ctx.user.display_avatar else None)
         embed.set_footer(text="Please Join within time.")
+        embed.timestamp = discord.utils.utcnow()
 
         if thumbnail and self.bot.validator.is_valid_url(thumbnail):
             embed.set_thumbnail(url=thumbnail)
@@ -295,6 +296,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             embed.set_image(url=image)
 
         await channel.send(content=ping_role.mention if ping_role else None, embed=embed)
+        await ctx.followup.send(content=f"IDP sent to {channel.mention}", embed=embed, ephemeral=True)
 
 
     @app.command(name="audit", description="Audit a scrim by its ID.")
@@ -308,7 +310,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
 
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
         
         reg_channel: TextChannel = self.bot.get_channel(_scrim.reg_channel)
         idp_role = ctx.guild.get_role(_scrim.idp_role)
@@ -350,28 +352,31 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             manage_channel_perms,
             read_history_perms
         ])
+        if having_perm:
+            await ctx.followup.send(embed=discord.Embed(description="You have all the required permissions to manage the scrim."), ephemeral=True)
+            return
 
         missing_perms = []
-        if not having_perm:
-            if not reg_read_perms:
-                missing_perms.append("read_messages")
-            if not reg_send_perms:
-                missing_perms.append("send_messages")
-            if not reg_manage_message_perms:
-                missing_perms.append("manage_messages")
-            if not reg_add_reactions_perms:
-                missing_perms.append("add_reactions")
-            if not manage_role_perms:
-                missing_perms.append("manage_roles")
-            if not manage_channel_perms:
-                missing_perms.append("manage_channels")
-            if not read_history_perms:
-                missing_perms.append("read_message_history")
 
-            return await ctx.followup.send(
-                f"Missing permissions to manage the scrim: `{'`, '.join(missing_perms)}. Please update the permissions and try again.",
-                ephemeral=True
-            )
+        if not reg_read_perms:
+            missing_perms.append("read_messages")
+        elif not reg_send_perms:
+            missing_perms.append("send_messages")
+        elif not reg_manage_message_perms:
+            missing_perms.append("manage_messages")
+        elif not reg_add_reactions_perms:
+            missing_perms.append("add_reactions")
+        elif not manage_role_perms:
+            missing_perms.append("manage_roles")
+        elif not manage_channel_perms:
+            missing_perms.append("manage_channels")
+        elif not read_history_perms:
+            missing_perms.append("read_message_history")
+
+        return await ctx.followup.send(
+            f"Missing permissions to manage the scrim: `{'`, '.join(missing_perms)}. Please update the permissions and try again.",
+            ephemeral=True
+        )
 
 
 
@@ -390,7 +395,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         """Get information about a scrim by its registration channel."""
         await ctx.response.defer(ephemeral=True)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         await ctx.followup.send(
             embed=self.scrim_info_embed(scrim=_scrim),
@@ -411,7 +416,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         scrim  = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
         
         # Update the IDP channel in the scrim
         idp_role = ctx.guild.get_role(scrim.idp_role)
@@ -462,7 +467,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         # Update the fake tag filter in the scrim
         _scrim.duplicate_tag = bool(fake_tag.value)
@@ -485,7 +490,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  update the idp role in the scrim
         _scrim.idp_role = idp_role.id
@@ -508,7 +513,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  update the ping role in the scrim
         _scrim.ping_role = ping_role.id
@@ -530,7 +535,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  update the mentions in the scrim
         _scrim.mentions = mentions
@@ -553,7 +558,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  update the total slots in the scrim
         _scrim.total_slots = total_slots
@@ -576,7 +581,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         parsed_open_time = int(self.time.parse_datetime(time_str=open_time, tz=_scrim.time_zone).timestamp())
         
@@ -600,7 +605,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         try:
             parsed_close_time = int(self.time.parse_datetime(time_str=close_time, tz=_scrim.time_zone).timestamp())
@@ -630,7 +635,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
         
         if all([time_zone, custom_zone]):
             return await ctx.followup.send("please select a time zone or provide a custom one if not listed", ephemeral=True)
@@ -658,7 +663,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  update the registration channel in the scrim
         _scrim.reg_channel = reg_channel.id
@@ -681,7 +686,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  update the slot channel in the scrim
         _scrim.slot_channel = slot_channel.id
@@ -704,7 +709,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
 
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         try:
             await self.setup_group(scrim=_scrim, slot_per_group=slot_per_group)
@@ -724,7 +729,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         """View or update the reserved slots for a scrim."""
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
         
         if not _scrim.reserved:
             return await ctx.followup.send("No reserved slots found for this scrim.", ephemeral=True)
@@ -754,7 +759,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
         
         if(len(_scrim.reserved) >= _scrim.total_slots):
             return await ctx.followup.send("All slots are already reserved for this scrim.", ephemeral=True)
@@ -782,7 +787,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  find the reserved slot by captain id
         if captain.id not in _scrim.reserved:
@@ -807,7 +812,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         #  delete the scrim from the database
         await _scrim.delete()
@@ -824,7 +829,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         """Toggle the status of a scrim by its registration channel."""
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
-            return await ctx.followup.send("No scrim found for the provided registration channel.", ephemeral=True)
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
         
         # Toggle the scrim status
         _scrim.status = not _scrim.status
