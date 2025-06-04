@@ -89,7 +89,7 @@ async def tourney(message:Message, bot:'Spruce'):
     if message.author.bot or not message.guild:
         return
     
-    if not any([
+    if not all([
         message.guild.me.guild_permissions.manage_messages,
         message.guild.me.guild_permissions.manage_roles,
         message.guild.me.guild_permissions.send_messages,
