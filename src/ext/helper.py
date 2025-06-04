@@ -89,7 +89,7 @@ def parse_prize_pool(message:discord.Message) -> str | None:
 
 
 
-async def duplicate_tag(crole:discord.Role, message:discord.Message, slots:int=None):
+async def duplicate_tag(crole:discord.Role, message:discord.Message):
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
