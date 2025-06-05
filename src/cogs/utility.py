@@ -516,25 +516,18 @@ class UtilityCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild:Guild):
         try:
-            support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
-            ch = self.bot.get_channel(self.bot.config.guild_join_log)
-            channel = random.choice(guild.channels)
-            orole = utils.get(support_server.roles, id=1043134410029019176)
-            link = await channel.create_invite(reason=None, max_age=0, max_uses=0, temporary=False, unique=False, target_type=None, target_user=None, target_application_id=None)
-            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```\nInvite Link : {link}"
-            if guild.member_count >= 1000 and guild.owner in support_server.members:
-                m = utils.get(support_server.members, id=guild.owner.id)
-                await m.add_roles(orole)
-            await ch.send(msg)
-        except Exception as e:print(f"on_guild_join : {e}")
+            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```"
+            await self.bot.guild_join_log.send(msg)
+
+        except Exception as e:
+            self.bot.logger.warning(f"Error while logging guild join: {e}")
         
 
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild:Guild): 
-        support_server = self.bot.get_guild(self.bot.config.SUPPORT_SERVER_ID)
-        ch = self.bot.get_channel(self.bot.config.guild_leave_log)
-        orole = utils.get(support_server.roles, id=1043134410029019176)
-        msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\n Members : {guild.member_count}```"
-        for i in support_server.members:
-            if i.id == guild.owner.id and orole in i.roles:await i.remove_roles(orole, reason="Kicked Spruce")
-        return await ch.send(msg)
+    async def on_guild_remove(self, guild:Guild):
+        try:
+            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nOwner_id : {guild.owner.id}\nMembers : {guild.member_count}```"
+            await self.bot.guild_leave_log.send(msg)
+
+        except Exception as e:
+            self.bot.logger.warning(f"Error while logging guild leave: {e}")

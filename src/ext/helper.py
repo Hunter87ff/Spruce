@@ -21,16 +21,6 @@ def get_db():
     return Database()
 
 
-async def is_dev(ctx: commands.Context | discord.Interaction):
-    """
-    Checks if the user is a developer
-    """
-    user_id = ctx.user.id if isinstance(ctx, discord.Interaction) else ctx.author.id
-    if user_id not in get_db().config_data["devs"]:
-        response = ctx.response.send_message if isinstance(ctx, discord.Interaction) else ctx.send
-        await response("Command is under development", ephemeral=True if isinstance(ctx, discord.Interaction) else False)
-        return False
-    return True
      
 def parse_team_name(message:discord.Message, strict:bool=False) -> str:
     """

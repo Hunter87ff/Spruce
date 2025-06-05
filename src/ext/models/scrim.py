@@ -29,6 +29,8 @@ class Team:
         
         if isinstance(other, int):
             return self.captain == other
+        
+        return False
 
 
     def to_dict(self) -> dict:
@@ -203,8 +205,10 @@ class ScrimModel:
 
         new_team = Team(name=name, captain=captain)
         if not self.duplicate_team and new_team in self.teams:
-            debug(f"Duplicate team found: {new_team.name} by captain <@{captain}>")
             raise ValueError(f"Duplicate team is not allowed. <@{captain}> already has a team named {name}.")
+        
+        if self.duplicate_team and new_team in self.teams:
+            raise ValueError(f"Already registered with a team.")
         
         self.teams.append(new_team)
         return new_team

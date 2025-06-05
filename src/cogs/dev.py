@@ -236,11 +236,11 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
     async def add_dev(self, ctx:commands.Context, member:discord.Member):
         if ctx.author.bot or ctx.author.id != config.OWNER_ID:
             return await ctx.send("You are not allowed to use this command")
-        if member.id not in self.bot.db.config_data["devs"]:
-            self.bot.devs.append(member.id)
+        if member.id not in self.bot.config.DEVELOPERS:
+            self.bot.config.DEVELOPERS.append(member.id)
             await ctx.send(f"Added {member.name} to devs")
         else:
-            self.bot.devs.remove(member.id)
+            self.bot.config.DEVELOPERS.remove(member.id)
             await ctx.send(f"Removed {member.name} from devs")
 
 

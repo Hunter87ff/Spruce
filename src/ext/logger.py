@@ -8,6 +8,7 @@ of this license document, but changing it is not allowed.
 import logging
 import datetime
 import pytz
+import inspect
 import functools
 from .color import Color 
 from discord.utils import setup_logging
@@ -120,15 +121,17 @@ class Logger:
 
     @staticmethod
     def warning( message, _module=None, *args):
-        formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('WARNING')} [%(levelname)s] {_module if _module else ''}: {Logger.colors('none')}%(message)s")
+        frame = inspect.currentframe().f_back
+        line_number = inspect.getframeinfo(frame).lineno
+        module_name = frame.f_globals["__name__"]
+        formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}] {Logger.colors('WARNING')}[%(levelname)s]{Logger.colors('none')} {module_name}:{line_number}: %(message)s")
         Logger.console_handler.setFormatter(formatter)
         Logger._logger.warning(message)
 
     @staticmethod
     def error(*message):
-
         log_file("\n".join(str(m) for m in message))
-        formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}]{Logger.colors('ERROR')} [%(levelname)s]: {Logger.colors('none')}%(message)s")
+        formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}] {Logger.colors('ERROR')}[%(levelname)s]: {Logger.colors('none')}%(message)s")
         Logger.console_handler.setFormatter(formatter)
         Logger._logger.error("\n".join(message))
 

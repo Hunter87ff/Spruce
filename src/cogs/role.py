@@ -8,7 +8,8 @@ import os
 from asyncio import sleep
 from discord.ext import commands
 from ext import constants,  color
-from discord import  Embed, Role, File, Member, utils, Message, app_commands, Interaction
+from discord.ui import View, Button
+from discord import  Embed, Role, File, Member, utils, Message, app_commands, Interaction, ButtonStyle
 from typing import TYPE_CHECKING
 
 
@@ -28,12 +29,13 @@ class RoleCog(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def create_roles(self, ctx:commands.Context, *names:str):
-        if ctx.author.bot:return
+        if ctx.author.bot:
+            return
         
         for role in names:
             await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
             await sleep(1)
-        await ctx.send(embed=Embed(description=f"{self.bot.emoji.tick} | All roles created"), delete_after=5)
+        await ctx.send(embed=Embed(description=f"{self.bot.emoji.tick} | All roles created", color=self.bot.color.green))
 
 
     @commands.command(aliases=["droles"])
@@ -42,74 +44,122 @@ class RoleCog(commands.Cog):
     async def del_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
         
-            
         msg = await ctx.send(f"{self.bot.emoji.loading} {constants.PROCESSING}")
         for role in roles:
             if ctx.author.top_role.position < role.position:
-                return await ctx.send("Role Is Higher Than Your Top Role", delete_after=5)
+                return await ctx.send(f"{role.mention} Is Higher Than Your Top Role")
 
             elif ctx.me.top_role.position < role.position:
-                return await ctx.send("Role Is Higher Than My Top Role", delete_after=5)
+                return await ctx.send(f"{role.mention} Is Higher Than My Top Role")
 
             else:
                 await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
                 await sleep(2)
-        await msg.edit(content=None, embed=Embed(color=self.bot.color.cyan, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted", delete_after=30))
+
+        await msg.edit(content=None, embed=Embed(color=self.bot.color.green, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted"))
 
 
-    async def message_role(self, ctx:commands.Context, role:Role, ms:Message, bt:Member):
+    async def message_role(self, ctx:commands.Context, role:Role, bt:Member):
         if not ctx.message.reference:
-            return await ms.edit(content="**Please reply to a message or mention users to give them a role**")
+            return await ctx.send(content="**Please reply to a message or mention users to give them a role**")
         message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         given = []
         for user in message.mentions:
-            if len(message.mentions)<1: return await ms.edit(content="**No User Mentioned In The Message**")
+            if len(message.mentions)<1: return await ctx.send(content="**No User Mentioned In The Message**")
             if user.top_role.position >= ctx.author.top_role.position:
-                await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
+                await ctx.send(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
                 await sleep(3)
             elif bt.top_role.position <= user.top_role.position:
-                await ms.edit(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
+                await ctx.send(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
                 await sleep(3)
 
             elif isinstance(user, Member):
                 await user.add_roles(role)
                 given.append(user)
                 await sleep(1)
-        if ms:await ms.edit(content=f"Role Added To - {len(given)} Members")
+        await ctx.send(content=f"Role Added To - {len(given)} Members")
+
+
+
 
 
 
     @commands.command(aliases=["role"])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
-    async def give_role(self, ctx:commands.Context, role: Role, *users: Member):
+    async def give_role(self, ctx:commands.Context, role: Role, *members: Member):
         if ctx.author.bot:
             return
-        ms:Message = await ctx.send(f"{constants.PROCESSING}")
         given = []
-        if ctx.me.top_role.position <= role.position and ms:return await ms.edit(content="```\nMy Top Role position Is not higher enough\n```")
-        if ctx.author.top_role.position < role.position and ms:return await ms.edit(content="You can Not manage that role")
-        if not users:return await self.message_role(ctx, role, ms, ctx.me)
+        if ctx.me.top_role.position <= role.position:
+            return await ctx.send(content="```\nMy Top Role position Is not higher enough\n```")
 
-        if len(users) > 1 and role.permissions.administrator:
-            return await ms.edit(content="**I can't give admin role to more than 1 person. at a time**")
+        if ctx.author.top_role.position < role.position:
+            return await ctx.send(content="You can Not manage that role")
 
-        for user in users:
+        if not members:
+            return await self.message_role(ctx, role, ms, ctx.me)
+
+        if len(members) > 1 and role.permissions.administrator:
+            return await ctx.send(content="**I can't give admin role to more than 1 person. at a time**")
+
+        for user in members:
             if user.top_role.position >= ctx.author.top_role.position:
-                await ms.edit(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
+                await ctx.send(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
                 await sleep(4)
 
             elif ctx.me.top_role.position < user.top_role.position:
-                await ms.edit(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
+                await ctx.send(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
                 await sleep(4)
             else:
                 await user.add_roles(role)
                 given.append(user)
                 await sleep(1)
-        if ms:return await ms.edit(content=f"{role.mention} given To {len(given)} Members")
 
 
+        async def take_back_roles(ctx:Interaction):
+            if not members:
+                return await ctx.response.send_message(
+                    embed=Embed(
+                        description="No members to remove role from.",
+                        color=self.bot.color.red
+                    )
+                )
+            
+            for member in members:
+                await member.remove_roles(role, reason=f"Role reverced by {ctx.user}")
+                await sleep(1)
 
+            await ctx.response.send_message(
+                embed=Embed(
+                    description=f"Role {role.mention} removed from {len(members)} members.",
+                    color=self.bot.color.green
+                )
+            )
+        
+            view = View(timeout=60)
+            reverse_btn = Button(
+                label="Reverse Role",
+                style=ButtonStyle.red,
+                custom_id="reverse_role"
+            )
+            reverse_btn.callback = take_back_roles
+            view.add_item(reverse_btn)
+
+            embed = Embed(
+                title="Role Given",
+                description=f"Role {role.mention} given to {len(given)} members.",
+                color=self.bot.color.green
+            )
+
+            async def timeout_callback():
+                reverse_btn.disabled = True
+                await ctx.response.send_message(embed=embed, view=view)
+
+            view.on_timeout = timeout_callback
+            await ctx.response.send_message(embed=embed, view=view)
+
+          
 
     @app_commands.command(description="Remove a role from all members")
     @app_commands.describe(role="The role to remove from all members", reason="The reason for removing the role")
@@ -243,7 +293,7 @@ class RoleCog(commands.Cog):
             if not member.bot:
                 await member.add_roles(role, reason=f"role all command used by {ctx.author}")
                 await sleep(3)
-        await prs.edit(content=None, embed=Embed(color=0x00ff00, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
+        await prs.edit(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
 
 
     @commands.hybrid_command(with_app_command = True)

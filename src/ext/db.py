@@ -38,12 +38,6 @@ class Database:
             self.guildbc = self.sprucedb["guilds"]
             self.testers = self.sprucedb["testers"]
             
-            # Load configuration data from the main config collection
-            self.config_data:dict = dict(self.config_col.find_one({"config_id": 87}))
-            self.GEMAPI:str = self.config_data.get("gemapi")
-            self.spot_id:str = self.config_data.get("spot_id")
-            self.spot_secret:str = self.config_data.get("spot_secret")
-            self.blocked_words:list[str] = self.config_data.get("bws")
             Logger.info("Database Connected.")
    
         except Exception as e:

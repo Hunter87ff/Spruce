@@ -12,13 +12,14 @@ permissions:
   contents: read
   
 env:
+  VERSION : "2.1.0"
+  LOCAL_LAVA : false
   MONGO_URI  : ${{ secrets.MONGO_URL }}
   SHARDS : ${{ secrets.SHARDS }}
   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
   TRANSLATE_KEY : ${{ secrets.TRANSLATE_KEY }}
+  GEMINI_KEY : ${{ secrets.GEMINI_KEY }}
   PREFIX : ${{ secrets.PREFIX }}
-  VERSION : "2.1.0"
-  LOCAL_LAVA : false
   
 jobs:
   deploy:
