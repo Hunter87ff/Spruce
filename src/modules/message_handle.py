@@ -117,8 +117,19 @@ async def tourney(message: Message, bot: 'Spruce'):
         bot.debug("❌ Check 3 failed - Confirm role does not exist.", is_debug=IS_DEBUG)
         return
     
-
     bot.debug("✅ Check 3 passed - Confirm role exists.", is_debug=IS_DEBUG)
+
+
+    if crole.position >= guild_me.top_role.position:
+        await message.author.send(embed=Embed(description=f"{bot.emoji.cross} | Registration Paused", color=bot.color.red)) if message.author.dm_channel else None
+        await message.reply("Confirm Role Position Is Higher Than Bot's Top Role")
+        tournament.status = "paused"
+        tournament.save()
+
+        #  tourney log the event
+        await log_event(message, f"{rch.mention} paused\nreason : confirm role position is higher than bot's top role!", color=bot.color.red)
+        bot.debug("❌ Check 3.1 failed - Confirm role position is higher than bot's top role.", is_debug=IS_DEBUG)
+        return
 
     if crole in message.author.roles:
         await message.delete()
@@ -177,13 +188,12 @@ async def tourney(message: Message, bot: 'Spruce'):
     embed.timestamp = message.created_at
     embed.set_thumbnail(url=message.author.display_avatar or message.guild.icon or bot.user.display_avatar)
 
-    bot.debug(f"✅ Check 9 passed - Team name parsed as {team_name}.", is_debug=IS_DEBUG)
+  
     bot.db.dbc.update_one(
         {"rch": rch.id},
         {"$set": {"reged" : tournament.reged}}
     )
     await cch.send(f"{team_name.upper()} {message.author.mention}", embed=embed)
-    bot.debug(f"✅ Check 10 passed - Team {team_name} sent to {cch.name}.", is_debug=IS_DEBUG)
 
     await log_event(message, f"{message.author} registered in {rch.mention} with team name {team_name}.", color=bot.color.green)
 
