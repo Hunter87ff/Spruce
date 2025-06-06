@@ -4,15 +4,15 @@
 [![Language](https://img.shields.io/badge/lang-Python%203.11+-blue)](#)
 [![Commands](https://img.shields.io/badge/90+-Commands-violet)](#)
 [![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.5.2-skyblue)](#)
-[![Db](https://img.shields.io/badge/db-MongoDB-green)](#)
-[![Repo Size](https://img.shields.io/github/repo-size/hunter87ff/spruce)](#)
+[![Database](https://img.shields.io/badge/database-MongoDB-green)](#)
+![License](https://img.shields.io/github/license/hunter87ff/spruce)
 [![Lavalink](https://img.shields.io/badge/Lavalink%20-4.0.7-skyblue)](#)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=ncloc)](#)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=reliability_rating)](#)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=sqale_rating)](#)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=security_rating)](#)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=duplicated_lines_density)](#)
-
+<!-- [![Repo Size](https://img.shields.io/github/repo-size/hunter87ff/spruce)](#) -->
 
 
 <!-- [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=bugs)](#)
@@ -46,9 +46,15 @@ Spruce is a multi-purpose discord app that provides various kind of features lik
 
 ## Commands
  
-__**Esports**__
+__**Tournament**__
 
-`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`
+`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`, `export_event_data`, `tourney_log`
+
+
+__**Scrim**__
+> Base command `/scrim` is used to access all scrim commands.
+
+`create`, `start`, `idp`, `audit`, `info`, `cancel_slot`, `delete`, `toggle`, `list`, `reserved_slots`, `set log`, `set idp_channel`, `set fake_tag`, `set idp_role`, `set ping_role`, `set mentions`, `set total_slots`, `set open_time`, `set close_time`, `set time_zone`, `set reg_channel`, `set slot_channel`, `set manager`, `setup group`, `add reserved_slots`, `add slot`, `remove reserved_slots`
 
 
 ---------------------------------
