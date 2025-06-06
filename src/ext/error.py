@@ -72,6 +72,8 @@ async def manage_backend_error(error: Exception, bot: "Spruce"):
         await bot.log_channel.send(f"```json\n{error}\n```")
     elif isinstance(error, errors.RateLimited):
         await bot.log_channel.send(f"```json\n{error}\n```")
+    else:
+        await bot.log_channel.send(f"```json\n{error}\n```")
 
 
 

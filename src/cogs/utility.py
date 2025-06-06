@@ -81,10 +81,12 @@ class UtilityCog(commands.Cog):
 
     @commands.hybrid_command(name="sync", description="Syncs the commands to the server")
     @commands.cooldown(1, 15, commands.BucketType.guild)
-    @commands.is_owner()
     async def sync(self, ctx: commands.Context):
         await ctx.defer()
         if ctx.author.bot:return
+        if not ctx.author.guild_permissions.administrator:
+            return await ctx.send("You do not have permission to use this command.", ephemeral=True)
+        
         await ctx.send("Syncing commands...")
         try:
             await self.bot.tree.sync(guild=ctx.guild)
