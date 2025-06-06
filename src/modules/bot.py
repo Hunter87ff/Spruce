@@ -125,6 +125,7 @@ class Spruce(commands.AutoShardedBot):
         
         await self.process_commands(message)
         if message.guild:
+            # print("Tourney handle is detached!! make sure to attack it before push")
             await message_handle.tourney(message, self)
 
 

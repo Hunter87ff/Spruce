@@ -10,7 +10,6 @@ import time
 _start=time.time()
 import asyncio
 import traceback
-from modules import config
 from modules.bot import Spruce
 
 
