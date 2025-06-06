@@ -14,7 +14,6 @@ from discord.ext import commands, tasks
 from ext.models.scrim import ScrimModel, Team
 from modules.config import IS_DEV_ENV
 from discord import Embed, TextChannel,  Interaction,   app_commands as app
-import inspect
 
 
 if TYPE_CHECKING:
@@ -27,7 +26,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
         self.time = bot.time
-        self._debug = True and IS_DEV_ENV
         self.monitor_scrims.start()
         self.DEFAULT_START_TIME = "10:00 AM"
         self.DEFAULT_END_TIME = "4:00 PM"
@@ -58,7 +56,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     def debug(self, message: str):
         """Debug function to print messages if DEBUG is True."""
-        self.bot.debug(message=message, is_debug=self._debug)
+        self.bot.debug(message=message, is_debug=False)
 
 
     def log_embed(self, message:str, color=None):
@@ -108,7 +106,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             color=self.bot.color.random()
         )
         group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
-        _description = "```" + "\n".join(["Team "+format_slot(i, team.name) for i, team in enumerate(scrim.teams, start=1)]) + "```"
+        _description = "```" + "\n".join([format_slot(i, team.name) for i, team in enumerate(scrim.teams, start=1)]) + "```"
 
         if len(scrim.teams) == 0:
             _description = "No teams registered yet."

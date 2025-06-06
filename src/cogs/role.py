@@ -116,10 +116,11 @@ class RoleCog(commands.Cog):
                 given.append(user)
                 await sleep(1)
 
+        base_message:Message
 
-        async def take_back_roles(ctx:Interaction):
+        async def take_back_roles(int_ctx:Interaction):
             if not members:
-                return await ctx.response.send_message(
+                return await int_ctx.response.send_message(
                     embed=Embed(
                         description="No members to remove role from.",
                         color=self.bot.color.red
@@ -127,39 +128,42 @@ class RoleCog(commands.Cog):
                 )
             
             for member in members:
-                await member.remove_roles(role, reason=f"Role reverced by {ctx.user}")
+                await member.remove_roles(role, reason=f"Role reverced by {int_ctx.user}")
                 await sleep(1)
 
-            await ctx.response.send_message(
+            if base_message:
+                await base_message.delete()
+
+            await int_ctx.response.send_message(
                 embed=Embed(
                     description=f"Role {role.mention} removed from {len(members)} members.",
-                    color=self.bot.color.green
+                    color=self.bot.color.cyan
                 )
             )
         
-            view = View(timeout=60)
-            reverse_btn = Button(
-                label="Reverse Role",
-                style=ButtonStyle.red,
-                custom_id="reverse_role"
-            )
-            reverse_btn.callback = take_back_roles
-            view.add_item(reverse_btn)
+        view = View(timeout=20)
+        reverse_btn = Button(
+            emoji=self.bot.emoji.remove,
+            label="Reverse Role",
+            style=ButtonStyle.green,
+            custom_id="reverse_role"
+        )
+        reverse_btn.callback = take_back_roles
+        view.add_item(reverse_btn)
 
-            embed = Embed(
-                title="Role Given",
-                description=f"Role {role.mention} given to {len(given)} members.",
-                color=self.bot.color.green
-            )
+        embed = Embed(
+            title="Role Given",
+            description=f"Role {role.mention} given to {len(given)} members.",
+            color=self.bot.color.cyan
+        )
 
-            async def timeout_callback():
-                reverse_btn.disabled = True
-                await ctx.response.send_message(embed=embed, view=view)
+        # async def timeout_callback():
+        #     reverse_btn.disabled = True
+        #     await ctx.send(embed=embed, view=view)
 
-            view.on_timeout = timeout_callback
-            await ctx.response.send_message(embed=embed, view=view)
+        # view.on_timeout = timeout_callback
+        base_message = await ctx.send(embed=embed, view=view, delete_after=20)
 
-          
 
     @app_commands.command(description="Remove a role from all members")
     @app_commands.describe(role="The role to remove from all members", reason="The reason for removing the role")
