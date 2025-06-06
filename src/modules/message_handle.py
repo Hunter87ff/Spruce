@@ -16,7 +16,7 @@ from ext import helper, color as Color
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
-IS_DEBUG = False
+IS_DEBUG = True
 
 async def get_prize(cch:TextChannel):
     info = cch.category.channels[0]
@@ -35,21 +35,6 @@ def find_team(message:Message):
     teamname = re.sub(r"<@*#*!*&*\d+>|team|name|[^\w\s]", "", teamname.group()).strip()
     teamname = f"{teamname.title()}" if teamname else f"{message.author}'s team"
     return teamname
-
-
-#duplicate Tag Check
-async def duplicate_tag(crole, message:Message):
-    ctx = message
-    messages = [message async for message in ctx.channel.history(limit=100)]  
-    for fmsg in messages:
-
-        if fmsg.author.bot:
-            return None
-        
-        if fmsg.author.id != ctx.author.id and crole in fmsg.author.roles:
-            for mnt in fmsg.mentions:
-                if mnt in message.mentions:return mnt
-    return None
 
 
 
@@ -73,26 +58,30 @@ async def log_event(message:Message, desc:str, color:int=None):
 
 
 #Tourney System
-async def tourney(message:Message, bot:'Spruce'):
+async def tourney(message: Message, bot: 'Spruce'):
     if message.author.bot or not message.guild:
         return
     
-    if not all([
-        message.guild.me.guild_permissions.manage_messages,
-        message.guild.me.guild_permissions.manage_roles,
-        message.guild.me.guild_permissions.send_messages,
-        message.guild.me.guild_permissions.embed_links,
-        message.channel.permissions_for(message.guild.me).read_message_history,
-        message.guild.me.guild_permissions.manage_channels
-    ]):
+    # Cache permissions check result
+    guild_me = message.guild.me
+    channel_perms = message.channel.permissions_for(guild_me)
+    
+    required_perms = (
+        guild_me.guild_permissions.manage_messages and
+        guild_me.guild_permissions.manage_roles and
+        guild_me.guild_permissions.send_messages and
+        guild_me.guild_permissions.embed_links and
+        channel_perms.read_message_history and
+        guild_me.guild_permissions.manage_channels
+    )
+    
+    if not required_perms:
         return
     
     bot.debug(f"Processing tourney registration in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
 
     tournament = Tourney.findOne(message.channel.id)
-
     bot.debug(f"Checking tournament status for {message.guild.name} in channel {message.channel.name}.", is_debug=IS_DEBUG)
-
     if not tournament:
         return
 
@@ -103,7 +92,7 @@ async def tourney(message:Message, bot:'Spruce'):
 
     elif tournament.status == "paused":
         try:
-            await message.author.send("Registration Paused")
+            await message.author.send(embed=Embed(description=f"{bot.emoji.cross} | Registration Paused", color=bot.color.red))
             return
         
         except Exception:
@@ -121,7 +110,7 @@ async def tourney(message:Message, bot:'Spruce'):
     valid_member_mentions = [mention for mention in message.mentions if not mention.bot] #filter out bots from the mentions
 
     if not crole:
-        await message.author.send("Registration Paused") if message.author.dm_channel else None
+        await message.author.send(embed=Embed(description=f"{bot.emoji.cross} | Registration Paused", color=bot.color.red)) if message.author.dm_channel else None
         await message.reply("Confirm Role Not Found")
         tournament.status = "paused"
         tournament.save()
@@ -151,7 +140,7 @@ async def tourney(message:Message, bot:'Spruce'):
         overwrite.update(send_messages=False)
         await rch.set_permissions(message.guild.default_role, overwrite=overwrite)
         await message.delete()
-        
+         
         await log_event(message, f"{rch.mention} registration is closed.", bot.color.red)
         embed = Embed(description="**Registration Closed**", color=Color.red)
         embed.set_author(name=message.guild.name, icon_url=message.guild.icon if message.guild.icon else None)
@@ -161,7 +150,7 @@ async def tourney(message:Message, bot:'Spruce'):
     bot.debug("✅ Check 6 passed - Team count is within limits.", is_debug=IS_DEBUG)
 
     if tournament.faketag == "no":
-        is_duplicate = await helper.duplicate_tag(crole=crole, message=message)
+        is_duplicate = await helper.duplicate_tag(crole=crole, message=message, slots=tournament.reged + 10)
         bot.debug(f"✅ check 6.1 - Checking for duplicate tags in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
         if is_duplicate:
             await message.delete() if message.guild.me.guild_permissions.manage_messages else None
@@ -177,52 +166,25 @@ async def tourney(message:Message, bot:'Spruce'):
     await message.author.add_roles(crole)
     await message.add_reaction("✅")
     tournament.reged += 1
-    tournament.save()
+    bot.debug(f"✅ Check 8 passed - User {message.author} successfully registered in {rch.mention}.", is_debug=IS_DEBUG)
+    team_name = bot.helper.parse_team_name(message)
+    embed = Embed(color=bot.color.cyan, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
+    embed.set_author(name=message.guild.name, icon_url=message.guild.icon)
+    embed.timestamp = message.created_at
+    embed.set_thumbnail(url=message.author.display_avatar)
 
-    team_name = find_team(message)
-    nfemb = Embed(color=0xffff00, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
-    nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
-    nfemb.timestamp = message.created_at
-    nfemb.set_thumbnail(url=message.author.display_avatar)
+    bot.debug(f"✅ Check 9 passed - Team name parsed as {team_name}.", is_debug=IS_DEBUG)
+    bot.db.dbc.update_one(
+        {"rch": rch.id},
+        {"$set": {"reged" : tournament.reged}}
+    )
+    await cch.send(f"{team_name.upper()} {message.author.mention}", embed=embed)
+    bot.debug(f"✅ Check 10 passed - Team {team_name} sent to {cch.name}.", is_debug=IS_DEBUG)
 
-    if all([team_count >= 50, tournament.pub == "no", tournament.status == "started", tournament.created_at < timedelta(days=30)]):
-        tournament.pub="yes"
-        tournament.prize = await get_prize(cch)
-        await tournament.save()
-
-    await cch.send(f"{team_name.upper()} {message.author.mention}", embed=nfemb)
     await log_event(message, f"{message.author} registered in {rch.mention} with team name {team_name}.", color=bot.color.green)
 
- 
 
 ################# NITRO ######################
 async def nitrof(message:Message, bot:'Spruce'):
-    if message.author.bot:return
-    try:
-      gnitro = bot.db.guildbc.find_one({"guild_id" : message.guild.id})
-    except Exception:
-      return
-    if not gnitro  and gnitro["nitro"] != "enabled": return
-    try:
-      webhook = utils.get(await message.channel.webhooks(), name="Spruce")
-    except Exception:
-      await message.reply("Nitro Module Enabled But Missing Permissions - `manage_messages` , `manage_webhooks`")
-    if not webhook:
-        try:
-          webhook = await message.channel.create_webhook(name="Spruce")
-        except Exception:
-          await message.reply("Missing Permissions - `manage_messages` , `manage_webhooks`")
-    words = message.content.split()
-    for word in words:
-        if word[0] == ":" and word[-1] == ":":
-            emjn = word.replace(":", "")
-            emoji = utils.get(bot.emojis, name=emjn)
-            if emoji != None:
-                if emoji.name in message.content:
-                    msg1 = message.content.replace(":","").replace(f"{emoji.name}" , f"{emoji}")
-                    allowed_mentions = AllowedMentions(everyone = False, roles=False, users=True)
-                    nick = message.author.nick
-                    if message.author.nick == None:
-                        nick = message.author.name
-                    await message.delete()
-                    return await webhook.send(avatar_url=message.author.display_avatar, content=msg1, username=nick, allowed_mentions= allowed_mentions)
+    #  Temporarily disabled for some future performance optimizations
+    pass

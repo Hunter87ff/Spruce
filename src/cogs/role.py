@@ -128,7 +128,7 @@ class RoleCog(commands.Cog):
                 )
             
             for member in members:
-                await member.remove_roles(role, reason=f"Role reverced by {int_ctx.user}")
+                await member.remove_roles(role, reason=f"Role reversed by {int_ctx.user}")
                 await sleep(1)
 
             if base_message:
