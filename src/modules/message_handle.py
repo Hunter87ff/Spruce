@@ -78,7 +78,9 @@ async def tourney(message: Message, bot: 'Spruce'):
     if not required_perms:
         return
     
-    bot.debug(f"Processing tourney registration in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
+
+    if utils.get(message.author.roles, name="tourney-tag-ignore"):
+        return
 
     tournament = Tourney.findOne(message.channel.id)
     bot.debug(f"Checking tournament status for {message.guild.name} in channel {message.channel.name}.", is_debug=IS_DEBUG)
@@ -87,20 +89,15 @@ async def tourney(message: Message, bot: 'Spruce'):
 
     bot.debug("✅ Check 1 passed - Tournament found.", is_debug=IS_DEBUG)
 
-    if utils.get(message.author.roles, name="tourney-mod"):
+
+    if tournament.status == "paused":
+        await message.channel.send(embed=Embed(description=f"{bot.emoji.cross} | Registration Paused", color=bot.color.red))
+        bot.debug("❌ Check 2 failed - Tournament is paused.", is_debug=IS_DEBUG)
+        await log_event(message, f"{message.author} tried to register in {message.channel.mention} but the tournament is paused.", color=bot.color.red)
         return
+        
 
-    elif tournament.status == "paused":
-        try:
-            await message.author.send(embed=Embed(description=f"{bot.emoji.cross} | Registration Paused", color=bot.color.red))
-            return
-        
-        except Exception:
-            return print(traceback.format_exc())
-        
     bot.debug("✅ Check 2 passed - Tournament is not paused.", is_debug=IS_DEBUG)
-    if message.channel.id  != tournament.rch or tournament.status != "started": return
-
     crole = message.guild.get_role(tournament.crole)
     cch = message.guild.get_channel(tournament.cch)
     rch = message.guild.get_channel(tournament.rch)
@@ -117,44 +114,50 @@ async def tourney(message: Message, bot: 'Spruce'):
 
         #  tourney log the event
         await log_event(message, f"{rch.mention} paused\nreason : confirm role not found! seems like someone deleted that..", color=bot.color.red)
+        bot.debug("❌ Check 3 failed - Confirm role does not exist.", is_debug=IS_DEBUG)
+        return
+    
 
     bot.debug("✅ Check 3 passed - Confirm role exists.", is_debug=IS_DEBUG)
 
     if crole in message.author.roles:
-        await message.delete() if message.guild.me.guild_permissions.manage_messages else None
+        await message.delete()
         await log_event(message, f"{message.author} tried to register again in {rch.mention} but already has the confirm role.", bot.color.red)
-        return await message.channel.send("**Seems like you're already registered as you have the confirm role.**", delete_after=5)
+        return await message.channel.send(embed=Embed(description="**Seems like you're already registered as you have the confirm role.**", color=bot.color.red), delete_after=5)
 
     bot.debug("✅ Check 4 passed - User does not have the confirm role.", is_debug=IS_DEBUG)
 
     if len(valid_member_mentions) < tournament.mentions:
         await log_event(message, f"{message.author} tried to register in {rch.mention} but failed due to insufficient mentions.", color=bot.color.red)
         meb = Embed(description=f"**Minimum {tournament.mentions} Mentions Required For Successfull Registration**", color=bot.color.red)
-        await message.delete() if message.guild.me.guild_permissions.manage_messages else None
+        await message.delete()
         return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
     
+
     bot.debug("✅ Check 5 passed - User has sufficient mentions.", is_debug=IS_DEBUG)
 
     if team_count > tslot:
-        overwrite = rch.overwrites_for(message.guild.default_role)
-        overwrite.update(send_messages=False)
-        await rch.set_permissions(message.guild.default_role, overwrite=overwrite)
+        await bot.helper.lock_channel(message.channel)
         await message.delete()
          
         await log_event(message, f"{rch.mention} registration is closed.", bot.color.red)
-        embed = Embed(description="**Registration Closed**", color=Color.red)
+        embed = Embed(description="**Registration Closed**", color=bot.color.red)
         embed.set_author(name=message.guild.name, icon_url=message.guild.icon if message.guild.icon else None)
         embed.timestamp = message.created_at
-        return await rch.send(embed=embed)
+        return await message.channel.send(embed=embed)
 
     bot.debug("✅ Check 6 passed - Team count is within limits.", is_debug=IS_DEBUG)
+
 
     if tournament.faketag == "no":
         is_duplicate = await helper.duplicate_tag(crole=crole, message=message, slots=tournament.reged + 10)
         bot.debug(f"✅ check 6.1 - Checking for duplicate tags in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
+
         if is_duplicate:
-            await message.delete() if message.guild.me.guild_permissions.manage_messages else None
-            fakeemb = Embed(title=f"The Member {is_duplicate.mention}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
+            await message.delete()
+            fakeemb = Embed(
+                description=f"The Member {is_duplicate.mention}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=bot.color.red
+            )
             fakeemb.add_field(name="Team", value=f"[Registration Link]({is_duplicate.message.jump_url})")
             fakeemb.set_author(name=message.author, icon_url=message.author.display_avatar)
             await message.channel.send(embed=fakeemb, delete_after=60)
@@ -166,12 +169,13 @@ async def tourney(message: Message, bot: 'Spruce'):
     await message.author.add_roles(crole)
     await message.add_reaction("✅")
     tournament.reged += 1
+
     bot.debug(f"✅ Check 8 passed - User {message.author} successfully registered in {rch.mention}.", is_debug=IS_DEBUG)
     team_name = bot.helper.parse_team_name(message)
     embed = Embed(color=bot.color.cyan, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
-    embed.set_author(name=message.guild.name, icon_url=message.guild.icon)
+    embed.set_author(name=message.guild.name, icon_url=message.guild.icon if message.guild.icon else None)
     embed.timestamp = message.created_at
-    embed.set_thumbnail(url=message.author.display_avatar)
+    embed.set_thumbnail(url=message.author.display_avatar or message.guild.icon or bot.user.display_avatar)
 
     bot.debug(f"✅ Check 9 passed - Team name parsed as {team_name}.", is_debug=IS_DEBUG)
     bot.db.dbc.update_one(

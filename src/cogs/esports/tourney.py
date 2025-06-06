@@ -1417,7 +1417,10 @@ class EsportsCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction:discord.Interaction):
-        if interaction.user.bot:return
+        
+        if interaction.user.bot or not interaction.guild:
+            return
+        
         elif "custom_id" in interaction.data and interaction.data["custom_id"] in self.MANAGER_PREFIXES:
             db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
             if not db:
@@ -1444,7 +1447,7 @@ class EsportsCog(commands.Cog):
             options = []
             for i in teams:
                 if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
-                    if any([interaction.user.id in i.mentions, interaction.user.id in i.embeds[0].description]):
+                    if any([interaction.user.id in i.mentions, interaction.user.name in i.embeds[0].description]):
                         st = i.embeds[0].description.find("[")+1
                         en = i.embeds[0].description.find("]")
                         options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
@@ -1462,7 +1465,9 @@ class EsportsCog(commands.Cog):
                     conf = Button(label="Confirm", style=discord.ButtonStyle.red)
                     canc = Button(label="Cancel", style=discord.ButtonStyle.green)
                     v2 = View()
-                    for i in [conf]:v2.add_item(i)
+                    for i in [conf]:
+                        v2.add_item(i)
+
                     await interact.response.send_message(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
 
 

@@ -187,6 +187,13 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         except ValueError as e:
             return await ctx.followup.send(f"{str(e)}. Please use HH:MM AM/PM format.", ephemeral=True)
 
+        _existing_scrims = ScrimModel.find(guild_id=ctx.guild.id)
+        if len(_existing_scrims) >= self.SCRIM_LIMIT:
+            await self.log(ctx.guild, f"Scrim limit reached in {ctx.guild.name}. Cannot create new scrim.", color=self.bot.color.red)
+            return await ctx.followup.send(embed=Embed(
+                description=f"You can only have a maximum of {self.SCRIM_LIMIT} scrims in a server. Please delete some scrims before creating a new one.",
+                color=self.bot.color.red
+            ), ephemeral=True)
 
         _event_prefix = self.bot.helper.get_event_prefix(scrim_name)
         _scrim_category: discord.CategoryChannel
@@ -264,15 +271,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
-
-        scrims = ScrimModel.find(guild_id=ctx.guild.id)
-        if len(scrims) >= self.SCRIM_LIMIT:
-            await self.log(ctx.guild, f"Scrim limit reached in {ctx.guild.name}. Cannot start new scrim.", color=self.bot.color.red)
-
-            return await ctx.followup.send(embed=discord.Embed(
-                description=f"You can only have a maximum of {self.SCRIM_LIMIT} scrims in a server. Please delete some scrims before starting a new one.",
-                color=self.bot.color.red
-            ), ephemeral=True)
 
         # Start the scrim
         _scrim.status = True
@@ -1127,6 +1125,9 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     @commands.Cog.listener()
     async def on_message(self, message:discord.Message):
         """Listener for when a message is sent in a scrim registration channel."""
+        if not message.guild:
+            return 
+        
         if not all([
             not message.author.bot,
             isinstance(message.channel, discord.TextChannel),
