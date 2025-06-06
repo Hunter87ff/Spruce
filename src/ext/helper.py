@@ -103,8 +103,8 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None,
     messages = [message async for message in message.channel.history(limit=slots)]
     for fmsg in messages:
 
-        # Ignore bot messages
-        if fmsg.author.bot:
+        # Ignore bot/user messages
+        if fmsg.author.bot or isinstance(fmsg.author, discord.User):
             continue
         
         if fmsg.author.id != message.author.id and crole in fmsg.author.roles:
