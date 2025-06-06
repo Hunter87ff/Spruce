@@ -78,8 +78,12 @@ def parse_prize_pool(message:discord.Message) -> str | None:
     return None
 
 
+class DuplicateTag:
+    def __init__(self, mention: discord.Member, message: discord.Message):
+        self.mention = mention
+        self.message = message
 
-async def duplicate_tag(crole:discord.Role, message:discord.Message):
+async def duplicate_tag(crole:discord.Role, message:discord.Message, **kwargs) -> DuplicateTag | None:
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
@@ -90,11 +94,6 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message):
         discord.Member | None: The first mentioned user with the same role, or None if no such user is found.
     """
 
-    class DuplicateTag:
-        def __init__(self, mention: discord.Member, message: discord.Message):
-            self.mention = mention
-            self.message = message
-
     messages = [message async for message in message.channel.history(limit=100)]
     for fmsg in messages:
 
@@ -104,7 +103,7 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message):
         
         if fmsg.author.id != message.author.id and crole in fmsg.author.roles:
             for mention in fmsg.mentions:
-                if mention in message.mentions :
+                if mention in message.mentions:
                     return DuplicateTag(mention, fmsg)
     return None
 

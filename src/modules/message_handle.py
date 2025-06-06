@@ -5,20 +5,18 @@ Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
 
-import re, traceback, functools
+import re, traceback
 from datetime import timedelta
 from typing import TYPE_CHECKING
-from ext.error import update_error_log
 from ext.modals import Tourney
 from discord import utils, AllowedMentions, Embed, Message, TextChannel
-from ext import Database, helper, color as Color
+from ext import helper, color as Color
 
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
-    
-db = Database()
-dbc = db.dbc
+
+IS_DEBUG = False
 
 async def get_prize(cch:TextChannel):
     info = cch.category.channels[0]
@@ -39,12 +37,6 @@ def find_team(message:Message):
     return teamname
 
 
-def reg_update(message:Message):
-    df = dbc.find_one({"rch" : message.channel.id})
-    rgd = df["reged"] 
-    dbc.update_one({"rch" : message.channel.id}, {"$set":{"reged": rgd + 1}})
-
-
 #duplicate Tag Check
 async def duplicate_tag(crole, message:Message):
     ctx = message
@@ -59,10 +51,6 @@ async def duplicate_tag(crole, message:Message):
                 if mnt in message.mentions:return mnt
     return None
 
-
-@functools.lru_cache(maxsize=400)
-def find_by_reg(message:Message) -> dict | None:
-    return dbc.find_one({"rch" : message.channel.id})
 
 
 async def log_event(message:Message, desc:str, color:int=None):
@@ -99,16 +87,16 @@ async def tourney(message:Message, bot:'Spruce'):
     ]):
         return
     
-    bot.debug(f"Processing tourney registration in {message.guild.name} for {message.author}.")
+    bot.debug(f"Processing tourney registration in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
 
     tournament = Tourney.findOne(message.channel.id)
 
-    bot.debug(f"Checking tournament status for {message.guild.name} in channel {message.channel.name}.")
+    bot.debug(f"Checking tournament status for {message.guild.name} in channel {message.channel.name}.", is_debug=IS_DEBUG)
 
     if not tournament:
         return
 
-    bot.debug("✅ Check 1 passed - Tournament found.")
+    bot.debug("✅ Check 1 passed - Tournament found.", is_debug=IS_DEBUG)
 
     if utils.get(message.author.roles, name="tourney-mod"):
         return
@@ -121,7 +109,7 @@ async def tourney(message:Message, bot:'Spruce'):
         except Exception:
             return print(traceback.format_exc())
         
-    bot.debug("✅ Check 2 passed - Tournament is not paused.")
+    bot.debug("✅ Check 2 passed - Tournament is not paused.", is_debug=IS_DEBUG)
     if message.channel.id  != tournament.rch or tournament.status != "started": return
 
     crole = message.guild.get_role(tournament.crole)
@@ -141,14 +129,14 @@ async def tourney(message:Message, bot:'Spruce'):
         #  tourney log the event
         await log_event(message, f"{rch.mention} paused\nreason : confirm role not found! seems like someone deleted that..", color=bot.color.red)
 
-    bot.debug("✅ Check 3 passed - Confirm role exists.")
+    bot.debug("✅ Check 3 passed - Confirm role exists.", is_debug=IS_DEBUG)
 
     if crole in message.author.roles:
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
         await log_event(message, f"{message.author} tried to register again in {rch.mention} but already has the confirm role.", bot.color.red)
         return await message.channel.send("**Seems like you're already registered as you have the confirm role.**", delete_after=5)
 
-    bot.debug("✅ Check 4 passed - User does not have the confirm role.")
+    bot.debug("✅ Check 4 passed - User does not have the confirm role.", is_debug=IS_DEBUG)
 
     if len(valid_member_mentions) < tournament.mentions:
         await log_event(message, f"{message.author} tried to register in {rch.mention} but failed due to insufficient mentions.", color=bot.color.red)
@@ -156,7 +144,7 @@ async def tourney(message:Message, bot:'Spruce'):
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
         return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
     
-    bot.debug("✅ Check 5 passed - User has sufficient mentions.")
+    bot.debug("✅ Check 5 passed - User has sufficient mentions.", is_debug=IS_DEBUG)
 
     if team_count > tslot:
         overwrite = rch.overwrites_for(message.guild.default_role)
@@ -170,11 +158,11 @@ async def tourney(message:Message, bot:'Spruce'):
         embed.timestamp = message.created_at
         return await rch.send(embed=embed)
 
-    bot.debug("✅ Check 6 passed - Team count is within limits.")
+    bot.debug("✅ Check 6 passed - Team count is within limits.", is_debug=IS_DEBUG)
 
     if tournament.faketag == "no":
-        is_duplicate = await helper.duplicate_tag(crole=crole, message=message, slots=tslot)
-        bot.debug(f"✅ check 6.1 - Checking for duplicate tags in {message.guild.name} for {message.author}.")
+        is_duplicate = await helper.duplicate_tag(crole=crole, message=message)
+        bot.debug(f"✅ check 6.1 - Checking for duplicate tags in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
         if is_duplicate:
             await message.delete() if message.guild.me.guild_permissions.manage_messages else None
             fakeemb = Embed(title=f"The Member {is_duplicate.mention}, You Tagged is Already Registered In A Team. If You Think He Used `Fake Tags`, You can Contact `Management Team`", color=0xffff00)
@@ -184,11 +172,13 @@ async def tourney(message:Message, bot:'Spruce'):
             await log_event(message, f"{message.author} tried to register in {rch.mention} but tagged {is_duplicate.mention} who is already registered in a team.", color=bot.color.red)
             return 
 
-    bot.debug("✅ Check 7 passed - No duplicate tags found.")
+    bot.debug("✅ Check 7 passed - No duplicate tags found.", is_debug=IS_DEBUG)
 
     await message.author.add_roles(crole)
     await message.add_reaction("✅")
-    reg_update(message)
+    tournament.reged += 1
+    tournament.save()
+
     team_name = find_team(message)
     nfemb = Embed(color=0xffff00, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
     nfemb.set_author(name=message.guild.name, icon_url=message.guild.icon)
@@ -209,7 +199,7 @@ async def tourney(message:Message, bot:'Spruce'):
 async def nitrof(message:Message, bot:'Spruce'):
     if message.author.bot:return
     try:
-      gnitro = db.guildbc.find_one({"guild_id" : message.guild.id})
+      gnitro = bot.db.guildbc.find_one({"guild_id" : message.guild.id})
     except Exception:
       return
     if not gnitro  and gnitro["nitro"] != "enabled": return

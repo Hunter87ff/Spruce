@@ -106,7 +106,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             color=self.bot.color.random()
         )
         group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
-        _description = "```" + "\n".join(["Team "+format_slot(i, team.name) for i, team in enumerate(scrim.teams, start=1)]) + "```"
+        _description = "```" + "\n".join([format_slot(i, team.name) for i, team in enumerate(scrim.teams, start=1)]) + "```"
 
         if len(scrim.teams) == 0:
             _description = "No teams registered yet."
