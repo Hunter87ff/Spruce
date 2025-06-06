@@ -143,6 +143,7 @@ class RoleCog(commands.Cog):
         
         view = View(timeout=20)
         reverse_btn = Button(
+            emoji=self.bot.emoji.remove,
             label="Reverse Role",
             style=ButtonStyle.green,
             custom_id="reverse_role"
@@ -156,12 +157,12 @@ class RoleCog(commands.Cog):
             color=self.bot.color.cyan
         )
 
-        async def timeout_callback():
-            reverse_btn.disabled = True
-            await ctx.send(embed=embed, view=view)
+        # async def timeout_callback():
+        #     reverse_btn.disabled = True
+        #     await ctx.send(embed=embed, view=view)
 
-        view.on_timeout = timeout_callback
-        base_message = await ctx.send(embed=embed, view=view)
+        # view.on_timeout = timeout_callback
+        base_message = await ctx.send(embed=embed, view=view, delete_after=20)
 
 
     @app_commands.command(description="Remove a role from all members")
