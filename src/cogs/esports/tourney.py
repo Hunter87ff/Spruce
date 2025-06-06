@@ -1278,11 +1278,11 @@ class EsportsCog(commands.Cog):
         bt10 = Button(label="Delete Tournament", style=discord.ButtonStyle.danger)
         exportButton = Button(label="Export Data", style=discord.ButtonStyle.blurple)
         bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
-        bt12 = Button(label="Cancel", custom_id="Cancel", style=discord.ButtonStyle.blurple)
-        btmanage = Button(label="Manage", custom_id="btmanage", style=discord.ButtonStyle.green)
+        cancelButton = Button(label="Cancel", style=discord.ButtonStyle.blurple)
+        btmanage = Button(label="Manage",  style=discord.ButtonStyle.green)
         tlist = discord.ui.Select(min_values=1, max_values=1, options=options)
         view.add_item(tlist)
-        view.add_item(bt12)
+        view.add_item(cancelButton)
         _msg = await ctx.send(embed=embed, view=view)
 
         async def tourney_details(interaction:discord.Interaction):
@@ -1294,12 +1294,16 @@ class EsportsCog(commands.Cog):
             
             db = Tourney(db)
             embed.title=db.tname.upper()
-            embed.description=f"**Total Slot : {db.tname}\nRegistered : {db.reged}\nMentions : {db.mentions}\nStatus : {db.status}\nPublished : {db.pub}\nPrize : {db.prize}\nSlot per group: {db.spg}\nFakeTag Allowed: {db.faketag}\nRegistration : <#{db.rch}>\nConfirm Channel: <#{db.cch}>\nGroup Channel: <#{db.gch}>\nConfirm Role : <@&{db.crole}>**"
+            embed.description=f"**Total Slot : {db.tslot}\nRegistered : {db.reged}\nMentions : {db.mentions}\nStatus : {db.status}\nPublished : {db.pub}\nPrize : {db.prize}\nSlot per group: {db.spg}\nFakeTag Allowed: {db.faketag}\nRegistration : <#{db.rch}>\nConfirm Channel: <#{db.cch}>\nGroup Channel: <#{db.gch}>\nConfirm Role : <@&{db.crole}>**"
 
             if bt10 not in view.children:
                 view.add_item(bt10)
+
             if btmanage not in view.children:
                 view.add_item(btmanage)
+
+            if exportButton not in view.children:
+                view.add_item(exportButton)
 
             await _msg.edit(embed=embed, view=view) if _msg else None
         
@@ -1339,6 +1343,13 @@ class EsportsCog(commands.Cog):
             await self.export_event_data(ctx, ctx.guild.get_channel(int(tlist.values[0])))
 
 
+        async def cancel_button_callback(interaction:discord.Interaction):
+            await interaction.response.defer(ephemeral=True)
+            if interaction.message:
+                await interaction.message.delete()
+
+
+        cancelButton.callback = cancel_button_callback
         tlist.callback = tourney_details
         bt10.callback = delete_tourney_confirm
         bt11.callback = delete_t_confirmed
