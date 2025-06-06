@@ -29,6 +29,8 @@ class Team:
         
         if isinstance(other, int):
             return self.captain == other
+        
+        return False
 
 
     def to_dict(self) -> dict:
@@ -87,7 +89,7 @@ class ScrimModel:
         self._id:str = str(kwargs.get("_id", None))
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
         self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
-        self.duplicate_team:bool = kwargs.get("duplicate_team", False) #if true, it will allow duplicate teams to register
+        self.multi_register:bool = kwargs.get("multi_register", False) #if true, it will allow duplicate teams to register
         self.duplicate_tag:bool = kwargs.get("duplicate_tag", False) #if true, it will check for duplicate tags in the registration channel        
         self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
         self.clear_messages:bool = kwargs.get("clear_messages", True) #if true, it will purge the messages in the registration channel when the scrim is closed
@@ -158,7 +160,7 @@ class ScrimModel:
         _obj =  {
             "created_at": self.created_at,
             "close_time": self.close_time,
-            "duplicate_team": self.duplicate_team,
+            "multi_register": self.multi_register,
             "duplicate_tag": self.duplicate_tag, 
             "guild_id": self.guild_id,
             "idp_role": self.idp_role,
@@ -202,10 +204,9 @@ class ScrimModel:
             captain = captain.id
 
         new_team = Team(name=name, captain=captain)
-        if not self.duplicate_team and new_team in self.teams:
-            debug(f"Duplicate team found: {new_team.name} by captain <@{captain}>")
-            raise ValueError(f"Duplicate team is not allowed. <@{captain}> already has a team named {name}.")
-        
+        if not self.multi_register and captain in self.teams:
+            raise ValueError(f"Multiple registration is not allowed and <@{captain}> is already registered.")
+
         self.teams.append(new_team)
         return new_team
     
@@ -223,7 +224,7 @@ class ScrimModel:
             captain = captain.id
 
         new_team = Team(name=name, captain=captain)
-        if not self.duplicate_team and new_team in self.reserved:
+        if not self.multi_register and new_team in self.reserved:
             raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team named {name.upper()}.")
         
         self.reserved.append(new_team)

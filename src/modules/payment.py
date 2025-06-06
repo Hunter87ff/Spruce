@@ -20,8 +20,8 @@ from cashfree_pg.models.customer_details import CustomerDetails
 from cashfree_pg.models.order_meta import OrderMeta
 from ext import Database
 db = Database()
-Cashfree.XClientId = db.config_data["xclient_id"]
-Cashfree.XClientSecret = db.config_data["xclient_secret"]
+Cashfree.XClientId = config.X_CLIENT_ID
+Cashfree.XClientSecret = config.X_CLIENT_SECRET
 Cashfree.XEnvironment = Cashfree.PRODUCTION
 x_api_version = "2023-08-01"
 

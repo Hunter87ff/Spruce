@@ -140,17 +140,20 @@ async def manage_context(ctx:commands.Context, error:commands.errors.DiscordExce
         elif isinstance(error, commands.UserInputError):
             return await ctx.send(embed=Embed(color=0xff0000, description="Please Enter Valid Arguments"))
         elif isinstance(error, HTTPException):
-            await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
+            await bot.log_channel.send(f"```\n{error.text}\nStatus Code : {error.status}\n```")
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.send(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.")))
         else: 
-            text = f"```py\nCommand : {ctx.command.name}\nGuild Name: {ctx.guild}\nGuild Id : {ctx.guild.id}\nChannel Id : {ctx.channel.id}\nUser Tag : {ctx.author}\nUser Id : {ctx.author.id}\n\n\nError : {error}\nTraceback: {''.join(traceback.format_exception(type(error), error, error.__traceback__))}\n```"
-            content=f"<@885193210455011369>\nMessage : {_msg or ''}\n{await ctx.guild.channels[0].create_invite(unique=False) or ''}"
-            
-            with open("error.txt", "w", encoding="utf-8") as file: file.write(text)
+            bot.logger.error(f"Error in command {ctx.command.name} in guild {ctx.guild.name} ({ctx.guild.id}) by user {ctx.author} ({ctx.author.id})")
+            bot.logger.error(f"{error}")
+            content = traceback.format_exception(type(error), error, error.__traceback__)
+            content = ''.join(content)
 
-            await bot.log_channel.send( content=content,  file=File("error.txt")  )
-            update_error_log('\n'.join(traceback.format_exception(type(error), error, error.__traceback__)))
+            with open("error.txt", "w", encoding="utf-8") as file: 
+                file.write(content)
+
+            await bot.log_channel.send(content=f"<@{bot.config.OWNER_ID}>", file=File("error.txt"))
+            update_error_log(content)
 
     except Exception as e:
         bot.logger.warning(traceback.format_exception(e), "ext.error")

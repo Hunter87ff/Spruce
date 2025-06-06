@@ -305,7 +305,6 @@ class ModerationCog(commands.Cog):
                 return False
             
         
-        await self.bot.sleep(2)
 
         if not ctx.channel.permissions_for(ctx.guild.me).manage_messages:
             await _processing.edit(content=f"{self.bot.emoji.cross} | I don't have permission to manage messages in this channel!")

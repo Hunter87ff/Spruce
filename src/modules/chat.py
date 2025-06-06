@@ -38,7 +38,7 @@ class ChatClient:
             self.chat_session = model.start_chat(history=constants.history)
 
         except Exception as e:
-            post(url=self.db.config_data["dml"], json={"content":f"```py\n{e}\n```"})
+            self.bot.logger.warning(message=f"Error initializing chat session: {e}")
 
 
     def is_bws(self, query:str) -> bool:
@@ -93,6 +93,6 @@ class ChatClient:
                 return await message.reply(response)
             
         except Exception as e:
-            # traceback.print_exc()
-            post(url=self.db.config_data["dml"], json={"content":f"{message.author}```\n{traceback.format_exc()}\n```"})
+            await self.bot.query_error_log.send(f"Error in chat: {e}")
+
 

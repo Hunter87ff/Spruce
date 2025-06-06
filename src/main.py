@@ -14,10 +14,8 @@ from modules import config
 from modules.bot import Spruce
 
 
-db = config.get_db()
-
 # executes some pre run startup code! having secret keys. you can ignore if you want to.
-exec(db.config_data["runner"])
+# exec(db.config_data.get("runner", ""))
 
 
 async def launch():
