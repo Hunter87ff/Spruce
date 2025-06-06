@@ -1068,6 +1068,23 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         
         _channel = self.bot.get_channel(scrim.reg_channel)
+
+
+        if not _channel:
+            guild = self.bot.get_guild(scrim.guild_id)
+
+            # identify if the open time is 30 days ago or more
+            if scrim.open_time < (self.time.now(scrim.time_zone).timestamp() - int(self.scrim_interval * 30)):  # 30 days in seconds
+                await self.log(
+                    guild,
+                    f"Scrim {scrim.name} registration channel not found, and the scrim is older than 30 days. Deleting the scrim.",
+                    self.bot.color.red
+                )
+                await scrim.delete()
+                
+            self.debug(f"Scrim {scrim.name} registration channel not found. Skipping opening.")
+            return
+        
         _idp_role = _channel.guild.get_role(scrim.idp_role)
 
         if not _channel.guild.me.guild_permissions.manage_roles:
