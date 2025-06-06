@@ -286,7 +286,7 @@ class ScrimModel:
         if self.reg_channel in _scrim_cache_by_channel:
             del _scrim_cache_by_channel[self.reg_channel]
 
-        result = _scrim_col.delete_one({"reg_channel": self.reg_channel})
+        result = _scrim_col.delete_one({"reg_channel": self.reg_channel, "guild_id": self.guild_id})
         return result.deleted_count > 0
 
 
