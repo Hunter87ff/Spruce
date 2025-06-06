@@ -35,7 +35,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
         self.DEFAULT_NO_SCRIM_MSG = "No scrim found for the provided registration channel."
         self.DEFAULT_NO_IDP_ROLE = "No IDP role found for the scrim. Please set it using `/scrim set idp_role` command."
-        self.TAG_IGNORE_ROLE = "scrim-ignore-tag"
+        self.TAG_IGNORE_ROLE = "scrim-tag-ignore"
         self.SCRIM_MOD_ROLE = "scrim-mod"
         self.SCRIM_LIMIT = 4
         self.scrim_interval = 86400 # seconds in 24 hours
@@ -50,7 +50,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     async def log(self, guild:discord.Guild, message:str, color=None):
         """Log scrim related messages to the scrim log channel."""
-        scrim_log_channel = discord.utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}scrim-log")
+        scrim_log_channel = discord.utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}-scrim-log")
         if scrim_log_channel:
             await scrim_log_channel.send(embed=self.log_embed(message=message, color=color or self.bot.color.green))
 
@@ -137,7 +137,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         embed.add_field(name="Registration Channel", value=f"<#{scrim.reg_channel}>")
         embed.add_field(name="Slotlist Channel", value=f"<#{scrim.slot_channel}>")
         embed.add_field(name="Team Compulsion", value=f"`{'Yes' if scrim.team_compulsion else 'No'}`")
-        embed.add_field(name="Multi Register", value=f"`{'Allowed' if scrim.duplicate_team else 'Not Allowed'}`")
+        embed.add_field(name="Multi Register", value=f"`{'Allowed' if scrim.multi_register else 'Not Allowed'}`")
         embed.add_field(name="Duplicate Tags", value=f"`{'Allowed' if scrim.duplicate_tag else 'Not Allowed'}`")
         embed.add_field(name="Mentions", value=f"`{scrim.mentions:02d}`")
         embed.add_field(name="Success Role", value=f"<@&{scrim.idp_role}>")
@@ -1070,7 +1070,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             self.debug(f"Scrim {scrim.name} is not open today ({week_day}). Skipping opening.")
             return
 
-        available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
+        
         _channel = self.bot.get_channel(scrim.reg_channel)
         _idp_role = _channel.guild.get_role(scrim.idp_role)
 
@@ -1087,19 +1087,18 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await scrim.save()
 
 
-
+        available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         start_message = await _channel.send(
             content=f"<@&{scrim.ping_role}>" if scrim.ping_role else None,
             embed = discord.Embed(
                 title=f"**{self.bot.emoji.cup} | REGISTRATION STARTED | {self.bot.emoji.cup}**",
-                description=f"**{self.bot.emoji.tick} | AVAILABLE SLOTS : {available_slots}/{scrim.total_slots}\n{self.bot.emoji.tick} | RESERVED SLOTS : {len(scrim.reserved)}\n{self.bot.emoji.tick} | REQUIRED MENTIONS : {scrim.mentions}\n{self.bot.emoji.tick} | CLOSE TIME : <t:{int(scrim.close_time)}:t>**",
+                description=f"**{self.bot.emoji.tick} | AVAILABLE SLOTS : {available_slots}/{scrim.total_slots}\n{self.bot.emoji.tick} | RESERVED SLOTS : {len(scrim.reserved)}\n{self.bot.emoji.tick} | REQUIRED MENTIONS : {scrim.mentions}\n{self.bot.emoji.tick} | CLOSE TIME : <t:{int(scrim.close_time)}:t>(<t:{int(scrim.close_time)}:R>)**",
                 color=self.bot.color.green
             )
         )
 
 
         await self.bot.helper.unlock_channel(_channel)
-        # await self.bot.helper.lock_channel(_channel, role=_idp_role)
 
         if _channel.permissions_for(_channel.guild.me).add_reactions:
             await start_message.add_reaction(self.bot.emoji.tick)
@@ -1151,20 +1150,19 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             return
         
         self.debug(f"✅ Check 1.1 passed for scrim registration. Scrim found: {_scrim.name} with status: {_scrim.status}")
+
         
+
         #  Check if the member is already registered for the scrim (having idp role)
-        if any(
-            all([not _scrim.duplicate_team, message.author.id in _scrim.teams, _team_name in _scrim.teams]),
-            all([_scrim.duplicate_team, message.author.id in _scrim.teams])  # If duplicate team is allowed, only check captain
-        ):
-            self.debug(f"✅ Check 1.5 passed for scrim registration. {message.author.mention} is already registered.")
+        if not _scrim.multi_register and message.author.id in _scrim.teams:
+            self.debug("❌ Check 1.5 failed for scrim registration. Member is already registered.")
             await message.delete(delay=1)
             await message.channel.send( f"**{message.author.mention}**: You are already registered. Please wait for the next one.",  delete_after=10 )
-
-            #  log action info
             await self.log(message.guild, f"{message.author.mention} tried to register a team but is already registered.", self.bot.color.red)
             return
         
+        self.debug("✅ Check 1.6 passed for scrim registration. Member is not already registered.")
+
         available_slots = _scrim.total_slots - (len(_scrim.reserved) + len(_scrim.teams))
         confirm_role = message.guild.get_role(_scrim.idp_role)
         self.debug(f"✅ Check 2 passed for scrim registration. Available slots: {available_slots}, IDP Role: {confirm_role}")
@@ -1184,9 +1182,9 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         if not confirm_role:
             await self.log(message.guild, self.DEFAULT_NO_IDP_ROLE, color=self.bot.color.red)
 
-        _team_name = self.bot.helper.parse_team_name(message, _scrim.team_compulsion)
 
         #  Check if the team name is valid
+        _team_name = self.bot.helper.parse_team_name(message, _scrim.team_compulsion)
         if not _team_name:
             await message.channel.send( f"**{message.author.mention}**: You must provide a team name. something like `TEAM NAME : XPERIENCED`", delete_after=10 )
             return
@@ -1221,16 +1219,20 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await message.author.add_roles(confirm_role, reason="Scrim registration")
         self.debug("✅ Check 5 passed for scrim registration. IDP role added to the author.")
 
+        #  add the team to the scrim
         try:
             _scrim.add_team(captain=message.author.id, name=_team_name)
+            await _scrim.save()
+            self.debug("✅ Check 6 passed for scrim registration. Team added to the scrim.")
 
-        except Exception as e:
-            await message.channel.send( f"**{message.author.mention}**: {e}", delete_after=10 )
+
+        except ValueError as e:
+            await message.delete(delay=1)
+            await message.channel.send(f"**{message.author.mention}**: {str(e)}", delete_after=10)
+            await self.log(message.guild, f"{message.author.mention} tried to register a team but failed: {str(e)}", color=self.bot.color.red)
             return
-
-        self.debug("✅ Check 6 passed for scrim registration. Team added to the scrim.")
-
-        await _scrim.save()
+        
+        
         team_count = len(_scrim.teams) + len(_scrim.reserved)
 
         if team_count >= _scrim.total_slots:

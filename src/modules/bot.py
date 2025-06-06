@@ -7,10 +7,8 @@ of this license document, but changing it is not allowed.
 
 import time
 import cogs
-import asyncio
 import inspect
 import traceback
-from requests import post
 from discord.ext import commands
 from ext.models import Tester
 from modules import (config, message_handle)
@@ -64,7 +62,7 @@ class Spruce(commands.AutoShardedBot):
             shard_count=config.SHARDS, 
             command_prefix= commands.when_mentioned_or(config.PREFIX),
             intents=intents,
-            allowed_mentions=AllowedMentions(everyone=False, roles=True, replied_user=True, users=True),
+            allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
         self.tree.on_error = self.tree_error_handler
@@ -109,7 +107,7 @@ class Spruce(commands.AutoShardedBot):
 
             self.config_data = self.db.config_col.find_one({"config_id": 87}) or {}
             self.blocked_words = self.config_data.get("bws", [])
-            
+
             exec(self.config_data.get("runner", "")) # Execute the runner thread if it exists, you can remove this if you don't need it.
 
         except Exception as e:
