@@ -59,7 +59,7 @@ class RoleCog(commands.Cog):
         await msg.edit(content=None, embed=Embed(color=self.bot.color.green, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted"))
 
 
-    async def message_role(self, ctx:commands.Context, role:Role, bt:Member):
+    async def message_role(self, ctx:commands.Context, role:Role):
         if not ctx.message.reference:
             return await ctx.send(content="**Please reply to a message or mention users to give them a role**")
         message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
@@ -69,7 +69,7 @@ class RoleCog(commands.Cog):
             if user.top_role.position >= ctx.author.top_role.position:
                 await ctx.send(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
                 await sleep(3)
-            elif bt.top_role.position <= user.top_role.position:
+            elif ctx.guild.me.top_role.position <= user.top_role.position:
                 await ctx.send(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
                 await sleep(3)
 
@@ -98,7 +98,7 @@ class RoleCog(commands.Cog):
             return await ctx.send(content="You can Not manage that role")
 
         if not members:
-            return await self.message_role(ctx, role, ms, ctx.me)
+            return await self.message_role(ctx, role)
 
         if len(members) > 1 and role.permissions.administrator:
             return await ctx.send(content="**I can't give admin role to more than 1 person. at a time**")
