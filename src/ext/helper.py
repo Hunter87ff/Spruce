@@ -83,7 +83,7 @@ class DuplicateTag:
         self.mention = mention
         self.message = message
 
-async def duplicate_tag(crole:discord.Role, message:discord.Message, **kwargs) -> DuplicateTag | None:
+async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None, **kwargs) -> DuplicateTag | None:
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
@@ -93,8 +93,10 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message, **kwargs) -
     Returns:
         discord.Member | None: The first mentioned user with the same role, or None if no such user is found.
     """
+    if slots is None:
+        slots = 50
 
-    messages = [message async for message in message.channel.history(limit=100)]
+    messages = [message async for message in message.channel.history(limit=slots)]
     for fmsg in messages:
 
         # Ignore bot messages
