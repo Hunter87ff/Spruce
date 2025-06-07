@@ -53,5 +53,7 @@ jobs:
 
     - name: Deployment
       run: |
-        uv run src/main.py
+        # uv run src/main.py
+        echo "setup done"
+        exit 0
  
