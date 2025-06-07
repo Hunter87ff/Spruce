@@ -102,6 +102,12 @@ async def tourney(message: Message, bot: 'Spruce'):
     cch = message.guild.get_channel(tournament.cch)
     rch = message.guild.get_channel(tournament.rch)
 
+    if not cch:
+        await message.author.send(embed=Embed(description=f"{bot.emoji.cross} | Registration Paused", color=bot.color.red)) if message.author.dm_channel else None
+        await message.reply("Confirm Channel Not Found")
+        tournament.status = "paused"
+        tournament.save()
+
     team_count = tournament.reged
     tslot = tournament.tslot
     valid_member_mentions = [mention for mention in message.mentions if not mention.bot] #filter out bots from the mentions
