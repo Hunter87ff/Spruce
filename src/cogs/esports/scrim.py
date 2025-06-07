@@ -1143,10 +1143,10 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         scrim.clear_teams()
         await scrim.save()
 
-
+        ping_role_mention  = f"<@&{scrim.ping_role}>" if (scrim.ping_role != "@everyone" and scrim.ping_role) else None
         available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         start_message = await _channel.send(
-            content=f"<@&{scrim.ping_role}>" if scrim.ping_role else None,
+            content=ping_role_mention,
             embed = discord.Embed(
                 title=f"**{self.bot.emoji.cup} | REGISTRATION STARTED | {self.bot.emoji.cup}**",
                 description=f"**{self.bot.emoji.tick} | AVAILABLE SLOTS : {available_slots}/{scrim.total_slots}\n{self.bot.emoji.tick} | RESERVED SLOTS : {len(scrim.reserved)}\n{self.bot.emoji.tick} | REQUIRED MENTIONS : {scrim.mentions}\n{self.bot.emoji.tick} | CLOSE TIME : <t:{int(scrim.close_time)}:t>(<t:{int(scrim.close_time)}:R>)**",
