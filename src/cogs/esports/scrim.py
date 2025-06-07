@@ -133,10 +133,11 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             title=f"{scrim.name}",
             color=discord.Color.green()
         )
+        status = "Open" if scrim.status==True else "Closed" if scrim.status==False else "Disabled"
         available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         embed.add_field(name="Open Time", value=f"<t:{scrim.open_time}:t>(<t:{scrim.open_time}:R>)")
         embed.add_field(name="Close Time", value=f"<t:{scrim.close_time}:t>(<t:{scrim.close_time}:R>)")
-        embed.add_field(name="Status", value="`Open`" if scrim.status else "`Closed`")
+        embed.add_field(name="Status", value=f"`{status}`")
         embed.add_field(name="Time Zone", value=f"`{scrim.time_zone}`")
         embed.add_field(name="Registration Channel", value=f"<#{scrim.reg_channel}>")
         embed.add_field(name="Slotlist Channel", value=f"<#{scrim.slot_channel}>")
@@ -263,6 +264,44 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             return await ctx.followup.send(f"Unable to create scrim: {str(e)}", ephemeral=True)
         
 
+    class ScrimStatus(Enum):
+        OPEN = "open"
+        CLOSED = "closed"
+        DISABLED = "disabled"
+
+
+
+    @app.command(name="status", description="Update the status of a scrim by it's ID.")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    @app.describe(
+        reg_channel="ID of the scrim to update (required)",
+        status="New status for the scrim (required)"
+    )
+    async def update_scrim_status(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, status: ScrimStatus):
+        """Update the status of a scrim by its ID."""
+        await ctx.response.defer(ephemeral=True)
+
+        _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+
+        if not _scrim:
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+
+        _status = False
+        if status == self.ScrimStatus.OPEN:
+            _status = True
+
+        elif status == self.ScrimStatus.CLOSED:
+            _status = False
+
+        elif status == self.ScrimStatus.DISABLED:
+            _status = None
+
+        _scrim.status = _status
+        await _scrim.save()
+
+        await ctx.followup.send(embed=discord.Embed(description=f"{self.bot.emoji.tick} | Scrim {reg_channel.mention} status updated to: {status.value}", color=self.bot.color.cyan), ephemeral=True)
+
 
     @app.command(name="start", description="Start a scrim by its ID.")
     @app.guild_only()
@@ -284,7 +323,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             color=self.bot.color.green
         ))
         await self.log(ctx.guild, f"Scrim `{_scrim.name}` has been started by {ctx.user.mention} in {reg_channel.mention}.")
-        await ctx.followup.send(f"Scrim {reg_channel.mention} has been started.", ephemeral=True)
+        await ctx.followup.send(embed=discord.Embed(description=f"Scrim {reg_channel.mention} has been started.", color=self.bot.color.green), ephemeral=True)
 
 
     
@@ -508,7 +547,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         #  delete the scrim from the database
         await _scrim.delete()
 
-        await ctx.followup.send(f"Scrim `{_scrim.name}` has been deleted successfully.", ephemeral=True)
+        await ctx.followup.send(embed=discord.Embed(description=f"Scrim `{_scrim.name}` has been deleted successfully.", color=self.bot.color.red), ephemeral=True)
 
 
     @app.command(name="toggle", description="Toggle the status of a scrim by its ID.")
@@ -526,8 +565,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         _scrim.status = not _scrim.status
         await _scrim.save()
         status = "opened" if _scrim.status else "closed"
-        await reg_channel.send(f"The scrim has been {status}!")
-        await ctx.followup.send(f"Scrim {reg_channel.mention} has been {status}.", ephemeral=True)
+        await reg_channel.send(embed=discord.Embed(description=f"The scrim has been {status}!", color=self.bot.color.green))
+        await ctx.followup.send(embed=discord.Embed(description=f"Scrim {reg_channel.mention} has been {status}.", color=self.bot.color.green), ephemeral=True)
 
 
 
@@ -565,6 +604,11 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                     self.update_button_states()
                     await interaction.response.edit_message(embed=embed, view=self)
 
+            @discord.ui.button(emoji="✅", label="Done", style=discord.ButtonStyle.success)
+            async def done_button(self, interaction:discord.Interaction, button:discord.ui.Button):
+                # delete all the views
+                await interaction.message.delete()
+                self.stop()
 
             @discord.ui.button(emoji="🗑️", label="Delete", style=discord.ButtonStyle.danger)
             async def delete_button(self, interaction:discord.Interaction, button:discord.ui.Button):
