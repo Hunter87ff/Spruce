@@ -441,28 +441,32 @@ class EsportsCog(commands.Cog):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
 
-        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
-        if tmrole == None:tmrole = await ctx.guild.create_role("tourney-mod")
-        if ctx.author.guild_permissions.manage_channels or tmrole in ctx.author.roles:
-            dbcd:dict[str] = self.dbc.find_one({"rch" : registration_channel.id})
-            if not dbcd:
-                return await ctx.send(embed=discord.Embed(description=f"**{self._tnotfound}**", color=color.red), delete_after=10)
-            crole = discord.utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
-            if not crole:
-                return await ctx.send("Confirm Role Not Found", delete_after=10)
-            reged = dbcd.get("reged")
-            cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
-            if crole in member.roles:
-                return await ctx.send("**Already Registered**", delete_after=50)
-            if crole not in member.roles:
-                await member.add_roles(crole)
-                self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : reged + 1}})
-                emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {team_name.upper()}**\n**Added By** : {ctx.author.mention} ")
-                emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
-                emb.timestamp = datetime.datetime.now()
-                await cch.send(f"{team_name} {member.mention}", embed=emb)
-                await ctx.send(f"**{reged}){team_name}{member.mention} Added**", delete_after=50)   
-            
+        dbcd:dict[str] = self.dbc.find_one({"rch" : registration_channel.id})
+        if not dbcd:
+            return await ctx.send(embed=discord.Embed(description=f"**{self._tnotfound}**", color=color.red), delete_after=10)
+        
+        crole = discord.utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
+        if not crole:
+            return await ctx.send("Confirm Role Not Found", delete_after=10)
+        
+        reged = dbcd.get("reged")
+        cch = discord.utils.get(ctx.guild.channels, id=int(dbcd["cch"]))
+
+        if not cch:
+            return await ctx.send(embed=discord.Embed(description="**Confirm Channel Not Found**", color=color.red), delete_after=10)
+    
+        if crole in member.roles:
+            return await ctx.send("**Already Registered**", delete_after=50)
+        
+        if crole not in member.roles:
+            await member.add_roles(crole)
+            self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : reged + 1}})
+            emb = discord.Embed(color=0xffff00, description=f"**{reged}) TEAM NAME: {team_name.upper()}**\n**Added By** : {ctx.author.mention} ")
+            emb.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
+            emb.timestamp = datetime.datetime.now()
+            await cch.send(f"{team_name} {member.mention}", embed=emb)
+            await ctx.send(f"**{reged}){team_name}{member.mention} Added**", delete_after=50)   
+        
 
 
     @commands.hybrid_command(name="tourneys", description="Get Ongoing Tournaments in Your DM")
