@@ -133,10 +133,11 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             title=f"{scrim.name}",
             color=discord.Color.green()
         )
+        status = "Open" if scrim.status==True else "Closed" if scrim.status==False else "Disabled"
         available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         embed.add_field(name="Open Time", value=f"<t:{scrim.open_time}:t>(<t:{scrim.open_time}:R>)")
         embed.add_field(name="Close Time", value=f"<t:{scrim.close_time}:t>(<t:{scrim.close_time}:R>)")
-        embed.add_field(name="Status", value="`Open`" if scrim.status else "`Closed`")
+        embed.add_field(name="Status", value=f"`{status}`")
         embed.add_field(name="Time Zone", value=f"`{scrim.time_zone}`")
         embed.add_field(name="Registration Channel", value=f"<#{scrim.reg_channel}>")
         embed.add_field(name="Slotlist Channel", value=f"<#{scrim.slot_channel}>")
