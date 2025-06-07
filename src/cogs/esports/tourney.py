@@ -1015,7 +1015,7 @@ class EsportsCog(commands.Cog):
                     await self.bot.log_channel.send(
                         content=f"<@{self.bot.config.OWNER_ID}>",
                         embed=discord.Embed(
-                            title=f"Error | {ctx.command.name}\n `Module : core.tourney | Line : 632`", description=f"```{e}```", 
+                            title=f"Error | {ctx.command.name}\n `Module : core.tourney | call : tourney.spg_change`", description=f"```{e}```", 
                             color=color.red
                         )
                     )
