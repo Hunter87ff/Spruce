@@ -1160,7 +1160,14 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _idp_role = _channel.guild.get_role(scrim.idp_role)
 
-        for member in _idp_role.members:
+        for member in _idp_role.members if _idp_role else []:
+            if _idp_role.position >= _channel.guild.me.top_role.position:
+                await self.log(
+                    _channel.guild,
+                    f"Could not remove IDP role {scrim.idp_role} from {member.mention} in scrim {_channel.mention} as the role is higher than my top role.",
+                    self.bot.color.red
+                )
+                continue
             await member.remove_roles(_idp_role, reason="Scrim registration started, removing IDP role.")
 
         # update the scrim status and open time
