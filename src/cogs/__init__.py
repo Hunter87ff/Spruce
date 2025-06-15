@@ -52,6 +52,7 @@ async def setup(bot: "Spruce") -> None:
     # Load mention_responder separately using extension loader
     try:
         await bot.load_extension("cogs.mention_responder")
+        await bot.load_extension("cogs.ptmaker")
         bot.logger.info("Extension Loaded : mention_responder")
     except Exception as e:
         bot.logger.error(f"Failed to load mention_responder: {e}")
