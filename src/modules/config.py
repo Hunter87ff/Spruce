@@ -6,7 +6,6 @@ load_dotenv()
 from ext.emoji import *
 from ext.color import *
 from ext import Logger
-from ext import Database
 logger = Logger
 from typing import TYPE_CHECKING
 
@@ -21,12 +20,14 @@ SHARDS = int(env.get("SHARDS", 1))
 PREFIX = env.get("PREFIX", "&")
 VERSION = env.get("VERSION", "2.1.0")
 IS_DEV_ENV = env.get("MODE") == "development"
+
 TRANSLATE_KEY = env.get("TRANSLATE_KEY", None)
 BOT_TOKEN = env.get("BOT_TOKEN")
 GEMINI_KEY = env.get("GEMINI_KEY", None)
-
 X_CLIENT_ID = env.get("X_CLIENT_ID", "")
 X_CLIENT_SECRET = env.get("X_CLIENT_SECRET", "")
+SPOTIFY_CLIENT_ID = env.get("SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = env.get("SPOTIFY_CLIENT_SECRET", "SPOTIFY_CLIENT_SECRET")
 
 LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if env.get("LOCAL_LAVA", None) else None
 DOMAIN = "sprucebot.tech"
@@ -44,8 +45,11 @@ TESTING_GUILDS = [
     937038620756426832
 ]
 
-################## LOG ####################
-###########################################
+# dependencies
+LAVALINK_JAR = str(f"https://github.com/lavalink-devs/Lavalink/releases/download/{env.get('LAVALINK_VERSION', '4.1.1')}/Lavalink.jar")
+
+
+# log channel ids
 client_error_log = 1015166083050766366
 client_start_log = 1020027121231462400
 cmd_not_found_log = 1020698810625826846
@@ -54,10 +58,3 @@ guild_leave_log = 1028673254606508072
 tourney_delete_log = 1112411458513408090
 query_error_log = 1110257961290440824
 paylog = 1233044089398755378
-
-
-def get_db():
-    """
-    Returns a Database Object
-    """
-    return Database()

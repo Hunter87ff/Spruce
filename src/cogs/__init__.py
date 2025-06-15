@@ -18,6 +18,7 @@ from .role import RoleCog
 from .tasks import TaskCog
 from .utility import UtilityCog
 from .esports import ScrimCog
+from .music import MusicCog
 from discord.ext.commands import Cog
 
 if TYPE_CHECKING:
@@ -32,11 +33,12 @@ _cogs : list[Cog] = [
     UtilityCog,
     ModerationCog,
     TaskCog,
-    ScrimCog
+    ScrimCog,
+    MusicCog,
 ]
 
 _DEV_COGS = [
-
+    MusicCog,
 ]
 
 
