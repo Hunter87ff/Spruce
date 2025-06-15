@@ -13,3 +13,4 @@ cashfree-pg>=4.0.0
 google-generativeai
 pytz
 dateparser
+google-generativeai
