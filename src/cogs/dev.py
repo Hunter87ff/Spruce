@@ -135,7 +135,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
                 await gld.leave()
                 await ctx.send(f"Leaved From {gld.name}, Members: {gld.member_count}")
 
-    @commands.command(aliases=["dbu"])
+    @commands.command(aliases=["dbu"], hidden=True)
     @checks.dev_only()
     async def dbupdate(self, ctx:commands.Context, key:str, *, value:Any):
         if ctx.author.bot:return
@@ -146,7 +146,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
             await ctx.reply(f"Error updating {key}: {e}")
 
 
-    @commands.command()
+    @commands.command(hidden=True)
     @checks.dev_only()
     async def get_guild(self, ctx:commands.Context, guild:discord.Guild):
         if ctx.author.bot: return
@@ -159,7 +159,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         else: return await ctx.send("guild not found")						  
 
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.guild_only()
     @checks.dev_only()
     async def dlm(self, ctx:commands.Context, msg:discord.Message):
@@ -169,7 +169,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
             return await ctx.send("deleted", delete_after=2)
         except Exception:return await ctx.send("Not Possible")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @checks.dev_only()
     @commands.dm_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
@@ -214,7 +214,9 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         if ctx.author.id != config.OWNER_ID:
             return await ctx.send(embed=discord.Embed(description="Command not found! please check the spelling carefully", color=0xff0000))
 
-    @commands.command()
+
+
+    @commands.command(hidden=True)
     @commands.guild_only()
     @checks.dev_only()
     @commands.cooldown(2, 20, commands.BucketType.user)
@@ -230,21 +232,26 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         return await ms.edit(content="Done")
     
 
-    @commands.command()
+
+    @commands.command(hidden=True)
     @commands.guild_only()
     @checks.dev_only()
     async def add_dev(self, ctx:commands.Context, member:discord.Member):
         if ctx.author.bot or ctx.author.id != config.OWNER_ID:
             return await ctx.send("You are not allowed to use this command")
+        
         if member.id not in self.bot.config.DEVELOPERS:
             self.bot.config.DEVELOPERS.append(member.id)
             await ctx.send(f"Added {member.name} to devs")
+            self.bot.logger.info(f"Added {member.name} to developers")
+
         else:
             self.bot.config.DEVELOPERS.remove(member.id)
             await ctx.send(f"Removed {member.name} from devs")
 
 
-    @commands.command()
+
+    @commands.command(hidden=True)
     @commands.guild_only()
     @checks.dev_only()
     async def get_log(self, ctx:commands.Context):

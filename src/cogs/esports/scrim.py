@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 _resolved_scrims: dict[str, bool] = {}
 
 class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
-    """Currently in development mode!!"""
+    """Cog for managing scrims in the server."""
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
         self.time = bot.time

@@ -9,7 +9,7 @@ from asyncio import sleep
 from discord.ext import commands
 from ext import constants,  color
 from discord.ui import View, Button
-from discord import  Embed, Role, File, Member, utils, Message, app_commands, Interaction, ButtonStyle
+from discord import  Embed, Role, File, Member, Message, app_commands, Interaction, ButtonStyle
 from typing import TYPE_CHECKING
 
 
@@ -278,56 +278,63 @@ class RoleCog(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
+    @app_commands.guild_only()
+    @app_commands.describe(role="The role to give to all humans")
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def role_all_human(self, ctx:commands.Context, role: Role):
         if ctx.author.bot:return
         await ctx.defer()
-        prs = await ctx.send(f"{constants.PROCESSING}")
-        if role.permissions.administrator:
-            return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
-        if ctx.author.top_role.position <= role.position:
-            return await prs.edit(content=f"**{self.bot.emoji.cross}You Can't Manage This Role | The role should be higher than your top role.**")
 
-        if utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
-            return await prs.edit(content="I can't manage This role")
-        if len(ctx.guild.members) != ctx.guild.member_count:
-            return await prs.edit(content="**I'm unable to see anyone! i don't know why. please contact support team!**")
+        if role.permissions.administrator:
+            return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all members !!**"))
+        
+        if ctx.author.top_role.position <= role.position:
+            return await ctx.send(embed=Embed(description=f"**{self.bot.emoji.cross} | You Can't Manage This Role | The role should not be higher than your top role.**"))
+
+        if ctx.me.top_role.position <= role.position:
+            return await ctx.send(embed=Embed(description="I can't manage This role\nMy top role is not higher enough"))
+
         for member in ctx.guild.members:
             if not member.bot:
                 await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-                await sleep(3)
-        await prs.edit(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
+                await sleep(2)
+
+        await ctx.send(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Give a role to all bots in the server")
     @commands.guild_only()
+    @app_commands.guild_only()
+    @app_commands.describe(role="The role to give to all bots")
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def role_all_bot(self, ctx:commands.Context, role: Role):
-        await ctx.defer()
         if ctx.author.bot:return
-        prs = await ctx.send(f"{constants.PROCESSING}")
+        await ctx.defer()
+
         if role.permissions.administrator:
-            return await prs.edit(content="**Sorry but i can not do this with a role with admin perms.**")
+            return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all members !!**"))
+        
         if ctx.author.top_role.position <= role.position:
-            return await prs.edit(content="You Can't Manage This Role")
+            return await ctx.send(embed=Embed(description=f"**{self.bot.emoji.cross} | You Can't Manage This Role | The role should not be higher than your top role.**"))
 
-        if utils.get(ctx.guild.members, id=self.bot.user.id).top_role.position < role.position:
-            return await prs.edit(content="I can't manage This role")
-
-        if len(ctx.guild.members) != ctx.guild.member_count:
-            return await prs.edit(content="**I'm unable to see anyone! i don't know why. please contact support team!**")
+        if ctx.me.top_role.position <= role.position:
+            return await ctx.send(embed=Embed(description="I can't manage This role\nMy top role is not higher enough"))
 
         for member in ctx.guild.members:
-            if member.bot:
-                await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-                await sleep(2)
-        await prs.edit(content=None, embed=Embed(color=0x000fff, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All Bots**"))
+            if not member.bot:
+                continue
+
+            await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+            await sleep(2)
+
+        await ctx.send(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Bots**"))
 
 
-    @commands.hybrid_command(with_app_command = True)
+    @commands.hybrid_command(description="Hide all roles from the member list")
     @commands.guild_only()
+    @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def hide_roles(self, ctx:commands.Context):
@@ -337,20 +344,33 @@ class RoleCog(commands.Cog):
         roles = ctx.guild.roles
         for role in roles:
             if role.position < ctx.author.top_role.position:
-                    try:await role.edit(hoist=False)
-                    except Exception:pass
+                    try:
+                        await role.edit(hoist=False)
+
+                    except Exception:
+                        continue
+                    
         await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10)
 
 
-    @commands.command()
+    @commands.command(aliases=["hoist"])
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def unhide_roles(self, ctx:commands.Context, *roles : Role):
-        if ctx.author.bot:return
-        msg = await ctx.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**')
+        if ctx.author.bot:
+            return
+        msg = await ctx.channel.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**') if ctx.channel.permissions_for(ctx.me).send_messages else None
+
         for role in roles:
-            if role.position < ctx.author.top_role.position:
-                try:await role.edit(hoist=True)
-                except Exception:pass
-        await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10)
+            if role.position >= ctx.author.top_role.position:
+                return await ctx.send(f"{role.mention} Is Higher Than Your Top Role", delete_after=10)
+            if ctx.me.top_role.position < role.position:
+                return await ctx.send(f"{role.mention} Is Higher Than My Top Role", delete_after=10)
+            try:
+                await role.edit(hoist=True)
+
+            except Exception:
+                continue
+
+        await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10) if msg else None

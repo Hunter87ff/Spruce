@@ -73,9 +73,6 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def setup_hook(self) -> None:
-        # Remove default help command 
-        self.remove_command("help")
-
         # Set up the database
         await cogs.setup(self)
 

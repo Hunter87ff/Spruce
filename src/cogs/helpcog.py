@@ -74,6 +74,7 @@ class DropdownView(discord.ui.View):
 class HelperCog(commands.Cog):
     def __init__(self, bot:"Spruce"):
         self.bot= bot
+        self.bot.remove_command("help")
 
 
     @commands.group(invoke_without_command=True,aliases=['commands', 'hel', "h"])
