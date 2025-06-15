@@ -560,3 +560,5 @@ class HelperCog(commands.Cog):
     async def spotify(self, ctx:commands.Context):
         em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `spotify <playlist_url>`\nExample : `{self.bot.config.PREFIX}spotify https://open.spotify.com/playlist/3WhVWKNAY2Y9DNU5GVPYE2`", color=0x00ff00)
         await ctx.send(embed=em)
+
+    
