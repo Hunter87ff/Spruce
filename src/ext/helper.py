@@ -9,16 +9,8 @@ of this license document, but changing it is not allowed.
 import re
 import discord
 import requests, uuid
-from ext import Database
 from discord.ext import commands
 
-
-
-def get_db():
-    """
-    Returns a Database Object
-    """
-    return Database()
 
 
      

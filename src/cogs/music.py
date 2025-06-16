@@ -7,7 +7,7 @@
  of this license document, but changing it is not allowed.
  """
 
-
+import asyncio
 import wavelink,time, os, platform
 from threading import Thread
 from typing import cast, TYPE_CHECKING
@@ -35,6 +35,7 @@ class MusicCog(commands.Cog):
         self.message:Message  = None
         self.loop:bool = False
         self.bot.loop.create_task(self.setup_lava_node())
+        self.lava_server_configured = False
 
         self.controlButtons = [
             Button(emoji=self.bot.emoji.next_btn, custom_id="music_next_btn"),
@@ -50,14 +51,25 @@ class MusicCog(commands.Cog):
 
         def lavalink():
             if not os.path.exists("lava"):
-                self.bot.logger.warning("Lavalink is not configured")
-                return
+                os.mkdir("lava")
 
+            if not os.path.exists("lava/application.yml"):
+                self.bot.logger.error("unable to setup lavalink, application.yml not found")
+                raise FileNotFoundError("application.yml not found in lava directory")
+            
+            if not os.path.exists("lava/Lavalink.jar"):
+                downloaded = os.system("cd lava && wget {link} -O Lavalink.jar".format(link=self.bot.config.LAVALINK_JAR))
+                if downloaded != 0:
+                    self.bot.logger.error("Failed to download Lavalink.jar")
+                return
+            
+            self.lava_server_configured = True
             if platform.system() == "Windows":
                 os.system("cd lava && java -jar Lavalink.jar > NUL 2>&1 &")
             else:
-                os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")    # > /dev/null 2>&1 &
-            
+                os.system("cd lava && java -jar Lavalink.jar > /dev/null 2>&1 &")
+
+
         async def setup_lavalink():
             """
             Sets up the Lavalink server by modifying the application.yml file with the correct credentials.
@@ -67,34 +79,42 @@ class MusicCog(commands.Cog):
                 with open("lava/application.yml", "r") as f1:
                     content1= f1.read()
 
-                content = content1.replace("spot_id", f"{self.bot.db.spot_id}").replace("spot_secret", f"{self.bot.db.spot_secret}")
+                content = content1.replace("spot_id", f"{self.bot.config.SPOTIFY_CLIENT_ID}").replace("spot_secret", f"{self.bot.config.SPOTIFY_CLIENT_SECRET}")
                 with open("lava/application.yml", "w") as f:
                     f.write(content)
 
                 self.bot.logger.info("Starting Lavalink server...")
                 Thread(target=lavalink).start()
-                time.sleep(5)
-                with open("lava/application.yml", "w") as f: 
-                    f.write(content1.replace(self.bot.db.spot_id, "spot_id").replace(self.bot.db.spot_secret, "spot_secret"))
+                await asyncio.sleep(5)
 
+                with open("lava/application.yml", "w") as f: 
+                    f.write(content1.replace(self.bot.config.SPOTIFY_CLIENT_ID, "spot_id").replace(self.bot.config.SPOTIFY_CLIENT_SECRET, "spot_secret"))
+
+                if not self.lava_server_configured:
+                    raise RuntimeError("Lavalink server not configured properly, please check application.yml file")
+                
                 _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
                 await wavelink.Pool.connect(nodes=_nodes, client=self.bot, cache_capacity=None)
                 self.bot.logger.info("Lavalink server connected")
 
             except Exception as e:
-                    self.bot.logger.error(f"Attempting to connect to Lavalink server failed: {e}")
+                    self.bot.logger.error(f"Attempting to connect to Lavalink server failed\n {e}")
 
 
         await setup_lavalink()
 
 
-
+    # @commands.Cog.listener()
+    # async def on_ready(self):
+    #     _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
+    #     await wavelink.Pool.connect(nodes=_nodes, client=self.bot, cache_capacity=None)
 
 
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
         player: wavelink.Player | None = payload.player
+        home: TextChannel = player.home if player else None
         if not player:return
         track: wavelink.Playable = payload.track
         tm = "%H:%M:%S"
@@ -106,14 +126,14 @@ class MusicCog(commands.Cog):
         view = View()
         for button in self.controlButtons:view.add_item(button)
         try:
-            messages:list[Message] = [message async for message in player.home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
+            messages:list[Message] = [message async for message in home.history(limit=10) if len(message.embeds)!=0 and message.author.id == self.bot.user.id]
             for i in messages:
                 if i and i.author.id == self.bot.user.id and i.embeds[0].title == f"{self.bot.emoji.music_disk} Now Playing":
                     await i.delete() if i else None
         except Exception as e:
             update_error_log(f"{e}")
-        if self.message and player.home:
-            _home : TextChannel = player.home
+        if self.message and home:
+            _home : TextChannel = home
             await _home.send(embed=embed, view=view)
 
     @commands.Cog.listener()

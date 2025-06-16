@@ -9,7 +9,8 @@ __pycache__/
 *.so
 
 # other binaries
-*lava/
+*.jar
+# *lava/
 
 # development environment
 /test
