@@ -48,7 +48,7 @@ class EsportsCog(commands.Cog):
         if self.dbc.find_one({"crole":role.id}):
             db = self.dbc.find_one({"crole":role.id})
             cch = discord.utils.get(role.guild.channels,id=db["cch"])
-            messages = [message async for message in cch.history(limit=int(db["tslot"])+50)]
+            messages = list([message async for message in cch.history(limit=int(db["tslot"])+50)])
             members = {m for msg in messages for m in role.guild.members if m.mention in msg.content}
             newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Role use &tourney command")
             self.dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
@@ -455,7 +455,7 @@ class EsportsCog(commands.Cog):
         if crole in member.roles:
             await member.remove_roles(crole)
             self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : reged - 1}})
-            messages = [message async for message in cch.history(limit=123)]  
+            messages = list([message async for message in cch.history(limit=123)])  
             for message in messages:
                 if member.mention in message.content and message.author.id == self.bot.user.id:
                     await message.delete() 
@@ -1220,7 +1220,7 @@ class EsportsCog(commands.Cog):
         if not confirm_channel.permissions_for(ctx.guild.me).read_message_history:
             return await ctx.send(f"I Don't Have Permission To Read Message History In {confirm_channel.mention}")
 
-        messages = [message async for message in confirm_channel.history(limit=_event.tslot+100)]
+        messages = list([message async for message in confirm_channel.history(limit=_event.tslot+100)])
         for msg in messages[::-1]:
             if msg.author.id == self.bot.user.id and len(msg.embeds) > 0:
                 if "TEAM" in msg.embeds[0].description:
@@ -1498,8 +1498,8 @@ class EsportsCog(commands.Cog):
                     color=self.bot.color.red
                 ) #fixed NoneType Error !!
             return await interaction.response.send_message("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
-        
-        teams = [message async for message in cch.history(limit=db["tslot"])]
+
+        teams = list([message async for message in cch.history(limit=db["tslot"])])
         options = []
         for i in teams:
             if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:

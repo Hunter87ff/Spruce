@@ -48,22 +48,22 @@ class RoleCog(commands.Cog):
 
         # if suddenly someone remove manage_roles permission from the bot, this will be helpful
         if not user.guild.me.guild_permissions.manage_roles:
-            raise Exception(
+            raise RoleCogException(
                 "**I don't have permission to manage roles in this server**"
             )
         
         if role.is_default():
-            raise Exception(
+            raise RoleCogException(
                 "**This is a default role and cannot be managed**"
             )
 
         if user.id != user.guild.owner.id and user.top_role.position < role.position:
-            raise Exception(
+            raise RoleCogException(
                 self.ROLE_HIGHER_THAN_YOU.format(role=role)
             )
 
         if user.guild.me.top_role.position < role.position:
-            raise Exception(
+            raise RoleCogException(
                 self.ROLE_HIGHER_THAN_ME.format(role=role)
             )
         
