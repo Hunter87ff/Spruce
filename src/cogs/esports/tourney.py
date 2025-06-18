@@ -38,6 +38,7 @@ class EsportsCog(commands.Cog):
     def __init__(self, bot:'Spruce'):
         self.bot:"Spruce" = bot
         self.dbc = bot.db.dbc
+        self.TOURNEY_LOG_CHANNEL_NAME = f"{self.bot.user.name.lower()}-tourney-log"
         self._tnotfound = "Tournament Not Found"
 
 
@@ -98,6 +99,28 @@ class EsportsCog(commands.Cog):
             member.guild_permissions.administrator,
             discord.utils.get(member.guild.roles, name="tourney-mod") in member.roles,
         ])
+    
+
+    async def log(self, guild:discord.Guild, message:str, color:int=color.cyan):
+        """
+        Logs a message to the tourney log channel.
+        
+        Parameters
+        ----------
+        guild : discord.Guild
+            The guild where the log channel is located.
+        message : str
+            The message to log.
+        color : int, optional
+            The color of the embed, defaults to color.cyan.
+        """
+        channel = discord.utils.get(guild.text_channels, name=self.TOURNEY_LOG_CHANNEL_NAME)
+        if not channel:
+            return 
+        
+        embed = discord.Embed(description=message, color=color)
+        embed.set_author(name=guild.me.name, icon_url=guild.me.avatar)
+        await channel.send(embed=embed)
 
 
     @commands.hybrid_command(name="tourney_log", description="Setup Tourney Log Channel", aliases=["tlog"])
@@ -308,7 +331,7 @@ class EsportsCog(commands.Cog):
                     "cgp":0, 
                     "created_at":datetime.datetime.now()
                 }
-                tour_count = len(list(self.dbc.find({"guild" : ctx.guild.id})))
+                tour_count = len(self.dbc.find({"guild" : ctx.guild.id}).to_list())
 
                 if tour_count > 5:
                     return await ctx.send(
@@ -317,7 +340,17 @@ class EsportsCog(commands.Cog):
                             color=self.bot.color.red), 
                             delete_after=30
                         )
-                self.dbc.insert_one(tour)
+                inserted = self.dbc.insert_one(tour)
+                if not inserted.inserted_id:
+                    return await ctx.send(
+                        embed=discord.Embed(
+                            description="**Failed To Create Tournament**", 
+                            color=color.red
+                        ), 
+                        delete_after=10
+                    )
+                
+
 
                 # configures the slot manager for the tournament
                 await self.set_manager(ctx, r_ch)
@@ -329,6 +362,7 @@ class EsportsCog(commands.Cog):
                         description=f'{emoji.tick} | Successfully Created. Tournament Slot({tour_count+1}/5 used)'
                     ), 
                     delete_after=20) if ms else None
+            
         except Exception:return
 
 
@@ -1072,15 +1106,20 @@ class EsportsCog(commands.Cog):
 
     @commands.hybrid_command(description="Setup group channels by position (it doesn't gives role to players)", with_app_command = True, aliases=['gsetup'])
     @commands.guild_only()
-    @commands.cooldown(1, 60, commands.BucketType.guild)
+    @app_commands.guild_only()
     @checks.tourney_mod()
+    @commands.cooldown(1, 60, commands.BucketType.guild)
     @app_commands.describe(prefix="Prefix for group channels", start="Starting Group Number", end="Ending Group Number", category="Category for group channels")
     async def group_setup(self, ctx:commands.Context, prefix:str, start:int, end:int, category:discord.CategoryChannel=None):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
 
-        elif start < 1:return await ctx.reply("Starting Number Should Not Be Lower Than 1")
-        elif end < start:return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
+        elif start < 1:
+            return await ctx.reply("Starting Number Should Not Be Lower Than 1")
+        
+        elif end < start:
+            return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
+        
         ms = await ctx.send(f"{emoji.loading}| {constants.PROCESSING}")
         if category == None:category = await ctx.guild.create_category(name=f"{prefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
@@ -1090,13 +1129,14 @@ class EsportsCog(commands.Cog):
             overwrite = ctx.channel.overwrites_for(role)
             overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
             await channel.set_permissions(role, overwrite=overwrite)
+            await self.log(ctx.guild, message=f"Created Group {i} | {role.mention} | {channel.mention}")
             await sleep(2)
+            
         if ms :
             await ms.edit(content=f"{emoji.tick} | Successfully Created") if ms else None
 
 
     @commands.command(name="change_slot", aliases=["cslot"])
-    @commands.has_any_role("tourney-mod")
     @commands.guild_only()
     @checks.tourney_mod()
     async def change_slot(self, ctx:commands.Context, *, slot:str):
@@ -1369,7 +1409,7 @@ class EsportsCog(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.dev_only()
-    @commands.has_role("tourney-mod")
+    @checks.tourney_mod()
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True, manage_permissions=True)
     async def start_reg(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:
@@ -1435,150 +1475,151 @@ class EsportsCog(commands.Cog):
         
         if interaction.user.bot or not interaction.guild:
             return
+
+        if "custom_id" in interaction.data and interaction.data.get("custom_id") not in self.MANAGER_PREFIXES:
+            return
         
-        elif "custom_id" in interaction.data and interaction.data["custom_id"] in self.MANAGER_PREFIXES:
-            db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
-            if not db:
-                return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
-            view = View()
-            crole:discord.Role = interaction.guild.get_role(db["crole"])
-            cch:discord.TextChannel = self.bot.get_channel(db["cch"])
-            if not cch : 
-                return await interaction.response.send_message(
-                    f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name='tourney-mod')}", 
-                    ephemeral=True
-                )
-            
-            if not crole:
-                self.bot.helper.get_tourney_log(interaction.guild).send(
-                    embed=discord.Embed(
-                        description=f"{emoji.cross} | Confirm Role Not Found For <#{db.get('rch')}>!!\nPlease Check The Tournament Configurations",
-                        color=self.bot.color.red
-                    )
-                )
-                return await interaction.response.send_message("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
-            
-            teams = [message async for message in cch.history(limit=db["tslot"])]
-            options = []
-            for i in teams:
-                if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
-                    if any([interaction.user.id in i.mentions, interaction.user.name in i.embeds[0].description]):
-                        st = i.embeds[0].description.find("[")+1
-                        en = i.embeds[0].description.find("]")
-                        options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
 
-            if len(options) == 0:
-                return await interaction.response.send_message("Unable to find your team!! ", ephemeral=True)
-            cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
-            view.add_item(cslotlist)
-            cslotlist.callback = None    
+        db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
+        if not db:
+            return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+        
+        view = View()
+        crole:discord.Role = interaction.guild.get_role(db["crole"])
+        cch:discord.TextChannel = self.bot.get_channel(db["cch"])
+        if not cch : 
+            return await interaction.response.send_message(
+                f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name='tourney-mod')}", 
+                ephemeral=True
+            )
+        
+        if not crole:
+            await self.log(interaction.guild, message=f"{emoji.cross} | Confirm Role Not Found For <#{db.get('rch')}>!!\nPlease Check The Tournament Configurations",
+                    color=self.bot.color.red
+                ) #fixed NoneType Error !!
+            return await interaction.response.send_message("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
+        
+        teams = [message async for message in cch.history(limit=db["tslot"])]
+        options = []
+        for i in teams:
+            if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
+                if any([interaction.user.id in i.mentions, interaction.user.name in i.embeds[0].description]):
+                    st = i.embeds[0].description.find("[")+1
+                    en = i.embeds[0].description.find("]")
+                    options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
 
-            if interaction.data["custom_id"] == "Cslot":
-                await interaction.response.send_message(view=view, ephemeral=True)
+        if len(options) == 0:
+            return await interaction.response.send_message("Unable to find your team!! ", ephemeral=True)
+        cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
+        view.add_item(cslotlist)
+        cslotlist.callback = None    
 
-                async def confirm(interact:discord.Interaction):
-                    conf = Button(label="Confirm", style=discord.ButtonStyle.red)
-                    canc = Button(label="Cancel", style=discord.ButtonStyle.green)
-                    v2 = View()
-                    for i in [conf]:
-                        v2.add_item(i)
+        if interaction.data["custom_id"] == "Cslot":
+            await interaction.response.send_message(view=view, ephemeral=True)
 
-                    await interact.response.send_message(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
+            async def confirm(interact:discord.Interaction):
+                conf = Button(label="Confirm", style=discord.ButtonStyle.red)
+                canc = Button(label="Cancel", style=discord.ButtonStyle.green)
+                v2 = View()
+                for i in [conf]:
+                    v2.add_item(i)
+
+                await interact.response.send_message(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
 
 
-                    async def cnf(cnfinteract:discord.Interaction):
-                        """
-                        Asynchronously cancels a slot and removes the associated role from the mentioned member.
+                async def cnf(cnfinteract:discord.Interaction):
+                    """
+                    Asynchronously cancels a slot and removes the associated role from the mentioned member.
 
-                        This function deletes the message containing the slot information and removes the specified role
-                        from the guild member mentioned in the message.
+                    This function deletes the message containing the slot information and removes the specified role
+                    from the guild member mentioned in the message.
 
-                        Parameters:
-                            cnfinteract (discord.Interaction): The interaction object triggered by the user's confirmation.
+                    Parameters:
+                        cnfinteract (discord.Interaction): The interaction object triggered by the user's confirmation.
 
-                        Returns:
-                            None: Sends an ephemeral message confirming the slot cancellation.
-                        """
-                        ms = await cch.fetch_message(cslotlist.values[0])
-
-                        # maybe we can optimize it further by parsing the member through his id from the message content
-                        for i in cnfinteract.guild.members:
-
-                            if i.mention in ms.content:
-
-                                # check self permission before removing the role
-                                if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
-                                    await cnfinteract.response.send_message(
-                                        "I Don't Have Permission To Remove The Role\nRequired Perms : `manage_roles`, `manage_messages`", 
-                                        ephemeral=True
-                                    )
-                                    return
-                                await i.remove_roles(crole)
-                                await ms.delete()
-                                self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
-
-                        await cnfinteract.response.send_message("Slot Cancelled!!", ephemeral=True)
-                        return
-                            
-                    async def cnc(interact:discord.Interaction):
-                        """
-                        Cancels the current operation and deletes the interaction message.
-
-                        Parameters
-                        ----------
-                        interact : discord.Interaction
-                            The interaction to respond to.
-
-                        Returns
-                        -------
-                        None
-                            This function doesn't return anything, but has the side effect of deleting the message
-                            associated with the interaction.
-                        """
-                        await interact.message.delete()
-
-
-                    conf.callback = cnf
-                    canc.callback = cnc
-                cslotlist.callback = confirm
-
-            if interaction.data["custom_id"] == "Mslot":
-                await interaction.response.send_message(view=view, ephemeral=True)
-                async def myteam(interaction:discord.Interaction):
+                    Returns:
+                        None: Sends an ephemeral message confirming the slot cancellation.
+                    """
                     ms = await cch.fetch_message(cslotlist.values[0])
-                    emb = ms.embeds[0].copy()
-                    await interaction.response.send_message(embed=emb, ephemeral=True)
-                cslotlist.callback = myteam
-                        
-            if interaction.data["custom_id"] == "Cancel":
-                if interaction.message:
-                    await interaction.message.delete()
 
-            if interaction.data["custom_id"] == "Tname":
-                await interaction.response.send_message(view=view, ephemeral=True)
-                async def change_teamname(interaction:discord.Interaction):
-                    inp = discord.ui.Modal(title="Team Name", timeout=30)
-                    text = (discord.ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="teamname"))
-                    inp.add_item(text)
-                    await interaction.response.send_modal(inp)
-                    async def tname(interaction:discord.Interaction):
-                            nme = inp.children[0].value.upper()
-                            ms = await cch.fetch_message(cslotlist.values[0])
-                            pem = ms.embeds[0]
-                            st = pem.description.find("[")+1
-                            en = pem.description.find("]")
-                            team = pem.description[st:en]
-                            desc = pem.description.replace(team, nme)
-                            emb = discord.Embed(color=pem.color, description=desc)
-                            emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
-                            emb.set_thumbnail(url=interaction.user.display_avatar or interaction.guild.icon or interaction.guild.me.avatar.url)
-                            emb.timestamp = ms.created_at
-                            try:
-                                await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb) if ms else None
-                            except Exception as e:return await interaction.response.send_message(f'Unable To Change Team Name At This Time!!\nReason : {e}', ephemeral=True)
-                            return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
-                    inp.on_submit = tname
-                cslotlist.callback = change_teamname
+                    # maybe we can optimize it further by parsing the member through his id from the message content
+                    for i in cnfinteract.guild.members:
+
+                        if i.mention in ms.content:
+
+                            # check self permission before removing the role
+                            if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
+                                await cnfinteract.response.send_message(
+                                    "I Don't Have Permission To Remove The Role\nRequired Perms : `manage_roles`, `manage_messages`", 
+                                    ephemeral=True
+                                )
+                                return
+                            await i.remove_roles(crole)
+                            await ms.delete()
+                            self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
+
+                    await cnfinteract.response.send_message("Slot Cancelled!!", ephemeral=True)
+                    return
+                        
+                async def cnc(interact:discord.Interaction):
+                    """
+                    Cancels the current operation and deletes the interaction message.
+
+                    Parameters
+                    ----------
+                    interact : discord.Interaction
+                        The interaction to respond to.
+
+                    Returns
+                    -------
+                    None
+                        This function doesn't return anything, but has the side effect of deleting the message
+                        associated with the interaction.
+                    """
+                    await interact.message.delete()
+
+
+                conf.callback = cnf
+                canc.callback = cnc
+            cslotlist.callback = confirm
+
+        if interaction.data["custom_id"] == "Mslot":
+            await interaction.response.send_message(view=view, ephemeral=True)
+            async def myteam(interaction:discord.Interaction):
+                ms = await cch.fetch_message(cslotlist.values[0])
+                emb = ms.embeds[0].copy()
+                await interaction.response.send_message(embed=emb, ephemeral=True)
+            cslotlist.callback = myteam
+                    
+        if interaction.data["custom_id"] == "Cancel":
+            if interaction.message:
+                await interaction.message.delete()
+
+        if interaction.data["custom_id"] == "Tname":
+            await interaction.response.send_message(view=view, ephemeral=True)
+            async def change_teamname(interaction:discord.Interaction):
+                inp = discord.ui.Modal(title="Team Name", timeout=30)
+                text = (discord.ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="teamname"))
+                inp.add_item(text)
+                await interaction.response.send_modal(inp)
+                async def tname(interaction:discord.Interaction):
+                        nme = inp.children[0].value.upper()
+                        ms = await cch.fetch_message(cslotlist.values[0])
+                        pem = ms.embeds[0]
+                        st = pem.description.find("[")+1
+                        en = pem.description.find("]")
+                        team = pem.description[st:en]
+                        desc = pem.description.replace(team, nme)
+                        emb = discord.Embed(color=pem.color, description=desc)
+                        emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
+                        emb.set_thumbnail(url=interaction.user.display_avatar or interaction.guild.icon or interaction.guild.me.avatar.url)
+                        emb.timestamp = ms.created_at
+                        try:
+                            await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb) if ms else None
+                        except Exception as e:return await interaction.response.send_message(f'Unable To Change Team Name At This Time!!\nReason : {e}', ephemeral=True)
+                        return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
+                inp.on_submit = tname
+            cslotlist.callback = change_teamname
 
 
         # Currently Testing on this and not sure to impliment this or not

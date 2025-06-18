@@ -138,7 +138,7 @@ async def tourney(message: Message, bot: 'Spruce'):
         return
 
     if crole in message.author.roles:
-        await message.delete()
+        await message.delete() if message else None
         await log_event(message, f"{message.author} tried to register again in {rch.mention} but already has the confirm role.", bot.color.red)
         return await message.channel.send(embed=Embed(description="**Seems like you're already registered as you have the confirm role.**", color=bot.color.red), delete_after=5)
 
