@@ -1,11 +1,9 @@
 """
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2022 hunter87.dev@gmail.com
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
- """
+A module for  managing music playback using Lavalink in Spruce.
+    :author: hunter87
+    :copyright: (c) 2022-present hunter87.dev@gmail.com
+    :license: GPL-3, see LICENSE for more details.
+"""
 
 import asyncio
 import wavelink,time, os, platform
@@ -75,20 +73,21 @@ class MusicCog(commands.Cog):
             Sets up the Lavalink server by modifying the application.yml file with the correct credentials.
             """
             try:
+                import aiofiles
                 self.bot.logger.info("Setting up Lavalink server...")
-                with open("lava/application.yml", "r") as f1:
-                    content1= f1.read()
+                async with aiofiles.open("lava/application.yml", "r") as f1:
+                    content1= await f1.read()
 
                 content = content1.replace("spot_id", f"{self.bot.config.SPOTIFY_CLIENT_ID}").replace("spot_secret", f"{self.bot.config.SPOTIFY_CLIENT_SECRET}")
-                with open("lava/application.yml", "w") as f:
-                    f.write(content)
+                async with aiofiles.open("lava/application.yml", "w") as f:
+                    await f.write(content)
 
                 self.bot.logger.info("Starting Lavalink server...")
                 Thread(target=lavalink).start()
                 await asyncio.sleep(5)
 
-                with open("lava/application.yml", "w") as f: 
-                    f.write(content1.replace(self.bot.config.SPOTIFY_CLIENT_ID, "spot_id").replace(self.bot.config.SPOTIFY_CLIENT_SECRET, "spot_secret"))
+                async with aiofiles.open("lava/application.yml", "w") as f:
+                    await f.write(content1.replace(self.bot.config.SPOTIFY_CLIENT_ID, "spot_id").replace(self.bot.config.SPOTIFY_CLIENT_SECRET, "spot_secret"))
 
                 if not self.lava_server_configured:
                     raise RuntimeError("Lavalink server not configured properly, please check application.yml file")
@@ -171,7 +170,7 @@ class MusicCog(commands.Cog):
 
         elif interaction.data["custom_id"] == "music_queue_btn":
             if vc.queue.is_empty:return await interaction.response.send_message("Queue is empty", ephemeral=True)
-            em = Embed(title="Queue", color=self.bot.color.cyan)
+            em = Embed(title="Queue", color=self.bot.base_color)
             queue = vc.queue.copy()
             for song in queue:
                 em.add_field(name=f"Song Position {str(queue.count)}", value=f"`{song}`")

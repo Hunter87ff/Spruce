@@ -8,6 +8,7 @@ import traceback
 from ext import Logger
 from ext import types
 import pytz, datetime
+import aiofiles
 from modules import config
 import discord
 from discord.errors import HTTPException
@@ -20,6 +21,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
+ERROR_LOG_FP = "error.log"
+ERROR_FP = "error.txt"
 
 def update_error_log(error_message: str):
     """
@@ -151,10 +154,10 @@ async def manage_context(ctx:commands.Context, error:commands.errors.DiscordExce
             content = traceback.format_exception(type(error), error, error.__traceback__)
             content = ''.join(content)
 
-            with open("error.txt", "w", encoding="utf-8") as file: 
-                file.write(content)
+            async with aiofiles.open(ERROR_FP, "w", encoding="utf-8") as file:
+                await file.write(content)
 
-            await bot.log_channel.send(content=f"<@{bot.config.OWNER_ID}>", file=File("error.txt"))
+            await bot.log_channel.send(content=f"<@{bot.config.OWNER_ID}>", file=File(ERROR_FP))
             update_error_log(content)
 
     except Exception as e:
@@ -201,6 +204,8 @@ async def handle_interaction_error(interaction: Interaction, error: app_commands
             embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
             ephemeral=True
         )
-        with open("error.txt", "w", encoding="utf-8") as file: file.write("\n".join(traceback.format_exception(error)))
+        async with aiofiles.open(ERROR_FP, "w", encoding="utf-8") as file: 
+            await file.write("\n".join(traceback.format_exception(error)))
+ 
         if bot.log_channel.permissions_for(bot.log_channel.guild.me).attach_files:
-            await bot.log_channel.send(content=f"<{bot.owner_id}>",  file=File("error.txt")  )
+            await bot.log_channel.send(content=f"<{bot.owner_id}>",  file=File(ERROR_FP)  )
