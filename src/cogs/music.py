@@ -73,20 +73,21 @@ class MusicCog(commands.Cog):
             Sets up the Lavalink server by modifying the application.yml file with the correct credentials.
             """
             try:
+                import aiofiles
                 self.bot.logger.info("Setting up Lavalink server...")
-                with open("lava/application.yml", "r") as f1:
-                    content1= f1.read()
+                async with aiofiles.open("lava/application.yml", "r") as f1:
+                    content1= await f1.read()
 
                 content = content1.replace("spot_id", f"{self.bot.config.SPOTIFY_CLIENT_ID}").replace("spot_secret", f"{self.bot.config.SPOTIFY_CLIENT_SECRET}")
-                with open("lava/application.yml", "w") as f:
-                    f.write(content)
+                async with aiofiles.open("lava/application.yml", "w") as f:
+                    await f.write(content)
 
                 self.bot.logger.info("Starting Lavalink server...")
                 Thread(target=lavalink).start()
                 await asyncio.sleep(5)
 
-                with open("lava/application.yml", "w") as f: 
-                    f.write(content1.replace(self.bot.config.SPOTIFY_CLIENT_ID, "spot_id").replace(self.bot.config.SPOTIFY_CLIENT_SECRET, "spot_secret"))
+                async with aiofiles.open("lava/application.yml", "w") as f:
+                    await f.write(content1.replace(self.bot.config.SPOTIFY_CLIENT_ID, "spot_id").replace(self.bot.config.SPOTIFY_CLIENT_SECRET, "spot_secret"))
 
                 if not self.lava_server_configured:
                     raise RuntimeError("Lavalink server not configured properly, please check application.yml file")

@@ -6,6 +6,7 @@ of this license document, but changing it is not allowed.
 """
 import traceback
 from requests import post
+import aiofiles
 from typing import TYPE_CHECKING
 from discord import Message, File
 from discord.ext import commands
@@ -86,8 +87,8 @@ class ChatClient:
 
             # if the response is too long, send it as a file
             if len(response) > 2000:
-                with open("response.txt", "w") as f:
-                    f.write(response)
+                async with aiofiles.open("response.txt", "w") as f:
+                    await f.write(response)
                 return await message.reply(file=File("response.txt"))
             else:
                 return await message.reply(response)

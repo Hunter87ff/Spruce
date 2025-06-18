@@ -5,6 +5,7 @@ A module for managing roles in a Discord server.
     :license: GPL-3, see LICENSE for more details.
 """
 import os
+import aiofiles
 from asyncio import sleep
 from discord.ext import commands
 from ext import constants,  color
@@ -272,8 +273,8 @@ class RoleCog(commands.Cog):
             emb = Embed(title=f"{role.name}", description=msg, color=color.random(color.cyan))
             await interaction.response.send_message(embed=emb)
         else:
-            with open(file=f"{role.name}-{role.id}-members.txt", mode="w", encoding="utf-8") as f:
-                f.write(msg)
+            async with aiofiles.open(file=f"{role.name}-{role.id}-members.txt", mode="w", encoding="utf-8") as f:
+                await f.write(msg)
             await interaction.response.send_message(file=File(f"{role.name}-{role.id}-members.txt"))
             os.remove(f"{role.name}-{role.id}-members.txt")
         
