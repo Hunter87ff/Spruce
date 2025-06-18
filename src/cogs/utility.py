@@ -1,8 +1,8 @@
 """
-This project is licensed under the GNU GPL v3.0.
-Copyright (C) 2022 hunter87.dev@gmail.com
-Everyone is permitted to copy and distribute verbatim copies
-of this license document, but changing it is not allowed.
+A module for utility commands in the Spruce bot.
+    :author: hunter87
+    :copyright: (c) 2022-present hunter87.dev@gmail.com
+    :license: GPL-3, see LICENSE for more details.
 """
 
 

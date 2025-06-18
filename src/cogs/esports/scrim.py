@@ -1,8 +1,8 @@
 """
-This project is licensed under the GNU GPL v3.0.
-Copyright (C) 2022 hunter87.dev@gmail.com
-Everyone is permitted to copy and distribute verbatim copies
-of this license document, but changing it is not allowed.
+A module for managing scrims in a Discord server.
+    :author: hunter87
+    :copyright: (c) 2022-present hunter87.dev@gmail.com
+    :license: GPL-3, see LICENSE for more details.
 """
 
 import discord
@@ -300,7 +300,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         _scrim.status = _status
         await _scrim.save()
 
-        await ctx.followup.send(embed=discord.Embed(description=f"{self.bot.emoji.tick} | Scrim {reg_channel.mention} status updated to: {status.value}", color=self.bot.color.cyan), ephemeral=True)
+        await ctx.followup.send(embed=discord.Embed(description=f"{self.bot.emoji.tick} | Scrim {reg_channel.mention} status updated to: {status.value}", color=self.bot.base_color), ephemeral=True)
 
 
     @app.command(name="start", description="Start a scrim by its ID.")
@@ -1435,7 +1435,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         emb = discord.Embed(
             title=reg_channel.category.name,
             description=f"{self.bot.emoji.arow} **Cancel Slot** : To Cancel Your Slot\n{self.bot.emoji.arow} **My Slot** : To Get Details Of Your Slot\n{self.bot.emoji.arow} **Team Name** : To Change Your Team Name\n{self.bot.emoji.arow} **Transfer Slot** : To Transfer Your Slot To Another User",
-            color=self.bot.color.cyan
+            color=self.bot.base_color
         )
         buttons = [
             discord.ui.Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-cancel-slot"),

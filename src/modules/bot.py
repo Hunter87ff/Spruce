@@ -1,6 +1,7 @@
 """
 This project is licensed under the GNU GPL v3.0.
-Copyright (C) 2022 hunter87.dev@gmail.com
+    :author: hunter87
+    :Copyright: (C) 2022-present hunter87.dev@gmail.com
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
@@ -57,6 +58,7 @@ class Spruce(commands.AutoShardedBot):
         self.config_data : dict[str, str] = {}
         self.devs : list[int] = self.config.DEVELOPERS
         self.blocked_words:list[str] = []
+        self.base_color = self.color.cyan
 
         super().__init__(
             shard_count=config.SHARDS, 

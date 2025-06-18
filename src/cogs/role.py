@@ -1,8 +1,8 @@
 """
-This project is licensed under the GNU GPL v3.0.
-Copyright (C) 2022 hunter87.dev@gmail.com
-Everyone is permitted to copy and distribute verbatim copies
-of this license document, but changing it is not allowed.
+A module for managing roles in a Discord server.
+    :author: hunter87
+    :copyright: (c) 2022-present hunter87.dev@gmail.com
+    :license: GPL-3, see LICENSE for more details.
 """
 import os
 from asyncio import sleep
@@ -17,6 +17,17 @@ if TYPE_CHECKING:
     from modules.bot import Spruce
 
 
+class RoleCogException(Exception):
+    """
+    Custom exception for RoleCog.
+    """
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+
+
 class RoleCog(commands.Cog):
     """
     ## RoleCog Class
@@ -24,6 +35,37 @@ class RoleCog(commands.Cog):
     """
     def __init__(self, bot:"Spruce"):
         self.bot = bot
+        self.DEFAULT_SLEEP = 1
+        self.ROLE_HIGHER_THAN_YOU = "{role.mention} Is Higher or Equal To Your Top Role. So I Can't Manage It"
+        self.ROLE_HIGHER_THAN_ME = "{role.mention} Is Higher or Equal To My Top Role. So I Can't Manage It"
+
+
+    def check_access(self, user:Member, role:Role):
+        """
+        Raise an exception if the user does not have permission to manage the role.
+        """
+
+        # if suddenly someone remove manage_roles permission from the bot, this will be helpful
+        if not user.guild.me.guild_permissions.manage_roles:
+            raise Exception(
+                "**I don't have permission to manage roles in this server**"
+            )
+        
+        if role.is_default():
+            raise Exception(
+                "**This is a default role and cannot be managed**"
+            )
+
+        if user.id != user.guild.owner.id and user.top_role.position < role.position:
+            raise Exception(
+                self.ROLE_HIGHER_THAN_YOU.format(role=role)
+            )
+
+        if user.guild.me.top_role.position < role.position:
+            raise Exception(
+                self.ROLE_HIGHER_THAN_ME.format(role=role)
+            )
+        
 
     @commands.command(aliases=["croles"])
     @commands.has_permissions(manage_roles=True)
@@ -32,9 +74,12 @@ class RoleCog(commands.Cog):
         if ctx.author.bot:
             return
         
+        await ctx.send(f"{self.bot.emoji.loading} {constants.PROCESSING}", delete_after=len(names) * self.DEFAULT_SLEEP)
+
         for role in names:
-            await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}")
-            await sleep(1)
+            await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}", color=self.bot.color.random())
+            await sleep(self.DEFAULT_SLEEP)
+
         await ctx.send(embed=Embed(description=f"{self.bot.emoji.tick} | All roles created", color=self.bot.color.green))
 
 
@@ -45,42 +90,22 @@ class RoleCog(commands.Cog):
         if ctx.author.bot:return
         
         msg = await ctx.send(f"{self.bot.emoji.loading} {constants.PROCESSING}")
+
         for role in roles:
-            if ctx.author.top_role.position < role.position:
-                return await ctx.send(f"{role.mention} Is Higher Than Your Top Role")
-
-            elif ctx.me.top_role.position < role.position:
-                return await ctx.send(f"{role.mention} Is Higher Than My Top Role")
-
-            else:
-                await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
-                await sleep(2)
-
-        await msg.edit(content=None, embed=Embed(color=self.bot.color.green, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted"))
+            try:
+                self.check_access(ctx.author, role)
+            except Exception as e:
+                await ctx.send(embed=Embed(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
 
 
-    async def message_role(self, ctx:commands.Context, role:Role):
-        if not ctx.message.reference:
-            return await ctx.send(content="**Please reply to a message or mention users to give them a role**")
-        message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        given = []
-        for user in message.mentions:
-            if len(message.mentions)<1: return await ctx.send(content="**No User Mentioned In The Message**")
-            if user.top_role.position >= ctx.author.top_role.position:
-                await ctx.send(content=f"{user}'s Role Is Equal Or Higher Than __Your Top Role__! I can not manage him")
-                await sleep(3)
-            elif ctx.guild.me.top_role.position <= user.top_role.position:
-                await ctx.send(content=f"{user}'s Role Is Equal Or Higher Than __My Top Role__! I can not manage him")
-                await sleep(3)
+            await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
+            await sleep(self.DEFAULT_SLEEP* 2)  # sleep a bit more to avoid rate limits
 
-            elif isinstance(user, Member):
-                await user.add_roles(role)
-                given.append(user)
-                await sleep(1)
-        await ctx.send(content=f"Role Added To - {len(given)} Members")
-
-
-
+        await msg.edit(content=None, embed=Embed(color=self.bot.color.green, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted")) if msg else None
 
 
 
@@ -91,34 +116,59 @@ class RoleCog(commands.Cog):
         if ctx.author.bot:
             return
         given = []
-        if ctx.me.top_role.position <= role.position:
-            return await ctx.send(content="```\nMy Top Role position Is not higher enough\n```")
+        try:
+            self.check_access(ctx.author, role)
 
-        if ctx.author.top_role.position < role.position:
-            return await ctx.send(content="You can Not manage that role")
+        except Exception as e:
+            return await ctx.send(embed=Embed(
+                description=str(e),
+                color=self.bot.color.red
+            ))
+        
+        if role.permissions.administrator and not ctx.author.guild_permissions.administrator:
+            return await ctx.send(embed=Embed(
+                description="**Non admin users cannot give admin roles**",
+                color=self.bot.color.red
+            ))
 
-        if not members:
-            return await self.message_role(ctx, role)
+        if not members and not ctx.message.reference:
+            return await ctx.send(embed=Embed(
+                description="**Please mention users or reply to a message with users to give them a role**",
+                color=self.bot.color.red
+            ))
+        
+        if not members and ctx.message.reference:
+            members = ctx.message.reference.resolved.mentions
 
         if len(members) > 1 and role.permissions.administrator:
-            return await ctx.send(content="**I can't give admin role to more than 1 person. at a time**")
+            return await ctx.send(embed=Embed(
+                description="**I can't give admin role to more than 1 person. at a time**",
+                color=self.bot.color.red
+            ))
 
         for user in members:
-            if user.top_role.position >= ctx.author.top_role.position:
-                await ctx.send(content=f"{user}'s Role Is Higher Than __Your Top Role__! I can not manage him")
-                await sleep(4)
+            if not isinstance(user, Member):
+                continue
 
-            elif ctx.me.top_role.position < user.top_role.position:
-                await ctx.send(content=f"{user}'s Role Is Higher Than __My Top Role__! I can not manage him")
-                await sleep(4)
-            else:
-                await user.add_roles(role)
-                given.append(user)
-                await sleep(1)
+            await user.add_roles(role)
+            given.append(user)
+            await sleep(self.DEFAULT_SLEEP)
 
         base_message:Message
 
         async def take_back_roles(int_ctx:Interaction):
+            try:
+                self.check_access(int_ctx.user, role)
+
+            except Exception as e:
+                return await int_ctx.response.send_message(
+                    embed=Embed(
+                        description=str(e),
+                        color=self.bot.color.red
+                    ),
+                    ephemeral=True
+                )
+            
             if not members:
                 return await int_ctx.response.send_message(
                     embed=Embed(
@@ -137,7 +187,7 @@ class RoleCog(commands.Cog):
             await int_ctx.response.send_message(
                 embed=Embed(
                     description=f"Role {role.mention} removed from {len(members)} members.",
-                    color=self.bot.color.cyan
+                    color=self.bot.base_color
                 )
             )
         
@@ -154,7 +204,7 @@ class RoleCog(commands.Cog):
         embed = Embed(
             title="Role Given",
             description=f"Role {role.mention} given to {len(given)} members.",
-            color=self.bot.color.cyan
+            color=self.bot.base_color
         )
 
         # async def timeout_callback():
@@ -165,36 +215,56 @@ class RoleCog(commands.Cog):
         base_message = await ctx.send(embed=embed, view=view, delete_after=20)
 
 
-    @app_commands.command(description="Remove a role from all members")
-    @app_commands.describe(role="The role to remove from all members", reason="The reason for removing the role")
-    @commands.has_permissions(administrator=True)
+    @app_commands.command(description="Remove members from a role")
     @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
+    @app_commands.describe(role="The role to remove from all members fom", reason="The reason for removing the role")
     async def remove_members(self, interaction: Interaction, role: Role, reason: str = None):
         if interaction.user.bot:
             return
+        
+        try:
+            self.check_access(interaction.user, role)
+
+        except Exception as e:
+            return await interaction.response.send_message(
+                embed=Embed(
+                    description=str(e),
+                    color=self.bot.color.red
+                ),
+                ephemeral=True
+            )
+
+
         await interaction.response.send_message(f"{self.bot.emoji.loading} | {constants.PROCESSING}", ephemeral=True)
+
         if reason is None:
             reason = f"{role} removed from everyone by {interaction.user}"
+
         for member in role.members:
             await member.remove_roles(role, reason=reason)
-            await sleep(2)
-        await interaction.followup.send(content=f"**{self.bot.emoji.tick} | {role} Removed from everyone**", ephemeral=True)
+            await sleep(self.DEFAULT_SLEEP)
+
+        await interaction.followup.send(embed=Embed(
+            description=f"**{self.bot.emoji.tick} | {role} Removed from everyone**",
+            color=self.bot.color.green
+        ), ephemeral=True)
 
 
 
-    @app_commands.command(description="Get the list of members in a role ")
-    @app_commands.describe(role="Mention the role to get member list")
+    @app_commands.command(name="inrole", description="Get the list of members in a role ")
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(send_messages=True, manage_roles=True)
+    @app_commands.describe(role="Mention the role to get member list")
     async def inrole(self, interaction:Interaction, role:Role):
         if interaction.user.bot:return
 
-        elif len(role.members) > 400:
-            return await interaction.response.send_message("Too many members to show!!", ephemeral=True)
         elif (len(role.members) == 0):
             return await interaction.response.send_message("No members in this role", ephemeral=True)
+        
         msg=""
         for i in role.members:
             msg = msg + f"\n{i.display_name} : <@{i.id}>"
@@ -218,19 +288,25 @@ class RoleCog(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
 
-        bt = ctx.guild.get_member(self.bot.user.id)
-        if role2.position > bt.top_role.position:
-            return await ctx.send("I Can't Manage This Role, It is Higher Than My Top Role")
-        if role2.position > ctx.author.top_role.position:
-            return await ctx.send("You Can't Manage This Role")
+        try:
+            self.check_access(ctx.author, role2)
+
+        except Exception as e:
+            return await ctx.send(embed=Embed(
+                description=str(e),
+                color=self.bot.color.red
+            ), delete_after=10)
+        
         await ctx.reply("If You're Running this command by mistake! You Can Run `&help ra_role`")
+
         if reason == None:
             reason = f"{role2.name} added by {ctx.author}"
+
         msg = await ctx.send(f"**{self.bot.emoji.loading} {constants.PROCESSING}**")
-        for m in role1.members:
-            if m.top_role.position < bt.top_role.position:
-                await m.add_roles(role2, reason=reason)
-                await sleep(1)
+
+        for member in role1.members:
+            await member.add_roles(role2, reason=reason)
+            await sleep(self.DEFAULT_SLEEP)
 
         await msg.edit(content=f"{self.bot.emoji.tick} **Role Added Successfully.**", delete_after=30)
 
@@ -243,16 +319,19 @@ class RoleCog(commands.Cog):
     async def remove_role(self, ctx:commands.Context, role:Role, *users: Member):
         if ctx.author.bot:return
 
-        bt = ctx.guild.get_member(self.bot.user.id)
+        try:
+            self.check_access(ctx.author, role)
+        except Exception as e:
+            return await ctx.send(embed=Embed(
+                description=str(e),
+                color=self.bot.color.red
+            ), delete_after=10)
+
+
         for user in users:
-            if ctx.author.top_role.position < user.top_role.position:
-                return await ctx.send(f"**You don't have enough permission to manage {user}'s role'**", delete_after=15)
-            if bt.top_role.position < user.top_role.position:
-                return await ctx.send(f"**I can't manage {user}'r role'**", delete_after=15)
-            if bt.top_role.position < role.position:
-                return await ctx.send("**I don't have enough permission to manage this role**", delete_after=15)
-            else:
-                await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
+            await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
+            await sleep(self.DEFAULT_SLEEP)
+
         return await ctx.send(f"**{role.name} removed from these members**")
 
 
@@ -264,24 +343,28 @@ class RoleCog(commands.Cog):
     async def add_roles(self, ctx:commands.Context, user:Member, *roles:Role):
         if ctx.author.bot:return
 
-        bt = ctx.guild.get_member(self.bot.user.id)
+
         for role in roles:
-            if bt.top_role.position > role.position:
-                return await ctx.send("**My top role is not higher enough**", delete_after=20)
-            if ctx.author.top_role.position < role.position:
-                return await ctx.send("you don't have enough permission", delete_after=5)
-            if user.top_role.position > ctx.author.top_role.position:
-                return await  ctx.send("Your can not manage him")
-            else:await user.add_roles(role)
+            try:
+                self.check_access(ctx.author, role)
+            except Exception as e:
+                await ctx.send(embed=Embed(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
+
+            await user.add_roles(role)
+
         return await ctx.message.add_reaction("✅")
 
 
     @commands.hybrid_command(with_app_command = True)
     @commands.guild_only()
     @app_commands.guild_only()
-    @app_commands.describe(role="The role to give to all humans")
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
+    @app_commands.describe(role="The role to give to all humans")
     async def role_all_human(self, ctx:commands.Context, role: Role):
         if ctx.author.bot:return
         await ctx.defer()
@@ -289,16 +372,18 @@ class RoleCog(commands.Cog):
         if role.permissions.administrator:
             return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all members !!**"))
         
-        if ctx.author.top_role.position <= role.position:
-            return await ctx.send(embed=Embed(description=f"**{self.bot.emoji.cross} | You Can't Manage This Role | The role should not be higher than your top role.**"))
-
-        if ctx.me.top_role.position <= role.position:
-            return await ctx.send(embed=Embed(description="I can't manage This role\nMy top role is not higher enough"))
+        try:
+            self.check_access(ctx.author, role)
+        except Exception as e:
+            return await ctx.send(embed=Embed(
+                description=str(e),
+                color=self.bot.color.red
+            ))
 
         for member in ctx.guild.members:
             if not member.bot:
                 await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-                await sleep(2)
+                await sleep(self.DEFAULT_SLEEP)
 
         await ctx.send(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
 
@@ -314,22 +399,25 @@ class RoleCog(commands.Cog):
         await ctx.defer()
 
         if role.permissions.administrator:
-            return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all members !!**"))
+            return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all bots !!**"))
         
-        if ctx.author.top_role.position <= role.position:
-            return await ctx.send(embed=Embed(description=f"**{self.bot.emoji.cross} | You Can't Manage This Role | The role should not be higher than your top role.**"))
+        try:
+            self.check_access(ctx.author, role)
 
-        if ctx.me.top_role.position <= role.position:
-            return await ctx.send(embed=Embed(description="I can't manage This role\nMy top role is not higher enough"))
+        except Exception as e:
+            return await ctx.send(embed=Embed(
+                description=str(e),
+                color=self.bot.color.red
+            ))
 
         for member in ctx.guild.members:
             if not member.bot:
                 continue
 
             await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-            await sleep(2)
+            await sleep(self.DEFAULT_SLEEP)
 
-        await ctx.send(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Bots**"))
+        await ctx.send(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Added To All The Bots**"))
 
 
     @commands.hybrid_command(description="Hide all roles from the member list")
@@ -341,15 +429,24 @@ class RoleCog(commands.Cog):
         await ctx.defer()
         if ctx.author.bot:return
         msg = await ctx.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**')
-        roles = ctx.guild.roles
-        for role in roles:
-            if role.position < ctx.author.top_role.position:
-                    try:
-                        await role.edit(hoist=False)
 
-                    except Exception:
-                        continue
-                    
+        for role in ctx.guild.roles:
+            try:
+                self.check_access(ctx.author, role)
+                if role.is_default():
+                    continue
+                await role.edit(hoist=False)
+
+            except Exception as e:
+                await ctx.send(embed=Embed(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
+
+            await sleep(self.DEFAULT_SLEEP)
+
+
         await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10)
 
 
@@ -360,17 +457,21 @@ class RoleCog(commands.Cog):
     async def unhide_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:
             return
+        
         msg = await ctx.channel.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**') if ctx.channel.permissions_for(ctx.me).send_messages else None
 
         for role in roles:
-            if role.position >= ctx.author.top_role.position:
-                return await ctx.send(f"{role.mention} Is Higher Than Your Top Role", delete_after=10)
-            if ctx.me.top_role.position < role.position:
-                return await ctx.send(f"{role.mention} Is Higher Than My Top Role", delete_after=10)
             try:
+                self.check_access(ctx.author, role)
                 await role.edit(hoist=True)
+                await sleep(self.DEFAULT_SLEEP)
 
-            except Exception:
+            except Exception as e:
+                await ctx.send(embed=Embed(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
                 continue
+
 
         await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10) if msg else None
