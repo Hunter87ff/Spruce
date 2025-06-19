@@ -34,6 +34,7 @@ class MusicCog(commands.Cog):
         self.loop:bool = False
         self.bot.loop.create_task(self.setup_lava_node())
         self.lava_server_configured = False
+        self.YML_PATH = "lava/application.yml"
 
         self.controlButtons = [
             Button(emoji=self.bot.emoji.next_btn, custom_id="music_next_btn"),
@@ -51,7 +52,7 @@ class MusicCog(commands.Cog):
             if not os.path.exists("lava"):
                 os.mkdir("lava")
 
-            if not os.path.exists("lava/application.yml"):
+            if not os.path.exists(self.YML_PATH):
                 self.bot.logger.error("unable to setup lavalink, application.yml not found")
                 raise FileNotFoundError("application.yml not found in lava directory")
             
@@ -75,18 +76,18 @@ class MusicCog(commands.Cog):
             try:
                 import aiofiles
                 self.bot.logger.info("Setting up Lavalink server...")
-                async with aiofiles.open("lava/application.yml", "r") as f1:
+                async with aiofiles.open(self.YML_PATH, "r") as f1:
                     content1= await f1.read()
 
                 content = content1.replace("spot_id", f"{self.bot.config.SPOTIFY_CLIENT_ID}").replace("spot_secret", f"{self.bot.config.SPOTIFY_CLIENT_SECRET}")
-                async with aiofiles.open("lava/application.yml", "w") as f:
+                async with aiofiles.open(self.YML_PATH, "w") as f:
                     await f.write(content)
 
                 self.bot.logger.info("Starting Lavalink server...")
                 Thread(target=lavalink).start()
                 await asyncio.sleep(5)
 
-                async with aiofiles.open("lava/application.yml", "w") as f:
+                async with aiofiles.open(self.YML_PATH, "w") as f:
                     await f.write(content1.replace(self.bot.config.SPOTIFY_CLIENT_ID, "spot_id").replace(self.bot.config.SPOTIFY_CLIENT_SECRET, "spot_secret"))
 
                 if not self.lava_server_configured:

@@ -30,6 +30,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         self.DEFAULT_START_TIME = "10:00 AM"
         self.DEFAULT_END_TIME = "4:00 PM"
         self.DEFAULT_TIMEZONE = constants.TimeZone.Asia_Kolkata.value
+        self.YOU_ARE_NOT_REGISTERED = "Seems like you are not registered for this scrim."
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
         self.DEFAULT_NO_SCRIM_MSG = "No scrim found for the provided registration channel."
         self.DEFAULT_NO_IDP_ROLE = "No IDP role found for the scrim. Please set it using `/scrim set idp_role` command."
@@ -123,7 +124,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         
         await self.log(
             guild=reg_channel.guild,
-            message=f"Scrim group setup completed for `{scrim.name}` in {reg_channel.mention}.",
+            message=f"Scrim group setup completed for `{scrim.name}` in {reg_channel.mention}.\nGroup of {slot_per_group} slots",
         )
 
 
@@ -909,7 +910,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             parsed_close_time = int(self.time.parse_datetime(time_str=close_time, tz=_scrim.time_zone).timestamp())
             
         except ValueError:
-            return await ctx.followup.send(f"Invalid close time format. Please use HH:MM AM/PM format.", ephemeral=True)
+            return await ctx.followup.send("Invalid close time format. Please use HH:MM AM/PM format.", ephemeral=True)
 
         #  update the close time in the scrim
         _scrim.close_time = parsed_close_time
@@ -1460,7 +1461,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             if not teams:
                 return await interaction.response.send_message(
                     embed=Embed(
-                        description="You are not registered for this scrim.", 
+                        description=self.YOU_ARE_NOT_REGISTERED,
                         color=self.bot.color.red
                     ), ephemeral=True
                 )
@@ -1503,7 +1504,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
     async def handle_teamname_change_callback(self, interaction:discord.Interaction, scrim:ScrimModel, teams:list[Team]):
             if not teams:
-                return await interaction.response.send_message(embed=Embed(description="You are not registered for this scrim.", color=self.bot.color.red), ephemeral=True)
+                return await interaction.response.send_message(embed=Embed(description=self.YOU_ARE_NOT_REGISTERED, color=self.bot.color.red), ephemeral=True)
 
             options = [
                 discord.SelectOption(
@@ -1560,7 +1561,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     async def handle_transfer_slot_callback(self, interaction:discord.Interaction, scrim:ScrimModel, teams:list[Team]):
         """Handle the transfer slot callback for scrim interactions."""
         if not teams:
-            return await interaction.response.send_message(embed=Embed(description="You are not registered for this scrim.", color=self.bot.color.red), ephemeral=True)
+            return await interaction.response.send_message(embed=Embed(description=self.YOU_ARE_NOT_REGISTERED, color=self.bot.color.red), ephemeral=True)
 
         options = [
             discord.SelectOption(

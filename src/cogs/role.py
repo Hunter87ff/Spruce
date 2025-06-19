@@ -208,11 +208,6 @@ class RoleCog(commands.Cog):
             color=self.bot.base_color
         )
 
-        # async def timeout_callback():
-        #     reverse_btn.disabled = True
-        #     await ctx.send(embed=embed, view=view)
-
-        # view.on_timeout = timeout_callback
         base_message = await ctx.send(embed=embed, view=view, delete_after=20)
 
 
