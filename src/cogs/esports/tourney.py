@@ -164,26 +164,21 @@ class EsportsCog(commands.Cog):
 
 
 
-    @commands.hybrid_command(name="export_event_data", description="Export Tournament Data to CSV file", aliases=["export_tourney_data"])
-    @app_commands.guild_only()
+    @commands.hybrid_command(name="export_event_data", description="Export Tournament Data to CSV file", aliases=["export_toueney"])
     @commands.guild_only()
-    @app_commands.describe( registration_channel="The channel where the tournament is registered, usually the registration channel." )
-    @commands.cooldown(2, 20, commands.BucketType.user)
     @checks.tourney_mod()
+    @app_commands.guild_only()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
+    @app_commands.describe( registration_channel="The channel where the tournament is registered, usually the registration channel." )
     async def export_event_data(self, ctx:commands.Context, registration_channel:discord.TextChannel):
         if ctx.author.bot:return
-
-        if not self.is_tourney_mod(ctx.author):
-            return await ctx.send("You don't have `tourney-mod` role or `manager_server` permission to use this command.", delete_after=10)
-
-        if not registration_channel:
-            return await ctx.send("Please provide a valid registration channel.", delete_after=10)
 
         try:
             _event = Tourney.findOne(registration_channel.id)
             if not _event:
                 return await ctx.send("No event found in this channel")
+            
             _teams = "" ## to store the teams data
             _slot = 1 ## to store the slot number
 
@@ -196,15 +191,17 @@ class EsportsCog(commands.Cog):
             if not _confirm_channel.permissions_for(ctx.guild.me).read_message_history:
                 return await ctx.send(f"insufficient permission to read message history in {_confirm_channel.mention}")
 
-            async for message in _confirm_channel.history(limit=_event.tslot+50):
+            async for message in _confirm_channel.history(limit=_event.reged+50):
                 # if the message author is not the bot, skip it
-                if message.author.id != self.bot.user.id: 
+                if any([
+                    message.author.id != ctx.me.id, 
+                    not message.embeds,
+                    not message.content
+                ]): 
                     continue
-                # if the message doesn't contains an embed, skip it
-                if not message.embeds:
-                    continue
+
                 # if the message doesn't contains a mention, skip it
-                _captain = message.mentions[0] if message.mentions else ""
+                _captain = message.mentions[0]
 
                 _team = message.content.replace(_captain.mention, "").replace(" ", "").replace("\n", "")
 
@@ -1483,16 +1480,16 @@ class EsportsCog(commands.Cog):
         if interaction.user.bot or not interaction.guild:
             return
 
-        if "custom_id" in interaction.data and interaction.data.get("custom_id") not in self.MANAGER_PREFIXES:
+        if interaction.data.get("custom_id") not in self.MANAGER_PREFIXES:
             return
         
         db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
         if not db:
+            _message = "Tournament is No Longer Available!!"
             return await interaction.response.send_message(
-                "Tournament is No Longer Available!!", 
-                ephemeral=True
-            ) if not interaction.response.is_done() else None # fixes  NoneType error when the interaction response is already sent
-        
+                _message,  ephemeral=True 
+                ) if not interaction.response.is_done() else await interaction.followup.send(_message, ephemeral=True)
+
         view = View()
         crole:discord.Role = interaction.guild.get_role(db["crole"])
         cch:discord.TextChannel = self.bot.get_channel(db["cch"])

@@ -25,19 +25,20 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
     """Cog for managing scrims in the server."""
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
+        self.SCRIM_LIMIT = 4
         self.time = bot.time
         self.monitor_scrims.start()
         self.DEFAULT_START_TIME = "10:00 AM"
         self.DEFAULT_END_TIME = "4:00 PM"
+        self.TAG_IGNORE_ROLE = "scrim-tag-ignore"
+        self.SCRIM_MOD_ROLE = "scrim-mod"
+        self.scrim_interval = 86400 # seconds in 24 hours
         self.DEFAULT_TIMEZONE = constants.TimeZone.Asia_Kolkata.value
+        self.SELECT_TEAM_PLACEHOLDER = "Select your team..."
         self.YOU_ARE_NOT_REGISTERED = "Seems like you are not registered for this scrim."
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
         self.DEFAULT_NO_SCRIM_MSG = "No scrim found for the provided registration channel."
         self.DEFAULT_NO_IDP_ROLE = "No IDP role found for the scrim. Please set it using `/scrim set idp_role` command."
-        self.TAG_IGNORE_ROLE = "scrim-tag-ignore"
-        self.SCRIM_MOD_ROLE = "scrim-mod"
-        self.SCRIM_LIMIT = 4
-        self.scrim_interval = 86400 # seconds in 24 hours
 
 
 
@@ -1482,7 +1483,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
             # Create a select menu for the user to choose which slot to cancel
             select = discord.ui.Select(
-                placeholder="Select your team...",
+                placeholder=self.SELECT_TEAM_PLACEHOLDER,
                 options=options
             )
 
@@ -1522,7 +1523,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
             # Create a select menu for the user to choose which slot to change the team name
             select = discord.ui.Select(
-                placeholder="Select your team...",
+                placeholder=self.SELECT_TEAM_PLACEHOLDER,
                 options=options
             )
 
@@ -1579,7 +1580,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         # Create a select menu for the user to choose which slot to transfer
         select = discord.ui.Select(
-            placeholder="Select your team...",
+            placeholder=self.SELECT_TEAM_PLACEHOLDER,
             options=options
         )
 
