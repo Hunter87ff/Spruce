@@ -83,9 +83,8 @@ def tourney_mod(interaction:bool = False):
             raise discord.app_commands.errors.MissingPermissions(missing_perms)
         raise commands.MissingPermissions(missing_perms)
     
-        
-    
     return discord.app_commands.check(predicate) if interaction else commands.check(predicate)
+
 
 
 def scrim_mod(interaction:bool = True):

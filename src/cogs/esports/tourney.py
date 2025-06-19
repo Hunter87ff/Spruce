@@ -6,6 +6,7 @@ A module for managing esports tournaments in a Discord server.
 """
 
 
+from pyexpat.errors import messages
 import discord
 import datetime
 import asyncio
@@ -48,8 +49,8 @@ class EsportsCog(commands.Cog):
         if self.dbc.find_one({"crole":role.id}):
             db = self.dbc.find_one({"crole":role.id})
             cch = discord.utils.get(role.guild.channels,id=db["cch"])
-            messages = list([message async for message in cch.history(limit=int(db["tslot"])+50)])
-            members = {m for msg in messages for m in role.guild.members if m.mention in msg.content}
+            messages = cch.history(limit=int(db["tslot"])+50)
+            members = {m async for msg in messages for m in role.guild.members if m.mention in msg.content}
             newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Role use &tourney command")
             self.dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
             
@@ -452,14 +453,20 @@ class EsportsCog(commands.Cog):
             return await ctx.message.delete()
         if crole not in member.roles:
             return await ctx.send(embed=discord.Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=color.red), delete_after=60)
+        
         if crole in member.roles:
             await member.remove_roles(crole)
             self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : reged - 1}})
-            messages = list([message async for message in cch.history(limit=123)])  
-            for message in messages:
+
+            async for message in cch.history(limit=123):
                 if member.mention in message.content and message.author.id == self.bot.user.id:
                     await message.delete() 
-                    await ctx.send(embed=discord.Embed(title=f"{member}'s Slot Canceled with reason of {reason}", color=color.green))
+                    await ctx.send(
+                        embed=discord.Embed(
+                            title=f"{member}'s Slot Canceled with reason of {reason}", 
+                            color=color.green
+                        )
+                    )
 
 
 
@@ -753,10 +760,9 @@ class EsportsCog(commands.Cog):
                         if len(prize) > 15:
                             return await ms.edit(content="Word Limit Reached. Try Again Under 15 Characters") if ms else None
                         
-                        if len(prize) <= 15:
-                            self.dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
-                            await ms.delete()
-                            await ctx.send("Tournament Is Now Public", delete_after=5)
+                        self.dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
+                        await ms.delete()
+                        await ctx.send("Tournament Is Now Public", delete_after=5)
 
                     if tourn.reged < tourn.tslot*0.1:
                         return await interaction.response.send_message(
@@ -1202,7 +1208,7 @@ class EsportsCog(commands.Cog):
 
         # Check if the event is already in progress
         self.dbc.update_one({"rch": registration_channel.id}, {"$set": {"cgp": 0}})
-        teams = []
+        
 
         confirm_channel = self.bot.get_channel(_event.cch)
         group_channel = self.bot.get_channel(_event.gch)
@@ -1219,9 +1225,10 @@ class EsportsCog(commands.Cog):
         # check permission for confirm channel for bot
         if not confirm_channel.permissions_for(ctx.guild.me).read_message_history:
             return await ctx.send(f"I Don't Have Permission To Read Message History In {confirm_channel.mention}")
-
-        messages = list([message async for message in confirm_channel.history(limit=_event.tslot+100)])
-        for msg in messages[::-1]:
+        
+        teams = []
+        # old confirm messages
+        async for msg in confirm_channel.history(limit=_event.reged+50, oldest_first=True):
             if msg.author.id == self.bot.user.id and len(msg.embeds) > 0:
                 if "TEAM" in msg.embeds[0].description:
                     teams.append(msg)
@@ -1479,7 +1486,6 @@ class EsportsCog(commands.Cog):
         if "custom_id" in interaction.data and interaction.data.get("custom_id") not in self.MANAGER_PREFIXES:
             return
         
-
         db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
         if not db:
             return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
@@ -1487,6 +1493,7 @@ class EsportsCog(commands.Cog):
         view = View()
         crole:discord.Role = interaction.guild.get_role(db["crole"])
         cch:discord.TextChannel = self.bot.get_channel(db["cch"])
+        
         if not cch : 
             return await interaction.response.send_message(
                 f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name='tourney-mod')}", 
@@ -1499,9 +1506,8 @@ class EsportsCog(commands.Cog):
                 ) #fixed NoneType Error !!
             return await interaction.response.send_message("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
 
-        teams = list([message async for message in cch.history(limit=db["tslot"])])
         options = []
-        for i in teams:
+        async for i in cch.history(limit=db["tslot"]):
             if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
                 if any([interaction.user.id in i.mentions, interaction.user.name in i.embeds[0].description]):
                     st = i.embeds[0].description.find("[")+1
@@ -1590,10 +1596,9 @@ class EsportsCog(commands.Cog):
                 emb = ms.embeds[0].copy()
                 await interaction.response.send_message(embed=emb, ephemeral=True)
             cslotlist.callback = myteam
-                    
-        if interaction.data["custom_id"] == "Cancel":
-            if interaction.message:
-                await interaction.message.delete()
+
+        if interaction.data.get("custom_id") == "Cancel" and interaction.message:
+            await interaction.message.delete()
 
         if interaction.data["custom_id"] == "Tname":
             await interaction.response.send_message(view=view, ephemeral=True)

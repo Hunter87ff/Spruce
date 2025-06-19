@@ -10,7 +10,6 @@ from ext import types
 import pytz, datetime
 import aiofiles
 from modules import config
-import discord
 from discord.errors import HTTPException
 from discord import Embed, File, Interaction, app_commands, errors
 from ext.constants import TimeZone
