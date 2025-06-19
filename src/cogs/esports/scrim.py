@@ -11,6 +11,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 from ext import constants, checks
 from discord.ext import commands, tasks
+from datetime import datetime, timedelta
 from ext.models.scrim import ScrimModel, Team
 from modules.config import IS_DEV_ENV
 from discord import Embed, TextChannel,  Interaction,   app_commands as app
@@ -288,6 +289,18 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         if not _scrim:
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+        
+
+        current_time = int(discord.utils.utcnow().timestamp())
+        #  if scrim open and close time is way behind and scrim status is disabled, then sync the open and close time to next day
+        if _scrim.open_time < current_time or _scrim.close_time < current_time:
+
+            # calculate behind day count
+            behind_close_days = datetime.fromtimestamp(max(current_time - _scrim.close_time, 0)).day
+            behind_open_days = datetime.fromtimestamp(max(current_time - _scrim.open_time, 0)).day
+
+            _scrim.open_time = _scrim.open_time + timedelta(days=behind_open_days).total_seconds()
+            _scrim.close_time = _scrim.close_time + timedelta(days=behind_close_days).total_seconds()
 
         _status = False
         if status == self.ScrimStatus.OPEN:
@@ -580,12 +593,26 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.response.defer(ephemeral=True)
         """Toggle the status of a scrim by its registration channel."""
         _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+
         if not _scrim:
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+        
+        current_time = int(discord.utils.utcnow().timestamp())
+        #  if scrim open and close time is way behind and scrim status is disabled, then sync the open and close time to next day
+        if _scrim.open_time < current_time or _scrim.close_time < current_time:
+
+            # calculate behind day count
+            behind_close_days = datetime.fromtimestamp(max(current_time - _scrim.close_time, 0)).day
+            behind_open_days = datetime.fromtimestamp(max(current_time - _scrim.open_time, 0)).day
+
+            _scrim.open_time = int(_scrim.open_time + timedelta(days=behind_open_days).total_seconds())
+            _scrim.close_time = int(_scrim.close_time + timedelta(days=behind_close_days).total_seconds())
+
         
         # Toggle the scrim status
         _scrim.status = not _scrim.status
         await _scrim.save()
+
         status = "opened" if _scrim.status else "closed"
         await reg_channel.send(embed=discord.Embed(description=f"The scrim has been {status}!", color=self.bot.color.green))
         await ctx.followup.send(embed=discord.Embed(description=f"Scrim {reg_channel.mention} has been {status}.", color=self.bot.color.green), ephemeral=True)
