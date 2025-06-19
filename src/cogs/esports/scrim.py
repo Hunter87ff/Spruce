@@ -1185,8 +1185,15 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await scrim.save()
 
         ping_role = _channel.guild.get_role(scrim.ping_role) if scrim.ping_role else None
-        mention_content = "@everyone" if ping_role and ping_role.is_default() else (ping_role.mention if ping_role else None) #fixed no mention issue
+        mention_content = None
+        
+        if ping_role:
+            if ping_role.is_default():
+                mention_content = "@everyone"
 
+            else:
+                mention_content = ping_role.mention
+            
         available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         start_message = await _channel.send(
             content=mention_content,

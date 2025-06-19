@@ -1061,7 +1061,7 @@ class EsportsCog(commands.Cog):
                     )
                     return await ctx.send(
                         embed=discord.Embed(
-                            description=f"Unable to update | Try again!!", 
+                            description="Unable to update | Try again!!", 
                             color=color.red
                             ), 
                         delete_after=5
@@ -1488,7 +1488,10 @@ class EsportsCog(commands.Cog):
         
         db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
         if not db:
-            return await interaction.response.send_message("Tournament is No Longer Available!!", ephemeral=True)
+            return await interaction.response.send_message(
+                "Tournament is No Longer Available!!", 
+                ephemeral=True
+            ) if not interaction.response.is_done() else None # fixes  NoneType error when the interaction response is already sent
         
         view = View()
         crole:discord.Role = interaction.guild.get_role(db["crole"])

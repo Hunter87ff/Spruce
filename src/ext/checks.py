@@ -69,7 +69,7 @@ def _has_role (ctx:commands.Context | discord.Interaction, role:str|int) -> bool
 
 def tourney_mod(interaction:bool = False):
     """Check if the user is a tourney mod"""
-    async def predicate(ctx:commands.Context | discord.Interaction):
+    def predicate(ctx:commands.Context | discord.Interaction):
         _check_bot_manage_perms(ctx)
 
         if _is_dev(ctx) or _is_admin(ctx) or _is_manager(ctx) or _has_role(ctx, "tourney-mod"):
@@ -88,7 +88,7 @@ def tourney_mod(interaction:bool = False):
 
 
 def scrim_mod(interaction:bool = True):
-    async def predicate(ctx:commands.Context | discord.Interaction ):
+    def predicate(ctx:commands.Context | discord.Interaction ):
         _check_bot_manage_perms(ctx)
 
 
@@ -112,7 +112,7 @@ def scrim_mod(interaction:bool = True):
 
 def dev_only(interaction:bool = False):
     """Check if the user is a developer"""
-    async def predicate(ctx:commands.Context | discord.Interaction):
+    def predicate(ctx:commands.Context | discord.Interaction):
         if _is_dev(ctx):
             return True
         if isinstance(ctx, discord.Interaction):
@@ -136,7 +136,7 @@ def testers_only(interaction:bool = True):
     Returns:
         bool: True if the user is a tester, False otherwise.
     """
-    async def predicate(ctx:commands.Context | discord.Interaction):
+    def predicate(ctx:commands.Context | discord.Interaction):
         if isinstance(ctx, discord.Interaction):
             if any([
                 ctx.user.id in config.DEVELOPERS,

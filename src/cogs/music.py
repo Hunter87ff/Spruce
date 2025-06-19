@@ -104,11 +104,6 @@ class MusicCog(commands.Cog):
         await setup_lavalink()
 
 
-    # @commands.Cog.listener()
-    # async def on_ready(self):
-    #     _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
-    #     await wavelink.Pool.connect(nodes=_nodes, client=self.bot, cache_capacity=None)
-
 
 
     @commands.Cog.listener()
