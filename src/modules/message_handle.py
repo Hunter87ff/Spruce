@@ -6,17 +6,16 @@ of this license document, but changing it is not allowed.
 """
 
 import re, traceback
-from datetime import timedelta
 from typing import TYPE_CHECKING
 from ext.modals import Tourney
-from discord import utils, AllowedMentions, Embed, Message, TextChannel
+from discord import utils, Embed, Message, TextChannel
 from ext import helper, color as Color
 
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
 
-IS_DEBUG = True
+IS_DEBUG = False
 
 async def get_prize(cch:TextChannel):
     info = cch.category.channels[0]
@@ -202,9 +201,3 @@ async def tourney(message: Message, bot: 'Spruce'):
     await cch.send(f"{team_name.upper()} {message.author.mention}", embed=embed)
 
     await log_event(message, f"{message.author} registered in {rch.mention} with team name {team_name}.", color=bot.color.green)
-
-
-################# NITRO ######################
-async def nitrof(message:Message, bot:'Spruce'):
-    #  Temporarily disabled for some future performance optimizations
-    pass
