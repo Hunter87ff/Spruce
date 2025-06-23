@@ -1189,6 +1189,12 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _idp_role = _channel.guild.get_role(scrim.idp_role)
         try:
+            if not _idp_role:
+                return await self.log(
+                _channel.guild,
+                f"Idp role not found to start scrim.",
+                self.bot.color.red
+                )
             for member in _idp_role.members if _idp_role else []:
                 if _idp_role.position >= _channel.guild.me.top_role.position:
                     await self.log(
@@ -1199,10 +1205,10 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                     continue
                 await member.remove_roles(_idp_role, reason="Scrim registration started, removing IDP role.")
 
-        except discord.Forbidden:
+        except Exception:
             return await self.log(
                 _channel.guild,
-                f"Could not remove IDP role {scrim.idp_role} from members in scrim {_channel.mention} due to insufficient permissions.\nPlease ensure I have the `manage_roles` permission. and the IDP role is lower than my top role.",
+                f"Could not remove IDP role <@&{scrim.idp_role}> from members in scrim {_channel.mention} due to insufficient permissions. or missing role. \nPlease ensure I have the `manage_roles` permission. and the IDP role is lower than my top role.",
                 self.bot.color.red
             )
 
