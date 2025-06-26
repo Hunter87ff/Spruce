@@ -1309,6 +1309,43 @@ class EsportsCog(commands.Cog):
         await ctx.send(f"{emoji.tick} | {mch.mention} created")
 
 
+    @app_commands.command(name="team_name" , description="Change your team name in the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
+    async def team_name(self, interaction:discord.Interaction, registration_channel:discord.TextChannel, player: discord.Member, new_name:str=None):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user.bot:
+            return
+        
+        tourney:dict = self.dbc.find_one({"rch":registration_channel.id})
+        if not tourney:
+            return await interaction.followup.send(embed=discord.Embed(description=self._tnotfound, color=color.red), ephemeral=True)
+
+        rch = self.bot.get_channel(tourney["rch"])
+        cch = self.bot.get_channel(tourney["cch"])
+
+        if not rch or not cch:
+            return await interaction.followup.send(embed=discord.Embed(description="Registration or Confirm Channel Not Found", color=color.red), ephemeral=True)
+
+        team: discord.Message = None
+        async for msg in cch.history(limit=int(tourney.get("reged")+20)):
+            if msg.author.id == self.bot.user.id and player.mention in msg.content:
+                team = msg
+                break
+
+        if not team:
+            return await interaction.followup.send(embed=discord.Embed(description="Team Not Found", color=color.red), ephemeral=True)
+
+        if not new_name:
+            return await interaction.followup.send(embed=team.embeds[0], ephemeral=True)
+
+        newEmbed = team.embeds[0].copy()
+        newEmbed.description = newEmbed.description.replace(team.content.split(" ")[0], new_name)
+        await team.edit(content=f"{new_name} {player.mention}", embed=newEmbed)
+
+        await interaction.followup.send(embed=discord.Embed(description="Team Name Updated Successfully", color=color.green), ephemeral=True)
+
+
     @commands.hybrid_command(with_app_command = True, description="list of all the ongoing tournaments")
     @commands.guild_only()
     @checks.tourney_mod()
