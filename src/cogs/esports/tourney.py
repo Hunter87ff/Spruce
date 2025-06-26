@@ -1541,7 +1541,7 @@ class EsportsCog(commands.Cog):
                     from the guild member mentioned in the message.
 
                     Parameters:
-                        cnfinteract (discord.Interaction): The interaction object triggered by the user's confirmation.
+                        cnfinteract (discord.Interaction): The interaction that triggered the confirmation.
 
                     Returns:
                         None: Sends an ephemeral message confirming the slot cancellation.
