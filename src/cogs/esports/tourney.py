@@ -1487,9 +1487,7 @@ class EsportsCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         if not db:
             _message = "Tournament is No Longer Available!!"
-            return await interaction.followup.send(
-                _message,  ephemeral=True 
-                ) if not interaction.response.is_done() else await interaction.followup.send(_message, ephemeral=True)
+            return await interaction.followup.send( _message,  ephemeral=True )
 
         view = View()
         crole:discord.Role = interaction.guild.get_role(db["crole"])
