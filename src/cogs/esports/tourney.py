@@ -1484,9 +1484,10 @@ class EsportsCog(commands.Cog):
             return
         
         db:dict = self.bot.db.dbc.find_one({"mch":interaction.channel.id})
+        await interaction.response.defer(ephemeral=True)
         if not db:
             _message = "Tournament is No Longer Available!!"
-            return await interaction.response.send_message(
+            return await interaction.followup.send(
                 _message,  ephemeral=True 
                 ) if not interaction.response.is_done() else await interaction.followup.send(_message, ephemeral=True)
 
@@ -1495,7 +1496,7 @@ class EsportsCog(commands.Cog):
         cch:discord.TextChannel = self.bot.get_channel(db["cch"])
         
         if not cch : 
-            return await interaction.response.send_message(
+            return await interaction.followup.send(
                 f"Confirm Channel Not Found!! {discord.utils.get(interaction.guild.roles, name='tourney-mod')}", 
                 ephemeral=True
             )
@@ -1504,7 +1505,7 @@ class EsportsCog(commands.Cog):
             await self.log(interaction.guild, message=f"{emoji.cross} | Confirm Role Not Found For <#{db.get('rch')}>!!\nPlease Check The Tournament Configurations",
                     color=self.bot.color.red
                 ) #fixed NoneType Error !!
-            return await interaction.response.send_message("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
+            return await interaction.followup.send("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
 
         options = []
         async for i in cch.history(limit=db["tslot"]):
@@ -1515,25 +1516,28 @@ class EsportsCog(commands.Cog):
                     options.append(discord.SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
 
         if len(options) == 0:
-            return await interaction.response.send_message("Unable to find your team!! ", ephemeral=True)
+            return await interaction.followup.send("Unable to find your team!! ", ephemeral=True)
+
         cslotlist = discord.ui.Select(min_values=1, max_values=1, options=options)
         view.add_item(cslotlist)
         cslotlist.callback = None    
 
         if interaction.data["custom_id"] == "Cslot":
-            await interaction.response.send_message(view=view, ephemeral=True)
+            await interaction.followup.send(view=view, ephemeral=True)
 
             async def confirm(interact:discord.Interaction):
+                await interact.response.defer(ephemeral=True)
                 conf = Button(label="Confirm", style=discord.ButtonStyle.red)
                 canc = Button(label="Cancel", style=discord.ButtonStyle.green)
                 v2 = View()
                 for i in [conf]:
                     v2.add_item(i)
 
-                await interact.response.send_message(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
+                await interact.followup.send(embed=discord.Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
 
 
                 async def cnf(cnfinteract:discord.Interaction):
+                    await cnfinteract.response.defer(ephemeral=True)
                     """
                     Asynchronously cancels a slot and removes the associated role from the mentioned member.
 
@@ -1541,7 +1545,7 @@ class EsportsCog(commands.Cog):
                     from the guild member mentioned in the message.
 
                     Parameters:
-                        cnfinteract (discord.Interaction): The interaction object triggered by the user's confirmation.
+                        cnfinteract (discord.Interaction): The interaction that triggered the confirmation.
 
                     Returns:
                         None: Sends an ephemeral message confirming the slot cancellation.
@@ -1549,25 +1553,25 @@ class EsportsCog(commands.Cog):
                     ms = await cch.fetch_message(cslotlist.values[0])
 
                     # maybe we can optimize it further by parsing the member through his id from the message content
-                    for i in cnfinteract.guild.members:
+                    for member in ms.mentions:
 
-                        if i.mention in ms.content:
-
+                        if isinstance(member, discord.Member):
                             # check self permission before removing the role
                             if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
-                                await cnfinteract.response.send_message(
+                                await cnfinteract.followup.send(
                                     "I Don't Have Permission To Remove The Role\nRequired Perms : `manage_roles`, `manage_messages`", 
                                     ephemeral=True
                                 )
                                 return
-                            await i.remove_roles(crole)
+                            await member.remove_roles(crole)
                             await ms.delete()
                             self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
 
-                    await cnfinteract.response.send_message("Slot Cancelled!!", ephemeral=True)
+                    await cnfinteract.followup.send("Slot Cancelled!!", ephemeral=True)
                     return
                         
                 async def cnc(interact:discord.Interaction):
+                    await interact.response.defer(ephemeral=True)
                     """
                     Cancels the current operation and deletes the interaction message.
 
@@ -1590,24 +1594,31 @@ class EsportsCog(commands.Cog):
             cslotlist.callback = confirm
 
         if interaction.data["custom_id"] == "Mslot":
-            await interaction.response.send_message(view=view, ephemeral=True)
-            async def myteam(interaction:discord.Interaction):
+
+            await interaction.followup.send(view=view, ephemeral=True) #fixe unknown interaction error
+
+            async def myteam(m_int:discord.Interaction):
+                await m_int.response.defer(ephemeral=True)
                 ms = await cch.fetch_message(cslotlist.values[0])
                 emb = ms.embeds[0].copy()
-                await interaction.response.send_message(embed=emb, ephemeral=True)
+                await m_int.followup.send(embed=emb, ephemeral=True)
+
             cslotlist.callback = myteam
 
         if interaction.data.get("custom_id") == "Cancel" and interaction.message:
             await interaction.message.delete()
 
         if interaction.data["custom_id"] == "Tname":
-            await interaction.response.send_message(view=view, ephemeral=True)
-            async def change_teamname(interaction:discord.Interaction):
+            await interaction.followup.send(view=view, ephemeral=True)
+
+            async def change_teamname(tname_int:discord.Interaction):
                 inp = discord.ui.Modal(title="Team Name", timeout=30)
                 text = (discord.ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="teamname"))
                 inp.add_item(text)
-                await interaction.response.send_modal(inp)
-                async def tname(interaction:discord.Interaction):
+                await tname_int.response.send_modal(inp)
+
+                async def tname(tname_modal_int:discord.Interaction):
+                        await tname_modal_int.response.defer(ephemeral=True)
                         nme = inp.children[0].value.upper()
                         ms = await cch.fetch_message(cslotlist.values[0])
                         pem = ms.embeds[0]
@@ -1616,13 +1627,20 @@ class EsportsCog(commands.Cog):
                         team = pem.description[st:en]
                         desc = pem.description.replace(team, nme)
                         emb = discord.Embed(color=pem.color, description=desc)
-                        emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
-                        emb.set_thumbnail(url=interaction.user.display_avatar or interaction.guild.icon or interaction.guild.me.avatar.url)
+                        emb.set_author(name=tname_modal_int.guild.name, icon_url=tname_modal_int.guild.icon or tname_modal_int.guild.me.avatar.url)
+                        emb.set_thumbnail(url=tname_modal_int.user.display_avatar or tname_modal_int.guild.icon or tname_modal_int.guild.me.avatar.url)
                         emb.timestamp = ms.created_at
                         try:
                             await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb) if ms else None
-                        except Exception as e:return await interaction.response.send_message(f'Unable To Change Team Name At This Time!!\nReason : {e}', ephemeral=True)
-                        return await interaction.response.send_message(f'Team Name Changed {team} -> {nme}', ephemeral=True)
+
+                        except Exception as e:
+                            return await tname_modal_int.followup.send(
+                                f'Unable To Change Team Name At This Time!!\nReason : {e}', 
+                                ephemeral=True
+                            )
+                        return await tname_modal_int.followup.send(f'Team Name Changed {team} -> {nme}', ephemeral=True)
+
+
                 inp.on_submit = tname
             cslotlist.callback = change_teamname
 
