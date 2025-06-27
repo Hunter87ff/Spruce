@@ -6,7 +6,6 @@ A module for managing esports tournaments in a Discord server.
 """
 
 
-from pyexpat.errors import messages
 import discord
 import datetime
 import asyncio
@@ -41,6 +40,9 @@ class EsportsCog(commands.Cog):
         self.dbc = bot.db.dbc
         self.TOURNEY_LOG_CHANNEL_NAME = f"{self.bot.user.name.lower()}-tourney-log"
         self._tnotfound = "Tournament Not Found"
+
+
+    app_set = app_commands.Group(name="set", description="Set up tournament related configurations")
 
 
     @commands.Cog.listener()
@@ -262,11 +264,10 @@ class EsportsCog(commands.Cog):
                     return await ctx.send(f"You Must Have {tmrole.mention} role to run rhis command")
                 
 
-            if int(total_slot) > 1100:
-                return await ctx.send("Total Slot should be below 1100")
-            
+            if int(total_slot) > self.bot.config.MAX_SLOTS_PER_TOURNEY:
+                return await ctx.send(f"Total Slot should be below {self.bot.config.MAX_SLOTS_PER_TOURNEY}")
 
-            if int(total_slot) < 1100:
+            if int(total_slot) < self.bot.config.MAX_SLOTS_PER_TOURNEY:
                 overwrite = ctx.channel.overwrites_for(bt)
                 overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, add_reactions=True, manage_channels=True, external_emojis=True, view_channel=True)
                 reason= f'Created by {ctx.author.name}'   #reason for auditlog
@@ -667,10 +668,11 @@ class EsportsCog(commands.Cog):
             bt10 = Button(label="Delete", style=discord.ButtonStyle.danger)
             bt11 = Button(label="Confirm", style=discord.ButtonStyle.danger)
             bt12 = Button(label=pub, style=discord.ButtonStyle.blurple)
+            change_group_btn = Button(label="Group Channel", style=discord.ButtonStyle.secondary)
             exportButton = Button(label="Export Data", style=discord.ButtonStyle.blurple)
             
             spgbtn = Button(label="Slots per group")
-            buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4, exportButton]
+            buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4, exportButton, change_group_btn]
             view = View()
             emb = discord.Embed(
                 title=rch.category.name, 
@@ -684,6 +686,7 @@ class EsportsCog(commands.Cog):
             )
             for button in buttons:
                 view.add_item(button)
+
             msg1 = await ctx.send(embed=emb, view=view)
 
             async def save_delete(interaction:discord.Interaction):
@@ -772,7 +775,7 @@ class EsportsCog(commands.Cog):
                     self.dbc.update_one({"rch" : rch.id}, {"$set" : {"pub" : "no"}})
                     await interaction.response.send_message("Tournament Unpublished",  delete_after=5)
 
-            async def c_ch(interaction:discord.Interaction):
+            async def change_confirm_channel(interaction:discord.Interaction):
                 """
                 Updates the confirmation channel for a tournament.
                 
@@ -820,6 +823,39 @@ class EsportsCog(commands.Cog):
                 tourn.cch = cchannel.id
 
 
+            async def change_group_channel(group_channel_interaction:discord.Interaction):
+                await group_channel_interaction.response.defer(ephemeral=True)
+                if group_channel_interaction.user != ctx.author:
+                    return await group_channel_interaction.followup.send(self.ONLY_AUTHOR_BUTTON)
+                
+                await group_channel_interaction.followup.send("Mention Group Channel")
+                _text_selection = await checker.channel_input(ctx)
+
+                if not isinstance(_text_selection, discord.TextChannel):
+                    return await group_channel_interaction.followup.send("Kindly Mention A Channel!!", ephemeral=True)
+
+                if _text_selection.id == tourn.gch:
+                    return await group_channel_interaction.followup.send("This Channel is Already Set as Group Channel",ephemeral=True)
+
+                if  any([not _text_selection.category , _text_selection.category != rch.category]):
+                    await _text_selection.move(category=rch.category, sync_permissions=True, end=True)
+
+                    return await group_channel_interaction.followup.send("Group Channel Should Be In The Same Category As Registration Channel", ephemeral=True)
+
+                # edit the message to reflect the new group channel
+                await msg1.edit(
+                    embed=discord.Embed(
+                        description=msg1.embeds[0].description.replace(f"<#{tourn.gch}>", f"<#{_text_selection.id}>"), 
+                        color=color.cyan
+                    )
+                ) if msg1 else None
+
+
+                tourn.gch = _text_selection.id
+                tourn.save()
+                await group_channel_interaction.followup.send(f"Group Channel Updated to <#{_text_selection.id}>", ephemeral=True)
+
+
             async def ft(interaction:discord.Interaction):
                 """
                 Fake Tag Button Interaction
@@ -859,17 +895,17 @@ class EsportsCog(commands.Cog):
                 Notes
                 -----
                 - Only the author of the original command can update the total slot
-                - Total slots must be between 1 and 1100
+                - Total slots must be between 1 and {self.bot.config.MAX_SLOTS_PER_TOURNEY}
                 - Updates are reflected in both the database and the displayed embed
                 """
 
 
                 if interaction.user != ctx.author:
                     return await ctx.send(self.ONLY_AUTHOR_BUTTON)
-                tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label="Enter Total Slot Between 2 and 1100"))
+                tsl = await(checker.get_input(interaction=interaction, title="Total Slot", label=f"Enter Total Slot Between 2 and {self.bot.config.MAX_SLOTS_PER_TOURNEY}"))
                 try:
-                    if int(tsl) > 1100 or int(tsl)<1:
-                        return await ctx.send("Only Number Between 1 and 1100", delete_after=20)
+                    if int(tsl) > self.bot.config.MAX_SLOTS_PER_TOURNEY or int(tsl)<1:
+                        return await ctx.send(f"Only Number Between 1 and {self.bot.config.MAX_SLOTS_PER_TOURNEY}", delete_after=20)
                     self.dbc.update_one({"rch": rch.id}, {"$set":{"tslot" : int(tsl)}})
                     await ctx.send("Total Slots Updated", delete_after=5)
                     if interaction.message:
@@ -1090,7 +1126,7 @@ class EsportsCog(commands.Cog):
                 
 
 
-            bt6.callback = c_ch
+            bt6.callback = change_confirm_channel
             bt4.callback = save_delete
             bt1.callback = ft
             bt2.callback = ttl_slot
@@ -1101,6 +1137,7 @@ class EsportsCog(commands.Cog):
             bt11.callback = delete_t_confirmed
             bt12.callback = publish
             spgbtn.callback = spg_change
+            change_group_btn.callback = change_group_channel
             exportButton.callback = export_event_data_callback
 
 
@@ -1169,25 +1206,8 @@ class EsportsCog(commands.Cog):
     
 
 
-    @commands.command(enabled=False, aliases=["t_reset"])
-    @commands.guild_only()
-    @checks.tourney_mod()
-    async def tourney_reset(self, ctx:commands.Context, channel: discord.TextChannel):
-        if ctx.author.bot:return 
-        td = self.dbc.find_one({"rch" : channel.id})
-        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
-        if tmrole not in ctx.author.roles:return await ctx.reply("You Don't Have `tourney-mod` role")
-        if not td:return await ctx.send("No Registration Running in this channel")
-        try:
-            cch = discord.utils.get(ctx.guild.channels, id=td["cch"])
-            await channel.purge(limit=20000)
-            await cch.purge(limit=20000)
-            self.dbc.update_one({"rch" : channel.id}, {"$set":{"reged" : 1}})
-            await ctx.send("Done")
-        except Exception as e:return await ctx.send(f"Error : {e}")
 
-
-    @commands.hybrid_command(description="Automatically create groups for the tournament", with_app_command = True, aliases=["autogroup"])
+    @commands.hybrid_command(description="Automatically create groups for the tournament", aliases=["autogroup"])
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @checks.tourney_mod()
@@ -1307,6 +1327,43 @@ class EsportsCog(commands.Cog):
         await self.bot.helper.lock_channel(channel=mch)
         self.dbc.update_one({"rch":channel.id},{"$set":{"mch":int(mch.id)}})
         await ctx.send(f"{emoji.tick} | {mch.mention} created")
+
+
+    @app_set.command(name="group_channel", description="Change the group channel for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
+    async def group_channel(self, interaction:discord.Interaction, registration_channel:discord.TextChannel):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user.bot:
+            return
+        
+        _tourney = Tourney.findOne(registration_channel=registration_channel.id)
+        if not _tourney:
+            return await interaction.followup.send(embed=discord.Embed(description=self._tnotfound, color=color.red), ephemeral=True)
+        
+        _group_channel = await registration_channel.guild.create_text_channel(
+            name= f"{_tourney.prefix}-groups",
+            category=registration_channel.category,
+            position=registration_channel.position+1
+        )
+        _tourney.gch = _group_channel.id
+        _tourney.save()
+        await _group_channel.set_permissions(target=interaction.guild.default_role, overwrite=discord.PermissionOverwrite(
+            view_channel=True, 
+            send_messages=False, 
+            add_reactions=False, 
+            attach_files=True,
+            create_public_threads=False,
+        ))
+        await _group_channel.set_permissions(target=interaction.guild.me, overwrite=discord.PermissionOverwrite(
+            view_channel=True, 
+            send_messages=True, 
+            add_reactions=True, 
+            attach_files=True,
+            create_public_threads=True,
+        ))
+
+        await interaction.followup.send(embed=discord.Embed(description="Group Channel Created Successfully", color=self.bot.base_color), ephemeral=True)
 
 
     @app_commands.command(name="team_name" , description="Change your team name in the tournament")
