@@ -68,6 +68,13 @@ MAX_SLOTS_PER_SCRIM = 25
 
 # Esports Config
 TAG_IGNORE_ROLE = "tag-ignore"
-TOURNEY_MODE_ROLE = "tourney-mode"
-SCRIM_MODE_ROLE = "scrim-mode"
+TOURNEY_MOD_ROLE = "tourney-mod"
+SCRIM_MOD_ROLE = "scrim-mod"
 SPRUCE_MOD_ROLE = "spruce-mod"
+
+
+LAVA_PLUGINS = {
+    "lava_search" : "https://github.com/topi314/LavaSearch/releases/download/1.0.0/lavasearch-plugin-1.0.0.jar",
+    "lavasrc" : "https://github.com/topi314/LavaSrc/releases/download/4.7.2/lavasrc-plugin-4.7.2.jar",
+    "youtube" : "https://github.com/lavalink-devs/youtube-source/releases/download/1.13.3/youtube-plugin-1.13.3.jar"
+}

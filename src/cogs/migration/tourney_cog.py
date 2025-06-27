@@ -31,6 +31,10 @@ class TourneyMigrateCog(commands.Cog):
     async def auto_group(self, ctx: commands.Context):
         await self.migrated(ctx, "/auto_group", "/tourney auto_group")
 
+    @commands.command(name="group_setup", aliases=["gsetup"])
+    async def group_setup(self, ctx: commands.Context):
+        await self.migrated(ctx, "/group_setup", "/tourney group_setup")
+
 
     @commands.command(name="set_manager", aliases=["sm"])
     async def set_manager(self, ctx: commands.Context):
@@ -46,14 +50,11 @@ class TourneyMigrateCog(commands.Cog):
     async def export_event_data(self, ctx: commands.Context):
         await self.migrated(ctx, "/export_event_data", "/tourney export")
 
+
     @commands.command(name="tourney", aliases=["t"])
     async def tourney(self, ctx: commands.Context):
         await self.migrated(ctx, "/tourney", "/tourney config")
 
-
-    @commands.command(name="group_setup", aliases=["gsetup"])
-    async def group_setup(self, ctx: commands.Context):
-        await self.migrated(ctx, "/group_setup", "/tourney group_setup")
 
 
     @commands.command(name="cancel_slot", aliases=["cancel"])

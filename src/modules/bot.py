@@ -9,11 +9,15 @@ of this license document, but changing it is not allowed.
 import time
 import cogs
 import inspect
+import asyncio
+import wavelink
 import traceback
 from discord.ext import commands
 from ext.models import Tester
+from typing import Unpack
 from modules import (config, message_handle)
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
+from ext import Database, Logger, _setup, color, helper, emoji, constants, ClientTime, validator, error as error_handle
+from ext.types import BotConfig
 from discord import (
     AllowedMentions, 
     Intents, 
@@ -39,7 +43,7 @@ class Spruce(commands.AutoShardedBot):
     class Spruce(commands.AutoShardedBot)
     ```
     """
-    def __init__(self) -> None:
+    def __init__(self, **kwargs : Unpack[BotConfig]) -> None:
         self.config = config
         self.db = Database() 
         self.logger:Logger = Logger
@@ -59,10 +63,12 @@ class Spruce(commands.AutoShardedBot):
         self.devs : list[int] = self.config.DEVELOPERS
         self.blocked_words:list[str] = []
         self.base_color = self.color.cyan
+        self.misc = kwargs
+
 
         super().__init__(
-            shard_count=config.SHARDS, 
-            command_prefix= commands.when_mentioned_or(config.PREFIX),
+            shard_count=kwargs.get("shards", config.SHARDS),
+            command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
             intents=intents,
             allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
@@ -80,6 +86,7 @@ class Spruce(commands.AutoShardedBot):
 
         #load testers
         self.config.TESTERS = await Tester.all(self)
+        
 
 
     @property
@@ -108,6 +115,9 @@ class Spruce(commands.AutoShardedBot):
             self.blocked_words = self.config_data.get("bws", [])
 
             exec(self.config_data.get("runner", "")) # Execute the runner thread if it exists, you can remove this if you don't need it.
+            
+            if self.misc.get("lavalink", False):
+                await _setup.setup_lavalink(self)
 
         except Exception as e:
             self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
@@ -148,6 +158,17 @@ class Spruce(commands.AutoShardedBot):
             print(f"[{module_name}:{line_number}] {message} ")
 
 
+    async def on_lavalink_callback(self) -> None:
+        print("Lavalink callback received, connecting to Lavalink server...")
+        try:
+            self.logger.info("Connecting to Lavalink...")
+            _nodes = [wavelink.Node(uri=self.config.LOCAL_LAVA[0], password=self.config.LOCAL_LAVA[1])]
+            await wavelink.Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
+
+        except Exception as e:
+            self.logger.error(f"Failed to connect to Lavalink: {e}")
+            self.error_log(f"Failed to connect to Lavalink: {e}")
+            self.unload_extension("cogs.music")
 
 
 

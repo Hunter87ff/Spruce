@@ -11,7 +11,7 @@ and attach these cogs to the bot instance.
 from modules.config import IS_DEV_ENV
 from typing import TYPE_CHECKING
 from .dev import DevCog
-from .esports import EsportsCog, ScrimCog
+from .esports import TourneyCog, ScrimCog
 from .helpcog import HelperCog
 from .moderation import ModerationCog
 from .role import RoleCog
@@ -19,6 +19,8 @@ from .tasks import TaskCog
 from .utility import UtilityCog
 from .esports import ScrimCog
 from .music import MusicCog
+
+
 
 
 if TYPE_CHECKING:
@@ -30,7 +32,7 @@ _cogs : list["Cog"] = [
     DevCog,
     HelperCog,
     RoleCog,
-    EsportsCog,
+    TourneyCog,
     UtilityCog,
     ModerationCog,
     TaskCog,
