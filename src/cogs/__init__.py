@@ -19,13 +19,14 @@ from .tasks import TaskCog
 from .utility import UtilityCog
 from .esports import ScrimCog
 from .music import MusicCog
-from discord.ext.commands import Cog
+
 
 if TYPE_CHECKING:
     from modules.bot import Spruce
+    from discord.ext.commands import Cog
 
 
-_cogs : list[Cog] = [
+_cogs : list["Cog"] = [
     DevCog,
     HelperCog,
     RoleCog,

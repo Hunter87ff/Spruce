@@ -42,6 +42,9 @@ class EsportsCog(commands.Cog):
         self._tnotfound = "Tournament Not Found"
 
 
+    app_set = app_commands.Group(name="set", description="Set up tournament related configurations")
+
+
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role:discord.Role):
         members = []
@@ -683,6 +686,7 @@ class EsportsCog(commands.Cog):
             )
             for button in buttons:
                 view.add_item(button)
+
             msg1 = await ctx.send(embed=emb, view=view)
 
             async def save_delete(interaction:discord.Interaction):
@@ -1202,25 +1206,8 @@ class EsportsCog(commands.Cog):
     
 
 
-    @commands.command(enabled=False, aliases=["t_reset"])
-    @commands.guild_only()
-    @checks.tourney_mod()
-    async def tourney_reset(self, ctx:commands.Context, channel: discord.TextChannel):
-        if ctx.author.bot:return 
-        td = self.dbc.find_one({"rch" : channel.id})
-        tmrole = discord.utils.get(ctx.guild.roles, name="tourney-mod")
-        if tmrole not in ctx.author.roles:return await ctx.reply("You Don't Have `tourney-mod` role")
-        if not td:return await ctx.send("No Registration Running in this channel")
-        try:
-            cch = discord.utils.get(ctx.guild.channels, id=td["cch"])
-            await channel.purge(limit=20000)
-            await cch.purge(limit=20000)
-            self.dbc.update_one({"rch" : channel.id}, {"$set":{"reged" : 1}})
-            await ctx.send("Done")
-        except Exception as e:return await ctx.send(f"Error : {e}")
 
-
-    @commands.hybrid_command(description="Automatically create groups for the tournament", with_app_command = True, aliases=["autogroup"])
+    @commands.hybrid_command(description="Automatically create groups for the tournament", aliases=["autogroup"])
     @commands.guild_only()
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @checks.tourney_mod()
@@ -1340,6 +1327,43 @@ class EsportsCog(commands.Cog):
         await self.bot.helper.lock_channel(channel=mch)
         self.dbc.update_one({"rch":channel.id},{"$set":{"mch":int(mch.id)}})
         await ctx.send(f"{emoji.tick} | {mch.mention} created")
+
+
+    @app_set.command(name="group_channel", description="Change the group channel for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
+    async def group_channel(self, interaction:discord.Interaction, registration_channel:discord.TextChannel):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user.bot:
+            return
+        
+        _tourney = Tourney.findOne(registration_channel=registration_channel.id)
+        if not _tourney:
+            return await interaction.followup.send(embed=discord.Embed(description=self._tnotfound, color=color.red), ephemeral=True)
+        
+        _group_channel = await registration_channel.guild.create_text_channel(
+            name= f"{_tourney.prefix}-groups",
+            category=registration_channel.category,
+            position=registration_channel.position+1
+        )
+        _tourney.gch = _group_channel.id
+        _tourney.save()
+        await _group_channel.set_permissions(target=interaction.guild.default_role, overwrite=discord.PermissionOverwrite(
+            view_channel=True, 
+            send_messages=False, 
+            add_reactions=False, 
+            attach_files=True,
+            create_public_threads=False,
+        ))
+        await _group_channel.set_permissions(target=interaction.guild.me, overwrite=discord.PermissionOverwrite(
+            view_channel=True, 
+            send_messages=True, 
+            add_reactions=True, 
+            attach_files=True,
+            create_public_threads=True,
+        ))
+
+        await interaction.followup.send(embed=discord.Embed(description="Group Channel Created Successfully", color=self.bot.base_color), ephemeral=True)
 
 
     @app_commands.command(name="team_name" , description="Change your team name in the tournament")

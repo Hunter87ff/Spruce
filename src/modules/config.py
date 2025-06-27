@@ -64,3 +64,10 @@ MAX_TOURNEYS_PER_GUILD = 5
 MAX_SCRIM_PER_GUILD = 5
 MAX_SLOTS_PER_TOURNEY = 1000
 MAX_SLOTS_PER_SCRIM = 25
+
+
+# Esports Config
+TAG_IGNORE_ROLE = "tag-ignore"
+TOURNEY_MODE_ROLE = "tourney-mode"
+SCRIM_MODE_ROLE = "scrim-mode"
+SPRUCE_MOD_ROLE = "spruce-mod"
