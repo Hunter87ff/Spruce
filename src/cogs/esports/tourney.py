@@ -1466,7 +1466,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             _msg = await interaction.message.edit(
                     content=f"**{emoji.loading} {constants.PROCESSING}**"
             ) if  interaction.message else None
-            await self.tourney(await self.bot.get_context(ctx.message), registration_channel=ctx.guild.get_channel(int(tlist.values[0])))
+            await self.tourney(await self.bot.get_context(ctx.message), reg_channel=ctx.guild.get_channel(int(tlist.values[0])))
             if _msg: await _msg.delete()
 
 

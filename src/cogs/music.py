@@ -220,11 +220,22 @@ class MusicCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload) -> None:
+        if not payload.player:
+            return
         previous_message: Message = payload.player.message
 
         if isinstance(previous_message, Message):
-            await previous_message.delete()
+            try:
+                await previous_message.delete()
+                payload.player.message = None
+                
+            except Exception as e:
+                self.bot.debug(str(e))
 
+        if payload.player.queue.is_empty:
+            await payload.player.disconnect()
+            return
+        
         next_track = payload.player.queue.get()
         if next_track:
             await payload.player.play(next_track)
@@ -249,9 +260,12 @@ class MusicCog(commands.Cog):
             player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
             if not player or not player.connected:
                 return await interaction.response.send_message("Not connected to a voice channel.", ephemeral=True)
+            
             if not player.queue.is_empty:
                 await player.skip(force=True)
                 return await interaction.response.send_message("Skipped to the next track.", ephemeral=True)
+            
+            await player.skip(force=True)
             
         elif interaction_id == "music_pause_btn":
             player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
