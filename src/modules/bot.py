@@ -159,7 +159,6 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def on_lavalink_callback(self) -> None:
-        print("Lavalink callback received, connecting to Lavalink server...")
         try:
             self.logger.info("Connecting to Lavalink...")
             _nodes = [wavelink.Node(uri=self.config.LOCAL_LAVA[0], password=self.config.LOCAL_LAVA[1])]
@@ -167,7 +166,6 @@ class Spruce(commands.AutoShardedBot):
 
         except Exception as e:
             self.logger.error(f"Failed to connect to Lavalink: {e}")
-            self.error_log(f"Failed to connect to Lavalink: {e}")
             self.unload_extension("cogs.music")
 
 

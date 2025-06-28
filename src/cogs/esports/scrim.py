@@ -39,6 +39,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         self.YOU_ARE_NOT_REGISTERED = "Seems like you are not registered for this scrim."
         self.DEFAULT_END_MESSAGE = "Scrim has ended! Thank you for participating."
         self.DEFAULT_NO_SCRIM_MSG = "No scrim found for the provided registration channel."
+        self.HIGHER_ROLE_POSITION = "{role.mention} has a higher role position than me. Please move it below my role and try again."
         self.DEFAULT_NO_IDP_ROLE = "No IDP role found for the scrim. Please set it using `/scrim set idp_role` command."
 
 
@@ -692,6 +693,40 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
 
 
+    @app.command(name="ignore_me", description="Ignore the scrim mod commands in this server.")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    async def ignore_me(self, ctx:discord.Interaction):
+        """Ignore the scrim mod commands in this server."""
+        await ctx.response.defer(ephemeral=True)
+
+        ignore_role = discord.utils.get(ctx.guild.roles, name=self.bot.config.TAG_IGNORE_ROLE)
+        if not ignore_role:
+            ignore_role = await ctx.guild.create_role(name=self.bot.config.TAG_IGNORE_ROLE, mentionable=True)
+
+        if ignore_role.position >= ctx.guild.me.top_role.position:
+            await ctx.followup.send(self.HIGHER_ROLE_POSITION.format(role=ignore_role), ephemeral=True)
+            return
+
+        if ignore_role in ctx.user.roles:
+            return await ctx.followup.send(
+                embed=Embed(
+                    description=f"You already have {ignore_role.mention} added to you.",
+                    color=self.bot.color.red
+                ),
+                ephemeral=True
+            )
+        
+        await ctx.user.add_roles(ignore_role)
+        await ctx.followup.send(
+            embed=Embed(
+                description=f"Added {ignore_role.mention} to you.\n Now your messages will be ignored in registration channels.", 
+                color=self.bot.color.cyan
+            ),
+            ephemeral=True
+        )
+
+
     @set_app.command(name="log", description="Setup or update the scrim log channel.")
     @app.guild_only()
     @checks.scrim_mod(interaction=True)
@@ -1276,7 +1311,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             return
         self.debug("✅ Check 1 passed for scrim registration. bot having all the permsissions.")
 
-        if discord.utils.get(message.author.roles, name=self.TAG_IGNORE_ROLE):
+        if discord.utils.get(message.author.roles, name=self.bot.config.TAG_IGNORE_ROLE):
             return  # Ignore messages from users with the scrim-ignore-tag role
 
         _scrim = ScrimModel.find_by_reg_channel(message.channel.id)
@@ -1359,8 +1394,15 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                 return
             
         self.debug("✅ Check 4 passed for scrim registration. Team name and mentions are valid.")
-        await message.add_reaction(self.bot.emoji.tick)
-        await message.author.add_roles(confirm_role, reason="Scrim registration")
+        try:
+            await message.author.add_roles(confirm_role, reason="Scrim registration")
+            await message.add_reaction(self.bot.emoji.tick)
+
+        except Exception as e:
+            await self.log(
+                message.guild,
+                "Registration message deleted suddenly, unable to add tick reaction"
+            )
         self.debug("✅ Check 5 passed for scrim registration. IDP role added to the author.")
 
         #  add the team to the scrim
