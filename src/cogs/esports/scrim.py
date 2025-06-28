@@ -791,7 +791,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             name=f"{event_prefix}-idp",
             category=reg_channel.category,
         )
-        idp_channel.set_permissions(
+        await idp_channel.set_permissions(
             ctx.guild.default_role,
             send_messages=False,
             read_messages=True

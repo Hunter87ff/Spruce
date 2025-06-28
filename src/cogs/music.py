@@ -80,7 +80,11 @@ class MusicCog(commands.Cog):
 
         await self.have_access_to_play(ctx.author)
         player: wavelink.Player = cast(wavelink.Player, ctx.voice_client)  or await ctx.author.voice.channel.connect(self_deaf=True, cls=wavelink.Player)
-        tracks: wavelink.Search = await wavelink.Playable.search(query)
+        try:
+            tracks: wavelink.Search = await wavelink.Playable.search(query)
+        except wavelink.LavalinkLoadException:
+            await ctx.send("Failed to load tracks. \ntip: try to play another song. then try this")
+            return
         player.home = ctx.channel
         if not tracks:
             await ctx.send("No tracks found for your query.")
@@ -317,8 +321,12 @@ class MusicCog(commands.Cog):
             if player.queue.is_empty:
                 return await interaction.response.send_message("Queue is empty.", ephemeral=True)
             queue = player.queue.copy()
+            description = f"Current Queue for {interaction.guild.name}:\n\n"
             em = Embed(title="Queue", color=self.bot.color.blurple)
-            for song in queue:
-                em.add_field(name=f"Song Position {str(queue.count)}", value=f"`{song}`")
+            
+            for i, song in enumerate(queue, start=1):
+                description += f"**{i}. {song.title}**\n"
+            em.description = description
+            
             return await interaction.response.send_message(embed=em, ephemeral=True)
         

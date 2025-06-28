@@ -26,7 +26,12 @@ class Plans(enum.Enum):
     Yearly = 429
     Lifetime = 4444
     Custom = 0
-    
+
+class CogEnum(enum.Enum):
+    music = "music"
+    moderation = "moderation"
+    utility = "utility"
+
 
 class DevCog(commands.Cog):
     """
@@ -263,3 +268,16 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         await ctx.send(file=discord.File("error.log"))
 
 
+    @discord.app_commands.command(name="load_cog", description="(Dev only): Load a cog by name")
+    @checks.dev_only()
+    @discord.app_commands.describe(cog_name="Name of the cog to load")
+    async def load_cog(self, ctx: discord.Interaction, cog_name: CogEnum):
+        if ctx.user.bot or ctx.user.id not in self.bot.config.DEVELOPERS:
+            return await ctx.response.send_message("You are not allowed to use this command.", ephemeral=True)
+        
+        try:
+            await self.bot.load_extension(f"cogs.{cog_name.value}")
+            await ctx.response.send_message(f"Cog `{cog_name.value}` loaded successfully.", ephemeral=True)
+
+        except Exception as e:
+            await ctx.response.send_message(f"Failed to load cog `{cog_name.value}`: {e}", ephemeral=True)
