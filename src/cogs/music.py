@@ -53,7 +53,7 @@ class MusicCog(commands.Cog):
         if not user.voice.channel.permissions_for(user.guild.me).speak:
             raise Exception("I do not have permission to speak in your voice channel.")
         
-        if not user.guild.me.voice:
+        if not user.guild.me.voice or user.guild.me.voice.channel != user.voice.channel:
             await user.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
 
 
