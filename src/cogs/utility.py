@@ -53,7 +53,7 @@ class UtilityCog(commands.Cog):
     async def translate(self, interaction:Interaction, from_lang:constants.NaturalLang, to_lang:constants.NaturalLang, *, message:str):
         return await interaction.response.send_message(
             embed=Embed(
-                description=self.bot.helper.translate(self.bot.config.TRANSLATE_KEY, from_lang.value, to_lang.value, message), 
+                description=await self.bot.helper.translate(self.bot.config.TRANSLATE_KEY, from_lang.value, to_lang.value, message), 
                 color=color.blurple
             ), ephemeral=True
         )

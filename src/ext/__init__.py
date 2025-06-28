@@ -5,7 +5,7 @@ This module initializes the extension package for spruce bot.
     :license: GPL-3, see LICENSE for more details.
 """
 
-
+import ext._setup as setup
 from ext.logger import Logger
 from ext.modals import Tourney
 import ext.constants as constants
@@ -19,6 +19,7 @@ from .time import ClientTime
 
 
 __all__ = (
+    "setup",
     "Database", 
     "Tourney", 
     "Logger",

@@ -15,8 +15,6 @@ plugins:
       - MUSIC
       - WEB
       - IOS
-      - ANDROID_LITE
-      - ANDROID_TESTSUITE
 
     # ---------------- WARNING ----------------
     WEB: # names are specified as they are written below under "Available Clients".
@@ -92,13 +90,13 @@ plugins:
 
 lavalink:
   # Plugins section: List all your .jar plugin files here with their correct versions.
-  plugins:
-    - dependency: "com.github.topi314.lavasearch:lavasearch-plugin:1.0.0"
-      # snapshot: false # Set to true if you were using a snapshot version
-    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.7.0"
-      # snapshot: false
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.13.3" # This is crucial for YouTube fixes
-      # snapshot: false
+  # plugins:
+  #   - dependency: "com.github.topi314.lavasearch:lavasearch-plugin:1.0.0"
+  #     # snapshot: false # Set to true if you were using a snapshot version
+  #   - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.7.0"
+  #     # snapshot: false
+  #   - dependency: "dev.lavalink.youtube:youtube-plugin:1.13.3" # This is crucial for YouTube fixes
+  #     # snapshot: false
 
   server:
     password: "hunter87"

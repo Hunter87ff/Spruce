@@ -1191,9 +1191,9 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         try:
             if not _idp_role:
                 return await self.log(
-                _channel.guild,
-                f"Idp role not found to start scrim.",
-                self.bot.color.red
+                    _channel.guild,
+                    "Idp role not found to start scrim.",
+                    self.bot.color.red
                 )
             for member in _idp_role.members if _idp_role else []:
                 if _idp_role.position >= _channel.guild.me.top_role.position:
@@ -1281,8 +1281,11 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         _scrim = ScrimModel.find_by_reg_channel(message.channel.id)
 
+        if not _scrim:
+            return
+
         #  if no scrim is found or not active, return
-        if not _scrim or not _scrim.status:
+        if not _scrim.status:
             return
         
         self.debug(f"✅ Check 1.1 passed for scrim registration. Scrim found: {_scrim.name} with status: {_scrim.status}")

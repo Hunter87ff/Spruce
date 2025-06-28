@@ -5,7 +5,7 @@ Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
 
-
+import os
 import re
 import discord
 import requests, uuid
@@ -201,7 +201,7 @@ async def lock_channel(channel:discord.TextChannel, role:discord.Role=None):
     await channel.set_permissions(role, overwrite=overwrite)
 
 
-def translate(token, from_lang:str, to_lang:str, text:str):
+async def translate(token, from_lang:str, to_lang:str, text:str):
     """
     Translates text from one language to another using Microsoft Translator API.
     Args:
@@ -214,6 +214,7 @@ def translate(token, from_lang:str, to_lang:str, text:str):
     Returns:
         str: The translated text if successful, otherwise an error message.
     """
+    import aiohttp
     api = "https://api.cognitive.microsofttranslator.com/translate"
     headers = {
                 'Ocp-Apim-Subscription-Key': token,
@@ -221,6 +222,47 @@ def translate(token, from_lang:str, to_lang:str, text:str):
                 'Content-type': 'application/json',
                 'X-ClientTraceId': str(uuid.uuid4()),
             }
-    res = requests.post(api, params={"api-version":"3.0", "from":from_lang, "to":to_lang}, headers=headers, json=[{"text":text}])
-    if res.status_code==200: return res.json()[0]["translations"][0]["text"]
-    else: return "Something went wrong! please try again later."
+    async def _translate_async():
+        params = {"api-version": "3.0", "from": from_lang, "to": to_lang}
+        body = [{"text": text}]
+        async with aiohttp.ClientSession() as session:
+            async with session.post(api, params=params, headers=headers, json=body) as res:
+                if res.status == 200:
+                    data = await res.json()
+                    return data[0]["translations"][0]["text"]
+                else:
+                    return "Something went wrong! please try again later."
+    try:
+        translated_text = await _translate_async()
+        return translated_text
+    
+    except aiohttp.ClientError as e:
+        return f"Network error: {str(e)}"
+
+
+async def download_file(url:str, filename:str):
+    """
+    Downloads a file asynchronously using aiohttp.
+    """
+    import aiohttp
+    import aiofiles
+
+    print(f"Starting download of {url}")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                # Open a file in async mode and write to it in chunks
+                async with aiofiles.open(filename, 'wb') as f:
+                    async for chunk in response.content.iter_chunked(1024):
+                        await f.write(chunk)
+                print(f"Successfully downloaded '{filename}'")
+
+            return response.status
+
+
+async def download(url:str, fp:str):
+    """
+    Downloads a file synchronously using wget.
+    """
+    silent = "> NUL 2>&1" if os.name == "nt" else "> /dev/null 2>&1"
+    return os.system(f"wget {url} {'-O' + fp if fp else ''} {silent}")
