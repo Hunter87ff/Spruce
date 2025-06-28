@@ -269,7 +269,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
 
     @discord.app_commands.command(name="load_cog", description="(Dev only): Load a cog by name")
-    @checks.dev_only()
+    @checks.dev_only(interaction=True)
     @discord.app_commands.describe(cog_name="Name of the cog to load")
     async def load_cog(self, ctx: discord.Interaction, cog_name: CogEnum):
         if ctx.user.bot or ctx.user.id not in self.bot.config.DEVELOPERS:

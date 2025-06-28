@@ -11,6 +11,7 @@ from threading import Thread
 from typing import cast, TYPE_CHECKING
 from time import gmtime, strftime
 from discord.ext import commands
+from ext.checks import dev_only
 import wavelink.websocket
 from ext.error import update_error_log
 from discord import utils, ButtonStyle, Interaction, Embed, Message, TextChannel, Member
@@ -74,6 +75,8 @@ class MusicCog(commands.Cog):
 
 
     @commands.hybrid_command(name="play", aliases=["p"], description="Play a song.")
+    @commands.guild_only()
+    @dev_only()
     async def play(self, ctx: commands.Context, *, query: str) -> None:
         """Play a song from a search query or URL."""
         await ctx.defer()
@@ -323,7 +326,7 @@ class MusicCog(commands.Cog):
             queue = player.queue.copy()
             description = f"Current Queue for {interaction.guild.name}:\n\n"
             em = Embed(title="Queue", color=self.bot.color.blurple)
-            
+
             for i, song in enumerate(queue, start=1):
                 description += f"**{i}. {song.title}**\n"
             em.description = description
