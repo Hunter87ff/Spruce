@@ -280,6 +280,7 @@ class MusicCog(commands.Cog):
                         view.add_item(button)
 
                 await interaction.message.edit(embed=interaction.message.embeds[0], view=view)
+            await interaction.response.defer()
             
 
         elif interaction_id == "music_play_btn":
@@ -295,7 +296,8 @@ class MusicCog(commands.Cog):
                     if button.custom_id != "music_play_btn":
                         view.add_item(button)
 
-                return await interaction.message.edit(embed=interaction.message.embeds[0], view=view, content="Resumed the playback.")
+                await interaction.message.edit(embed=interaction.message.embeds[0], view=view, content="Resumed the playback.")
+            await interaction.response.defer()
 
 
         elif interaction_id == "music_stop_btn":

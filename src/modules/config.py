@@ -74,7 +74,7 @@ SPRUCE_MOD_ROLE = "spruce-mod"
 
 
 LAVA_PLUGINS = {
-    "lava_search" : "https://github.com/topi314/LavaSearch/releases/download/1.0.0/lavasearch-plugin-1.0.0.jar",
-    "lavasrc" : "https://github.com/topi314/LavaSrc/releases/download/4.7.2/lavasrc-plugin-4.7.2.jar",
-    "youtube" : "https://github.com/lavalink-devs/youtube-source/releases/download/1.13.3/youtube-plugin-1.13.3.jar"
+    "lava_search.jar" : "https://github.com/topi314/LavaSearch/releases/download/1.0.0/lavasearch-plugin-1.0.0.jar",
+    "lavasrc.jar" : "https://github.com/topi314/LavaSrc/releases/download/4.7.2/lavasrc-plugin-4.7.2.jar",
+    "youtube.jar" : "https://github.com/lavalink-devs/youtube-source/releases/download/1.13.3/youtube-plugin-1.13.3.jar"
 }
