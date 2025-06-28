@@ -55,6 +55,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         self.bot:"Spruce" = bot
         self.dbc = bot.db.dbc
         self.TOURNEY_LOG_CHANNEL_NAME = f"{self.bot.user.name.lower()}-tourney-log"
+        self.HIGHER_ROLE_POSITION = "{role.mention} has a higher role position than me. Please move it below my role and try again."
         self._tnotfound = "Tournament Not Found"
 
 
@@ -349,6 +350,40 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             
         except Exception:
             return
+        
+
+    @app_commands.command(name="ignore_me", description="Ignore user in registration channels")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
+    async def ignore_me(self, ctx:Interaction):
+        """Ignore the scrim mod commands in this server."""
+        await ctx.response.defer(ephemeral=True)
+
+        ignore_role = utils.get(ctx.guild.roles, name=self.bot.config.TAG_IGNORE_ROLE)
+        if not ignore_role:
+            ignore_role = await ctx.guild.create_role(name=self.bot.config.TAG_IGNORE_ROLE, mentionable=True)
+
+        if ignore_role.position >= ctx.guild.me.top_role.position:
+            await ctx.followup.send(self.HIGHER_ROLE_POSITION.format(role=ignore_role), ephemeral=True)
+            return
+
+        if ignore_role in ctx.user.roles:
+            return await ctx.followup.send(
+                embed=Embed(
+                    description=f"You already have {ignore_role.mention} added to you.",
+                    color=self.bot.color.red
+                ),
+                ephemeral=True
+            )
+        
+        await ctx.user.add_roles(ignore_role)
+        await ctx.followup.send(
+            embed=Embed(
+                description=f"Added {ignore_role.mention} to you.\n Now your messages will be ignored in registration channels.", 
+                color=self.bot.color.cyan
+            ),
+            ephemeral=True
+        )
 
 
 

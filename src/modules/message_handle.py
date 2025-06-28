@@ -78,7 +78,7 @@ async def tourney(message: Message, bot: 'Spruce'):
         return
     
 
-    if utils.get(message.author.roles, name="tourney-tag-ignore"):
+    if utils.get(message.author.roles, name=bot.config.TAG_IGNORE_ROLE):
         return
 
     tournament = Tourney.findOne(message.channel.id)

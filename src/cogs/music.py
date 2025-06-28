@@ -11,8 +11,9 @@ from threading import Thread
 from typing import cast, TYPE_CHECKING
 from time import gmtime, strftime
 from discord.ext import commands
+import wavelink.websocket
 from ext.error import update_error_log
-from discord import ButtonStyle, Interaction, Embed, Message, TextChannel, Member
+from discord import utils, ButtonStyle, Interaction, Embed, Message, TextChannel, Member
 from discord.ui import Button, View
 
 if TYPE_CHECKING:
@@ -33,6 +34,7 @@ class MusicCog(commands.Cog):
         self.message:Message  = None
         self.loop:bool = False
         self.players : dict[int, wavelink.Player] = {}
+        wavelink.websocket.logger.setLevel(100)  # Disable Wavelink's internal logging
 
         self.controlButtons = [
             Button(emoji=self.bot.emoji.next_btn, custom_id="music_next_btn"),
@@ -204,7 +206,7 @@ class MusicCog(commands.Cog):
         home : TextChannel = player.home
         embed = Embed(
             title=f"{self.bot.emoji.music_disk} Now Playing", 
-            color=self.bot.color.cyan, description=f'**[{track.title}]({self.bot.config.INVITE_URL})**\nDuration : {self.bot.time.by_seconds(track.length//1000)}\n').set_thumbnail(url=track.artwork)
+            color=self.bot.color.cyan, description=f'**[{track.title}]({self.bot.config.INVITE_URL})**\nDuration : <t:{int(utils.utcnow().timestamp() + track.length//1000)}:R>\n').set_thumbnail(url=track.artwork)
         view = View(timeout=60)
 
         for button in self.controlButtons:
