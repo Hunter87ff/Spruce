@@ -16,7 +16,7 @@ from discord.ext import commands
 from ext.models import Tester
 from typing import Unpack
 from modules import (config, message_handle)
-from ext import Database, Logger, _setup, color, helper, emoji, constants, ClientTime, validator, error as error_handle
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
 from ext.types import BotConfig
 from discord import (
     AllowedMentions, 
@@ -117,9 +117,6 @@ class Spruce(commands.AutoShardedBot):
             self.blocked_words = self.config_data.get("bws", [])
             self.last_run = int(self.config_data.get("last_run", time.time()))
             exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
-
-            if self.config.LOCAL_LAVA:
-                await _setup.setup_lavalink(self)
 
         except Exception as e:
             self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
