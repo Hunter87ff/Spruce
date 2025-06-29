@@ -307,7 +307,6 @@ class ScrimModel:
             scrim = ScrimModel(**data)
             _scrim_cache_by_channel[channel_id] = scrim
             return scrim
-        #_scrim_cache_by_channel[channel_id] = None
 
         return None
 
@@ -355,4 +354,3 @@ class ScrimModel:
         return [ScrimModel(**item) for item in data]
     
 
-# sm = ScrimModel.find()

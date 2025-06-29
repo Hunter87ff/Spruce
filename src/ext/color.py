@@ -28,8 +28,8 @@ class Color:
     yellow = 0xffff00
 
     @staticmethod
-    def random(colorRange: int = 0xFFFFFF):
-        return randint(0, colorRange)
+    def random(color_range: int = 0xFFFFFF):
+        return randint(0, color_range)
     
 
 
