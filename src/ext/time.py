@@ -88,7 +88,7 @@ class ClientTime:
             raise ValueError(f"Unable to parse timestamp {timestamp} in timezone {tz}: {e}")
         
 
-    def parse_datetime(self, time_str: str|datetime, tz: str, **kwargs) -> datetime:
+    def parse_datetime(self, time_str: str|datetime, tz: str) -> datetime:
         """
         Parses a time string into a datetime object in the specified timezone.
         Args:

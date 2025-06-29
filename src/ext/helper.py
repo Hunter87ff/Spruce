@@ -14,7 +14,7 @@ from discord.ext import commands
 
 
      
-def parse_team_name(message:discord.Message, strict:bool=False) -> str:
+def parse_team_name(message:discord.Message, strict:bool=False) -> str | None:
     """
     Parses the team name from a message content.
     If the message contains a mention of a team, it extracts the name and formats it.
@@ -76,7 +76,7 @@ class DuplicateTag:
         self.message = message
 
 
-async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None, **kwargs) -> DuplicateTag | None:
+async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None) -> DuplicateTag | None:
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
@@ -88,15 +88,13 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None,
     """
     if not message.guild:
         return None
-    
-    if slots is None:
-        slots = 50
 
-    messages = [message async for message in message.channel.history(limit=slots)]
-    for fmsg in messages:
+    slots = slots or 50
+
+    async for fmsg in  message.channel.history(limit=slots):
 
         # Ignore bot/user messages
-        if fmsg.author.bot or isinstance(fmsg.author, discord.User):
+        if any([fmsg.author.bot, not isinstance(fmsg.author, discord.Member)]):
             continue
         
         if fmsg.author.id != message.author.id and crole in fmsg.author.roles:
@@ -134,7 +132,7 @@ def get_scrim_log(guild:discord.Guild):
 
 
 def get_tourney_log(guild:discord.Guild):
-    # channel = discord.utils.get(guild.text_channels, name=f"{guild.me.name}-tourney-log")
+
     for channel in guild.text_channels:
         if channel.name == f"{guild.me.name.lower()}-tourney-log":
             return channel

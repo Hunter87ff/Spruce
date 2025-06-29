@@ -79,7 +79,7 @@ async def manage_backend_error(error: Exception, bot: "Spruce"):
 
 
 
-async def manage_context(ctx:commands.Context, error:commands.errors.DiscordException, bot:"Spruce", _msg: str = None, *args, **kwargs):
+async def manage_context(ctx:commands.Context, error:commands.errors.DiscordException, bot:"Spruce", _msg: str = None, *args):
     """
     manages all the errors and sends them to the error log channel
     """
@@ -160,7 +160,7 @@ async def manage_context(ctx:commands.Context, error:commands.errors.DiscordExce
             update_error_log(content)
 
     except Exception as e:
-        bot.logger.warning(traceback.format_exception(e), "ext.error")
+        bot.logger.warning(traceback.format_exception(e), "ext.error", args)
         update_error_log('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
         
 

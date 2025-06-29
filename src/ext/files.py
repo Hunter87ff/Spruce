@@ -16,7 +16,7 @@ import os
 from typing import Callable
 
 
-def export_to_csv(data:str, filename:str, onError:Callable[[str, int, tuple[str]], None]) -> tuple[str, Callable[[], None]]:
+def export_to_csv(data:str, filename:str, on_error:Callable[[str, int, tuple[str]], None]) -> tuple[str, Callable[[], None]]:
     """
     Exports data as a CSV file to the 'exports' directory.
     This function creates an 'exports' directory if it doesn't exist,
@@ -40,16 +40,16 @@ def export_to_csv(data:str, filename:str, onError:Callable[[str, int, tuple[str]
         if not os.path.exists("exports"):
             os.makedirs("exports")
 
-        def cleanUp() -> None:
+        def cleanup() -> None:
             """Clean up the created file after use."""
             os.remove(_filepath)
 
         with open(_filepath, "w") as f:
             f.write(data)
 
-        return _filepath, cleanUp
-    
+        return _filepath, cleanup
+
     except Exception as e:
         # module, loc, error
-        onError("ext.files.export_to_csv", 5, (str(e)))
+        on_error("ext.files.export_to_csv", 5, (str(e)))
         return None
