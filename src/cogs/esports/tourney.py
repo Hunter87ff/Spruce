@@ -664,7 +664,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         btn1.callback = disable_duplicate_tag_filter
 
 
-    @commands.hybrid_command(name="config", description="Manage tournament settings")
+    @commands.hybrid_command(name="config", description="Manage tournament settings", aliases=["tourney"])
     @commands.guild_only()
     @checks.tourney_mod()
     @app_commands.describe( reg_channel="The channel where the tournament is registered, usually the registration channel."  )
