@@ -37,7 +37,7 @@ _cogs : list["Cog"] = [
     ModerationCog,
     TaskCog,
     ScrimCog,
-    MusicCog,
+
 ]
 
 _DEV_COGS = [

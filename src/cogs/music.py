@@ -7,6 +7,7 @@ A module for  managing music playback using Lavalink in Spruce.
 
 import asyncio
 import wavelink,time, os, platform
+from ext.types import errors
 from threading import Thread
 from typing import cast, TYPE_CHECKING
 from time import gmtime, strftime
@@ -30,6 +31,8 @@ class MusicCog(commands.Cog):
     NOTE: For some issues, we've removed this cog from the bot for a while.
     """
 
+    NOT_CONNECTED = "Not connected to a voice channel."
+
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
         self.message:Message  = None
@@ -48,14 +51,14 @@ class MusicCog(commands.Cog):
 
     async def have_access_to_play(self, user: Member):
         if not user.voice:
-            raise Exception("You must be in a voice channel to use this command.")
+            raise errors.VoiceError("You must be in a voice channel to use this command.")
         
-        if not user.voice.channel.permissions_for(user.guild.me).connect:
-            raise Exception("I do not have permission to connect to your voice channel.")
-        
+        if not user.guild.me.voice and not user.voice.channel.permissions_for(user.guild.me).connect:
+            raise errors.VoiceError("I do not have permission to connect to your voice channel.")
+
         if not user.voice.channel.permissions_for(user.guild.me).speak:
-            raise Exception("I do not have permission to speak in your voice channel.")
-        
+            raise errors.VoiceError("I do not have permission to speak in your voice channel.")
+
         if not user.guild.me.voice or user.guild.me.voice.channel != user.voice.channel:
             await user.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
 
@@ -70,7 +73,7 @@ class MusicCog(commands.Cog):
             await ctx.author.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
             await ctx.send(f"Joined <#{ctx.author.voice.channel.id}>.")
 
-        except Exception as e:
+        except errors.VoiceError as e:
             await ctx.send(f"Error: {e}")
 
 
@@ -255,33 +258,21 @@ class MusicCog(commands.Cog):
         self.bot.logger.info(f"Node Connected {payload.node.identifier}")
 
 
-# add interaction listeners for buttons
-    @commands.Cog.listener()
-    async def on_interaction(self, interaction: Interaction) -> None:
-        if not interaction.guild:
-            return
-        interaction_id = interaction.data.get("custom_id", "-1")
+    async def interaction_next(self, interaction: Interaction) -> None:
+        player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
 
-        if not interaction_id.startswith("music_"):
-            return
-        
-        if interaction_id == "music_next_btn":
-            player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-            if not player or not player.connected:
-                return await interaction.response.send_message("Not connected to a voice channel.", ephemeral=True)
-            
-            if not player.queue.is_empty:
-                await player.skip(force=True)
-                return await interaction.response.send_message("Skipped to the next track.", ephemeral=True)
-            
+        if not player.queue.is_empty:
             await player.skip(force=True)
-            
-        elif interaction_id == "music_pause_btn":
+            return await interaction.response.send_message("Skipped to the next track.", ephemeral=True)
+        
+        await player.skip(force=True)
+
+
+    async def interaction_pause(self, interaction:Interaction):
             player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-            if not player or not player.connected:
-                return await interaction.response.send_message("Not connected to a voice channel.", ephemeral=True)
+            
             await player.pause(not player.paused)
-            # edit the message to reflect the pause/resume state
+
             if player.paused:
                 view = View()
                 for button in self.controlButtons:
@@ -290,12 +281,10 @@ class MusicCog(commands.Cog):
 
                 await interaction.message.edit(embed=interaction.message.embeds[0], view=view)
             await interaction.response.defer()
-            
 
-        elif interaction_id == "music_play_btn":
+
+    async def interaction_play(self, interaction: Interaction) -> None:
             player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-            if not player or not player.connected:
-                return await interaction.response.send_message("Not connected to a voice channel.", ephemeral=True)
 
             if player.paused:
                 await player.pause(False)
@@ -309,18 +298,39 @@ class MusicCog(commands.Cog):
             await interaction.response.defer()
 
 
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: Interaction) -> None:
+        if not interaction.guild:
+            return
+        interaction_id = interaction.data.get("custom_id", "-1")
+
+        if not interaction_id.startswith("music_"):
+            return
+        
+        await self.have_access_to_play(interaction.user)
+        
+        if interaction_id == "music_next_btn":
+            await self.interaction_next(interaction)
+
+            
+        elif interaction_id == "music_pause_btn":
+            await self.interaction_pause(interaction)
+            
+
+        elif interaction_id == "music_play_btn":
+            await self.interaction_play(interaction)
+
+
         elif interaction_id == "music_stop_btn":
             player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-            if not player or not player.connected:
-                return await interaction.response.send_message("Not connected to a voice channel.", ephemeral=True)
+
             await player.stop()
             return await interaction.response.send_message("Stopped the playback.", ephemeral=True)
         
 
         elif interaction_id == "music_queue_btn":
             player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-            if not player or not player.connected:
-                return await interaction.response.send_message("Not connected to a voice channel.", ephemeral=True)
+
             if player.queue.is_empty:
                 return await interaction.response.send_message("Queue is empty.", ephemeral=True)
             queue = player.queue.copy()

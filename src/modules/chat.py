@@ -67,9 +67,9 @@ class ChatClient:
             ctx = await self.bot.get_context(message)
             if not self.check_send(ctx, message, self.bot):return
             await ctx.typing()
-            messages = [message async for message in ctx.channel.history(limit=16)][::-1]
+
             self.chat_session.history = constants.history
-            for message in messages:
+            async for message in ctx.channel.history(limit=16):
 
                 if not message.author.bot:
                     self.chat_session.history.append({"role": "user","parts": [message.content]})

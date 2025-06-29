@@ -15,7 +15,6 @@ class Database:
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(Database, cls).__new__(cls)
-            # cls._instance._registers = None  # Initialize _registers
             cls._instance.load_data()
         return cls._instance
 
@@ -42,12 +41,3 @@ class Database:
    
         except Exception as e:
             Logger.warning(message=f"Error loading database or configuration data: {e}", _module="ext.db.Database")
-
-
-    # @property
-    # def registers(self):
-    #     """Returns the set of registration channel ids"""
-    #     if self._registers: return self._registers
-    #     else:
-    #         self._registers:set[int] = set([x['rch'] for x in list(self.dbc.find({}, {"_id":0, "rch":1}))])
-    #         return self._registers

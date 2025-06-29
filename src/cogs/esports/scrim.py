@@ -137,7 +137,12 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             title=f"{scrim.name}",
             color=discord.Color.green()
         )
-        status = "Open" if scrim.status==True else "Closed" if scrim.status==False else "Disabled"
+        if scrim.status is True:
+            status = "Open"
+        elif scrim.status is False:
+            status = "Closed"
+        else:
+            status = "Disabled"
         available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
         embed.add_field(name="Open Time", value=f"<t:{scrim.open_time}:t>(<t:{scrim.open_time}:R>)")
         embed.add_field(name="Close Time", value=f"<t:{scrim.close_time}:t>(<t:{scrim.close_time}:R>)")
@@ -1403,6 +1408,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
                 message.guild,
                 "Registration message deleted suddenly, unable to add tick reaction"
             )
+            self.debug(f"❌ Check 5 failed for scrim registration. Error: {str(e)}")
+            
         self.debug("✅ Check 5 passed for scrim registration. IDP role added to the author.")
 
         #  add the team to the scrim

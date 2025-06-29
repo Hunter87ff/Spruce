@@ -158,7 +158,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         await ctx.defer()
         if  guild:
             try:
-                invites = await [channel for channel in guild.channels][0].create_invite(reason=None, max_age=360, max_uses=2, temporary=True, unique=False, target_type=None, target_user=None, target_application_id=None)
+                invites = await guild.channels[0].create_invite(reason=None, max_age=360, max_uses=2, temporary=True, unique=False, target_type=None, target_user=None, target_application_id=None)
                 return await ctx.send(invites)
             except Exception: return await ctx.send(f"i dont have permission to get links in {guild.name}")
         else: return await ctx.send("guild not found")						  

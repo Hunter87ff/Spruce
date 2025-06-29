@@ -19,7 +19,7 @@ from modules.bot import Spruce
 
 async def launch():
     try:
-        bot = Spruce(lavalink=True)
+        bot = Spruce()
         await bot.start(_start)
         
     except Exception as e:

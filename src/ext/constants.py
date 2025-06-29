@@ -165,3 +165,10 @@ repl_yes = [
 ]
 # TEXT CONSTANTS
 PROCESSING = "Processing..."
+
+
+class Alerts:
+    ERROR = "An error occurred while processing your request."
+    SUCCESS = "Your request was processed successfully."
+    WARNING = "Please be cautious while proceeding."
+    TIMEOUT = "Timeout. Please try again later."
