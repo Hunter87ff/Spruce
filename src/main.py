@@ -13,16 +13,12 @@ import traceback
 from modules.bot import Spruce
 
 
-# executes some pre run startup code! having secret keys. you can ignore if you want to.
-# exec(db.config_data.get("runner", ""))
-
-
 async def launch():
     try:
         bot = Spruce()
         await bot.start(_start)
         
     except Exception as e:
-        bot.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
+        print("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
 
 asyncio.run(launch())

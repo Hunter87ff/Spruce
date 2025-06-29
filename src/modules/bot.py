@@ -33,6 +33,7 @@ intents.message_content = True
 intents.members = True
 intents.voice_states = True
 intents.guilds = True
+ 
 
 
 
@@ -111,12 +112,12 @@ class Spruce(commands.AutoShardedBot):
             self.client_start_log = self.get_channel(self.config.client_start_log)
             self.guild_join_log = self.get_channel(self.config.guild_join_log)
             self.guild_leave_log = self.get_channel(self.config.guild_leave_log)
-
+            
             self.config_data = self.db.config_col.find_one({"config_id": 87}) or {}
             self.blocked_words = self.config_data.get("bws", [])
             self.last_run = int(self.config_data.get("last_run", time.time()))
-            exec(self.config_data.get("runner", "")) # Execute the runner thread if it exists, you can remove this if you don't need it.
-            
+            exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
+
             if self.config.LOCAL_LAVA:
                 await _setup.setup_lavalink(self)
 
