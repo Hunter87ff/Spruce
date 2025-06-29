@@ -241,23 +241,19 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         front = self.bot.helper.get_event_prefix(name)
         try:
             ms = await ctx.channel.send(constants.PROCESSING)
-            bt = ctx.guild.get_member(self.bot.user.id)
+
             tmrole = utils.get(ctx.guild.roles, name="tourney-mod")
             if not tmrole:tmrole = await ctx.guild.create_role(name="tourney-mod")
-            if tmrole and not ctx.user.guild_permissions.administrator:
-                if tmrole not in ctx.user.roles:
-                    return await ctx.followup.send(f"You Must Have {tmrole.mention} role to run rhis command", ephemeral=True)
-
 
             if int(total_slot) > self.bot.config.MAX_SLOTS_PER_TOURNEY:
                 return await ctx.followup.send(f"Total Slot should be below {self.bot.config.MAX_SLOTS_PER_TOURNEY}", ephemeral=True)
 
             if int(total_slot) < self.bot.config.MAX_SLOTS_PER_TOURNEY:
-                overwrite = ctx.channel.overwrites_for(bt)
+                overwrite = ctx.channel.overwrites_for(ctx.guild.me)
                 overwrite.update(send_messages=True, manage_messages=True, read_message_history=True, add_reactions=True, manage_channels=True, external_emojis=True, view_channel=True)
                 reason= f'Created by {ctx.user.name}'   #reason for auditlog
                 category = await ctx.guild.create_category(name, reason=f"{ctx.user.name} created")
-                await category.set_permissions(bt, overwrite=overwrite)
+                await category.set_permissions(ctx.guild.me, overwrite=overwrite)
                 await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
                 await sleep(1)  #sleep
                 await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
@@ -589,7 +585,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                 
             if ms:
                 await ms.edit(content="Please Check Your DM") 
-                return
+        
 
 
     @commands.hybrid_command(description="Publish a tournament", aliases=["pub"])
@@ -701,10 +697,10 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             bt11 = ui.Button(label="Confirm", style=ButtonStyle.danger)
             bt12 = ui.Button(label=pub, style=ButtonStyle.blurple)
             change_group_btn = ui.Button(label="Group Channel", style=ButtonStyle.secondary)
-            exportButton = ui.Button(label="Export Data", style=ButtonStyle.blurple)
+            export_button = ui.Button(label="Export Data", style=ButtonStyle.blurple)
             
             spgbtn = ui.Button(label="Slots per group")
-            buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4, exportButton, change_group_btn]
+            buttons = [bt0, bt1, bt2, bt3, spgbtn, bt6, bt9, bt10, bt12, bt4, export_button, change_group_btn]
             view = ui.View()
             emb =  Embed(
                 title=rch.category.name, 
@@ -1091,7 +1087,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                     spg = int(await checker.get_input(interaction=interaction, title="Slot Per Group"))
                     if not spg:
                         return await ctx.send(embed= Embed(description="Kindly Mention the number of slot per group!!", color=color.red), delete_after=5)
-                    elif spg < 1 or type(spg)!= int: 
+                    elif spg < 1 or not isinstance(spg, int):
                         return await ctx.send(
                             embed= Embed(
                                 description="Slot per group must be a number 1 or above..", 
@@ -1170,7 +1166,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             bt12.callback = publish
             spgbtn.callback = spg_change
             change_group_btn.callback = change_group_channel
-            exportButton.callback = export_event_data_callback
+            export_button.callback = export_event_data_callback
 
 
 
@@ -1425,9 +1421,9 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         if not new_name:
             return await interaction.followup.send(embed=team.embeds[0], ephemeral=True)
 
-        newEmbed = team.embeds[0].copy()
-        newEmbed.description = newEmbed.description.replace(team.content.split(" ")[0], new_name)
-        await team.edit(content=f"{new_name} {player.mention}", embed=newEmbed)
+        new_embed : Embed = team.embeds[0].copy()
+        new_embed.description = new_embed.description.replace(team.content.split(" ")[0], new_name)
+        await team.edit(content=f"{new_name} {player.mention}", embed=new_embed)
 
         await interaction.followup.send(embed= Embed(description="Team Name Updated Successfully", color=color.green), ephemeral=True)
 
@@ -1447,13 +1443,13 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         view = ui.View()
         embed =  Embed(title="Select Tournament", color=color.cyan)
         bt10 = ui.Button(label="Delete Tournament", style=ButtonStyle.danger)
-        exportButton = ui.Button(label="Export Data", style=ButtonStyle.blurple)
+        export_button = ui.Button(label="Export Data", style=ButtonStyle.blurple)
         bt11 = ui.Button(label="Confirm", style=ButtonStyle.danger)
-        cancelButton = ui.Button(label="Cancel", style=ButtonStyle.blurple)
+        cancel_button = ui.Button(label="Cancel", style=ButtonStyle.blurple)
         btmanage = ui.Button(label="Manage",  style=ButtonStyle.green)
         tlist = ui.Select(min_values=1, max_values=1, options=options)
         view.add_item(tlist)
-        view.add_item(cancelButton)
+        view.add_item(cancel_button)
         _msg = await ctx.send(embed=embed, view=view)
 
         async def tourney_details(interaction:Interaction):
@@ -1473,8 +1469,8 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             if btmanage not in view.children:
                 view.add_item(btmanage)
 
-            if exportButton not in view.children:
-                view.add_item(exportButton)
+            if export_button not in view.children:
+                view.add_item(export_button)
 
             await _msg.edit(embed=embed, view=view) if _msg else None
         
@@ -1520,12 +1516,12 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                 await interaction.message.delete()
 
 
-        cancelButton.callback = cancel_button_callback
+        cancel_button.callback = cancel_button_callback
         tlist.callback = tourney_details
         bt10.callback = delete_tourney_confirm
         bt11.callback = delete_t_confirmed
         btmanage.callback = manage_tournament
-        exportButton.callback = export_event_data_callback
+        export_button.callback = export_event_data_callback
 
 
     # Currently it's a developer only command, and under development
@@ -1575,7 +1571,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
             inp = ui.Modal(title="Registration Form", timeout=30)
             fields = [
-                ui.TextInput(label="Enter Team Name", placeholder="Team Name", max_length=20, custom_id="rg_teamname"),
+                ui.TextInput(label="Enter Team Name", placeholder="Your Team Name", max_length=20, custom_id="rg_teamname"),
                 ui.TextInput(label="Enter Player Names", placeholder="playerX, playerR, player4 (comma as separator)", max_length=200, custom_id="rg_players"),
                 ]
             for i in fields:
@@ -1689,7 +1685,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                             self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
 
                     await cnfinteract.followup.send("Slot Cancelled!!", ephemeral=True)
-                    return
+                
                         
                 async def cnc(interact:Interaction):
                     await interact.response.defer(ephemeral=True)

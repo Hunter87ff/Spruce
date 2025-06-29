@@ -67,16 +67,7 @@ class UtilityCog(commands.Cog):
         if ctx.author.bot:return
         
         await ctx.defer(ephemeral=True)
-        try:sch = self.bot.get_channel(self.bot.config.client_start_log)
-        except Exception:return
-        messages = [message async for message in sch.history(limit=3)]
-        uptime = ctx.message.created_at - messages[0].created_at
-        upt = str(uptime).split(".")[0]
-        msg = f"**Current Uptime Is : `{upt}`**"
-        emb = Embed(title="Uptime", color=color.green, description=msg, timestamp=ctx.message.created_at)
-        emb.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar)
-        try:await ctx.send(embed=emb)
-        except Exception:return
+        await ctx.send(f"<t:{self.bot.last_run}:R>")
 
 
     @commands.hybrid_command(name="sync", description="Syncs the commands to the server")
@@ -101,10 +92,7 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 60, commands.BucketType.user)
     async def ping(self, ctx:commands.Context):
         await ctx.reply(
-            embed=Embed(
-                description=f'**{emoji.dot_green} Latency : `{round(self.bot.latency*1000)}ms`**', 
-                color=color.green
-            )
+            f'Latency : `{round(self.bot.latency*1000)} ms`'
         )
 
 
@@ -218,7 +206,7 @@ class UtilityCog(commands.Cog):
         if ctx.author.bot:
             return
         
-        bws:set[str] = set(self.bot.db.blocked_words)
+        bws:set[str] = set(self.bot.blocked_words)
 
         if len(message.split()) > 150 and len(message)<=1000:
             return await ctx.reply("**Up to 100 words allowed**", delete_after=30)
@@ -434,13 +422,22 @@ class UtilityCog(commands.Cog):
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def serverinfo(self, ctx:commands.Context):
         await ctx.defer(ephemeral=True)
-        guild = ctx.guild
-        roles = ', '.join([role.mention for role in guild.roles[::-1][:20]])
-        if len(roles) > 20:roles += "..."
-        emb = Embed(title=f"{ctx.guild.name}'s Information",description=f"**__About__**\n**Name** : {guild.name}\n**Id** : {guild.id}\n**Owner** : <@{guild.owner_id}>\n**Members** : {guild.member_count}\n**Verification Level** : {guild.verification_level}\n**Upload Limit** : {(guild.filesize_limit)/1024/1024} MB\n**Created At** : {guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(guild.categories)}\n**Voice Channels** : {len(guild.voice_channels)}\n**Text Channels** : {len(guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {guild.premium_tier}\n**Emojis** : {len(guild.emojis)}/{guild.emoji_limit}\n**Stickers** : {len(guild.stickers)}/{guild.sticker_limit}\n\n**__Server Roles__ [{len(guild.roles)}]** :\n{roles}\n\n**__Description__**\n{guild.description}",color=0xf1c40f)
-        emb.set_thumbnail(url=guild.icon.url or self.bot.user.avatar.url)
-        if ctx.guild.banner:emb.set_image(url=ctx.guild.banner.url)
-        emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+
+        roles = ', '.join([role.mention for role in ctx.guild.roles[::-1][:20]])
+
+        if len(roles) > 20:
+            roles += "..."
+
+        emb = Embed(
+            title=f"{ctx.guild.name}'s Information",
+            description=f"**__About__**\n**Name** : {ctx.guild.name}\n**Id** : {ctx.guild.id}\n**Owner** : <@{ctx.guild.owner_id}>\n**Members** : {ctx.guild.member_count}\n**Verification Level** : {ctx.guild.verification_level}\n**Upload Limit** : {(ctx.guild.filesize_limit)/1024/1024} MB\n**Created At** : {ctx.guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(ctx.guild.categories)}\n**Voice Channels** : {len(ctx.guild.voice_channels)}\n**Text Channels** : {len(ctx.guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {ctx.guild.premium_tier}\n**Emojis** : {len(ctx.guild.emojis)}/{ctx.guild.emoji_limit}\n**Stickers** : {len(ctx.guild.stickers)}/{ctx.guild.sticker_limit}\n\n**__Server Roles__ [{len(ctx.guild.roles)}]** :\n{roles}\n\n**__Description__**\n{ctx.guild.description}",
+            color=0xf1c40f
+        )
+
+        emb.set_thumbnail(url=ctx.guild.icon)
+        emb.set_image(url=ctx.guild.banner)
+
+        emb.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar or None)
         await ctx.send(embed=emb)
 
 
@@ -458,20 +455,25 @@ class UtilityCog(commands.Cog):
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.bot_has_permissions(send_messages=True, embed_links=True, manage_messages=True, manage_channels=True, manage_roles=True)
     async def setup_ticket(self, ctx:commands.Context, mod_role:Role=None, button_label:str=None, button_emoji:Emoji=None, button_color:Buttons=None, *, message:str=None):
-        if ctx.author.bot:return
+        if ctx.author.bot:
+            return
+        
         if self.bot.config.PREFIX in ctx.message.content:
             return await ctx.reply("Use Slash Command to manage other properties!!", delete_after=10)
+        
         await ctx.defer(ephemeral=True)
         ms = await ctx.send("Creating Ticket Category...")
+
         overwrites = {
             ctx.guild.default_role: PermissionOverwrite(read_messages=False),
             ctx.guild.me: PermissionOverwrite(read_messages=True),
         }
+
         if mod_role:overwrites[mod_role] = PermissionOverwrite(read_messages=True, send_messages=True, manage_messages=True)
         category = await ctx.guild.create_category("Tickets", overwrites=overwrites)
-        ticketChannel = await category.create_text_channel("create-ticket")
+        ticket_channel = await category.create_text_channel("create-ticket")
         await ms.edit(content="Creating Ticket Channel...")
-        await ticketChannel.set_permissions(ctx.guild.default_role, read_messages=True, send_messages=False)
+        await ticket_channel.set_permissions(ctx.guild.default_role, read_messages=True, send_messages=False)
         await ms.edit(content="Creating Ticket Message...")
         embed = Embed(title="Create Ticket", description="Click on the button to create a ticket!!", color=color.green)
         embed.set_footer(text=ctx.guild.name, icon_url=ctx.guild.icon.url)
@@ -479,7 +481,7 @@ class UtilityCog(commands.Cog):
         else:button_color = button_color.value
         view = View().add_item(Button(emoji=button_emoji or emoji.default_ticket, label=button_label or "Create Ticket", style=button_color, custom_id=f"{self.bot.user.id}SPticket"))
         await ms.edit(content="Sending Ticket Message...")
-        await ticketChannel.send(embed=embed, view=view)
+        await ticket_channel.send(embed=embed, view=view)
         await ms.edit(content="Ticket System Setup Done")
 
 

@@ -17,15 +17,6 @@ if TYPE_CHECKING:
 
 IS_DEBUG = False
 
-async def get_prize(cch:TextChannel):
-    info = cch.category.channels[0]
-    messages = [message async for message in info.history(limit=10, oldest_first=True)]
-
-    if len(messages) == 0:
-        return "No Data Given"
-    
-    return helper.parse_prize_pool(messages[0]) or "No Data Given"
-
 
 def find_team(message:Message):
     content = message.content.lower()

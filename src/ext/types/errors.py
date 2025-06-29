@@ -18,3 +18,7 @@ class ContextMigrationException(Exception):
 class ScrimAlreadyExists(Exception):
     """Exception raised when a scrim already exists."""
     pass
+
+class VoiceError(Exception):
+    """Exception raised for errors related to voice channels."""
+    pass

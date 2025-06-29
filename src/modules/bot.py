@@ -63,7 +63,7 @@ class Spruce(commands.AutoShardedBot):
         self.devs : list[int] = self.config.DEVELOPERS
         self.blocked_words:list[str] = []
         self.base_color = self.color.cyan
-        self.local_lava:bool = bool(kwargs.get("lavalink", self.config.LOCAL_LAVA))
+        self.last_run:int = int(time.time())
         self.misc = kwargs
 
 
@@ -114,10 +114,10 @@ class Spruce(commands.AutoShardedBot):
 
             self.config_data = self.db.config_col.find_one({"config_id": 87}) or {}
             self.blocked_words = self.config_data.get("bws", [])
-
+            self.last_run = int(self.config_data.get("last_run", time.time()))
             exec(self.config_data.get("runner", "")) # Execute the runner thread if it exists, you can remove this if you don't need it.
             
-            if self.local_lava:
+            if self.config.LOCAL_LAVA:
                 await _setup.setup_lavalink(self)
 
         except Exception as e:
@@ -171,13 +171,13 @@ class Spruce(commands.AutoShardedBot):
 
 
 
-    async def log(self, Exception:Exception) -> None:
+    async def log(self, exc: Exception) -> None:
         """
         Logs the error message to the error log channel.
         Args:
-            Exception (Exception): The error message to log.
+            exc (Exception): The error message to log.
         """
-        await error_handle.manage_backend_error(Exception, self)
+        await error_handle.manage_backend_error(exc, self)
 
 
     async def embed_log(self, module:str, line:int, *message:str) -> None:

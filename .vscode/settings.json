@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "Sonar Cloud",
+        "projectKey": "Hunter87ff_Spruce"
+    }
+}

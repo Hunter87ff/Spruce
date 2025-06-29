@@ -10,31 +10,42 @@ of this license document, but changing it is not allowed.
 import asyncio
 import discord
 from discord.ext import commands
+from ext.constants import Alerts
 from discord.ext.commands.converter import (RoleConverter, TextChannelConverter)
 
-async def channel_input(ctx:commands.Context, check=None, timeout=20):
+async def channel_input(ctx:commands.Context, check=None):
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
-    try:message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
-    except asyncio.TimeoutError:return await ctx.send("Time Out! Try Again")
+    try:
+        async with asyncio.timeout(20):
+            message: discord.Message = await ctx.bot.wait_for("message", check=check)
+
+    except asyncio.TimeoutError:
+        return await ctx.send(Alerts.TIMEOUT)
+    
     else:
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
 
         channel = await TextChannelConverter().convert(ctx, message.content)
         return channel
 
-async def check_role(ctx:commands.Context, check=None, timeout=20):
+async def check_role(ctx:commands.Context, check=None):
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
-    try:message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
-    except asyncio.TimeoutError:return await ctx.send("Time Out! Try Again")
+    try:
+        async with asyncio.timeout(20):
+            message: discord.Message = await ctx.bot.wait_for("message", check=check)
+    except asyncio.TimeoutError:
+        return await ctx.send("Time Out! Try Again")
     else:
         await message.delete() if message.guild.me.guild_permissions.manage_messages else None
         role = await RoleConverter().convert(ctx, message.content)
         return role
 
 
-async def ttl_slots(ctx:commands.Context, check=None, timeout=20) -> int|None:
+async def ttl_slots(ctx:commands.Context, check=None) -> int|None:
     check = check or (lambda m: m.channel == ctx.channel and m.author == ctx.author)
-    try:msg:discord.Message = await ctx.bot.wait_for("message", check=check, timeout=timeout)
+    try:
+        async with asyncio.timeout(20):
+            msg:discord.Message = await ctx.bot.wait_for("message", check=check)
     except asyncio.TimeoutError:
         await ctx.send("Time Out! Try Again")
         return None
