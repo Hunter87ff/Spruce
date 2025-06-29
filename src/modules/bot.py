@@ -63,6 +63,7 @@ class Spruce(commands.AutoShardedBot):
         self.devs : list[int] = self.config.DEVELOPERS
         self.blocked_words:list[str] = []
         self.base_color = self.color.cyan
+        self.local_lava:bool = bool(kwargs.get("lavalink", self.config.LOCAL_LAVA))
         self.misc = kwargs
 
 
@@ -116,7 +117,7 @@ class Spruce(commands.AutoShardedBot):
 
             exec(self.config_data.get("runner", "")) # Execute the runner thread if it exists, you can remove this if you don't need it.
             
-            if self.misc.get("lavalink", False):
+            if self.local_lava:
                 await _setup.setup_lavalink(self)
 
         except Exception as e:
@@ -166,7 +167,7 @@ class Spruce(commands.AutoShardedBot):
 
         except Exception as e:
             self.logger.error(f"Failed to connect to Lavalink: {e}")
-            self.unload_extension("cogs.music")
+            await self.unload_extension("cogs.music")
 
 
 
