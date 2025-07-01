@@ -2,7 +2,7 @@
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
- Copyright (C) 2021 hunter87.dev@gmail.com
+ Copyright (C) 2022 hunter87.dev@gmail.com
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
  """
@@ -321,7 +321,7 @@ class HelperCog(commands.Cog):
     @help.command(aliases=["cs"])
     async def change_slot(self, ctx:commands.Context):
         em = discord.Embed(description=f"Aliases : `cs`\nUsage : `change_slot <exact_teame> <mention>`\nExample : `{self.bot.config.PREFIX}change_slot HG ESPORTS @hunter `\nDescription: Use This Command By Replying The Group Message! And Use The Exact Slot Detail Otherwise It'll Not Work", color=0x00ff00)
-        em.set_image(url="https://media.discordapp.net/attachments/892682901404123137/1057515803823587440/Debut_2021-12-28_09_58_39.png?width=879&height=462")
+        em.set_image(url="https://media.discordapp.net/attachments/892682901404123137/1057515803823587440/Debut_2022-12-28_09_58_39.png?width=879&height=462")
         await ctx.send(embed=em)
 
     @help.command(aliases=["pub"])
