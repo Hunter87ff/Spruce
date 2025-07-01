@@ -1,7 +1,7 @@
 """
 This module initializes the extension package for spruce bot.
     :author: hunter87
-    :copyright: (c) 2021-present hunter87.dev@gmail.com
+    :copyright: (c) 2022-present hunter87.dev@gmail.com
     :license: GPL-3, see LICENSE for more details.
 """
 
