@@ -1,20 +1,18 @@
 """
 A module for  managing music playback using Lavalink in Spruce.
     :author: hunter87
-    :copyright: (c) 2022-present hunter87.dev@gmail.com
+    :copyright: (c) 2021-present hunter87.dev@gmail.com
     :license: GPL-3, see LICENSE for more details.
 """
 
-import asyncio
-import wavelink,time, os, platform
+
+import wavelink
 from ext.types import errors
-from threading import Thread
 from typing import cast, TYPE_CHECKING
-from time import gmtime, strftime
 from discord.ext import commands
 from ext.checks import dev_only
 import wavelink.websocket
-from ext.error import update_error_log
+from ext import _setup
 from discord import utils, ButtonStyle, Interaction, Embed, Message, TextChannel, Member
 from discord.ui import Button, View
 
@@ -48,6 +46,12 @@ class MusicCog(commands.Cog):
             Button(emoji=self.bot.emoji.queue_btn, style=ButtonStyle.blurple, custom_id="music_queue_btn"),
             # Button(emoji=self.bot.emoji.loop_btn, custom_id="music_loop_btn")
     ]
+        
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        if self.bot.config.LOCAL_LAVA:
+            await _setup.setup_lavalink(self.bot)
+
 
     async def have_access_to_play(self, user: Member):
         if not user.voice:
