@@ -77,6 +77,9 @@ class Spruce(commands.AutoShardedBot):
         )
         self.tree.on_error = self.tree_error_handler
 
+    async def get_prefix(bot, message):
+            prefixes = [bot.config.PREFIX, "$", "-", "!", "?"]
+            return commands.when_mentioned_or(*prefixes)(bot, message)
 
     async def tree_error_handler(self, interaction, error):
         await error_handle.handle_interaction_error(interaction, error, self)
