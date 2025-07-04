@@ -305,8 +305,8 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             behind_close_days = datetime.fromtimestamp(max(current_time - _scrim.close_time, 0)).day
             behind_open_days = datetime.fromtimestamp(max(current_time - _scrim.open_time, 0)).day
 
-            _scrim.open_time = _scrim.open_time + timedelta(days=behind_open_days).total_seconds()
-            _scrim.close_time = _scrim.close_time + timedelta(days=behind_close_days).total_seconds()
+            _scrim.open_time = _scrim.open_time + int(timedelta(days=behind_open_days).total_seconds()) #fixed ValueError Expected an integer, got float.
+            _scrim.close_time = _scrim.close_time + int(timedelta(days=behind_close_days).total_seconds())
 
         _status = False
         if status == self.ScrimStatus.OPEN:

@@ -262,11 +262,12 @@ class MusicCog(commands.Cog):
 
 
     async def interaction_next(self, interaction: Interaction) -> None:
+        await interaction.response.defer()
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
 
         if not player.queue.is_empty:
             await player.skip(force=True)
-            return await interaction.response.send_message("Skipped to the next track.", ephemeral=True)
+            return await interaction.followup.send("Skipped to the next track.", ephemeral=True)
         
         await player.skip(force=True)
 

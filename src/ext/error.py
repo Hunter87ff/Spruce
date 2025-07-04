@@ -199,10 +199,16 @@ async def handle_interaction_error(interaction: Interaction, error: app_commands
         await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("Bot", bot.user.name)), ephemeral=True)
 
     else:
-        await interaction.response.send_message(
-            embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
-            ephemeral=True
-        )
+        if interaction.response.is_done():
+            await interaction.followup.send(
+                embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
+                ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
+                ephemeral=True
+            )
         async with aiofiles.open(ERROR_FP, "w", encoding="utf-8") as file: 
             await file.write("\n".join(traceback.format_exception(error)))
  
