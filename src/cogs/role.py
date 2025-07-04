@@ -218,6 +218,7 @@ class RoleCog(commands.Cog):
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     @app_commands.describe(role="The role to remove from all members fom", reason="The reason for removing the role")
     async def remove_members(self, interaction: Interaction, role: Role, reason: str = None):
+        await interaction.response.defer(ephemeral=True)
         if interaction.user.bot:
             return
         
@@ -225,7 +226,7 @@ class RoleCog(commands.Cog):
             self.check_access(interaction.user, role)
 
         except Exception as e:
-            return await interaction.response.send_message(
+            return await interaction.followup.send(
                 embed=Embed(
                     description=str(e),
                     color=self.bot.color.red

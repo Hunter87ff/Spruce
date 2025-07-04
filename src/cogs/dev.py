@@ -46,10 +46,9 @@ class DevCog(commands.Cog):
 
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @checks.dev_only()
-    async def getprime(self, interaction:discord.Interaction, plan:Plans):
-        ctx = interaction
-        if ctx.user.bot or ctx.user.id not in self.bot.devs:return
-        amount = plan.value if (interaction.user.id != config.OWNER_ID) else 1
+    async def getprime(self, ctx:discord.Interaction, plan:Plans):
+        await ctx.response.defer()
+        amount = plan.value if (ctx.user.id != config.OWNER_ID) else 1
         url:str = f"{config.BASE_URL}/extras/pg.html?session="
         if plan != Plans.Custom:
             url += payment.create_order(
@@ -60,7 +59,7 @@ class DevCog(commands.Cog):
         if plan == Plans.Custom:
             url = config.SUPPORT_SERVER
         button:discord.ui.Button = discord.ui.Button(label="Get Prime", url=url)
-        await interaction.response.send_message(
+        await ctx.followup.send(
             embed=discord.Embed(
                 title="Get Prime", 
                 description="Click the button to get prime", 
