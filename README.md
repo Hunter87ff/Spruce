@@ -39,6 +39,35 @@ Spruce is a multi-purpose discord app that provides various kind of features lik
 > [!NOTE]
 > If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
 
+## 🐳 Docker Deployment
+
+You can quickly deploy Spruce using Docker with the pre-built image from Docker Hub:
+
+### Pull and Run the Container
+
+```bash
+# Pull the latest image
+docker pull hunter87ff/spruce:latest
+```
+
+### Using Docker Compose
+
+A `docker-compose.yml` file is provided in the repository for easy deployment:
+
+```bash
+# Clone the repository
+git clone https://github.com/Hunter87ff/spruce.git
+
+# Start the bot with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f spruce
+
+# Stop the bot
+docker-compose down
+```
+
 ## Support Server
 > If you're facing any kind of issues with spruce, feel free to join our discord support server<br> 
 [![DiscordBanner](https://invidget.switchblade.xyz/vMnhpAyFZm)](https://discord.gg/vMnhpAyFZm)
