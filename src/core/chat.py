@@ -4,8 +4,7 @@ Copyright (C) 2022-present hunter87.dev@gmail.com
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
-import traceback
-from requests import post
+
 import aiofiles
 from typing import TYPE_CHECKING
 from discord import Message, File
@@ -14,7 +13,7 @@ import google.generativeai as genai
 from ext import constants, db
 
 if TYPE_CHECKING:
-    from core.bot import Spruce
+    from .bot import Spruce
 
 class ChatClient:
     """

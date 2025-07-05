@@ -11,7 +11,7 @@
 import discord
 from discord.ext import commands
 from discord.ui import Button, View
-from core import config
+import config
 from typing import TYPE_CHECKING
 intents = discord.Intents.default()
 intents.message_content = True

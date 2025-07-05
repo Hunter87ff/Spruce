@@ -9,7 +9,7 @@ from ext import Logger
 from ext import types
 import pytz, datetime
 import aiofiles
-from core import config
+import config
 from discord.errors import HTTPException
 from discord import Embed, File, Interaction, app_commands, errors
 from ext.constants import TimeZone

@@ -1,6 +1,6 @@
 from datetime import datetime
 from discord import Member
-from core.config import IS_DEV_ENV
+from config import IS_DEV_ENV
 from typing import TypedDict, Unpack
 from ext.types.errors import ScrimAlreadyExists
 from ext.db import Database

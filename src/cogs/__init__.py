@@ -8,7 +8,7 @@ This module initializes and registers cogs for the Spruce bot. It conditionally 
 development-only cogs based on the configuration, then defines a setup function to load
 and attach these cogs to the bot instance.
 """
-from core.config import IS_DEV_ENV
+from config import IS_DEV_ENV
 from typing import TYPE_CHECKING
 from .dev import DevCog
 from .esports import TourneyCog, ScrimCog

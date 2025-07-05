@@ -8,7 +8,8 @@
  """
 
 import discord, os
-from core import config, payment
+import config
+from core import payment
 from discord.ext import commands
 from ext import checks
 from ext.models import Tester

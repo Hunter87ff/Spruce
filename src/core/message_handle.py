@@ -8,7 +8,7 @@ of this license document, but changing it is not allowed.
 import re, traceback
 from typing import TYPE_CHECKING
 from ext.modals import Tourney
-from discord import utils, Embed, Message, TextChannel
+from discord import utils, Embed, Message
 from ext import helper, color as Color
 
 

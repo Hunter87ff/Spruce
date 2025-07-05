@@ -12,9 +12,10 @@ import inspect
 import wavelink
 import traceback
 from discord.ext import commands
+import config
 from ext.models import Tester
 from typing import Unpack
-from core import (config, message_handle)
+from core import (message_handle)
 from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
 from ext.types import BotConfig
 from discord import (
