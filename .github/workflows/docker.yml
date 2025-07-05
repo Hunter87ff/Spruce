@@ -62,7 +62,7 @@ jobs:
         
     - name: Image digest
       if: ${{ inputs.push_to_registry }}
-      run: echo "Image digest: ${{ steps.build.outputs.digest }}"
+      run: echo "Image digest ${{ steps.build.outputs.digest }}"
       
     - name: Summary
       run: |
