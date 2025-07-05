@@ -9,7 +9,6 @@ of this license document, but changing it is not allowed.
 import time
 import cogs
 import inspect
-import asyncio
 import wavelink
 import traceback
 from discord.ext import commands
@@ -78,7 +77,7 @@ class Spruce(commands.AutoShardedBot):
         self.tree.on_error = self.tree_error_handler
 
     async def get_prefix(bot, message):
-            prefixes = [bot.config.PREFIX, "$", "-", "!", "?"]
+            prefixes = [bot.config.PREFIX] # you can add more prefixes here
             return commands.when_mentioned_or(*prefixes)(bot, message)
 
     async def tree_error_handler(self, interaction, error):
