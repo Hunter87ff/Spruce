@@ -163,6 +163,24 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
             except Exception: return await ctx.send(f"i dont have permission to get links in {guild.name}")
         else: return await ctx.send("guild not found")						  
 
+    @commands.command(hidden=True)
+    @commands.guild_only()
+    @checks.dev_only()
+    @commands.cooldown(2, 20, commands.BucketType.user)
+    async def get_channel(self, ctx:commands.Context, channel: int):
+        if ctx.author.bot:return
+        await ctx.defer()
+        _channel = self.bot.get_channel(channel)
+        if _channel:
+            embed = discord.Embed(
+                title=f"Channel Info: {_channel.name}",
+                description=f"ID: {_channel.id}\nType: {_channel.type}\nGuild Name: {_channel.guild.name}\nGuild ID: {_channel.guild.id}\nMembers : {_channel.guild.member_count}",
+                color=0x00ff00
+            )
+            await ctx.send(embed=embed)
+
+        else:
+            await ctx.send("Channel not found")
 
     @commands.command(hidden=True)
     @commands.guild_only()

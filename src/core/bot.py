@@ -13,6 +13,7 @@ import wavelink
 import traceback
 from discord.ext import commands
 import config
+import asyncio
 from ext.models import Tester
 from typing import Unpack
 from core import (message_handle)
@@ -77,9 +78,9 @@ class Spruce(commands.AutoShardedBot):
         )
         self.tree.on_error = self.tree_error_handler
 
-    async def get_prefix(bot, message):
-            prefixes = [bot.config.PREFIX] # you can add more prefixes here
-            return commands.when_mentioned_or(*prefixes)(bot, message)
+    async def get_prefix(self, message):
+            prefixes = [self.config.PREFIX] # you can add more prefixes here
+            return commands.when_mentioned_or(*prefixes)(self, message)
 
     async def tree_error_handler(self, interaction, error):
         await error_handle.handle_interaction_error(interaction, error, self)
@@ -203,6 +204,17 @@ class Spruce(commands.AutoShardedBot):
         """
         await self.log_channel.send(f"```py\n{' '.join(messages)}\n```")
 
+
+    async def sleep(self, seconds:float=1) -> None:
+        """
+        Sleeps for the given number of seconds.
+        Args:
+            seconds (float): The number of seconds to sleep.
+        """
+        if seconds <= 0:
+            return
+        
+        await asyncio.sleep(seconds)
 
 
     async def start(self, _started_at:float) -> None:
