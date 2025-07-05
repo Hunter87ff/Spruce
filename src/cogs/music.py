@@ -17,7 +17,7 @@ from discord import utils, ButtonStyle, Interaction, Embed, Message, TextChannel
 from discord.ui import Button, View
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 
 

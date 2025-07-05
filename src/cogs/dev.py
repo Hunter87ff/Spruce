@@ -8,7 +8,7 @@
  """
 
 import discord, os
-from modules import config, payment
+from core import config, payment
 from discord.ext import commands
 from ext import checks
 from ext.models import Tester
@@ -17,7 +17,7 @@ import psutil, enum
 
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 class Plans(enum.Enum):
     Monthly = 49

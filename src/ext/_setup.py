@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import asyncio
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 
 async def setup_lavalink(bot: "Spruce") -> None:

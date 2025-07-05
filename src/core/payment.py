@@ -13,7 +13,7 @@
 import random, string
 import datetime
 import traceback
-from modules import config
+from core import config
 from cashfree_pg.models.create_order_request import CreateOrderRequest
 from cashfree_pg.api_client import Cashfree
 from cashfree_pg.models.customer_details import CustomerDetails

@@ -14,7 +14,7 @@ import google.generativeai as genai
 from ext import constants, db
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 class ChatClient:
     """

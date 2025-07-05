@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from discord import Embed
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 
 class TourneyMigrateCog(commands.Cog):

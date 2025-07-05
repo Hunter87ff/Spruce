@@ -8,7 +8,7 @@ of this license document, but changing it is not allowed.
 import discord
 from .db import Database
 from discord.ext import commands
-from modules import config
+from core import config
 db = Database()
 
 

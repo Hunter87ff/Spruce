@@ -13,7 +13,7 @@ from discord.ext import commands
 import typing
 
 if typing.TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 class ModerationCog(commands.Cog):
     """

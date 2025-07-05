@@ -13,7 +13,7 @@ from ext import helper, color as Color
 
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 IS_DEBUG = False
 

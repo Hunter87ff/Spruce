@@ -11,14 +11,14 @@
 import discord
 from discord.ext import commands
 from discord.ui import Button, View
-from modules import config
+from core import config
 from typing import TYPE_CHECKING
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 
 invbtn = Button(label="Invite", url="https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot")

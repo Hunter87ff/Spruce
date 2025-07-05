@@ -14,7 +14,7 @@ import traceback
 from discord.ext import commands
 from ext.models import Tester
 from typing import Unpack
-from modules import (config, message_handle)
+from core import (config, message_handle)
 from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
 from ext.types import BotConfig
 from discord import (

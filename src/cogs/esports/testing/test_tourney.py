@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import Embed, TextChannel, Member, Message, app_commands, Interaction
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 class TestTourney(commands.GroupCog, group="test_tourney", name="test_tourney", description="Test Tourney Commands"):
     def __init__(self, bot : "Spruce"):
