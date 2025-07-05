@@ -1163,6 +1163,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "aiofiles" },
     { name = "bs4" },
+    { name = "cachetools" },
     { name = "cashfree-pg" },
     { name = "dateparser" },
     { name = "discord-py" },
@@ -1183,6 +1184,7 @@ dependencies = [
 requires-dist = [
     { name = "aiofiles", specifier = ">=24.1.0" },
     { name = "bs4", specifier = ">=0.0.2" },
+    { name = "cachetools", specifier = ">=5.5.2" },
     { name = "cashfree-pg", specifier = ">=4.0.0" },
     { name = "dateparser", specifier = ">=1.2.1" },
     { name = "discord-py", specifier = "==2.5.2" },
