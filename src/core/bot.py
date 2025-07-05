@@ -9,13 +9,13 @@ of this license document, but changing it is not allowed.
 import time
 import cogs
 import inspect
-import asyncio
 import wavelink
 import traceback
 from discord.ext import commands
+import config
 from ext.models import Tester
 from typing import Unpack
-from modules import (config, message_handle)
+from core import (message_handle)
 from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
 from ext.types import BotConfig
 from discord import (
@@ -78,7 +78,7 @@ class Spruce(commands.AutoShardedBot):
         self.tree.on_error = self.tree_error_handler
 
     async def get_prefix(bot, message):
-            prefixes = [bot.config.PREFIX, "$", "-", "!", "?"]
+            prefixes = [bot.config.PREFIX] # you can add more prefixes here
             return commands.when_mentioned_or(*prefixes)(bot, message)
 
     async def tree_error_handler(self, interaction, error):

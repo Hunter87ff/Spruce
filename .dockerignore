@@ -1,0 +1,15 @@
+__pycache__/
+*.log
+*.pyc
+*.pyo
+*.pyd
+*/*.env
+.git
+*.db
+*.db-shm
+*.db-wal
+*.jar
+.venv
+test/
+exports/
+.vscode/

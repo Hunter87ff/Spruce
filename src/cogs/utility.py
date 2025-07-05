@@ -16,7 +16,7 @@ from ext import constants, emoji, color, ColorOptions
 
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 from discord import (
     Embed,

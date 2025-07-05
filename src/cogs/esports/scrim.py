@@ -13,12 +13,12 @@ from ext import constants, checks
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 from ext.models.scrim import ScrimModel, Team
-from modules.config import IS_DEV_ENV
+from config import IS_DEV_ENV
 from discord import Embed, TextChannel,  Interaction,   app_commands as app
 
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce    
+    from core.bot import Spruce    
 
 _resolved_scrims: dict[str, bool] = {}
 

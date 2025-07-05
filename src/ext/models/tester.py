@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 class TesterPayload(TypedDict):
     """

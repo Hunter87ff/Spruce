@@ -1,6 +1,6 @@
 """
 This project is licensed under the GNU GPL v3.0.
-Copyright (C) 2022 hunter87.dev@gmail.com
+Copyright (C) 2022-present hunter87.dev@gmail.com
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
@@ -9,7 +9,7 @@ from ext import Logger
 from ext import types
 import pytz, datetime
 import aiofiles
-from modules import config
+import config
 from discord.errors import HTTPException
 from discord import Embed, File, Interaction, app_commands, errors
 from ext.constants import TimeZone
@@ -18,7 +18,7 @@ from discord.ext import commands
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 ERROR_LOG_FP = "error.log"
 ERROR_FP = "error.txt"

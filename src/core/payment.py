@@ -2,7 +2,7 @@
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
- Copyright (C) 2022 hunter87.dev@gmail.com
+ Copyright (C) 2022-present hunter87.dev@gmail.com
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
  """
@@ -13,7 +13,7 @@
 import random, string
 import datetime
 import traceback
-from modules import config
+import config
 from cashfree_pg.models.create_order_request import CreateOrderRequest
 from cashfree_pg.api_client import Cashfree
 from cashfree_pg.models.customer_details import CustomerDetails

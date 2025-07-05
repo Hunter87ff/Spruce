@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from discord.ext import tasks, commands
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce
+    from core.bot import Spruce
 
 class TaskCog(commands.Cog):
     def __init__(self, bot: "Spruce"):

@@ -13,7 +13,7 @@ from asyncio import sleep
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord import app_commands
-from modules import checker
+from core import checker
 from ext import constants, checks, Tourney, emoji, color, files
 from discord import (
     ui,
@@ -34,7 +34,7 @@ from discord import (
 )
 
 if TYPE_CHECKING:
-    from modules.bot import Spruce  # Type checking
+    from core.bot import Spruce  # Type checking
 
 
 def get_front(name:str):
