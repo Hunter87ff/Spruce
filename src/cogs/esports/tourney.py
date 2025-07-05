@@ -32,6 +32,7 @@ from discord import (
     ButtonStyle, 
     SelectOption, 
 )
+from cachetools import TTLCache
 
 if TYPE_CHECKING:
     from core.bot import Spruce  # Type checking
@@ -42,6 +43,13 @@ def get_front(name:str):
   for i in name.split()[0:2]:li.append(i[0])
   return str("".join(li) + "-")
 
+
+# Initialize a cache with a time-to-live of 10 seconds and a maximum size of 100
+cache_con_msg_by_channel = TTLCache(maxsize=100, ttl=10)
+
+
+def get_cache_con_msg(channel_id:int):
+    return cache_con_msg_by_channel.get(channel_id, None)
 
 class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
     """
@@ -1591,8 +1599,8 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                 emb =  Embed(
                     description=f"**{t.reged}) TEAM NAME: {teamname}**\n**Players** : {', '.join(players)} ")
                 emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
-                emb.timestamp = interaction.message.created_at
                 emb.set_thumbnail(url=interaction.user.display_avatar)
+                emb.timestamp = interaction.message.created_at
                 await cch.send(content=f"{interaction.user.mention} {teamname}", embed=emb)
                 await interaction.user.add_roles(crole)
                 self.dbc.update_one({"rch":cch.id},{"$inc":{"reged":1}})
@@ -1632,11 +1640,15 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             return await interaction.followup.send("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
 
         options = []
-        async for msg in cch.history(limit=db["reged"]+50, oldest_first=True):
-            if all([
-                msg.embeds,  msg.author.id == msg.guild.me.id,  interaction.user.id in msg.mentions,
-            ]):
-                options.append(SelectOption(label=msg.content.split(' ')[1],  value=msg.id))
+        _confirm_messages = get_cache_con_msg(cch.id) 
+
+        if not _confirm_messages:
+            _confirm_messages = cch.history(limit=db["reged"]+50, oldest_first=True)
+
+
+        async for msg in _confirm_messages:
+            if msg.author.id == msg.guild.me.id and str(interaction.user.id) in msg.content:
+                options.append(SelectOption(label=msg.content.split('<@')[0],  value=msg.id))
 
 
         if len(options) == 0:
