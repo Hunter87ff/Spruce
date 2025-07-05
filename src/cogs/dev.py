@@ -163,6 +163,7 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
             except Exception: return await ctx.send(f"i dont have permission to get links in {guild.name}")
         else: return await ctx.send("guild not found")						  
 
+
     @commands.command(hidden=True)
     @commands.guild_only()
     @checks.dev_only()
@@ -299,3 +300,39 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
         except Exception as e:
             await ctx.response.send_message(f"Failed to load cog `{cog_name.value}`: {e}", ephemeral=True)
+
+    
+    @commands.hybrid_command(name="add_role", description="(Dev only): Add a role to a member in a specific guild")
+    @commands.guild_only()
+    @discord.app_commands.guild_only()
+    @checks.dev_only()
+    @discord.app_commands.describe(
+        guild_id="ID of the guild where the member is located",
+        member_id="ID of the member to whom the role will be added",
+        role_id="ID of the role to be added"
+    )
+    async def add_role(self, ctx: commands.Context, guild_id: int, member_id: int, role_id: int):
+        guild = self.bot.get_guild(guild_id)
+        if not guild:
+            return await ctx.send("Guild not found.")
+
+        member = guild.get_member(member_id)
+        if not member:
+            return await ctx.send("Member not found in the specified guild.")
+
+        role = guild.get_role(role_id)
+        if not role:
+            return await ctx.send("Role not found in the specified guild.")
+
+        if role.is_default() or role.is_bot_managed():
+            return await ctx.send("Cannot assign default or bot-managed roles.")
+
+        if role.position >= guild.me.top_role.position:
+            return await ctx.send("Cannot assign a role that is higher than or equal to the bot's top role.")
+
+        if role not in member.roles:
+            await member.add_roles(role)
+            await ctx.send(f"Added role {role.name} to {member.name}.")
+
+        else:
+            await ctx.send(f"{member.name} already has the role {role.name}.")

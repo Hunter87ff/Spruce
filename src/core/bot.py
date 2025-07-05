@@ -17,7 +17,7 @@ import asyncio
 from ext.models import Tester
 from typing import Unpack
 from core import (message_handle)
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, cache, error as error_handle
 from ext.types import BotConfig
 from discord import (
     AllowedMentions, 
@@ -67,6 +67,7 @@ class Spruce(commands.AutoShardedBot):
         self.base_color = self.color.cyan
         self.last_run:int = int(time.time())
         self.misc = kwargs
+        self.cache = cache
 
 
         super().__init__(

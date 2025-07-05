@@ -458,22 +458,29 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         await ctx.defer(ephemeral=True)
         if ctx.author.bot:return
 
-        dbcd = self.dbc.find_one({"rch" : registration_channel.id})
-        if not dbcd:
-            return await ctx.send(embed= Embed(description=f"**{self._tnotfound}**", color=color.red), delete_after=10)
-        crole = utils.get(ctx.guild.roles, id=int(dbcd["crole"]))
-        reged = dbcd["reged"]
-        cch = self.bot.get_channel(int(dbcd["cch"]))
+        tourney = Tourney.findOne(registration_channel.id)
+
+        if not tourney:
+            return await ctx.send(embed= Embed(description=f"**{self._tnotfound}**", color=self.bot.color.red), delete_after=10)
+
+        crole = ctx.guild.get_role(tourney.crole)
+
+        cch = self.bot.get_channel(int(tourney.cch))
+
+        if not cch:
+            return await ctx.send(embed= Embed(description="**Confirm Channel Not Found**", color=self.bot.color.red), delete_after=10)
+
         if ctx.channel == cch:
             return await ctx.message.delete()
-        if crole not in member.roles:
-            return await ctx.send(embed= Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=color.red), delete_after=60)
         
+        if crole not in member.roles:
+            return await ctx.send(embed= Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=self.bot.color.red), delete_after=60)
+
         if crole in member.roles:
             await member.remove_roles(crole)
-            self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : reged - 1}})
+            self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : tourney.reged - 1}})
 
-            async for message in cch.history(limit=123):
+            async for message in cch.history(limit=tourney.reged+50, oldest_first=True):
                 if member.mention in message.content and message.author.id == self.bot.user.id:
                     await message.delete() 
                     await ctx.send(
@@ -1584,8 +1591,8 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                 emb =  Embed(
                     description=f"**{t.reged}) TEAM NAME: {teamname}**\n**Players** : {', '.join(players)} ")
                 emb.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon or interaction.guild.me.avatar.url)
-                emb.timestamp = interaction.message.created_at
                 emb.set_thumbnail(url=interaction.user.display_avatar)
+                emb.timestamp = interaction.message.created_at
                 await cch.send(content=f"{interaction.user.mention} {teamname}", embed=emb)
                 await interaction.user.add_roles(crole)
                 self.dbc.update_one({"rch":cch.id},{"$inc":{"reged":1}})
@@ -1625,15 +1632,16 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             return await interaction.followup.send("Confirm Role Not Found!! please try again later!! i've notified mods...", ephemeral=True)
 
         options = []
-        async for i in cch.history(limit=db["tslot"]):
-            if i.embeds and "TEAM" in i.embeds[0].description and i.author.id == i.guild.me.id:
-                if any([interaction.user.id in i.mentions, interaction.user.name in i.embeds[0].description]):
-                    st = i.embeds[0].description.find("[")+1
-                    en = i.embeds[0].description.find("]")
-                    options.append(SelectOption(label=i.embeds[0].description[st:en],  value=i.id))
+
+
+        async for msg in self.bot.cache.get_cache_con_msg(cch, limit=db["reged"]+50, old=True):
+            if msg.author.id == msg.guild.me.id and str(interaction.user.id) in msg.content:
+                options.append(SelectOption(label=msg.content.split('<@')[0],  value=msg.id))
+
 
         if len(options) == 0:
             return await interaction.followup.send("Unable to find your team!! ", ephemeral=True)
+
 
         cslotlist = ui.Select(min_values=1, max_values=1, options=options)
         view.add_item(cslotlist)
