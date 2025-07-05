@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  spruce:
+    image: hunter87ff/spruce:latest
+    container_name: spruce-bot
+    environment:
+      # Required - Discord Bot Configuration
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MONGO_URI=${MONGO_URI:-mongodb://host.docker.internal:27017}
+
+      # Optional - AI and Translation Features
+      - GEMINI_KEY=${GEMINI_KEY:-}
+      - TRANSLATE_KEY=${TRANSLATE_KEY:-}
+      
+      # Optional - Music Features (Spotify Integration)
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID:-}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET:-}
+      
+      # Optional - PG Integration
+      - X_CLIENT_ID=${X_CLIENT_ID:-}
+      - X_CLIENT_SECRET=${X_CLIENT_SECRET:-}
+      
+      # Optional - Bot Configuration
+      - PREFIX=${PREFIX:-&}
+      - MODE=${MODE:-production}
+      - SHARDS=${SHARDS:-1}
+      - VERSION=${VERSION:-2.1.0}
+      
+      # Optional - Music Server Configuration
+      - LAVALINK_VERSION=${LAVALINK_VERSION:-4.1.1}
+      - LOCAL_LAVA=${LOCAL_LAVA:-true}
+    
+    restart: unless-stopped
+    
+    # Optional: Add volumes for persistent data
+    # volumes:
+    #   - ./data:/app/data
+    #   - ./logs:/app/logs
+    
+    # Optional: Add network configuration
+    # networks:
+    #   - spruce-network
+
+# Optional: Define custom network
+# networks:
+#   spruce-network:
+#     driver: bridge

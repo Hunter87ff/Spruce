@@ -1,5 +1,4 @@
-# syntax=docker/dockerfile:1
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -18,9 +17,12 @@ COPY lava/ ./lava/
 RUN rm -f .env
 
 
-RUN pip install --no-cache-dir -U uv
+RUN pip install --no-cache-dir -U uv pip
 
 CMD ["uv", "run", "main.py"]
 
 # Build the Docker image with the command:
 # docker build -t spruce:latest .
+
+# Run the Docker container with the command:
+# docker run --rm -it spruce:latest
