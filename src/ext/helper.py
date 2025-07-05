@@ -10,7 +10,8 @@ import re
 import discord
 import requests, uuid
 from discord.ext import commands
-
+from typing import TYPE_CHECKING
+from ext import cache
 
 
      
@@ -91,8 +92,7 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None)
 
     slots = slots or 50
 
-    async for fmsg in  message.channel.history(limit=slots):
-
+    async for fmsg in  cache.get_cache_reg_msg(message.channel):
         # Ignore bot/user messages
         if any([fmsg.author.bot, not isinstance(fmsg.author, discord.Member)]):
             continue

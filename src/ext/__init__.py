@@ -15,10 +15,12 @@ import ext.error as error
 from .color import ColorOptions, Color as color
 from . import  files, helper, checks, validator
 from .time import ClientTime
+import ext.cache as cache
 
 
 
 __all__ = (
+    "cache",
     "setup",
     "Database", 
     "Tourney", 
