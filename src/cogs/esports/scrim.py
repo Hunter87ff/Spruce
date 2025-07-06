@@ -1385,7 +1385,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
 
         #  checking for duplicate tag invalidation if duplicate tag is enabled
         if not _scrim.duplicate_tag: #if duplicate tag is not allowed
-            is_duplicate_tag = await self.bot.helper.duplicate_tag(confirm_role, message)
+            is_duplicate_tag = await self.bot.helper.duplicate_tag(self.bot, confirm_role, message)
                 
             if is_duplicate_tag:
                 await message.delete(delay=1)

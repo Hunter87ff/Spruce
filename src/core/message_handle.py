@@ -161,7 +161,7 @@ async def tourney(message: Message, bot: 'Spruce'):
 
 
     if tournament.faketag == "no":
-        is_duplicate = await helper.duplicate_tag(crole=crole, message=message, slots=tournament.reged + 10)
+        is_duplicate = await helper.duplicate_tag(bot, crole=crole, message=message, slots=tournament.reged + 10)
         bot.debug(f"✅ check 6.1 - Checking for duplicate tags in {message.guild.name} for {message.author}.", is_debug=IS_DEBUG)
 
         if is_duplicate:
@@ -176,6 +176,9 @@ async def tourney(message: Message, bot: 'Spruce'):
             return 
 
     bot.debug("✅ Check 7 passed - No duplicate tags found.", is_debug=IS_DEBUG)
+
+    bot.cache.tourney_confirm.insert(rch, message)
+    bot.cache.tourney_reged.insert(rch, message)
 
     await message.author.add_roles(crole)
     await message.add_reaction("✅")

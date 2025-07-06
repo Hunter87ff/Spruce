@@ -11,7 +11,9 @@ import discord
 import requests, uuid
 from discord.ext import commands
 from typing import TYPE_CHECKING
-from ext import cache
+
+if TYPE_CHECKING:
+    from core.bot import Spruce
 
 
      
@@ -77,7 +79,7 @@ class DuplicateTag:
         self.message = message
 
 
-async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None) -> DuplicateTag | None:
+async def duplicate_tag(bot:"Spruce", crole:discord.Role, message:discord.Message, slots=None) -> DuplicateTag | None:
     """
     Checks if a message mentions a user with the same role as the author.
     If a user with the same role is mentioned in previous messages, it returns that user.
@@ -92,7 +94,7 @@ async def duplicate_tag(crole:discord.Role, message:discord.Message, slots=None)
 
     slots = slots or 50
 
-    async for fmsg in  cache.get_cache_reg_msg(message.channel):
+    for fmsg in  await bot.cache.tourney_reged.get(message.channel):
         # Ignore bot/user messages
         if any([fmsg.author.bot, not isinstance(fmsg.author, discord.Member)]):
             continue

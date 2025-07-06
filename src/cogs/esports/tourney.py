@@ -147,7 +147,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         await channel.send(
             embed= Embed(
                 title="Tourney Log Channel Created", 
-                description=f"**This Channel Will Be Used To Log Tourney Events**\n\n{emoji.tick} | **Created By** : {ctx.author.mention}", 
+                description=f"**This Channel Will Be Used To Log Tourney Events**\n\n{emoji.tick} | **Created By** : {ctx.user.mention}", 
                 color=color.cyan
             )
         )
@@ -1634,7 +1634,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         options = []
 
 
-        async for msg in self.bot.cache.get_cache_con_msg(cch, limit=db["reged"]+50, old=True):
+        for msg in await self.bot.cache.tourney_confirm.get(cch, limit=int(db["reged"]+50), old=True):
             if msg.author.id == msg.guild.me.id and str(interaction.user.id) in msg.content:
                 options.append(SelectOption(label=msg.content.split('<@')[0],  value=msg.id))
 
