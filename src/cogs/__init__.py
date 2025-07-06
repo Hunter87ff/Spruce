@@ -10,16 +10,16 @@ and attach these cogs to the bot instance.
 """
 from config import IS_DEV_ENV
 from typing import TYPE_CHECKING
+
 from .dev import DevCog
-from .esports import TourneyCog, ScrimCog
-from .helpcog import HelperCog
-from .moderation import ModerationCog
 from .role import RoleCog
 from .tasks import TaskCog
-from .utility import UtilityCog
-from .esports import ScrimCog
 from .music import MusicCog
-
+from .helpcog import HelperCog
+from .utility import UtilityCog
+from .autorole import AutoRoleCog
+from .moderation import ModerationCog
+from .esports import TourneyCog, ScrimCog
 
 
 
@@ -32,12 +32,12 @@ _cogs : list["Cog"] = [
     DevCog,
     HelperCog,
     RoleCog,
+    AutoRoleCog,
     TourneyCog,
     UtilityCog,
     ModerationCog,
     TaskCog,
     ScrimCog,
-
 ]
 
 _DEV_COGS = [
