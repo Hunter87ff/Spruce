@@ -1,10 +1,11 @@
 from datetime import datetime
-from ..db import Database
+from typing import TYPE_CHECKING
 from typing import Unpack, TypedDict
 
+if TYPE_CHECKING:
+    from pymongo.collection import Collection
 
 _tournament_cache: dict[int, 'TournamentModel'] = {}
-collection = Database().sprucedb["tourney"]
 
 
 class TournamentPayload(TypedDict):
@@ -20,6 +21,7 @@ class TournamentPayload(TypedDict):
     slot_per_group: int
     current_group: int | None
     created_at: datetime
+    col : "Collection"
 
 
 
@@ -27,6 +29,8 @@ class TournamentModel:
     """
     Tourney class represents a tournament with various properties.
     """
+    col: "Collection" = None  # MongoDB collection name for tournaments
+
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
         self.guild_id: int = kwargs.get("guild_id")
         self.name: str = kwargs.get("name", "Tournament")
@@ -44,6 +48,8 @@ class TournamentModel:
         self.current_group: int = kwargs.get("current_group", 0) # current group number (default: 0)
         self.created_at: datetime = kwargs.get("created_at", datetime.now())
 
+        if kwargs.get("col"):
+            self.col = kwargs.get("col", None)
 
     def __repr__(self) -> str:
         return f"<Tournament guild_id={self.guild_id} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} auto_grp={self.auto_group} pub={self.published} spg={self.slot_per_group} cgp={self.current_group} created_at={self.created_at}>"
@@ -110,7 +116,7 @@ class TournamentModel:
         if not self.validate():
             raise ValueError("Invalid Tournament instance. Cannot save to database.")
 
-        return collection.update_one(
+        return self.col.update_one(
             {"reg_channel": self.reg_channel, "guild_id": self.guild_id},
             {"$set": self.to_dict()},
             upsert=True
@@ -118,7 +124,7 @@ class TournamentModel:
     
 
     @classmethod
-    async def findOne(cls, **kwargs:Unpack[TournamentPayload]):
+    async def find_one(cls, **kwargs:Unpack[TournamentPayload]):
         """Fetches a Tournament instance from the database.
 
         Args:
@@ -127,7 +133,7 @@ class TournamentModel:
         Returns:
             TournamentModel: An instance of TournamentModel if found, otherwise None.
         """
-        return collection.find_one(**kwargs)
+        return cls(**(await cls.col.find_one(**kwargs) or {}))
 
     
     @classmethod
@@ -143,7 +149,7 @@ class TournamentModel:
         if reg_channel in _tournament_cache:
             return _tournament_cache[reg_channel]
 
-        data = await cls.findOne({"reg_channel": reg_channel})
+        data = await cls.find_one({"reg_channel": reg_channel})
         if not data:
             return None
 

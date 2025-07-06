@@ -19,6 +19,7 @@ from .tasks import TaskCog
 from .utility import UtilityCog
 from .esports import ScrimCog
 from .music import MusicCog
+from .autorole import AutoRoleCog
 
 
 
@@ -32,12 +33,12 @@ _cogs : list["Cog"] = [
     DevCog,
     HelperCog,
     RoleCog,
+    AutoRoleCog,
     TourneyCog,
     UtilityCog,
     ModerationCog,
     TaskCog,
     ScrimCog,
-
 ]
 
 _DEV_COGS = [

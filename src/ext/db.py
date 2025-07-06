@@ -5,9 +5,10 @@ Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
 
-from pymongo import MongoClient
 import os
 from ext import Logger
+from pymongo import MongoClient
+from .models import init
 
 class Database:
     _instance = None
@@ -26,17 +27,17 @@ class Database:
         try:
             # Primary MongoDB client and collections
             Logger.info("Database Connecting...")
-            self.maindb = MongoClient(os.environ["MONGO_URI"])
-            self.sprucedb = self.maindb["sprucedb"]
+            self.cluster = MongoClient(os.environ["MONGO_URI"])
+            self.sprucedb = self.cluster["sprucedb"]
             self.config_col =self.sprucedb["configs"]
-
             self.dbc = self.sprucedb["tourney"]
             self.primedbc = self.sprucedb["prime"]
             self.paydbc = self.sprucedb["payment"]
-            self.scrims = self.sprucedb["scrims"]
             self.guildbc = self.sprucedb["guilds"]
             self.testers = self.sprucedb["testers"]
-            
+            self.scrims = self.sprucedb["scrims"]
+            self.autoroles = self.sprucedb["autoroles"]
+            init(self)  # Initialize models
             Logger.info("Database Connected.")
    
         except Exception as e:

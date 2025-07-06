@@ -5,12 +5,12 @@ if TYPE_CHECKING:
     from discord import Message, TextChannel
 
 
-class TourneyRegedCache:
+class ConfirmTeamsCache:
     """
-    Cache for storing tournament registration messages.
+    Cache for storing tournament confirmation messages.
     """
-    def __init__(self):
-        self.cache: TTLCache[int, list["Message"]] = TTLCache(maxsize=100, ttl=600)
+    def __init__(self, maxsize: int = 100, ttl: int = 30):
+        self.cache: TTLCache[int, list["Message"]] = TTLCache(maxsize=maxsize, ttl=ttl)
 
 
     async def get(self, channel: "TextChannel", limit=100, old=False) -> list["Message"]:
@@ -20,7 +20,6 @@ class TourneyRegedCache:
         _cache_messages = self.cache.get(channel.id, None)
 
         if _cache_messages is None:
-            print(f"Cache miss for channel {channel.id}, fetching messages...")
             _cache_messages = []
             async for message in channel.history(limit=limit, oldest_first=old):
                 _cache_messages.append(message)

@@ -1,14 +1,15 @@
 from datetime import datetime
 from discord import Member
-from config import IS_DEV_ENV
 from typing import TypedDict, Unpack
 from ext.types.errors import ScrimAlreadyExists
-from ext.db import Database
+from typing import TYPE_CHECKING
 
-_db_ =  Database()  
-_scrim_col = _db_.scrims
+
+if TYPE_CHECKING:
+    from pymongo.collection import Collection
+
 _scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
-
+IS_DEV_ENV = False  # Set this to True if you want to enable debug messages
 
 class TeamPayload(TypedDict, total=False):
     name: str
@@ -54,6 +55,7 @@ class ScrimPayload(TypedDict, total=False):
         total_slots:int
         time_zone:str
         ping_role:int
+        col: "Collection"
         
 
 
@@ -67,8 +69,9 @@ def debug(message:str):
 
 
 class ScrimModel:
+    col: "Collection" = None
 
-    def __init__(self, **kwargs:Unpack[ScrimPayload]):
+    def __init__(self, **kwargs: Unpack[ScrimPayload]):
         """
         Initializes a ScrimModel instance with the provided keyword arguments.
         """
@@ -98,6 +101,8 @@ class ScrimModel:
         self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] # List of teams, initialized with Team instances
         self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
 
+        if kwargs.get("col"):
+            self.col = kwargs.get("col")
 
 
     def __eq__(self, other):
@@ -261,7 +266,7 @@ class ScrimModel:
 
         self.validate()
 
-        _saved = _scrim_col.update_one(
+        _saved = self.col.update_one(
             {"reg_channel": self.reg_channel},
             {"$set": self.to_dict()},
             upsert=True
@@ -286,12 +291,12 @@ class ScrimModel:
         if self.reg_channel in _scrim_cache_by_channel:
             del _scrim_cache_by_channel[self.reg_channel]
 
-        result = _scrim_col.delete_one({"reg_channel": self.reg_channel, "guild_id": self.guild_id})
+        result = self.col.delete_one({"reg_channel": self.reg_channel, "guild_id": self.guild_id})
         return result.deleted_count > 0
 
 
-    @staticmethod
-    def find_by_reg_channel(channel_id:int) -> "ScrimModel | None":
+    @classmethod
+    def find_by_reg_channel(cls, channel_id:int) -> "ScrimModel | None":
         """
         Finds a ScrimModel instance by its registration channel ID.
         Args:
@@ -302,17 +307,17 @@ class ScrimModel:
         if channel_id in _scrim_cache_by_channel:
             return _scrim_cache_by_channel[channel_id]
         
-        data = _scrim_col.find_one({"reg_channel": channel_id})
+        data = cls.col.find_one({"reg_channel": channel_id})
         if data:
-            scrim = ScrimModel(**data)
+            scrim = cls(**data)
             _scrim_cache_by_channel[channel_id] = scrim
             return scrim
 
         return None
 
 
-    @staticmethod
-    def find_one(**kwargs:Unpack[ScrimPayload]) -> "ScrimModel | None":
+    @classmethod
+    def find_one(cls, **kwargs: Unpack[ScrimPayload]) -> "ScrimModel | None":
         """        Finds a single ScrimModel instance based on the provided keyword arguments.
         Args:
             **kwargs: Keyword arguments to filter the ScrimModel instances.
@@ -330,9 +335,9 @@ class ScrimModel:
                 return _scrim_cache_by_channel[channel_id]
             
 
-        data = _scrim_col.find_one(kwargs)
+        data = cls.col.find_one(kwargs)
         if data:
-            scrim = ScrimModel(**data)
+            scrim = cls(**data)
             _scrim_cache_by_channel[scrim.reg_channel] = scrim
 
             if scrim.manage_channel:
@@ -343,14 +348,14 @@ class ScrimModel:
         return None
 
 
-    @staticmethod
-    def find(**kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"] :
+    @classmethod
+    def find(cls, **kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"]:
         """
         Finds all ScrimModel instances.
         Returns:
             list[ScrimModel]: A list of all ScrimModel instances.
         """
-        data = _scrim_col.find(kwargs).to_list(length=None)
-        return [ScrimModel(**item) for item in data]
-    
+        data = cls.col.find(kwargs).to_list(length=None)
+        return [cls(**item) for item in data]
+
 
