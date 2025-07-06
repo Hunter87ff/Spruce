@@ -3,8 +3,7 @@ from os import environ as env
 from dotenv import load_dotenv
 load_dotenv()
 
-from ext.emoji import *
-from ext.color import *
+
 from ext import Logger
 logger = Logger
 from typing import TYPE_CHECKING
@@ -60,8 +59,8 @@ paylog = 1233044089398755378
 
 
 # LIMITS
-MAX_TOURNEYS_PER_GUILD = 5
-MAX_SCRIM_PER_GUILD = 5
+MAX_TOURNEYS_PER_GUILD = 3
+MAX_SCRIM_PER_GUILD = 3
 MAX_SLOTS_PER_TOURNEY = 1000
 MAX_SLOTS_PER_SCRIM = 25
 

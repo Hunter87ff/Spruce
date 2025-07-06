@@ -8,17 +8,18 @@ of this license document, but changing it is not allowed.
 
 import time
 import cogs
+import config
+import asyncio
 import inspect
 import wavelink
 import traceback
-from discord.ext import commands
-import config
-import asyncio
-from ext.models import Tester
+from .cache import Cache
 from typing import Unpack
-from core import (message_handle)
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, cache, error as error_handle
+from ext.models import Tester
 from ext.types import BotConfig
+from discord.ext import commands
+from core import (message_handle)
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
 from discord import (
     AllowedMentions, 
     Intents, 
@@ -67,7 +68,7 @@ class Spruce(commands.AutoShardedBot):
         self.base_color = self.color.cyan
         self.last_run:int = int(time.time())
         self.misc = kwargs
-        self.cache = cache
+        self.cache = Cache()
 
 
         super().__init__(
