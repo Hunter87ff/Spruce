@@ -363,6 +363,7 @@ class ModerationCog(commands.Cog):
         await ctx.guild.kick(member, reason=reason or f"{member} kicked by {ctx.author}")
         await ctx.send(f"**{self.bot.emoji.tick} | {member} has been kicked**", delete_after=5)
 
+
     @commands.hybrid_command(name="ban", description="Ban a member from the server")
     @commands.bot_has_guild_permissions(ban_members=True, send_messages=True)
     @commands.has_permissions(ban_members=True)
@@ -382,6 +383,51 @@ class ModerationCog(commands.Cog):
         else:
             await ctx.guild.ban(member, reason=reason or f"{member} banned by {ctx.author}")
             await ctx.send(f"{member} banned", delete_after=5)
+
+
+    @app_commands.command(name="unban", description="Unban a member from the server")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(ban_members=True)
+    @app_commands.checks.bot_has_permissions(ban_members=True, send_messages=True)
+    @commands.cooldown(2, 15, commands.BucketType.user)
+    @app_commands.describe(user="user id or username", unban_all="Whether to unban all (2000 at a time) users", reason="The reason for unbanning the member")
+    async def unban(self, ctx:discord.Interaction, user: discord.User=None, unban_all:bool=False, reason:str=None):
+        await ctx.response.defer()
+
+        if unban_all:
+            processing = await ctx.channel.send(
+                f"**{self.bot.emoji.loading} Processing...**"
+            )
+
+            unbanned_users = 0
+            stage = 25 # per 25 member unbanned
+            banned_users = ctx.guild.bans(limit=2000)
+            async for _user in banned_users:
+                try:
+                    await ctx.guild.unban(_user.user, reason=reason or f"Unbanned by {ctx.user}")
+                    unbanned_users += 1
+                    if unbanned_users % stage == 0:
+                        await processing.edit(content=f"**{self.bot.emoji.tick} Unbanned {unbanned_users} users so far...**")
+
+                    await self.bot.sleep(0.5)  # To avoid hitting rate limits
+
+                except discord.NotFound:
+                    continue
+
+            await processing.delete()
+            return await ctx.followup.send(f"**{self.bot.emoji.tick} Unbanned {unbanned_users} users successfully!**")
+
+        if user:
+            if not isinstance(user, discord.User):
+                return await ctx.followup.send(
+                    embed=discord.Embed(description=f"{self.bot.emoji.cross} Please provide a valid user to unban", color=self.bot.color.red)
+                )
+
+            await ctx.guild.unban(user, reason=reason or f"Unbanned by {ctx.user}")
+            return await ctx.followup.send(f"**{user} has been unbanned**")
+        
+        return await ctx.followup.send("**Please provide a valid user to unban or use the `all` option**")
+
 
     @commands.command(aliases=['chm'])
     @commands.guild_only()
