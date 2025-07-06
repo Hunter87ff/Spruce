@@ -113,7 +113,8 @@ class AutoRoleCog(commands.GroupCog, name="autorole", description="Auto role man
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def autorole_add_bot(self, ctx: Interaction, role: Role) -> None:
         """Add auto roles to bot members"""
-
+        await ctx.response.defer(ephemeral=True)
+        
         if not self.is_role_accessible(role):
             await ctx.followup.send("Seems like the role is higher than mine or not accessible !!", ephemeral=True)
             return
