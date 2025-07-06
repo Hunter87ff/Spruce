@@ -1,17 +1,30 @@
-from discord.ext import commands
-from discord import app_commands, Role, Member, Embed
-from ext.models import GuildAutoRoleModel
-from typing import TYPE_CHECKING
+"""
+A collection of command to manage the autorole all the features
+    :author: hunter87
+    :Copyright: (C) 2022-present hunter87.dev@gmail.com
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+"""
 
+
+from discord.ext import commands
+from typing import TYPE_CHECKING
+from ext.models import GuildAutoRoleModel
+from discord import app_commands, Role, Member, Embed, Interaction
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
 
-class AutoRoleCog(commands.Cog):
+class AutoRoleCog(commands.GroupCog, name="autorole", description="Auto role management commands"):
     def __init__(self, bot:'Spruce') -> None:
         self.bot = bot
 
+    autorole_add = app_commands.Group(
+        name="add",
+        description="Add auto roles for the guild",
+        guild_only=True
+    )
 
     def is_role_accessible(self, role: Role) -> bool:
         """Check if the role is accessible by the bot"""
@@ -23,18 +36,8 @@ class AutoRoleCog(commands.Cog):
             return False
         return True
 
-    @commands.hybrid_group(name="autorole", description="Auto role management commands", invoke_without_command=True)
-    @commands.guild_only()
-    @app_commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    async def autorole(self, ctx: commands.Context) -> None:
-        if ctx.invoked_subcommand:
-            return
-        await ctx.send_help(ctx.command)
 
-
-    @autorole.command(name="list", description="List auto roles for the guild")
+    @app_commands.command(name="list", description="List auto roles for the guild")
     @commands.guild_only()
     @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
@@ -58,12 +61,6 @@ class AutoRoleCog(commands.Cog):
         await ctx.send(embed=_embed)
 
 
-    @autorole.group(name="add", description="Add auto roles to the guild")
-    async def autorole_add(self, ctx: commands.Context) -> None:
-        if ctx.invoked_subcommand:
-            return
-        await ctx.send_help(ctx.command)
-
 
     @autorole_add.command(name="human", description="Add auto roles to human members")
     @app_commands.describe(role="The role to add")
@@ -71,15 +68,17 @@ class AutoRoleCog(commands.Cog):
     @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
-    async def autorole_add_human(self, ctx: commands.Context, role: Role) -> None:
+    async def autorole_add_human(self, ctx: Interaction, role: Role) -> None:
         """Add auto roles to human members
         
         Arguments:
             role (Role): The role to add as auto role for human members
         """
+        await ctx.response.defer(ephemeral=True)
+
 
         if not self.is_role_accessible(role):
-            return await ctx.send("Seems like the role is higher than mine or not accessible !!", ephemeral=True)
+            return await ctx.followup.send("Seems like the role is higher than mine or not accessible !!", ephemeral=True)
         
 
         _autoroles = await GuildAutoRoleModel.find_one(ctx.guild.id)
@@ -89,20 +88,20 @@ class AutoRoleCog(commands.Cog):
                 auto_role_human=role.id
             )
             if not _autoroles:
-                await ctx.send("Failed to create auto role model")
+                await ctx.followup.send("Failed to create auto role model")
                 return
             
-            await ctx.send(f"Added {role.mention} to auto roles for human members")
+            await ctx.followup.send(f"Added {role.mention} to auto roles for human members")
             return
 
 
         if role.id == _autoroles.auto_role_human:
-            await ctx.send(f"{role.mention} is already set as auto role for human members")
+            await ctx.followup.send(f"{role.mention} is already set as auto role for human members")
             return
         
         _autoroles.auto_role_human=role.id
         await _autoroles.save()
-        await ctx.send(f"Added {role.mention} to auto roles for human members")
+        await ctx.followup.send(f"Added {role.mention} to auto roles for human members")
 
 
 
@@ -112,11 +111,11 @@ class AutoRoleCog(commands.Cog):
     @app_commands.describe(role="The role to add")
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
-    async def autorole_add_bot(self, ctx: commands.Context, role: Role) -> None:
+    async def autorole_add_bot(self, ctx: Interaction, role: Role) -> None:
         """Add auto roles to bot members"""
 
-        if not self.is_role_accessible(ctx.guild.me.top_role):
-            await ctx.send("Seems like the role is higher than mine or not accessible !!", ephemeral=True)
+        if not self.is_role_accessible(role):
+            await ctx.followup.send("Seems like the role is higher than mine or not accessible !!", ephemeral=True)
             return
 
         _autoroles = await GuildAutoRoleModel.find_one(ctx.guild.id)
@@ -127,22 +126,22 @@ class AutoRoleCog(commands.Cog):
                 auto_role_bot=role.id
             )
             if not _autoroles:
-                await ctx.send("Failed to create auto role model")
+                await ctx.followup.send("Failed to create auto role model")
                 return
-            await ctx.send(f"Added {role.mention} to auto roles for bot members")
+            await ctx.followup.send(f"Added {role.mention} to auto roles for bot members")
             return
 
 
         if role.id == _autoroles.auto_role_bot:
-            await ctx.send(f"{role.mention} is already set as auto role for bot members")
+            await ctx.followup.send(f"{role.mention} is already set as auto role for bot members")
             return
 
         _autoroles.auto_role_bot=role.id
         await _autoroles.save()
-        await ctx.send(f"Added {role.mention} to auto roles for bot members")
+        await ctx.followup.send(f"Added {role.mention} to auto roles for bot members")
 
 
-    @autorole.command(name="reset", description="Reset auto roles for the guild")
+    @commands.hybrid_command(name="reset", description="Reset auto roles for the guild")
     @commands.guild_only()
     @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
@@ -170,7 +169,7 @@ class AutoRoleCog(commands.Cog):
             _autoroles = await GuildAutoRoleModel.find_one(member.guild.id)
             if not _autoroles:
                 return
-
+            
             if not member.bot and _autoroles.auto_role_human:
                 role = member.guild.get_role(_autoroles.auto_role_human)
                 if role:

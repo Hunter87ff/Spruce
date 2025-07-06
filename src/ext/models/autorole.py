@@ -8,9 +8,9 @@ guild_cache:dict = {}
 
 class GuildAutoRoleModelDict(TypedDict):
     guild_id: int
-    auto_role_human: Unpack[list[int] | None]
-    auto_role_bot: Unpack[list[int] | None]
-    auto_role_all: Unpack[list[int] | None]
+    auto_role_human: list[int] | None
+    auto_role_bot: list[int] | None
+    auto_role_all: list[int] | None
 
 class GuildAutoRoleModel:
 
@@ -34,7 +34,7 @@ class GuildAutoRoleModel:
         if kwargs.get("col", None):
             GuildAutoRoleModel.col = kwargs.get("col")
 
-    def __obj__(self):
+    def to_dict(self):
         return {
             "guild_id": self.guild_id,
             "auto_role_human": self.auto_role_human,
@@ -94,7 +94,7 @@ class GuildAutoRoleModel:
         """Save the GuildAutoRoleModel to the database"""
         self.col.update_one(
             {"guild_id": self.guild_id},
-            {"$set": self.__obj__()},
+            {"$set": self.to_dict()},
             upsert=True
         )
         guild_cache[self.guild_id] = self
