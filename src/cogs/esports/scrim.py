@@ -1308,6 +1308,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         if not all([
             not message.author.bot,
             isinstance(message.channel, discord.TextChannel),
+            isinstance(message.author, discord.Member),
             message.guild,
             message.guild.me.guild_permissions.manage_messages,
             message.guild.me.guild_permissions.add_reactions,
@@ -1330,7 +1331,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         
         self.debug(f"✅ Check 1.1 passed for scrim registration. Scrim found: {_scrim.name} with status: {_scrim.status}")
 
-        
 
         #  Check if the member is already registered for the scrim (having idp role)
         if not _scrim.multi_register and message.author.id in _scrim.teams:

@@ -37,7 +37,7 @@ class AutoRoleCog(commands.GroupCog, name="autorole", description="Auto role man
         return True
 
 
-    @app_commands.command(name="list", description="List auto roles for the guild")
+    @commands.hybrid_command(name="list", description="List auto roles for the guild")
     @commands.guild_only()
     @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
