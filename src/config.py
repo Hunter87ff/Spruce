@@ -1,13 +1,11 @@
 
 from os import environ as env
-from dotenv import load_dotenv
-load_dotenv()
-
-
-from ext import Logger
-logger = Logger
+from ext import Logger as logger # type: ignore
 from typing import TYPE_CHECKING
+from dotenv import load_dotenv
 
+
+load_dotenv()
 if TYPE_CHECKING:
     from ext.models import Tester
 
@@ -63,7 +61,7 @@ MAX_TOURNEYS_PER_GUILD = 3
 MAX_SCRIM_PER_GUILD = 3
 MAX_SLOTS_PER_TOURNEY = 1000
 MAX_SLOTS_PER_SCRIM = 25
-
+MAX_UNBAN_LIMIT=200
 
 # Esports Config
 TAG_IGNORE_ROLE = "tag-ignore"
