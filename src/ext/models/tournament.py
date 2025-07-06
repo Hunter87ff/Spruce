@@ -133,7 +133,10 @@ class TournamentModel:
         Returns:
             TournamentModel: An instance of TournamentModel if found, otherwise None.
         """
-        return cls(**(await cls.col.find_one(**kwargs) or {}))
+        document = await cls.col.find_one(**kwargs)
+        if document is None:
+            return None
+        return cls(**document)
 
     
     @classmethod
