@@ -1707,7 +1707,15 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
             async def myteam(m_int:Interaction):
                 await m_int.response.defer(ephemeral=True)
-                ms = await cch.fetch_message(cslotlist.values[0])
+                try:
+                    ms = await cch.fetch_message(cslotlist.values[0])
+                except Exception:
+                    await m_int.followup.send(
+                        f"Slot not found or deleted in the <#{cch.id}>!!", 
+                        ephemeral=True
+                    )
+                    return
+                
                 emb = ms.embeds[0].copy()
                 await m_int.followup.send(embed=emb, ephemeral=True)
 
@@ -1727,26 +1735,33 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
                 async def tname(tname_modal_int:Interaction):
                         await tname_modal_int.response.defer(ephemeral=True)
-                        nme = inp.children[0].value.upper()
-                        ms = await cch.fetch_message(cslotlist.values[0])
+                        team_name_input : str =  str(inp.children[0].value.upper())
+                        try:
+                            ms = await cch.fetch_message(cslotlist.values[0])
+                        except Exception:
+                            await tname_modal_int.followup.send(
+                                f"Slot not found or deleted in the <#{cch.id}>!!", 
+                                ephemeral=True
+                            )
+                            return 
                         pem = ms.embeds[0]
                         st = pem.description.find("[")+1
                         en = pem.description.find("]")
                         team = pem.description[st:en]
-                        desc = pem.description.replace(team, nme)
+                        desc = pem.description.replace(team, team_name_input)
                         emb =  Embed(color=pem.color, description=desc)
                         emb.set_author(name=tname_modal_int.guild.name, icon_url=tname_modal_int.guild.icon or tname_modal_int.guild.me.avatar.url)
                         emb.set_thumbnail(url=tname_modal_int.user.display_avatar or tname_modal_int.guild.icon or tname_modal_int.guild.me.avatar.url)
                         emb.timestamp = ms.created_at
                         try:
-                            await ms.edit(content = f"{nme} {ms.mentions[0].mention}",embed=emb) if ms else None
+                            await ms.edit(content = f"{team_name_input} {ms.mentions[0].mention}",embed=emb) if ms else None
 
                         except Exception as e:
                             return await tname_modal_int.followup.send(
                                 f'Unable To Change Team Name At This Time!!\nReason : {e}', 
                                 ephemeral=True
                             )
-                        return await tname_modal_int.followup.send(f'Team Name Changed {team} -> {nme}', ephemeral=True)
+                        return await tname_modal_int.followup.send(f'Team Name Changed {team} -> {team_name_input}', ephemeral=True)
 
 
                 inp.on_submit = tname
