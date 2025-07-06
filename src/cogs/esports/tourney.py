@@ -1661,61 +1661,42 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                 await interact.followup.send(embed= Embed(description="Do You Want To Cancel Your Slot?"), view=v2, ephemeral=True)
 
 
-                async def cnf(cnfinteract:Interaction):
+                async def confirmed_cancel_slot(cnfinteract:Interaction):
                     await cnfinteract.response.defer(ephemeral=True)
                     """
                     Asynchronously cancels a slot and removes the associated role from the mentioned member.
-
-                    This function deletes the message containing the slot information and removes the specified role
-                    from the guild member mentioned in the message.
-
-                    Parameters:
-                        cnfinteract (Interaction): The interaction that triggered the confirmation.
-
-                    Returns:
-                        None: Sends an ephemeral message confirming the slot cancellation.
                     """
-                    ms = await cch.fetch_message(cslotlist.values[0])
+                    message_id = int(cslotlist.values[0])
+                    ms = await cch.fetch_message(message_id)
+
+                    if not ms:
+                        return await cnfinteract.followup.send(f"Confirm Message Not Found in the <#{cch.id}>!!", ephemeral=True)
 
                     # maybe we can optimize it further by parsing the member through his id from the message content
-                    for member in ms.mentions:
-
-                        if isinstance(member,  Member):
-                            # check self permission before removing the role
-                            if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
-                                await cnfinteract.followup.send(
-                                    "I Don't Have Permission To Remove The Role\nRequired Perms : `manage_roles`, `manage_messages`", 
-                                    ephemeral=True
-                                )
-                                return
-                            await member.remove_roles(crole)
-                            await ms.delete()
-                            self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
+                    if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
+                        await cnfinteract.followup.send(
+                            "I Don't Have Permission To Remove The Role\nRequired Perms : `manage_roles`, `manage_messages`", 
+                            ephemeral=True
+                        )
+                        return
+                    await interact.user.remove_roles(crole)
+                    await ms.delete()
+                    self.bot.db.dbc.update_one({"rch":cch.id},{"$inc":{"reged":-1}})
 
                     await cnfinteract.followup.send("Slot Cancelled!!", ephemeral=True)
                 
                         
-                async def cnc(interact:Interaction):
+                async def cancel_operation(interact:Interaction):
                     await interact.response.defer(ephemeral=True)
                     """
                     Cancels the current operation and deletes the interaction message.
-
-                    Parameters
-                    ----------
-                    interact : Interaction
-                        The interaction to respond to.
-
-                    Returns
-                    -------
-                    None
-                        This function doesn't return anything, but has the side effect of deleting the message
-                        associated with the interaction.
                     """
                     await interact.message.delete()
 
 
-                conf.callback = cnf
-                canc.callback = cnc
+                conf.callback = confirmed_cancel_slot
+                canc.callback = cancel_operation
+                
             cslotlist.callback = confirm
 
         if interaction.data["custom_id"] == "Mslot":
