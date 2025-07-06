@@ -1667,10 +1667,12 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                     Asynchronously cancels a slot and removes the associated role from the mentioned member.
                     """
                     message_id = int(cslotlist.values[0])
-                    ms = await cch.fetch_message(message_id)
+                    try:
+                        ms = await cch.fetch_message(message_id)
 
-                    if not ms:
-                        return await cnfinteract.followup.send(f"Confirm Message Not Found in the <#{cch.id}>!!", ephemeral=True)
+                    except Exception:
+                            await cnfinteract.followup.send(f"Slot not found or deleted in the <#{cch.id}>!!", ephemeral=True)
+                            return
 
                     # maybe we can optimize it further by parsing the member through his id from the message content
                     if (not interaction.guild.me.guild_permissions.manage_roles) or  (not interaction.guild.me.guild_permissions.manage_messages):
@@ -1696,7 +1698,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
                 conf.callback = confirmed_cancel_slot
                 canc.callback = cancel_operation
-                
+
             cslotlist.callback = confirm
 
         if interaction.data["custom_id"] == "Mslot":

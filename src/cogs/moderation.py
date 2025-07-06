@@ -385,12 +385,12 @@ class ModerationCog(commands.Cog):
             await ctx.send(f"{member} banned", delete_after=5)
 
 
-    @app_commands.command(name="unban", description="Unban a member from the server")
+    @app_commands.command(name="unban", description="Unban a member from the server, Note: process might disrupt from discord's side!!")
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(ban_members=True)
     @app_commands.checks.bot_has_permissions(ban_members=True, send_messages=True)
     @commands.cooldown(2, 15, commands.BucketType.user)
-    @app_commands.describe(user="user id or username", unban_all="Whether to unban all (2000 at a time) users", reason="The reason for unbanning the member")
+    @app_commands.describe(user="user id or username", unban_all="Whether to unban all (200 at a time) users", reason="The reason for unbanning the member")
     async def unban(self, ctx:discord.Interaction, user: discord.User=None, unban_all:bool=False, reason:str=None):
         await ctx.response.defer()
 
@@ -401,15 +401,17 @@ class ModerationCog(commands.Cog):
 
             unbanned_users = 0
             stage = 25 # per 25 member unbanned
-            banned_users = ctx.guild.bans(limit=2000)
+            banned_users = ctx.guild.bans(limit=self.bot.config.MAX_UNBAN_LIMIT)
             async for _user in banned_users:
                 try:
                     await ctx.guild.unban(_user.user, reason=reason or f"Unbanned by {ctx.user}")
                     unbanned_users += 1
                     if unbanned_users % stage == 0:
                         await processing.edit(content=f"**{self.bot.emoji.tick} Unbanned {unbanned_users} users so far...**")
-
+                        await self.bot.sleep((unbanned_users//stage) * 2)  # To avoid hitting rate limits
+                    
                     await self.bot.sleep(0.5)  # To avoid hitting rate limits
+
 
                 except discord.NotFound:
                     continue
