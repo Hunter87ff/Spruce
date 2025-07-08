@@ -10,9 +10,10 @@ from ext import Logger
 from pymongo import MongoClient
 from .models import init
 
+
 class Database:
     _instance = None
-
+    mongo_uri:str = None
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(Database, cls).__new__(cls)
@@ -27,7 +28,7 @@ class Database:
         try:
             # Primary MongoDB client and collections
             Logger.info("Database Connecting...")
-            self.cluster = MongoClient(os.environ["MONGO_URI"])
+            self.cluster = MongoClient(self.mongo_uri or os.environ["MONGO_URI"])
             self.sprucedb = self.cluster["sprucedb"]
             self.config_col =self.sprucedb["configs"]
             self.dbc = self.sprucedb["tourney"]

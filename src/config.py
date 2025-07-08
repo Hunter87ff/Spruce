@@ -1,6 +1,5 @@
 
-from os import environ as env
-from ext import Logger as logger # type: ignore
+from os import getenv
 from typing import TYPE_CHECKING
 from dotenv import load_dotenv
 
@@ -13,20 +12,21 @@ if TYPE_CHECKING:
 OWNER_ID = 885193210455011369
 DEVELOPERS = [ OWNER_ID ]
 
-SHARDS = int(env.get("SHARDS", 1))
-PREFIX = env.get("PREFIX", "&")
-VERSION = env.get("VERSION", "2.1.0")
-IS_DEV_ENV = env.get("MODE") == "development"
+SHARDS = int(getenv("SHARDS", 1))
+PREFIX = getenv("PREFIX", "&")
+VERSION = getenv("VERSION", "2.1.0")
+IS_DEV_ENV = getenv("MODE") == "development"
 
-TRANSLATE_KEY = env.get("TRANSLATE_KEY", None)
-BOT_TOKEN = env.get("BOT_TOKEN")
-GEMINI_KEY = env.get("GEMINI_KEY", None)
-X_CLIENT_ID = env.get("X_CLIENT_ID", "")
-X_CLIENT_SECRET = env.get("X_CLIENT_SECRET", "")
-SPOTIFY_CLIENT_ID = env.get("SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = env.get("SPOTIFY_CLIENT_SECRET", "SPOTIFY_CLIENT_SECRET")
+TRANSLATE_KEY = getenv("TRANSLATE_KEY", None)
+BOT_TOKEN = getenv("BOT_TOKEN")
+MONGO_URI = getenv("MONGO_URI", "mongodb://localhost:27017/")
+GEMINI_KEY = getenv("GEMINI_KEY", None)
+X_CLIENT_ID = getenv("X_CLIENT_ID", "")
+X_CLIENT_SECRET = getenv("X_CLIENT_SECRET", "")
+SPOTIFY_CLIENT_ID = getenv("SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET", "SPOTIFY_CLIENT_SECRET")
 
-LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if env.get("LOCAL_LAVA", None) else None
+LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if getenv("LOCAL_LAVA", None) else None
 DOMAIN = "sprucebot.tech"
 BASE_URL = f"https://{DOMAIN}"
 INVITE_URL = f"{BASE_URL}/invite"
@@ -42,7 +42,7 @@ TESTING_GUILDS = [
 ]
 
 # dependencies
-LAVALINK_JAR = str(f"https://github.com/lavalink-devs/Lavalink/releases/download/{env.get('LAVALINK_VERSION', '4.1.1')}/Lavalink.jar")
+LAVALINK_JAR = str(f"https://github.com/lavalink-devs/Lavalink/releases/download/{getenv('LAVALINK_VERSION', '4.1.1')}/Lavalink.jar")
 
 
 # log channel ids

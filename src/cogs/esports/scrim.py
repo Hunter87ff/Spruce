@@ -769,6 +769,33 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         )
 
 
+    @set_app.command(name="multi_register", description="Set or update the multi-register option for a scrim.")
+    @app.guild_only()
+    @app.describe(
+        reg_channel="Registration channel of the scrim to set multi-register option (required)",
+        allow="Enable or disable multi-register option (required)",
+    )
+    @checks.scrim_mod(interaction=True)
+    async def set_multi_register(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, allow:bool):
+        await ctx.response.defer(ephemeral=True)
+        """Set or update the multi-register option for a scrim."""
+        _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+        if not _scrim:
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+        
+        # Update the multi-register option in the scrim
+        _scrim.multi_register = allow
+        await _scrim.save()
+        status = "enabled" if allow else "disabled"
+        await ctx.followup.send(
+            embed=Embed(
+                description=f"Multi-register option for scrim `{_scrim.name}` has been {status}.",
+                color=self.bot.color.green
+            ),
+            ephemeral=True
+        )
+
+
 
     @set_app.command(name="idp_channel", description="Set or update the IDP channel for a scrim.")
     @app.guild_only()

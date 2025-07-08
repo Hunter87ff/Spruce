@@ -18,8 +18,6 @@ from cashfree_pg.models.create_order_request import CreateOrderRequest
 from cashfree_pg.api_client import Cashfree
 from cashfree_pg.models.customer_details import CustomerDetails
 from cashfree_pg.models.order_meta import OrderMeta
-from ext import Database
-db = Database()
 Cashfree.XClientId = config.X_CLIENT_ID
 Cashfree.XClientSecret = config.X_CLIENT_SECRET
 Cashfree.XEnvironment = Cashfree.PRODUCTION
