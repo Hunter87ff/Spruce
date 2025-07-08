@@ -10,8 +10,10 @@ import time
 _start=time.time()
 import asyncio
 import traceback
+from dotenv import load_dotenv
 from core.bot import Spruce
 
+load_dotenv()
 
 async def launch():
     try:

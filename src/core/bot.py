@@ -46,9 +46,11 @@ class Spruce(commands.AutoShardedBot):
     class Spruce(commands.AutoShardedBot)
     ```
     """
+    instance: "Spruce" = None
+    
     def __init__(self, **kwargs : Unpack[BotConfig]) -> None:
         self.config = config
-        self.db = Database() 
+        Database.mongo_uri = self.config.MONGO_URI 
         self.logger:Logger = Logger
         self.helper = helper
         self.color = color
@@ -69,6 +71,7 @@ class Spruce(commands.AutoShardedBot):
         self.last_run:int = int(time.time())
         self.misc = kwargs
         self.cache = Cache()
+        self.db = Database()
 
 
         super().__init__(
@@ -79,6 +82,7 @@ class Spruce(commands.AutoShardedBot):
             activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
         )
         self.tree.on_error = self.tree_error_handler
+        self.instance = self
 
     async def get_prefix(self, message):
             prefixes = [self.config.PREFIX] # you can add more prefixes here
