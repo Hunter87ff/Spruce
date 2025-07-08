@@ -47,7 +47,7 @@ You can quickly deploy Spruce using Docker with the pre-built image from Docker 
 
 ```bash
 # Pull the latest image
-docker pull hunter87ff/spruce:latest
+docker pull ghcr.io/hunter87ff/spruce:latest
 ```
 
 ### Using Docker Compose
