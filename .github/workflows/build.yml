@@ -1,0 +1,94 @@
+name: Build Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Docker image tags (comma-separated)'
+        required: false
+        default: 'latest'
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up environment variables
+        run: |
+          echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+
+      - name: Process custom tags
+        id: custom-tags
+        run: |
+          if [ -n "${{ github.event.inputs.tags }}" ]; then
+            # Convert comma-separated tags to newline-separated and prefix with registry
+            CUSTOM_TAGS="${{ github.event.inputs.tags }}"
+            echo "Processing custom tags: $CUSTOM_TAGS"
+            
+            # Create tags with proper registry prefix
+            TAG_LIST=""
+            IFS=',' read -ra TAGS <<< "$CUSTOM_TAGS"
+            for tag in "${TAGS[@]}"; do
+              # Trim whitespace
+              tag=$(echo "$tag" | xargs)
+              if [ -n "$tag" ]; then
+                if [ -z "$TAG_LIST" ]; then
+                  TAG_LIST="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$tag"
+                else
+                  TAG_LIST="$TAG_LIST,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$tag"
+                fi
+              fi
+            done
+            echo "tags=$TAG_LIST" >> $GITHUB_OUTPUT
+          else
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.custom-tags.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Output image URL
+        run: |
+          echo "🐳 Docker image pushed successfully!"
+          echo "📦 Image: ${{ steps.custom-tags.outputs.tags }}"
+          echo "🔗 View in GitHub Packages: https://github.com/${{ github.repository }}/pkgs/container/$(echo ${{ github.event.repository.name }} | tr '[:upper:]' '[:lower:]')"
