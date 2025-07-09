@@ -3,15 +3,29 @@ from discord.ext import commands
 from ext import checks
 from ext.modals import Tourney
 from typing import TYPE_CHECKING
-from discord import Embed, TextChannel, Member, Message, app_commands, Interaction
+from ext import color
+from discord import Embed, TextChannel, Member, Message, app_commands, Interaction, utils, Guild
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
-class TestTourney(commands.GroupCog, group="test_tourney", name="test_tourney", description="Test Tourney Commands"):
+class TestTourney(commands.GroupCog, name="test_tourney", description="Test Tourney Commands"):
+    bot: "Spruce" = None
+
     def __init__(self, bot : "Spruce"):
         self.bot = bot
         self._tnotfound = "Tournament Not Found"
+
+
+    async def log(self, guild:Guild, message:str, color:int=color.cyan):
+        channel = utils.get(guild.text_channels, name=self.bot.config.LOG_CHANNEL_NAME)
+        if not channel:
+            return 
+        
+        embed =  Embed(description=message, color=color)
+        embed.set_author(name=guild.me.name, icon_url=guild.me.avatar)
+        await channel.send(embed=embed)
+
 
     @app_commands.command(name="auto_group", description="Automatically create groups for the tournament")
     @app_commands.guild_only()
@@ -36,7 +50,14 @@ class TestTourney(commands.GroupCog, group="test_tourney", name="test_tourney", 
             return await ctx.followup.send("Confirm Channel or Group Channel Not Found")
 
         slot_per_group = _event.spg # slots per group
-        current_group_position = int(min(_event.reged-_event.spg, max(0, (from_group*_event.spg)-1))) # current group position in slots must be less than the number of registered teams
+        current_group_position = int(
+            min(
+                _event.reged-_event.spg, 
+                max(
+                    0, (from_group*_event.spg)-1
+                )
+            )
+        ) # current group position in slots must be less than the number of registered teams
 
         # check permission for confirm channel for bot
         if not confirm_channel.permissions_for(ctx.guild.me).read_message_history:
@@ -56,14 +77,19 @@ class TestTourney(commands.GroupCog, group="test_tourney", name="test_tourney", 
 
         group = int(len(teams)/slot_per_group)
 
-        # Create groups
-        if len(teams)/slot_per_group > group:
-            group = group+1
-
-        if len(teams)/slot_per_group < 1:
+        # Ensure at least one group
+        if len(teams) % slot_per_group != 0:
+            group += 1
+        if group < 1:
             group = 1
 
-        # private channels for each groups
+        # Create category once if needed
+        category = None
+        if create_channels:
+            category = await ctx.guild.create_category(name=f"{_event.prefix} Groups")
+            await category.set_permissions(ctx.guild.default_role, view_channel=False)
+
+        # private channels for each group
         for i in range(max(1, current_group_position//slot_per_group), group+1):
             ms = f"**__GROUP__ : {i:02d}\n"
             # if the current group position is greater than the number of teams, break
@@ -82,14 +108,15 @@ class TestTourney(commands.GroupCog, group="test_tourney", name="test_tourney", 
             current_group_position += slot_per_group
             msg = await group_channel.send(f"{ms}**")
 
-            if create_channels:
-                category = await ctx.guild.create_category(name=f"{_event.prefix} Groups")
-                await category.set_permissions(ctx.guild.default_role, view_channel=False)
-                channel = await confirm_channel.guild.create_text_channel(name=f"{_event.prefix}-group-{i}", category=category)
+            if create_channels and category:
+                channel = await ctx.guild.create_text_channel(name=f"{_event.prefix}-group-{i}", category=category)
                 await channel.send(msg.content)
-                role = await confirm_channel.guild.create_role(name=f"{_event.prefix.upper()} G{i}", color=0x4bd6af)
+                role = await ctx.guild.create_role(name=f"{_event.prefix.upper()} G{i}", color=0x4bd6af)
                 overwrite = channel.overwrites_for(role)
-                overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
+                overwrite.view_channel = True
+                overwrite.send_messages = False
+                overwrite.add_reactions = False
+                overwrite.attach_files = True
                 await channel.set_permissions(role, overwrite=overwrite)
                 await asyncio.sleep(1)
 
