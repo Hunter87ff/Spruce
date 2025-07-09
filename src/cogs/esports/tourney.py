@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord import app_commands
 from core import checker
-from ext import constants, checks, Tourney, emoji, color, files
+from ext import constants, checks, Tourney, emoji, color, files, EmbedBuilder
 from discord import (
     ui,
     utils, 
@@ -41,6 +41,16 @@ def get_front(name:str):
   li = []
   for i in name.split()[0:2]:li.append(i[0])
   return str("".join(li) + "-")
+
+
+class GroupConfig:
+    def __init__(self, current_group:int, messages:list[Message], total_messages:int, event:Tourney, group_channel:TextChannel, group_category:CategoryChannel=None):
+        self.current_group = current_group
+        self.messages = messages
+        self.total_messages = total_messages
+        self.event = event
+        self.group_channel = group_channel
+        self.group_category = group_category
 
 
 class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
@@ -303,10 +313,9 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                     "reged" : 1, 
                     "mentions" : int(mentions), 
                     "status" : "started", 
-                    "faketag": "no", 
+                    "faketag": "yes", 
                     "pub" : "no", 
                     "prize" : "No Data", 
-                    "auto_grp":"no", 
                     "spg":slot_per_group, 
                     "cgp":0, 
                     "created_at":datetime.datetime.now()
@@ -1188,11 +1197,11 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         if ctx.author.bot:return
 
         elif start < 1:
-            return await ctx.reply("Starting Number Should Not Be Lower Than 1")
-        
+            return await ctx.reply(embed=EmbedBuilder.warning("Starting Number Should Not Be Lower Than 1"))
+
         elif end < start:
-            return await ctx.reply("Ending Number Should Not Be Lower Than Starting Number")
-        
+            return await ctx.reply(embed=EmbedBuilder.warning("Ending Number Should Not Be Lower Than Starting Number"))
+
         ms = await ctx.send(f"{emoji.loading}| {constants.PROCESSING}")
         if category == None:category = await ctx.guild.create_category(name=f"{prefix} Groups")
         await category.set_permissions(ctx.guild.default_role, view_channel=False)
@@ -1215,115 +1224,125 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
     async def change_slot(self, ctx:commands.Context, *, slot:str):
         await ctx.defer(ephemeral=True)
         if not ctx.message.reference:
-            return await ctx.reply(
-                embed =  Embed(
-                    description=f"**{emoji.cross} | Please Run This Command By Replying The Group Message**", 
-                    color=color.red), 
+            await ctx.reply(
+                embed =  EmbedBuilder("**Please Run This Command By Replying The Group Message**"), 
                 delete_after=30
             )
+            return
+        
         msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         if slot not in msg.content:
-            return await ctx.send("No Team Found")
-        ask = await ctx.send("Enter New Team Name + Mention")
-        new_slot = await self.get_input(ctx)
-        if not new_slot: 
-            await ctx.send("Kindly Mention The New Slot")
-        if msg and msg.author.id != self.bot.user.id: 
-            return await ctx.send("Got It!\n But I Can't Edit The Message.\nBecause I'm Not The Author Of The Message")
-        if msg : await msg.edit(content=msg.content.replace(str(slot), str(new_slot))) if msg else None
-        if ask : await ask.delete()
-        return await ctx.send(embed= Embed(
-            description=f"{emoji.tick} | Successfully Changed", 
-            color=color.green
-        ), delete_after=10)
-    
-
-
-
-    @commands.hybrid_command(name="auto_group", description="Automatically create groups for the tournament", aliases=["autogroup"])
-    @commands.guild_only()
-    @commands.cooldown(1, 30, commands.BucketType.guild)
-    @checks.tourney_mod()
-    @app_commands.describe(reg_channel="mention the registration channel")
-    async def auto_group(self, ctx:commands.Context, reg_channel: TextChannel):
-        if ctx.author.bot:
+            await ctx.send(embed=EmbedBuilder.warning("No Team Found"))
             return
 
-        await ctx.defer(ephemeral=True)
+        ask = await ctx.send(EmbedBuilder.alert("Enter New Team Name + Mention"))
+        new_slot = await self.get_input(ctx)
+
+        if not new_slot: 
+            await ctx.send(embed=EmbedBuilder.alert("Kindly Mention The New Slot"))
+
+        if msg and msg.author.id != self.bot.user.id: 
+            await ctx.send(
+                embed=EmbedBuilder.warning(
+                    "Got It!\n But I Can't Edit The Message.\nBecause I'm Not The Author Of The Message"
+                )
+            )
+            return
+        
+        if msg : 
+            await msg.edit(content=msg.content.replace(str(slot), str(new_slot))) if msg else None
+        if ask : 
+            await ask.delete()
+        await ctx.send(embed= EmbedBuilder.success("Successfully Changed"), delete_after=10)
+
+    
+    async def generate_groups(self, group_config:GroupConfig):
+        base_index = (group_config.current_group * group_config.event.spg) - group_config.event.spg # starting index of a group message in all the messages
+        to_index = base_index + group_config.event.spg #ending index of a group message in all the messages
+        team_count = 1 # serial number for teams
+
+        if base_index >= group_config.total_messages:
+            return
+
+        msg = f"**__Group__ :  {group_config.current_group}**\n" # group message header
+
+        for i in range(base_index, to_index): 
+            if i >= group_config.total_messages:
+                break 
+            team = group_config.messages[i].content
+            msg += f"> {team_count:02d}) __{team}__\n"
+            team_count += 1
+
+        msg = await group_config.group_channel.send(msg)
+        await msg.add_reaction("✅")
+
+        if isinstance(group_config.group_category, CategoryChannel):
+            channel = await group_config.group_category.guild.create_text_channel(name=f"{group_config.event.prefix}-group-{group_config.current_group}", category=group_config.group_category)
+            msg = await channel.send(msg.content)
+            await msg.add_reaction("✅")
+            
+            # Create a role for the group
+            role = await group_config.group_category.guild.create_role(name=f"{group_config.event.prefix.upper()}G{group_config.current_group}", color=self.bot.base_color)
+            overwrite = channel.overwrites_for(role)
+            overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
+            await channel.set_permissions(role, overwrite=overwrite)
+            for member in msg.mentions:
+                if isinstance(member, Member):
+                    await member.add_roles(
+                        role, reason=f"Adding group role"
+                    )
+                    await self.bot.sleep(1)
+
+        group_config.current_group += 1
+        await self.generate_groups(group_config)
+
+
+
+    @app_commands.command(name="auto_group", description="Automatically create groups for the tournament")
+    @app_commands.guild_only()
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @checks.tourney_mod(interaction=True)
+    @app_commands.describe(
+        reg_channel="mention the registration channel",
+        from_group="Group number to start from (default is 1)",
+        group_category="Category to create group channels in (optional)"
+    )
+    async def auto_group(self, ctx:Interaction, reg_channel: TextChannel, from_group:int=1, group_category:CategoryChannel=None):
+        await ctx.response.defer(ephemeral=True)
 
         _event = Tourney.findOne(reg_channel.id)
         if not _event: 
-            return await ctx.send(self._tnotfound, delete_after=10)
-
-        # Check if the event is already in progress
-        self.dbc.update_one({"rch": reg_channel.id}, {"$set": {"cgp": 0}})
-        
+            return await ctx.followup.send(self._tnotfound, delete_after=10)
 
         confirm_channel = self.bot.get_channel(_event.cch)
         group_channel = self.bot.get_channel(_event.gch)
 
-        if not confirm_channel:
-            return await ctx.send("Confirm Channel Not Found")
-
-        if not group_channel:
-            return await ctx.send("Group Channel Not Found")
-
-        slot_per_group = _event.spg # slots per group
-        current_group_position = 0 # current group position
-
-        # check permission for confirm channel for bot
-        if not confirm_channel.permissions_for(ctx.guild.me).read_message_history:
-            return await ctx.send(f"I Don't Have Permission To Read Message History In {confirm_channel.mention}")
+        if any([not confirm_channel, not group_channel]):
+            await self.log(ctx.guild, message=f"Confirm Channel or Group Channel Not Found\nConfirm Channel: <#{_event.cch}>\nGroup Channel: <#{_event.gch}>")
+            await ctx.followup.send(embed=EmbedBuilder.warning("Confirm Channel or Group Channel Not Found"))
+            return
         
-        teams = []
-        # old confirm messages
-        async for msg in confirm_channel.history(limit=_event.reged+50, oldest_first=True):
-            if msg.author.id == self.bot.user.id and len(msg.embeds) > 0:
-                if "TEAM" in msg.embeds[0].description:
-                    teams.append(msg)
+        base_index = (from_group * _event.spg) - _event.spg
+        limit = _event.reged - (base_index + _event.spg)
+        messages: list[Message] = []
 
-        if len(teams) < 1:
-            return await ctx.send("Minimum Number Of Teams Isn't Reached!!")
-        
-        category = await ctx.guild.create_category(name=f"{_event.prefix} Groups")
-        await category.set_permissions(ctx.guild.default_role, view_channel=False)
+        async for message in confirm_channel.history(limit=limit):
+            if all([message.author == ctx.guild.me,message.mentions]):
+                messages.append(message)
 
-        group = int(len(teams)/slot_per_group)
+        messages.reverse()
+        total_messages = len(messages)
 
-        # Create groups
-        if len(teams)/slot_per_group > group:
-            group = group+1
+        if base_index > total_messages:
+            return await ctx.followup.send(embed=EmbedBuilder.warning("No team found for the specified group range."))
 
-        if len(teams)/slot_per_group < 1:
-            group = 1
+        _group_config = GroupConfig(from_group, messages, total_messages, _event, group_channel, group_category)
+        await self.generate_groups(_group_config)
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(
+                f"Groups generated from {from_group} to {_group_config.current_group - 1} in {group_channel.mention}")
+            )
 
-        # private channels for each groups
-        for i in range(1, group+1):
-            channel = await confirm_channel.guild.create_text_channel(name=f"{_event.prefix}-group-{i}", category=category)
-            role = await confirm_channel.guild.create_role(name=f"{_event.prefix.upper()} G{i}", color=0x4bd6af)
-            overwrite = channel.overwrites_for(role)
-            overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
-            await channel.set_permissions(role, overwrite=overwrite)
-            ms = f"**__GROUP__ {i}\n"
-
-            # get the messages for each group
-            current_group:list[ Message] = teams[current_group_position:current_group_position+slot_per_group]
-
-            for p in current_group:
-                ms = ms + f"{current_group.index(p)+1}) {p.content}" + "\n"
-
-            self.dbc.update_one({"rch":reg_channel.id},{"$set":{"cgp":current_group_position + slot_per_group}})
-
-            # increase the starting position for the next group
-            current_group_position += slot_per_group
-            msg = await group_channel.send(f"{ms}**")
-
-            for m in ctx.guild.members:
-                if m.mention in msg.content: 
-                    await m.add_roles(role)
-
-            await msg.add_reaction(emoji.tick)
-        await ctx.send(f"check this channel {group_channel.mention}")
 
 
     @commands.hybrid_command(description="Set the manager for the tournament")
@@ -1341,10 +1360,9 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
         rch = self.bot.get_channel(tourney.get("rch"))
         mch = await rch.category.create_text_channel(name="manage-slot")
-        emb =  Embed(
+        emb =  EmbedBuilder(
             title=rch.category.name, 
             description=f"{emoji.arow} **Cancel Slot** : To Cancel Your Slot\n{emoji.arow} **My Slot** : To Get Details Of Your Slot\n{emoji.arow} **Team Name** : To Change Your Team Name", 
-            color=color.cyan
         )
         buttons = [
             ui.Button(label='Cancel Slot', style=ButtonStyle.red, custom_id="Cslot"),

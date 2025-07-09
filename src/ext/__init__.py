@@ -15,7 +15,7 @@ import ext.error as error
 from .color import ColorOptions, Color as color
 from . import  files, helper, checks, validator
 from .time import ClientTime
-
+from .embed import EmbedBuilder
 
 
 
@@ -26,6 +26,7 @@ __all__ = (
     "Logger",
     "constants",
     "emoji",
+    "EmbedBuilder",
     "color",
     "error",
     "files",
