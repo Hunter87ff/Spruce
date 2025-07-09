@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from .dev import DevCog
 from .role import RoleCog
 from .tasks import TaskCog
-from .music import MusicCog
+
 from .helpcog import HelperCog
 from .utility import UtilityCog
 from .autorole import AutoRoleCog
@@ -40,9 +40,13 @@ _cogs : list["Cog"] = [
     ScrimCog,
 ]
 
-_DEV_COGS = [
-    MusicCog
-]
+if IS_DEV_ENV:
+    from .music import MusicCog
+    from .testing.test_tourney import TestTourney
+
+
+    _cogs.append(MusicCog)
+    _cogs.append(TestTourney)
 
 
 
@@ -51,10 +55,7 @@ async def setup(bot: "Spruce") -> None:
     Load all cogs into the bot.
     """
     for cog in _cogs:
-
-        if not IS_DEV_ENV and cog in _DEV_COGS:
-            continue
-
+        
         await bot.add_cog(cog(bot))
         bot.logger.info(f"Extension Loaded : {cog.__name__}")
 
