@@ -10,6 +10,7 @@ from asyncio import sleep
 from discord.ext import commands
 from ext import constants,  color
 from discord.ui import View, Button
+from ext import EmbedBuilder
 from discord import  Embed, Role, File, Member, Message, app_commands, Interaction, ButtonStyle
 from typing import TYPE_CHECKING
 
@@ -158,6 +159,8 @@ class RoleCog(commands.Cog):
         base_message:Message
 
         async def take_back_roles(int_ctx:Interaction):
+            if not int_ctx.user != ctx.author:
+                EmbedBuilder.warning(f"Hey.. Hey... you're not {ctx.author} to use it..")
             try:
                 self.check_access(int_ctx.user, role)
 
