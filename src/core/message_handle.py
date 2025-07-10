@@ -49,31 +49,27 @@ async def log_event(message:Message, desc:str, color:int=None):
 
 #Tourney System
 async def tourney(message: Message, bot: 'Spruce'):
-    if any([
-        message.author.bot, 
-        not message.guild,
-        message.is_system()
-    ]):
+    if not message.guild:
         return
     
     # Cache permissions check result
-    guild_me = message.guild.me
+    guild_me = message.guild.me # type: ignore
     channel_perms = message.channel.permissions_for(guild_me)
     
-    required_perms = (
-        guild_me.guild_permissions.manage_messages and
-        guild_me.guild_permissions.manage_roles and
-        guild_me.guild_permissions.send_messages and
-        guild_me.guild_permissions.embed_links and
-        channel_perms.read_message_history and
+    if not all([
+        not message.author.bot,
+        not message.is_system(),
+        guild_me.guild_permissions.manage_messages,
+        guild_me.guild_permissions.manage_roles,
+        guild_me.guild_permissions.send_messages,
+        guild_me.guild_permissions.embed_links,
+        channel_perms.read_message_history,
         guild_me.guild_permissions.manage_channels
-    )
-    
-    if not required_perms:
+    ]):
         return
     
 
-    if utils.get(message.author.roles, name=bot.config.TAG_IGNORE_ROLE):
+    if utils.get(message.author.roles, name=bot.config.TAG_IGNORE_ROLE): # type: ignore
         return
 
     tournament = Tourney.findOne(message.channel.id)
@@ -134,7 +130,9 @@ async def tourney(message: Message, bot: 'Spruce'):
     if crole in message.author.roles:
         await message.delete() if message else None
         await log_event(message, f"{message.author} tried to register again in {rch.mention} but already has the confirm role.", bot.color.red)
-        return await message.channel.send(embed=Embed(description="**Seems like you're already registered as you have the confirm role.**", color=bot.color.red), delete_after=5)
+        await message.channel.send(embed=Embed(description="**Seems like you're already registered as you have the confirm role.**", color=bot.color.red), delete_after=5)
+        return 
+    
 
     bot.debug("✅ Check 4 passed - User does not have the confirm role.", is_debug=IS_DEBUG)
 
@@ -142,8 +140,8 @@ async def tourney(message: Message, bot: 'Spruce'):
         await log_event(message, f"{message.author} tried to register in {rch.mention} but failed due to insufficient mentions.", color=bot.color.red)
         meb = Embed(description=f"**Minimum {tournament.mentions} Mentions Required For Successfull Registration**", color=bot.color.red)
         await message.delete()
-        return await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
-    
+        await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
+        return
 
     bot.debug("✅ Check 5 passed - User has sufficient mentions.", is_debug=IS_DEBUG)
 
@@ -155,7 +153,8 @@ async def tourney(message: Message, bot: 'Spruce'):
         embed = Embed(description="**Registration Closed**", color=bot.color.red)
         embed.set_author(name=message.guild.name, icon_url=message.guild.icon if message.guild.icon else None)
         embed.timestamp = message.created_at
-        return await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed)
+        return
 
     bot.debug("✅ Check 6 passed - Team count is within limits.", is_debug=IS_DEBUG)
 
