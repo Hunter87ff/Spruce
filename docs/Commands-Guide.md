@@ -2,7 +2,7 @@
 
 [![Discord](https://img.shields.io/badge/Discord-Bot-blue)](https://discord.gg/vMnhpAyFZm)
 [![Commands](https://img.shields.io/badge/90+-Commands-violet)](#)
-[![Version](https://img.shields.io/badge/Version-3.0-green)](#)
+[![Version](https://img.shields.io/badge/Version-2.1.0-green)](#)
 
 Welcome to the comprehensive guide for Spruce Bot commands! This documentation covers all available commands, their usage, permissions, and troubleshooting tips.
 
@@ -33,7 +33,7 @@ Make sure Spruce has the following basic permissions:
 - Use Slash Commands
 
 ### Getting Help
-- Use `&help` or `/help` for the interactive help menu
+- Use `&help` for the interactive help menu
 - Use `&help <command>` for specific command help
 - Join our [Support Server](https://discord.gg/vMnhpAyFZm) for assistance
 
@@ -1153,7 +1153,7 @@ When reporting issues, include:
 ---
 
 *Last Updated: December 2024*  
-*Bot Version: 3.0*  
+*Bot Version: 2.1.0*  
 *Documentation Version: 1.0*
 
 For the most up-to-date information and support, please join our [Discord support server](https://discord.gg/vMnhpAyFZm).
