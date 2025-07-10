@@ -19,6 +19,32 @@ Welcome to the comprehensive guide for Spruce Bot commands! This documentation c
 9. [Developer Commands](#developer-commands)
 10. [Troubleshooting](#troubleshooting)
 
+## Command Collections
+
+### AutoRole Commands
+[`&autorole add human`](#autorole-add-human), [`&autorole add bot`](#autorole-add-bot), [`&autorole list`](#autorole-list), [`&autorole reset`](#autorole-reset)
+
+### Moderation Commands
+[`&lock`](#lock-role-channel), [`&unlock`](#unlock-role-channel), [`&lock category`](#lock-category-category-role), [`&hide`](#hide-role-channel), [`&unhide`](#unhide-role-channel), [`&hide category`](#hide-category-category-role), [`&clear`](#clear-amount-target), [`&kick`](#kick-member-reason), [`&ban`](#ban-member-reason), [`&unban`](#unban-user-unban_all-reason), [`&channel_make`](#channel_make-names), [`&channel_del`](#channel_del-channels), [`&create_channel`](#create_channel-category-names), [`&delete_category`](#delete_category-category), [`&clear_perms`](#clear_perms-role)
+
+### Role Management Commands
+[`&create_roles`](#create_roles-names), [`&del_roles`](#del_roles-roles), [`&give_role`](#give_role-role-members), [`&remove_role`](#remove_role-role-members), [`&role_all_human`](#role_all_human-role), [`&role_all_bot`](#role_all_bot-role), [`&inrole`](#inrole-role), [`&port`](#port-role1-role2), [`&remove_members`](#remove_members-role-reason), [`&hide_roles`](#hide_roles), [`&unhide_roles`](#unhide_roles-roles)
+
+### Utility Commands
+[`&avatar`](#avatar-user), [`&banner`](#banner-user), [`&userinfo`](#userinfo-member), [`&serverinfo`](#serverinfo), [`&server_av`](#server_av-server_id), [`&member_count`](#member_count), [`&botinfo`](#botinfo), [`&ping`](#ping), [`&uptime`](#uptime), [`&embed`](#embed), [`&embed_img`](#embed_img-image_url-message), [`&tts`](#tts-message), [`&translate`](#translate), [`&toss`](#toss), [`&whoiss`](#whoiss-user), [`&addemoji`](#addemoji-emoji), [`&nick`](#nick-user-nickname), [`&prefix`](#prefix), [`&sync`](#sync), [`&setup_ticket`](#setup_ticket), [`&invite`](#invite), [`&vote`](#vote), [`&support`](#support)
+
+### Tournament Commands
+[`&tourney setup`](#tourney-setup-slots-mentions-slot_per_group-tournament_name), [`&tourney config`](#tourney-config-registration_channel), [`&tourney start`](#tourney-start-registration_channel), [`&tourney pause`](#tourney-pause-registration_channel), [`&tourney add_slot`](#tourney-add_slot-channel-member-team_name), [`&tourney cancel_slot`](#tourney-cancel_slot-channel-member-reason), [`&tourney change_slot`](#tourney-change_slot-exact_team_name-new_member), [`&tourney auto_group`](#tourney-auto_group-registration_channel), [`&tourney publish`](#tourney-publish-channel-prize), [`&tourney faketag`](#tourney-faketag-registration_channel), [`&tourney girls_lobby`](#tourney-girls_lobby-vc_amount), [`&tourney export`](#tourney-export-registration_channel), [`&tourney tourneys`](#tourney-tourneys), [`&tourney tconfig`](#tourney-tconfig)
+
+### Scrim Commands
+[`&scrim create`](#scrim-create), [`&scrim delete`](#scrim-delete-registration_channel), [`&scrim toggle`](#scrim-toggle-registration_channel), [`&scrim set total_slots`](#scrim-set-total_slots-channel-slots), [`&scrim set open_time`](#scrim-set-open_time-channel-time), [`&scrim set close_time`](#scrim-set-close_time-channel-time), [`&scrim set time_zone`](#scrim-set-time_zone-channel-timezone), [`&scrim start`](#scrim-start-registration_channel), [`&scrim info`](#scrim-info-registration_channel), [`&scrim list`](#scrim-list), [`&scrim add slot`](#scrim-add-slot-channel-member-team_name), [`&scrim cancel_slot`](#scrim-cancel_slot-channel-member-reason), [`&scrim reserved_slots`](#scrim-reserved_slots-channel), [`&scrim audit`](#scrim-audit-channel), [`&scrim idp`](#scrim-idp-channel-member)
+
+### Music Commands (Deprecated)
+[`&play`](#play-song), [`&pause`](#pause), [`&resume`](#resume), [`&stop`](#stop), [`&skip`](#skip), [`&queue`](#queue), [`&loop`](#loop), [`&join`](#join), [`&leave`](#leave), [`&volume`](#volume-1-200), [`&spotify`](#spotify-playlist_url)
+
+### Developer Commands
+[`&system`](#system), [`&leaveg`](#leaveg-member_count-guild_id), [`&get_guild`](#get_guild-guild_id), [`&get_channel`](#get_channel-channel_id), [`&dbupdate`](#dbupdate-key-value), [`&dlm`](#dlm-message), [`&edm`](#edm-message-new_content)
+
 ## Getting Started
 
 ### Bot Prefix
