@@ -419,39 +419,44 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
 
 
-    @commands.hybrid_command(name="start", description="Start a tournament")
-    @commands.guild_only()
-    @checks.tourney_mod()
+    @app_commands.command(name="start", description="Start a tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
     @app_commands.describe(
-        registration_channel="The channel where the tournament is registered, usually the registration channel."
+        reg_channel="The channel where the tournament is registered, usually the registration channel."
     )
-    async def start_tourney(self, ctx:commands.Context, registration_channel :  TextChannel):
-        await ctx.defer(ephemeral=True)
-        if ctx.author.bot:return
-        dbcd = self.dbc.find_one({"rch" : registration_channel.id})
+    async def start_tourney(self, ctx:Interaction, reg_channel :  TextChannel):
+        await ctx.response.defer(ephemeral=True)
+        dbcd : dict = self.dbc.find_one({"rch" : reg_channel.id})
         if not dbcd:
-            return await ctx.send(embed= Embed(description="**No Tournament Running In This Channel**", color=color.blurple), delete_after=10)
-        self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"status" : "started"}})
-        await registration_channel.send(embed= Embed(color=color.cyan, description="Registration Started"))
-        await ctx.send("Started", delete_after=10)
+            await ctx.followup.send('No Tournament Running In This Channel')
+            return
+        self.dbc.update_one({"rch" : reg_channel.id}, {"$set" : {"status" : "started"}})
+        embed = EmbedBuilder(description="Registration Started"
+            f"\n**{emoji.tick} | Available Slots : {dbcd.get('tslot', 0)-dbcd.get('reged', 0)}**"
+            f"\n**{emoji.tick} | Required Mentions : {dbcd.get('mentions', 0)}**"
+        )
+        embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon or ctx.guild.me.avatar)
+        await reg_channel.send(embed=embed)
+        await ctx.followup.send(embed=EmbedBuilder.success("Started Tournament Successfully"))
 
             
 
-    @commands.hybrid_command(description="Pause a tournament", aliases=['pt'])
-    @commands.guild_only()
-    @checks.tourney_mod()
+    @app_commands.command(name="pause", description="Pause a tournament")
+    @checks.tourney_mod(interaction=True)
     @app_commands.describe(
-        registration_channel="The channel where the tournament is registered, usually the registration channel."
+        reg_channel="The channel where the tournament is registered, usually the registration channel."
     )
-    async def pause_tourney(self, ctx:commands.Context, registration_channel :  TextChannel):
-        if ctx.author.bot:return
-        await ctx.defer(ephemeral=True)
-        dbcd = self.dbc.find_one({"rch" : registration_channel.id})
+    async def pause_tourney(self, ctx:Interaction, reg_channel :  TextChannel):
+
+        await ctx.response.defer(ephemeral=True)
+        dbcd = self.dbc.find_one({"rch" : reg_channel.id})
         if not dbcd:
-            return await ctx.send('No Tournament Running In This Channel')
-        self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"status" : "paused"}})
-        await registration_channel.send(embed= Embed(color=self.bot.color.orange, description="Registration Paused"))
-        await ctx.send("Paused", delete_after=10)
+            await ctx.followup.send('No Tournament Running In This Channel')
+            return
+        self.dbc.update_one({"rch" : reg_channel.id}, {"$set" : {"status" : "paused"}})
+        await reg_channel.send(embed= EmbedBuilder(description="Registration Paused"))
+        await ctx.followup.send(embed=EmbedBuilder.success("Paused Tournament Successfully"))
 
         
 
@@ -1186,39 +1191,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
 
 
-    @commands.hybrid_command(name="group_setup", description="Setup group channels by position (it doesn't gives role to players)", aliases=['gsetup'])
-    @commands.guild_only()
-    @app_commands.guild_only()
-    @checks.tourney_mod()
-    @commands.cooldown(1, 60, commands.BucketType.guild)
-    @app_commands.describe(prefix="Prefix for group channels", start="Starting Group Number", end="Ending Group Number", category="Category for group channels")
-    async def group_setup(self, ctx:commands.Context, prefix:str, start:int, end:int, category:CategoryChannel=None):
-        await ctx.defer(ephemeral=True)
-        if ctx.author.bot:return
-
-        elif start < 1:
-            return await ctx.reply(embed=EmbedBuilder.warning("Starting Number Should Not Be Lower Than 1"))
-
-        elif end < start:
-            return await ctx.reply(embed=EmbedBuilder.warning("Ending Number Should Not Be Lower Than Starting Number"))
-
-        ms = await ctx.send(f"{emoji.loading}| {constants.PROCESSING}")
-        if category == None:category = await ctx.guild.create_category(name=f"{prefix} Groups")
-        await category.set_permissions(ctx.guild.default_role, view_channel=False)
-        for i in range(start, end+1):
-            role = await ctx.guild.create_role(name=f"{prefix.upper()} G{i}", color=0x4bd6af)
-            channel = await ctx.guild.create_text_channel(name=f"{prefix}-group-{i}", category=category)
-            overwrite = ctx.channel.overwrites_for(role)
-            overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
-            await channel.set_permissions(role, overwrite=overwrite)
-            await self.log(ctx.guild, message=f"Created Group {i} | {role.mention} | {channel.mention}")
-            await sleep(2)
-            
-        if ms :
-            await ms.edit(content=f"{emoji.tick} | Successfully Created") if ms else None
-
-
-    @commands.command(name="change_slot", aliases=["cslot"])
+    @commands.command(name="change_slot", description="Change a team slot in the tournament")
     @commands.guild_only()
     @checks.tourney_mod()
     async def change_slot(self, ctx:commands.Context, *, slot:str):
@@ -1314,8 +1287,8 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         if not _event: 
             return await ctx.followup.send(self._tnotfound, delete_after=10)
 
-        confirm_channel = self.bot.get_channel(_event.cch)
-        group_channel = self.bot.get_channel(_event.gch)
+        confirm_channel: TextChannel = self.bot.get_channel(_event.cch)
+        group_channel: TextChannel = self.bot.get_channel(_event.gch)
 
         if any([not confirm_channel, not group_channel]):
             await self.log(ctx.guild, message=f"Confirm Channel or Group Channel Not Found\nConfirm Channel: <#{_event.cch}>\nGroup Channel: <#{_event.gch}>")
@@ -1356,7 +1329,8 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         channel = registration_channel
         tourney:dict = self.dbc.find_one({"rch":channel.id})
         if not tourney:
-            return await ctx.send(embed= Embed(description=self._tnotfound, color=color.red), delete_after=10)
+            await ctx.send(embed= Embed(description=self._tnotfound, color=color.red), delete_after=10)
+            return
 
         rch = self.bot.get_channel(tourney.get("rch"))
         mch = await rch.category.create_text_channel(name="manage-slot")

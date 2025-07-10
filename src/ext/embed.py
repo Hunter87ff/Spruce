@@ -1,4 +1,4 @@
-from discord import Embed
+from discord import Embed, utils
 from ext import color, emoji
 
 
@@ -11,7 +11,8 @@ class EmbedBuilder(Embed):
     
     def __init__(self, title: str = None, description: str = None, color: int = color.cyan):
         super().__init__(title=title, description=description, color=color)
-        self.set_footer(text="Spruce | Born to host battles")
+        # self.set_footer(text="Spruce | Born to host battles")
+        self.timestamp = utils.utcnow()
 
     @classmethod
     def warning(cls, message: str) -> "EmbedBuilder":
