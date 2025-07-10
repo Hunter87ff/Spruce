@@ -50,23 +50,6 @@ You can quickly deploy Spruce using Docker with the pre-built image from Docker 
 docker pull ghcr.io/hunter87ff/spruce:latest
 ```
 
-### Using Docker Compose
-
-A `docker-compose.yml` file is provided in the repository for easy deployment:
-
-```bash
-# Clone the repository
-git clone https://github.com/Hunter87ff/spruce.git
-
-# Start the bot with Docker Compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f spruce
-
-# Stop the bot
-docker-compose down
-```
 
 ## Support Server
 > If you're facing any kind of issues with spruce, feel free to join our discord support server<br> 
@@ -76,15 +59,14 @@ docker-compose down
 ## Commands
  
 __**Tournament**__
-
-`tourney_setup`, `add_slot`, `cancel_slot`, `group_setup`, `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`, `export_event_data`, `tourney_log`
+> Base command `/tourney` is used to access all tournament commands.
+`setup`, `add_slot`, `cancel_slot`, `ignore_me`,`change_slot`, `pause`, `start`, `config`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`, `export`, `set log`
 
 
 __**Scrim**__
 > Base command `/scrim` is used to access all scrim commands.
 
 `create`, `start`, `idp`, `audit`, `info`, `cancel_slot`, `delete`, `toggle`, `list`, `reserved_slots`, `set log`, `set idp_channel`, `set fake_tag`, `set idp_role`, `set ping_role`, `set mentions`, `set total_slots`, `set open_time`, `set close_time`, `set time_zone`, `set reg_channel`, `set slot_channel`, `set manager`, `setup group`, `add reserved_slots`, `add slot`, `remove reserved_slots`
-
 
 ---------------------------------
 
@@ -105,6 +87,9 @@ __**Roles**__
 `create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`
 
 ---------------------------------
+
+
+__**Autorole**__
 
 
 __**Musics (deprecated)**__

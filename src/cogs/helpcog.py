@@ -11,27 +11,45 @@
 import discord
 from discord.ext import commands
 from discord.ui import Button, View
-import config
+from config import PREFIX, INVITE_URL
+from ext import emoji, EmbedBuilder
 from typing import TYPE_CHECKING
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
 
-invbtn = Button(label="Invite", url="https://discord.com/oauth2/authorize?client_id=931202912888164474&permissions=8&scope=bot")
+invbtn = Button(label="Invite", url=INVITE_URL)
 votebtn = Button(label="Vote", url="https://top.gg/bot/931202912888164474/vote")
 support_serverbtn = Button(label="Support Server", url="https://discord.gg/vMnhpAyFZm")
 donate_btn = Button(label="Donate", url="https://discord.gg/x4sUyxttnf")
-hel_p = f"• Prefix - `{config.PREFIX}`\n• Total Commands - `88` | Usable - `79`\n• Type `{config.PREFIX}help <command | category>` for more info\n\n"
-helpemb  = discord.Embed(title="Spruce Help Menu", description=f"{hel_p}**__Categories__\n\n<a:music:1017796831272505375> Music\n\n<:mod:999353993035780258> Moderation\n\n<:setting:968374105961300008> Utility\n\n<a:cup:999246631604080711> Esports\n\n<:role:1022568952573984828> Role**", color=0xf0ff0f)
-musicemb = discord.Embed(description=f"{hel_p}__**Musics[Disabled]**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`", color=0xf0ff0f)
-modemb   = discord.Embed(description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`", color=0xf0ff0f)
-espemb   = discord.Embed(description=f"{hel_p}__**Esports**__\n`tourney_setup`,`tconfig`, `add_slot`, `cancel_slot`,`auto_group` , `change_slot`, `pause_tourney`, `start_tourney`, `tourney`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `group_setup`", color=0xf0ff0f)
-roleemb  = discord.Embed(description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `hide_roles`, `unhide_roles`", color=0xf0ff0f)
-utilemb  = discord.Embed(description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`, `uptime`, `vote`, `support`, `invite`, `setup_ticket`", color=0xf0ff0f)
+
+hel_p = f"• Prefix - `{PREFIX}`\n• Total Commands - `88` | Usable - `79`\n• Type `{PREFIX}help <command | category>` for more info\n\n"
+helpemb  = EmbedBuilder(
+    title="Spruce Help Menu",
+    description=f"{hel_p}**__Categories__\n\n{emoji.mod} Moderation\n\n{emoji.setting} Utility\n\n{emoji.cup} Tourney\n\n{emoji.cup} Scrims\n\n{emoji.role} Role\n\n{emoji.music_disk} Music**",
+)
+musicemb = EmbedBuilder(
+    description=f"{hel_p}__**Musics[Disabled]**__\n`play`, `pause`, `resume`, `queue`, `skip`, `loop`, `stop`, `join`, `leave`"
+)
+modemb   = EmbedBuilder(
+    description=f"{hel_p}__**Moderation**__\n`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`"
+)
+
+espemb   = EmbedBuilder(
+    description=f"{hel_p}__**Tourney**__\n`setup`, `add_slot`, `cancel_slot`, `ignore_me`,`change_slot`, `pause`, `start`, `config`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`, `export`, `set log`"
+)
+
+scrimemb = EmbedBuilder(
+    description=f"`scrim create`, `scrim start`, `scrim idp`, `scrim audit`, `scrim info`, `scrim cancel_slot`, `scrim delete`, `scrim toggle`, `scrim list`, `scrim reserved_slots`, `scrim set log`, `scrim set idp_channel`, `scrim set fake_tag`, `scrim set idp_role`, `scrim set ping_role`, `scrim set mentions`, `scrim set total_slots`, `scrim set open_time`, `scrim set close_time`, `scrim set time_zone`, `scrim set reg_channel`, `scrim set slot_channel`, `scrim set manager`, `scrim setup group`, `scrim add reserved_slots`, `scrim add slot`, `scrim remove reserved_slots`"
+)
+roleemb  = EmbedBuilder(
+    description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `hide_roles`, `unhide_roles`"
+)
+utilemb  = EmbedBuilder(
+    description=f"{hel_p}__**Utility**__\n`addemoji`, `tts`, `avatar`, `banner`, `botinfo`, `ping`, `embed`, `embed_img`, `member_count`, `nick`, `nitro`, `prefix`, `react`, `server_av`, `serverinfo`, `toss`, `userinfo`, `whoiss`, `uptime`, `vote`, `support`, `invite`, `setup_ticket`"
+)
+
 buttons =[invbtn, votebtn, support_serverbtn, donate_btn]
 
 
@@ -43,28 +61,30 @@ class Dropdown(discord.ui.Select):
 
         options = [
             discord.SelectOption(label='Main', description='Select For All Commands'),
-            discord.SelectOption(label='Esports', description='Select For Tournament Commands'),
+            discord.SelectOption(label='Tourney', description='Select For Tournament Commands'),
+            discord.SelectOption(label='Scrim', description='Select For Scrim Commands'),
             discord.SelectOption(label='Music', description='Select For Music Commands'),
-            discord.SelectOption(label='Moderation', description='Select For Noderation Commands'),
+            discord.SelectOption(label='Moderation', description='Select For Moderation Commands'),
             discord.SelectOption(label='Utility', description='Select For Utility Commands'),
             discord.SelectOption(label='Role', description='Select For Role Commands'),
         ]
         super().__init__(placeholder='Choose Command Category...', min_values=1, max_values=1, options=options)
 
-    async def callback(self, interaction: discord.Interaction):
-        ctx = interaction
+    async def callback(self, ctx: discord.Interaction):
         if self.values[0] == "Music":
-            await interaction.response.edit_message(embed=musicemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await ctx.response.edit_message(embed=musicemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
         if self.values[0] == "Moderation":
-            await interaction.response.edit_message(embed=modemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
-        if self.values[0] == "Esports":
-            await interaction.response.edit_message(embed=espemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await ctx.response.edit_message(embed=modemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
+        if self.values[0] == "Tourney":
+            await ctx.response.edit_message(embed=espemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
+        if self.values[0] == "Scrim":
+            await ctx.response.edit_message(embed=scrimemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
         if self.values[0] == "Main":
-            await interaction.response.edit_message(embed=helpemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await ctx.response.edit_message(embed=helpemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
         if self.values[0] == "Utility":
-            await interaction.response.edit_message(embed=utilemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await ctx.response.edit_message(embed=utilemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
         if self.values[0] == "Role":
-            await interaction.response.edit_message(embed=roleemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {interaction.user}", icon_url=interaction.user.display_avatar))
+            await ctx.response.edit_message(embed=roleemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.user}", icon_url=ctx.user.display_avatar))
 
 class DropdownView(discord.ui.View):
     def __init__(self):
@@ -75,7 +95,7 @@ class HelperCog(commands.Cog):
     def __init__(self, bot:"Spruce"):
         self.bot= bot
         self.bot.remove_command("help")
-        self.PREFIX = config.PREFIX
+        self.PREFIX = PREFIX
 
 
     @commands.group(invoke_without_command=True,aliases=['commands', 'hel', "h"])
@@ -104,12 +124,20 @@ class HelperCog(commands.Cog):
 
 
 
-    @help.group(invoke_without_command=True,aliases=['esp', "esports"])
+    @help.group(invoke_without_command=True,aliases=["tourney"])
     async def Esports(self, ctx:commands.Context):
         view = View()
         for bt in buttons:
             view.add_item(bt)
         await ctx.send(embed=espemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
+
+
+    @help.group(invoke_without_command=True,aliases=['scrim'])
+    async def Scrim(self, ctx:commands.Context):
+        view = View()
+        for bt in buttons:
+            view.add_item(bt)
+        await ctx.send(embed=scrimemb.set_thumbnail(url=get_thum(ctx)).set_footer(text=f"Requested By {ctx.author}", icon_url=ctx.author.display_avatar), view=view)
 
 
     @help.group(invoke_without_command=True)
@@ -372,17 +400,17 @@ class HelperCog(commands.Cog):
 
     @help.command(aliases=['st_tourney', "tourney_start"])
     async def start_tourney(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `start_tourney <registration_channel>`\nExample : `{self.PREFIX}start_tourney #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
+        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `start <registration_channel>`\nExample : `/tourney start #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['ps_tourney', "tourney_pause"])
     async def pause_tourney(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `pause_tourney <registration_channel>`\nExample : `{self.PREFIX}pause_tourney #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
+        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `pause <registration_channel>`\nExample : `/tourney pause #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
-    async def tourney(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `tourney <registration_channel>`\nExample : `{self.PREFIX}tourney #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
+    async def config(self, ctx:commands.Context):
+        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `config <registration_channel>`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()

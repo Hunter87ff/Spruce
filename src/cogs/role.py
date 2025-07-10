@@ -159,13 +159,16 @@ class RoleCog(commands.Cog):
         base_message:Message
 
         async def take_back_roles(int_ctx:Interaction):
-            if not int_ctx.user != ctx.author:
-                EmbedBuilder.warning(f"Hey.. Hey... you're not {ctx.author} to use it..")
+            await int_ctx.response.defer(ephemeral=True)
+            
+            if int_ctx.user != ctx.author:
+                await int_ctx.followup.send(embed=EmbedBuilder.warning(f"Hey.. Hey... you're not {ctx.author} to use it.."))
+                return
             try:
                 self.check_access(int_ctx.user, role)
 
             except Exception as e:
-                return await int_ctx.response.send_message(
+                return await int_ctx.followup.send(
                     embed=Embed(
                         description=str(e),
                         color=self.bot.color.red
@@ -174,7 +177,7 @@ class RoleCog(commands.Cog):
                 )
             
             if not members:
-                return await int_ctx.response.send_message(
+                return await int_ctx.followup.send(
                     embed=Embed(
                         description="No members to remove role from.",
                         color=self.bot.color.red
@@ -188,7 +191,7 @@ class RoleCog(commands.Cog):
             if base_message:
                 await base_message.delete()
 
-            await int_ctx.response.send_message(
+            await int_ctx.followup.send(
                 embed=Embed(
                     description=f"Role {role.mention} removed from {len(members)} members.",
                     color=self.bot.base_color
