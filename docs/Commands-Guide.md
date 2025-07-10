@@ -2,7 +2,7 @@
 
 [![Discord](https://img.shields.io/badge/Discord-Bot-blue)](https://discord.gg/vMnhpAyFZm)
 [![Commands](https://img.shields.io/badge/90+-Commands-violet)](#)
-[![Version](https://img.shields.io/badge/Version-2.1.0-green)](#)
+[![Version](https://img.shields.io/badge/Version-v2.1.1-green)](#)
 
 Welcome to the comprehensive guide for Spruce Bot commands! This documentation covers all available commands, their usage, permissions, and troubleshooting tips.
 
@@ -23,7 +23,7 @@ Welcome to the comprehensive guide for Spruce Bot commands! This documentation c
 
 ### Bot Prefix
 - **Default Prefix**: `&`
-- **Slash Commands**: All major commands support slash commands (recommended)
+- **Commands**: All commands use the prefix format (e.g., `&help`, `&kick`)
 
 ### Required Permissions
 Make sure Spruce has the following basic permissions:
@@ -43,10 +43,21 @@ Make sure Spruce has the following basic permissions:
 
 AutoRole system automatically assigns roles to new members when they join your server.
 
-### `/autorole add human`
+### Quick Reference
+
+| Command | Description | Required Permissions |
+|---------|-------------|---------------------|
+| `&autorole add human <role>` | Add auto role for human members | Manage Roles |
+| `&autorole add bot <role>` | Add auto role for bot members | Manage Roles |
+| `&autorole list` | List all configured auto roles | Manage Roles |
+| `&autorole reset` | Reset all auto role configurations | Manage Roles |
+
+### Detailed Commands
+
+#### `&autorole add human`
 **Description**: Add an auto role for human members  
-**Usage**: `/autorole add human <role>`  
-**Example**: `/autorole add human @Members`  
+**Usage**: `&autorole add human <role>`  
+**Example**: `&autorole add human @Members`  
 **Permissions**: Manage Roles  
 **Bot Permissions**: Manage Roles  
 
@@ -54,14 +65,14 @@ AutoRole system automatically assigns roles to new members when they join your s
 - ❌ "Role is higher than mine" → Move bot's role above the target role
 - ❌ "Role not accessible" → Check if role is managed by another bot or is @everyone
 
-### `/autorole add bot`
+#### `&autorole add bot`
 **Description**: Add an auto role for bot members  
-**Usage**: `/autorole add bot <role>`  
-**Example**: `/autorole add bot @Bots`  
+**Usage**: `&autorole add bot <role>`  
+**Example**: `&autorole add bot @Bots`  
 **Permissions**: Manage Roles  
 **Bot Permissions**: Manage Roles  
 
-### `&autorole list`
+#### `&autorole list`
 **Description**: List all configured auto roles  
 **Usage**: `&autorole list`  
 **Permissions**: Manage Roles  
@@ -73,7 +84,7 @@ Bot Members: @Bots
 All Members: not-set
 ```
 
-### `&autorole reset`
+#### `&autorole reset`
 **Description**: Reset all auto role configurations  
 **Usage**: `&autorole reset`  
 **Permissions**: Manage Roles  
@@ -86,7 +97,29 @@ All Members: not-set
 
 Comprehensive moderation tools for server management.
 
-### Channel Locking/Unlocking
+### Quick Reference
+
+| Command | Description | Required Permissions |
+|---------|-------------|---------------------|
+| `&lock [role] [channel]` | Lock a channel for a specific role | Manage Roles |
+| `&unlock [role] [channel]` | Unlock a channel for a specific role | Manage Roles |
+| `&lock category <category> [role]` | Lock an entire category | Manage Roles |
+| `&hide [role] [channel]` | Hide a channel from a specific role | Manage Roles |
+| `&unhide [role] [channel]` | Unhide a channel from a specific role | Manage Roles |
+| `&hide category <category> [role]` | Hide an entire category | Manage Roles |
+| `&clear [amount] [target]` | Delete messages in bulk | Manage Messages |
+| `&kick <member> [reason]` | Kick a member from the server | Kick Members |
+| `&ban <member> [reason]` | Ban a member from the server | Ban Members |
+| `&unban <user> [unban_all] [reason]` | Unban a member or all banned members | Ban Members |
+| `&channel_make <names...>` | Create multiple text channels | Manage Channels |
+| `&channel_del <channels...>` | Delete multiple channels | Manage Channels |
+| `&create_channel <category> <names...>` | Create channels in a specific category | Manage Channels |
+| `&delete_category <category>` | Delete an entire category and all its channels | Administrator |
+| `&clear_perms [role]` | Remove all permissions from roles | Manage Roles |
+
+### Detailed Commands
+
+#### Channel Locking/Unlocking
 
 #### `&lock [role] [channel]`
 **Description**: Lock a channel for a specific role  
@@ -161,9 +194,10 @@ Comprehensive moderation tools for server management.
 **Permissions**: Ban Members  
 **Bot Permissions**: Ban Members  
 
-#### `/unban <user> [unban_all] [reason]`
+#### `&unban <user> [unban_all] [reason]`
 **Description**: Unban a member or all banned members  
-**Usage**: `/unban user:@user unban_all:False reason:unbanned`  
+**Usage**: `&unban <user> [unban_all] [reason]`  
+**Example**: `&unban @user False "Appeal accepted"`  
 **Options**:
 - `unban_all: True` - Unbans up to 200 users at once
 **Permissions**: Ban Members  
@@ -220,7 +254,25 @@ Comprehensive moderation tools for server management.
 
 Advanced role management and assignment tools.
 
-### Role Creation & Deletion
+### Quick Reference
+
+| Command | Description | Required Permissions |
+|---------|-------------|---------------------|
+| `&create_roles <names...>` | Create multiple roles at once | Manage Roles |
+| `&del_roles <roles...>` | Delete multiple roles | Manage Roles |
+| `&give_role <role> <members...>` | Give a role to multiple members | Manage Roles |
+| `&remove_role <role> <members...>` | Remove a role from multiple members | Manage Roles |
+| `&role_all_human <role>` | Give a role to all human members | Manage Roles |
+| `&role_all_bot <role>` | Give a role to all bot members | Manage Roles |
+| `&inrole <role>` | List all members with a specific role | Manage Roles |
+| `&port <role1> <role2>` | Copy all members from role1 to role2 | Manage Roles |
+| `&remove_members <role> [reason]` | Remove a role from ALL its members | Administrator |
+| `&hide_roles` | Hide all roles from member list | Manage Roles |
+| `&unhide_roles <roles...>` | Show specific roles in member list | Manage Roles |
+
+### Detailed Commands
+
+#### Role Creation & Deletion
 
 #### `&create_roles <names...>`
 **Aliases**: `&croles`  
@@ -271,9 +323,9 @@ Advanced role management and assignment tools.
 
 ### Role Utilities
 
-#### `/inrole <role>`
+#### `&inrole <role>`
 **Description**: List all members with a specific role  
-**Usage**: `/inrole role:@Members`  
+**Usage**: `&inrole @Members`  
 **Permissions**: Manage Roles  
 
 **Output**: 
@@ -288,9 +340,10 @@ Advanced role management and assignment tools.
 
 **Use Case**: Useful for transferring members between roles during server restructuring.
 
-#### `/remove_members <role> [reason]`
+#### `&remove_members <role> [reason]`
 **Description**: Remove a role from ALL its members  
-**Usage**: `/remove_members role:@role reason:cleanup`  
+**Usage**: `&remove_members @role [reason]`  
+**Example**: `&remove_members @EventParticipant "Event ended"`  
 **Permissions**: Administrator  
 
 **⚠️ Warning**: This affects ALL members with the role.
@@ -314,7 +367,37 @@ Advanced role management and assignment tools.
 
 General purpose utility commands for server enhancement.
 
-### User Information
+### Quick Reference
+
+| Command | Description | Required Permissions |
+|---------|-------------|---------------------|
+| `&avatar [user]` | Get user's avatar | None |
+| `&banner [user]` | Get user's banner | None |
+| `&userinfo [member]` | Detailed user information | None |
+| `&serverinfo` | Detailed server information | None |
+| `&server_av [server_id]` | Get server's icon | None |
+| `&member_count` | Show server member count | None |
+| `&botinfo` | Bot statistics and information | None |
+| `&ping` | Check bot latency | None |
+| `&uptime` | How long the bot has been running | None |
+| `&embed` | Create custom embed messages | Manage Messages |
+| `&embed_img <image_url> <message>` | Create embed with image | Manage Messages |
+| `&tts <message>` | Convert text to speech | None |
+| `&translate` | Translate text between languages | None |
+| `&toss` | Flip a coin | None |
+| `&whoiss [user]` | Random personality description | None |
+| `&addemoji <emoji>` | Add custom emoji to server | Manage Emojis |
+| `&nick <user> <nickname>` | Change user's nickname | Manage Nicknames |
+| `&prefix` | Show bot's prefix | Administrator |
+| `&sync` | Sync slash commands to server | Administrator |
+| `&setup_ticket` | Create ticket support system | Manage Channels, Manage Roles |
+| `&invite` | Get bot invite link | None |
+| `&vote` | Vote for the bot | None |
+| `&support` | Join support server | None |
+
+### Detailed Commands
+
+#### User Information
 
 #### `&avatar [user]`
 **Aliases**: `&av`, `&pfp`  
@@ -390,13 +473,16 @@ General purpose utility commands for server enhancement.
 
 ### Message Tools
 
-#### `/embed`
+#### `&embed`
 **Description**: Create custom embed messages  
-**Usage**: `/embed title:Title description:Description color:teal`  
+**Usage**: `&embed <title> <description> [color] [footer] [thumbnail] [image] [channel]`  
+**Example**: `&embed "Welcome" "Welcome to our server!" blue "Footer text"`  
+**Permissions**: Manage Messages  
+
 **Options**:
 - `title` - Embed title
 - `description` - Main content
-- `color` - Embed color
+- `color` - Embed color (red, blue, green, etc.)
 - `footer` - Footer text
 - `thumbnail` - Thumbnail image URL
 - `image` - Main image URL
@@ -420,9 +506,10 @@ General purpose utility commands for server enhancement.
 - 🗣️ English language with Indian accent
 - 📁 Sends as audio file
 
-#### `/translate`
+#### `&translate`
 **Description**: Translate text between languages  
-**Usage**: `/translate from_lang:English to_lang:Spanish message:Hello World`  
+**Usage**: `&translate <from_lang> <to_lang> <message>`  
+**Example**: `&translate English Spanish "Hello World"`  
 **Rate Limit**: 2 uses per 50 seconds  
 
 ### Fun Commands
@@ -445,9 +532,9 @@ General purpose utility commands for server enhancement.
 
 ### Utility Functions
 
-#### `/nick <user> <nickname>`
+#### `&nick <user> <nickname>`
 **Description**: Change user's nickname  
-**Usage**: `/nick user:@alice nickname:NewName`  
+**Usage**: `&nick @alice "New Name"`  
 **Permissions**: Manage Nicknames  
 
 #### `&prefix`
@@ -503,12 +590,35 @@ General purpose utility commands for server enhancement.
 
 Comprehensive esports tournament management system.
 
-### Tournament Setup
+### Quick Reference
 
-#### `/tourney setup <slots> <mentions> <slot_per_group> <tournament_name>`
-**Aliases**: `/tourney ts`  
+| Command | Description | Required Permissions |
+|---------|-------------|---------------------|
+| `&tourney setup <slots> <mentions> <slot_per_group> <tournament_name>` | Create a new tournament | Manage Channels or @tourney-mod |
+| `&tourney config <registration_channel>` | View tournament configuration | None |
+| `&tourney start <registration_channel>` | Start tournament registration | @tourney-mod |
+| `&tourney pause <registration_channel>` | Pause tournament registration | @tourney-mod |
+| `&tourney add_slot <channel> <member> <team_name>` | Manually add a team slot | @tourney-mod |
+| `&tourney cancel_slot <channel> <member> [reason]` | Cancel a team's registration | @tourney-mod |
+| `&tourney change_slot <exact_team_name> <new_member>` | Change team captain | @tourney-mod |
+| `&tourney auto_group <registration_channel>` | Automatically create tournament groups | @tourney-mod |
+| `&tourney publish <channel> <prize>` | Publish tournament results | @tourney-mod |
+| `&tourney faketag <registration_channel>` | Allow fake tags for testing | @tourney-mod |
+| `&tourney girls_lobby <vc_amount>` | Create girls-only voice channels | @tourney-mod |
+| `&tourney export <registration_channel>` | Export tournament data | @tourney-mod |
+| `&tourney tourneys` | List all active tournaments | @tourney-mod |
+| `&tourney tconfig` | View tournament configuration | Administrator |
+| `&tourney set log <channel>` | Set tournament log channel | Administrator |
+
+### Detailed Commands
+
+#### Tournament Setup
+
+#### `&tourney setup <slots> <mentions> <slot_per_group> <tournament_name>`
+**Aliases**: `&tourney ts`  
 **Description**: Create a new tournament  
-**Usage**: `/tourney setup slots:144 mentions:4 slot_per_group:12 tournament_name:Weekly Tournament`  
+**Usage**: `&tourney setup <slots> <mentions> <slot_per_group> <tournament_name>`  
+**Example**: `&tourney setup 144 4 12 "Weekly Tournament"`  
 **Permissions**: Manage Channels (or @tourney-mod role)  
 
 **Parameters**:
@@ -523,44 +633,44 @@ Comprehensive esports tournament management system.
 - 📊 Tournament management roles
 - 🎮 Tournament configuration
 
-#### `/tourney config <registration_channel>`
+#### `&tourney config <registration_channel>`
 **Description**: View tournament configuration  
-**Usage**: `/tourney config channel:#register-here`  
+**Usage**: `&tourney config #register-here`  
 
 ### Registration Management
 
-#### `/tourney start <registration_channel>`
+#### `&tourney start <registration_channel>`
 **Description**: Start tournament registration  
-**Usage**: `/tourney start channel:#register-here`  
+**Usage**: `&tourney start #register-here`  
 **Permissions**: @tourney-mod  
 
-#### `/tourney pause <registration_channel>`
+#### `&tourney pause <registration_channel>`
 **Description**: Pause tournament registration  
-**Usage**: `/tourney pause channel:#register-here`  
+**Usage**: `&tourney pause #register-here`  
 **Permissions**: @tourney-mod  
 
-#### `/tourney add_slot <channel> <member> <team_name>`
+#### `&tourney add_slot <channel> <member> <team_name>`
 **Description**: Manually add a team slot  
-**Usage**: `/tourney add_slot channel:#register member:@captain team_name:Team Alpha`  
+**Usage**: `&tourney add_slot #register @captain "Team Alpha"`  
 **Permissions**: @tourney-mod  
 
-#### `/tourney cancel_slot <channel> <member> [reason]`
+#### `&tourney cancel_slot <channel> <member> [reason]`
 **Description**: Cancel a team's registration  
-**Usage**: `/tourney cancel_slot channel:#register member:@captain reason:Rule violation`  
+**Usage**: `&tourney cancel_slot #register @captain "Rule violation"`  
 **Permissions**: @tourney-mod  
 
-#### `/tourney change_slot <exact_team_name> <new_member>`
+#### `&tourney change_slot <exact_team_name> <new_member>`
 **Description**: Change team captain (use by replying to group message)  
-**Usage**: Reply to group message with `/tourney change_slot team_name:TEAM ALPHA new_member:@newcaptain`  
+**Usage**: Reply to group message with `&tourney change_slot "TEAM ALPHA" @newcaptain`  
 **Permissions**: @tourney-mod  
 
 **Important**: Must reply to the exact group message and use exact team name.
 
 ### Tournament Organization
 
-#### `/tourney auto_group <registration_channel>`
+#### `&tourney auto_group <registration_channel>`
 **Description**: Automatically create tournament groups  
-**Usage**: `/tourney auto_group channel:#register-here`  
+**Usage**: `&tourney auto_group #register-here`  
 **Permissions**: @tourney-mod  
 
 **Requirements**:
@@ -574,40 +684,40 @@ Comprehensive esports tournament management system.
 - 🏷️ Sets up group roles
 - 📱 Sends group information
 
-#### `/tourney publish <channel> <prize>`
+#### `&tourney publish <channel> <prize>`
 **Description**: Publish tournament announcement  
-**Usage**: `/tourney publish channel:#register-here prize:$1000 USD`  
+**Usage**: `&tourney publish #register-here "$1000 USD"`  
 **Permissions**: @tourney-mod  
 
 ### Tournament Features
 
-#### `/tourney faketag <registration_channel>`
+#### `&tourney faketag <registration_channel>`
 **Description**: Toggle fake tag detection  
-**Usage**: `/tourney faketag channel:#register-here`  
+**Usage**: `&tourney faketag #register-here`  
 **Permissions**: @tourney-mod  
 
 **Purpose**: Prevents users from registering with fake/non-existent team tags.
 
-#### `/tourney girls_lobby <vc_amount>`
+#### `&tourney girls_lobby <vc_amount>`
 **Description**: Create voice channels for female participants  
-**Usage**: `/tourney girls_lobby vc_amount:12`  
+**Usage**: `&tourney girls_lobby 12`  
 **Permissions**: @tourney-mod  
 
-#### `/tourney export <registration_channel>`
+#### `&tourney export <registration_channel>`
 **Description**: Export tournament data  
-**Usage**: `/tourney export channel:#register-here`  
+**Usage**: `&tourney export #register-here`  
 **Permissions**: @tourney-mod  
 
 **Output**: CSV file with all registered teams and member information.
 
 ### Tournament Utilities
 
-#### `/tourney tourneys`
+#### `&tourney tourneys`
 **Description**: List all active tournaments  
-**Usage**: `/tourney tourneys`  
+**Usage**: `&tourney tourneys`  
 
-#### `/tourney tconfig`
-**Aliases**: `/tourney tc`  
+#### `&tourney tconfig`
+**Aliases**: `&tourney tc`  
 **Description**: View all tournament configurations  
 **Usage**: `/tourney tconfig`  
 
@@ -630,7 +740,29 @@ Comprehensive esports tournament management system.
 
 Advanced scrim (practice match) management system.
 
-### Scrim Creation & Management
+### Quick Reference
+
+| Command | Description | Required Permissions |
+|---------|-------------|---------------------|
+| `&scrim create` | Create a new scrim configuration | Manage Channels or @scrim-mod |
+| `&scrim delete <registration_channel>` | Delete a scrim configuration | @scrim-mod |
+| `&scrim toggle <registration_channel>` | Enable/disable a scrim | @scrim-mod |
+| `&scrim set total_slots <channel> <slots>` | Set total available slots | @scrim-mod |
+| `&scrim set open_time <channel> <time>` | Set registration opening time | @scrim-mod |
+| `&scrim set close_time <channel> <time>` | Set registration closing time | @scrim-mod |
+| `&scrim set time_zone <channel> <timezone>` | Set scrim timezone | @scrim-mod |
+| `&scrim start <registration_channel>` | Start scrim registration | @scrim-mod |
+| `&scrim info <registration_channel>` | View scrim information | None |
+| `&scrim list` | List all active scrims | None |
+| `&scrim add slot <channel> <member> <team_name>` | Manually add a team slot | @scrim-mod |
+| `&scrim cancel_slot <channel> <member> [reason]` | Cancel a team's registration | @scrim-mod |
+| `&scrim reserved_slots <channel>` | View reserved slots | @scrim-mod |
+| `&scrim audit <channel>` | Audit scrim registrations | @scrim-mod |
+| `&scrim idp <channel> <member>` | Handle IDP (In-Discord-Player) | @scrim-mod |
+
+### Detailed Commands
+
+#### Scrim Creation & Management
 
 #### `/scrim create`
 **Description**: Create a new scrim configuration  
@@ -812,30 +944,48 @@ Advanced scrim (practice match) management system.
 
 **⚠️ Notice**: Music functionality is currently disabled due to maintenance.
 
+### Quick Reference
+
+| Command | Description | Status |
+|---------|-------------|--------|
+| `&play <song>` | Play a song | Disabled |
+| `&pause` | Pause playback | Disabled |
+| `&resume` | Resume playback | Disabled |
+| `&stop` | Stop playback | Disabled |
+| `&skip` | Skip current song | Disabled |
+| `&queue` | View song queue | Disabled |
+| `&loop` | Toggle loop mode | Disabled |
+| `&join` | Join voice channel | Disabled |
+| `&leave` | Leave voice channel | Disabled |
+| `&volume <1-200>` | Set volume | Disabled |
+| `&spotify <playlist_url>` | Play Spotify playlist | Disabled |
+
+### Detailed Commands
+
 The following commands were available but are temporarily unavailable:
 
-### Playback Controls
+#### Playback Controls
 - `&play <song>` - Play a song
 - `&pause` - Pause playback
 - `&resume` - Resume playback
 - `&stop` - Stop playback
 - `&skip` - Skip current song
 
-### Queue Management
+#### Queue Management
 - `&queue` - View song queue
 - `&loop` - Toggle loop mode
 
-### Voice Channel
+#### Voice Channel
 - `&join` - Join voice channel
 - `&leave` - Leave voice channel
 
-### Audio Effects
+#### Audio Effects
 - `&volume <1-200>` - Set volume
 - `&pitch <0.5-2.0>` - Adjust pitch
 - `&speed <0.5-2.0>` - Adjust speed
 - `&nightcore` - Enable nightcore mode
 
-### Streaming
+#### Streaming
 - `&spotify <playlist_url>` - Play Spotify playlist
 
 **Troubleshooting (When Available)**:
@@ -849,7 +999,21 @@ The following commands were available but are temporarily unavailable:
 
 **🔒 Access**: These commands are restricted to bot developers and administrators.
 
-### System Information
+### Quick Reference
+
+| Command | Description | Access Level |
+|---------|-------------|-------------|
+| `&system` | View system resource usage | Developers only |
+| `&leaveg <member_count> [guild_id]` | Leave servers with fewer members | Bot owner only |
+| `&get_guild <guild_id>` | Get invite link for a server | Developers only |
+| `&get_channel <channel_id>` | Get information about a channel | Developers only |
+| `&dbupdate <key> <value>` | Update database configuration | Developers only |
+| `&dlm <message>` | Delete a specific message | Developers only |
+| `&edm <message> <new_content>` | Edit a bot message | Bot owner only |
+
+### Detailed Commands
+
+#### System Information
 
 #### `&system`
 **Description**: View system resource usage  
