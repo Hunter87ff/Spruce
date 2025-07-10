@@ -5,11 +5,10 @@ A module for managing esports tournaments in a Discord server.
     :license: GPL-3, see LICENSE for more details.
 """
 
-
-
 import datetime
 import asyncio
 from asyncio import sleep
+from random import shuffle as random_shuffle
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord import app_commands
@@ -1278,9 +1277,10 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
     @app_commands.describe(
         reg_channel="mention the registration channel",
         from_group="Group number to start from (default is 1)",
-        group_category="Category to create group channels in (optional)"
+        group_category="Category to create group channels in (optional)",
+        shuffle="Shuffle the teams before grouping (default is False)"
     )
-    async def auto_group(self, ctx:Interaction, reg_channel: TextChannel, from_group:int=1, group_category:CategoryChannel=None):
+    async def auto_group(self, ctx:Interaction, reg_channel: TextChannel, from_group:int=1, shuffle:bool=False, group_category:CategoryChannel=None):
         await ctx.response.defer(ephemeral=True)
 
         _event = Tourney.findOne(reg_channel.id)
@@ -1302,6 +1302,10 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         async for message in confirm_channel.history(limit=limit):
             if all([message.author == ctx.guild.me,message.mentions]):
                 messages.append(message)
+
+        # shuffle the messages if required
+        if shuffle:
+            random_shuffle(messages)
 
         messages.reverse()
         total_messages = len(messages)

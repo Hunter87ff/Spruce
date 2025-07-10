@@ -12,11 +12,11 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=sqale_rating)](#)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=security_rating)](#)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=duplicated_lines_density)](#)
-<!-- [![Repo Size](https://img.shields.io/github/repo-size/hunter87ff/spruce)](#) -->
+[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=bugs)](#)
+[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=vulnerabilities)](#)
+[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=alert_status)](#)
 
 
-<!-- [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=bugs)](#)
-[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=vulnerabilities)](#) -->
 <!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
 
 Spruce is a multi-functional Discord app designed to streamline the management of Discord esports and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
@@ -28,6 +28,7 @@ Spruce is a multi-purpose discord app that provides various kind of features lik
 - Tournament Management
 - Scrim Management
 - Auto Group Setup
+- Autorole System
 - Text To Speech
 - Ticket System
 - Translation
@@ -82,14 +83,17 @@ __**Utility**__
 
 ---------------------------------
 
+__**Autorole**__
+> Base command `/autorole` is used to access all autorole commands.
+`add human` `add bot`, `remove human`, `remove bot`, `list`, `reset`
+
+---------------------------------
+
 __**Roles**__
 
 `create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `role_all_human`, `role_all_bot`, `hide_roles`, `unhide_roles`
 
 ---------------------------------
-
-
-__**Autorole**__
 
 
 __**Musics (deprecated)**__

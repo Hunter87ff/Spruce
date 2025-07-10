@@ -41,7 +41,7 @@ espemb   = EmbedBuilder(
 )
 
 scrimemb = EmbedBuilder(
-    description=f"`scrim create`, `scrim start`, `scrim idp`, `scrim audit`, `scrim info`, `scrim cancel_slot`, `scrim delete`, `scrim toggle`, `scrim list`, `scrim reserved_slots`, `scrim set log`, `scrim set idp_channel`, `scrim set fake_tag`, `scrim set idp_role`, `scrim set ping_role`, `scrim set mentions`, `scrim set total_slots`, `scrim set open_time`, `scrim set close_time`, `scrim set time_zone`, `scrim set reg_channel`, `scrim set slot_channel`, `scrim set manager`, `scrim setup group`, `scrim add reserved_slots`, `scrim add slot`, `scrim remove reserved_slots`"
+    description=f"{hel_p}__**Scrims**__\n`scrim create`, `scrim start`, `scrim idp`, `scrim audit`, `scrim info`, `scrim cancel_slot`, `scrim delete`, `scrim toggle`, `scrim list`, `scrim reserved_slots`, `scrim set log`, `scrim set idp_channel`, `scrim set fake_tag`, `scrim set idp_role`, `scrim set ping_role`, `scrim set mentions`, `scrim set total_slots`, `scrim set open_time`, `scrim set close_time`, `scrim set time_zone`, `scrim set reg_channel`, `scrim set slot_channel`, `scrim set manager`, `scrim setup group`, `scrim add reserved_slots`, `scrim add slot`, `scrim remove reserved_slots`"
 )
 roleemb  = EmbedBuilder(
     description=f"{hel_p}__**Roles**__\n`create_roles`, `port`, `inrole`, `remove_roles`, `del_roles`, `give_roles`, `remove_role_members`, `role_all_bot`, `role_all_human`, `hide_roles`, `unhide_roles`"
@@ -398,19 +398,19 @@ class HelperCog(commands.Cog):
         em = discord.Embed(description=f"Aliases : `ts`\nUsage : `tourney_setup <total_slot> <mentions> <number_of_slot_per_group> <tournament_name>`\nExample : `{self.PREFIX}ts 144 4 12 WEEKLY SCRIM`\nNote : You must have @tourney-mod Role to manage the tournament\n\n**[Watch Tutorial](https://www.youtube.com/watch?v=bVJWdVGHxRc)**", color=0x00ff00)
         await ctx.send(embed=em)
 
-    @help.command(aliases=['st_tourney', "tourney_start"])
+    @help.command()
     async def start_tourney(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `start <registration_channel>`\nExample : `/tourney start #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `start <registration_channel>`\nExample : `/tourney start #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command(aliases=['ps_tourney', "tourney_pause"])
     async def pause_tourney(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `pause <registration_channel>`\nExample : `/tourney pause #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `pause <registration_channel>`\nExample : `/tourney pause #register-here`\nNote : You Can Also Use channel_id", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
     async def config(self, ctx:commands.Context):
-        em = discord.Embed(description=f"Aliases : `Not Available`\nUsage : `config <registration_channel>`", color=0x00ff00)
+        em = discord.Embed(description="Aliases : `Not Available`\nUsage : `config <registration_channel>`", color=0x00ff00)
         await ctx.send(embed=em)
 
     @help.command()
