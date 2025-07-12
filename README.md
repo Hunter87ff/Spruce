@@ -40,16 +40,26 @@ Spruce is a multi-purpose discord app that provides various kind of features lik
 > [!NOTE]
 > If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
 
-## 🐳 Docker Deployment
-
-You can quickly deploy Spruce using Docker with the pre-built image from Docker Hub:
-
-### Pull and Run the Container
-
-```bash
-# Pull the latest image
-docker pull ghcr.io/hunter87ff/spruce:latest
+## 🐳 Deployment
+```yml
+services:
+  spruce-bot:
+    image: ghcr.io/hunter87ff/spruce:latest
+    container_name: spruce-bot
+    restart: unless-stopped
+    environment:
+#      - MODE=production
+#      - VERSION=2.1.1
+#      - BOT_TOKEN=your-bot-token
+#      - MONGO_URI=mongo-uri
+#      - PREFIX=&
+#      - X_CLIENT_ID= pg-key
+#      - X_CLIENT_SECRET= pg-secret
+#      - SHARDS= 1
+#      - TRANSLATE_KEY=azure_translate_service_token
+#      - GEMINI_KEY=api_key
 ```
+
 
 
 ## Support Server
