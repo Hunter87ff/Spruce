@@ -9,6 +9,7 @@ import time
 import discord
 from discord import app_commands
 from asyncio import sleep
+from ext import EmbedBuilder
 from discord.ext import commands
 import typing
 
@@ -473,6 +474,22 @@ class ModerationCog(commands.Cog):
 
 
         async def dc_confirmed(interaction:discord.Interaction):
+
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(
+                    embed=EmbedBuilder.warning(f"{self.bot.emoji.cross} | You are not allowed to do this"),
+                    ephemeral=True
+                )
+                return
+            
+            if not ctx.guild.me.guild_permissions.manage_channels:
+                await interaction.response.send_message(
+                    embed=EmbedBuilder.warning(f"I don't have permission to manage channels"),
+                    ephemeral=True
+                )
+                return
+            
+
             emb = discord.Embed(color=0x00ff00, description=f"**{self.bot.emoji.loading} | Deleting `{category.name}` Category**")
             await del_t_con.edit(content=None, embed=emb, view=None)
             for channel in category.channels:
