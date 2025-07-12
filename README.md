@@ -12,7 +12,6 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=sqale_rating)](#)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=security_rating)](#)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=duplicated_lines_density)](#)
-[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=bugs)](#)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=vulnerabilities)](#)
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=alert_status)](#)
 
@@ -41,23 +40,12 @@ Spruce is a multi-purpose discord app that provides various kind of features lik
 > If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
 
 ## 🐳 Deployment
-```yml
-services:
-  spruce-bot:
-    image: ghcr.io/hunter87ff/spruce:latest
-    container_name: spruce-bot
-    restart: unless-stopped
-    environment:
-#      - MODE=production
-#      - VERSION=2.1.1
-#      - BOT_TOKEN=your-bot-token
-#      - MONGO_URI=mongo-uri
-#      - PREFIX=&
-#      - X_CLIENT_ID= pg-key
-#      - X_CLIENT_SECRET= pg-secret
-#      - SHARDS= 1
-#      - TRANSLATE_KEY=azure_translate_service_token
-#      - GEMINI_KEY=api_key
+```sh
+docker-compose up -d # if wanna build from source
+```
+or
+```sh
+docker pull ghcr.io/hunter87ff/spruce:latest # if you want to use the prebuilt image
 ```
 
 
