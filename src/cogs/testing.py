@@ -1,10 +1,8 @@
-import asyncio
+
 from discord.ext import commands
-from ext import checks
 from ext.modals import Tourney
 from typing import TYPE_CHECKING
-from ext import color
-from discord import Embed, TextChannel, Member, Message, app_commands, Interaction, utils, Guild, CategoryChannel
+from discord import TextChannel, Message, CategoryChannel
 
 if TYPE_CHECKING:
     from core.bot import Spruce
@@ -21,19 +19,17 @@ class GroupConfig:
         self.group_category = group_category
 
 
-class TestTourney(commands.GroupCog, name="test_tourney", description="Test Tourney Commands"):
+class TestingCog(commands.GroupCog, name="test", description="Tester only commands."):
     bot: "Spruce" = None
 
     def __init__(self, bot : "Spruce"):
         self.bot = bot
         self._tnotfound = "Tournament Not Found"
 
-
-    async def log(self, guild:Guild, message:str, color:int=color.cyan):
-        channel = utils.get(guild.text_channels, name=self.bot.config.LOG_CHANNEL_NAME)
-        if not channel:
-            return 
-        
-        embed =  Embed(description=message, color=color)
-        embed.set_author(name=guild.me.name, icon_url=guild.me.avatar)
-        await channel.send(embed=embed)
+    
+    @commands.command(name="inv")
+    async def get_invite(self, ctx: commands.Context):
+        self.bot.application.edit(
+            tags=["dead"]
+        )
+        await ctx.send(self.bot.application.custom_install_url)
