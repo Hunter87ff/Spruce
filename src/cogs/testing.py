@@ -18,6 +18,10 @@ class GroupConfig:
         self.group_channel = group_channel
         self.group_category = group_category
 
+class BaseRound:
+    def __init__(self) -> None:
+        pass
+        
 
 class TestingCog(commands.GroupCog, name="test", description="Tester only commands."):
     bot: "Spruce" = None
