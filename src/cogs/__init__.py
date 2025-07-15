@@ -41,12 +41,9 @@ _cogs : list["Cog"] = [
 ]
 
 if IS_DEV_ENV:
-    from .music import MusicCog
-    from .testing.test_tourney import TestTourney
 
-
-    _cogs.append(MusicCog)
-    _cogs.append(TestTourney)
+    from .testing import TestingCog
+    _cogs.append(TestingCog)
 
 
 

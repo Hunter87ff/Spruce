@@ -1,0 +1,16 @@
+services:
+  spruce-bot:
+    image: ghcr.io/hunter87ff/spruce:latest
+    container_name: spruce-bot
+    restart: unless-stopped
+    environment:
+     - MODE=production
+     - VERSION=2.1.1
+     - BOT_TOKEN=your-bot-token
+     - MONGO_URI=mongo-uri
+     - PREFIX=&
+     - X_CLIENT_ID= pg-key
+     - X_CLIENT_SECRET= pg-secret
+     - SHARDS= 1
+     - TRANSLATE_KEY=azure_translate_service_token
+     - GEMINI_KEY=api_key
