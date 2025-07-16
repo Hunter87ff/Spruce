@@ -171,14 +171,15 @@ class UtilityCog(commands.Cog):
     @app_commands.checks.cooldown(2, 60, key=lambda i: i.user.id)
     async def embed_command(
         self, 
-        interaction: Interaction, 
+        interaction: Interaction,
+        content:str=None, 
         title: str="Title", 
         description: str="Description", 
         color:ColorOptions = ColorOptions.teal, 
-        footer: str="Footer",
+        footer: str="",
         thumbnail: str=None,
         image: str=None,
-        channel: discord.TextChannel=None
+        channel: discord.TextChannel=None,
         ):
         channel = channel or interaction.channel
         embed = Embed(title=title, description=description, color=color.value)
@@ -190,12 +191,15 @@ class UtilityCog(commands.Cog):
             embed.set_image(url=image)
             
         embed.set_footer(text=footer)
-        await channel.send(embed=embed)
+
+        await channel.send(content=content, embed=embed)
         await interaction.response.send_message(
             f"Embed sent to {channel.mention}", 
             embed=embed,
             ephemeral=True
         )
+
+
 
 
 

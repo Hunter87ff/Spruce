@@ -1301,10 +1301,11 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         base_index = (from_group * _event.spg) - _event.spg
         limit = _event.reged - (base_index + _event.spg)
         messages: list[Message] = []
-
-        async for message in confirm_channel.history(limit=limit):
-            if all([message.author == ctx.guild.me,message.mentions]):
+        
+        async for message in confirm_channel.history(limit=limit+1):
+            if all([message.author == ctx.guild.me, message.mentions]):
                 messages.append(message)
+
 
         # shuffle the messages if required
         if shuffle:
