@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 __all__ = (
     "ScrimModel",
     "Tester",
-    "TournamentModel",
+    "TourneyModel",
     "GuildAutoRoleModel",
 )
 
