@@ -36,7 +36,7 @@ class ConfirmedTeamModel:
         if len(message.mentions) != 1 or not message.embeds:
             raise ValueError("message must mention exactly one user and contain an embed")
         
-        self.captain = message.mentions[1]
+        self.captain = message.mentions[0]
         self.name = message.content.replace(self.captain.mention, "").strip() if message.content else f"{self.captain.name}'s Team"
         self.players = message.embeds[0].description.split("\n")[1].replace("Players: ", "").split(", ") if message.embeds[0].description else []
 
