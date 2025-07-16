@@ -9,7 +9,7 @@ of this license document, but changing it is not allowed.
 
 from discord.ext import commands
 from typing import TYPE_CHECKING
-from ext.models import GuildAutoRoleModel
+from models import GuildAutoRoleModel
 from discord import app_commands, Role, Member, Embed, Interaction
 
 if TYPE_CHECKING:

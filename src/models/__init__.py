@@ -1,6 +1,6 @@
 from .scrim import ScrimModel
 from .tester import Tester
-from .tournament import TournamentModel
+from .tourney import TourneyModel
 from .autorole import GuildAutoRoleModel
 from typing import TYPE_CHECKING
 
@@ -11,11 +11,11 @@ if TYPE_CHECKING:
 __all__ = (
     "ScrimModel",
     "Tester",
-    "TournamentModel",
+    "TourneyModel",
     "GuildAutoRoleModel",
 )
 
 def init(db:"Database"):
     GuildAutoRoleModel.col = db.autoroles
     ScrimModel.col = db.scrims
-    TournamentModel.col = db.dbc
+    TourneyModel.col = db.dbc

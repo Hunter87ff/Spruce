@@ -1249,7 +1249,10 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         await msg.add_reaction("✅")
 
         if isinstance(group_config.group_category, CategoryChannel):
-            channel = await group_config.group_category.guild.create_text_channel(name=f"{group_config.event.prefix}-group-{group_config.current_group}", category=group_config.group_category)
+            channel = await group_config.group_category.guild.create_text_channel(
+                name=f"{group_config.event.prefix}-group-{group_config.current_group}", 
+                category=group_config.group_category
+            )
             msg = await channel.send(msg.content)
             await msg.add_reaction("✅")
             
@@ -1285,7 +1288,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
         _event = Tourney.findOne(reg_channel.id)
         if not _event: 
-            return await ctx.followup.send(self._tnotfound, delete_after=10)
+            return await ctx.followup.send(self._tnotfound, ephemeral=True)
 
         confirm_channel: TextChannel = self.bot.get_channel(_event.cch)
         group_channel: TextChannel = self.bot.get_channel(_event.gch)
@@ -1298,10 +1301,11 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         base_index = (from_group * _event.spg) - _event.spg
         limit = _event.reged - (base_index + _event.spg)
         messages: list[Message] = []
-
-        async for message in confirm_channel.history(limit=limit):
-            if all([message.author == ctx.guild.me,message.mentions]):
+        
+        async for message in confirm_channel.history(limit=limit+1):
+            if all([message.author == ctx.guild.me, message.mentions]):
                 messages.append(message)
+
 
         # shuffle the messages if required
         if shuffle:

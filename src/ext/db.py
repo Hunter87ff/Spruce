@@ -8,7 +8,7 @@ of this license document, but changing it is not allowed.
 import os
 from ext import Logger
 from pymongo import MongoClient
-from .models import init
+from models import init
 
 
 class Database:
