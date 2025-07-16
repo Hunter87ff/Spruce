@@ -4,8 +4,9 @@ from typing import Unpack, TypedDict
 
 if TYPE_CHECKING:
     from pymongo.collection import Collection
+    from pymongo.asynchronous.collection import AsyncCollection
 
-_tournament_cache: dict[int, 'TournamentModel'] = {}
+_tourney_cache: dict[int, 'TourneyModel'] = {}
 
 
 class TournamentPayload(TypedDict):
@@ -25,11 +26,11 @@ class TournamentPayload(TypedDict):
 
 
 
-class TournamentModel:
+class TourneyModel:
     """
     Tourney class represents a tournament with various properties.
     """
-    col: "Collection" = None  # MongoDB collection name for tournaments
+    col: "AsyncCollection" = None  # MongoDB collection name for tournaments
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
         self.guild_id: int = kwargs.get("guild_id")
@@ -61,7 +62,7 @@ class TournamentModel:
     def __eq__(self, value):
         if isinstance(value, int):
             return self.reg_channel == value
-        elif isinstance(value, TournamentModel):
+        elif isinstance(value, TourneyModel):
             return self.reg_channel == value.reg_channel and self.guild_id == value.guild_id
         elif isinstance(value, datetime):
             return self.created_at == value
@@ -116,7 +117,7 @@ class TournamentModel:
         if not self.validate():
             raise ValueError("Invalid Tournament instance. Cannot save to database.")
 
-        return self.col.update_one(
+        return await self.col.update_one(
             {"reg_channel": self.reg_channel, "guild_id": self.guild_id},
             {"$set": self.to_dict()},
             upsert=True
@@ -140,22 +141,22 @@ class TournamentModel:
 
     
     @classmethod
-    async def get(cls, reg_channel:int) -> 'TournamentModel':
+    async def get(cls, reg_channel:int) -> 'TourneyModel':
         """Fetches a Tournament instance from the database by its registration channel.
 
         Args:
             reg_channel (int): The registration channel ID.
 
         Returns:
-            TournamentModel: An instance of TournamentModel if found, otherwise None.
+            TourneyModel: An instance of TourneyModel if found, otherwise None.
         """
-        if reg_channel in _tournament_cache:
-            return _tournament_cache[reg_channel]
+        if reg_channel in _tourney_cache:
+            return _tourney_cache[reg_channel]
 
         data = await cls.find_one({"reg_channel": reg_channel})
         if not data:
             return None
 
         tournament = cls(**data)
-        _tournament_cache[reg_channel] = tournament
+        _tourney_cache[reg_channel] = tournament
         return tournament

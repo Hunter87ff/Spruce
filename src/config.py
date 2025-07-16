@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 if TYPE_CHECKING:
-    from ext.models import Tester
+    from models import Tester
 
 
 OWNER_ID = 885193210455011369

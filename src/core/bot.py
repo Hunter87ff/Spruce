@@ -15,7 +15,7 @@ import wavelink
 import traceback
 from .cache import Cache
 from typing import Unpack
-from ext.models import Tester
+from models import Tester
 from ext.types import BotConfig
 from discord.ext import commands
 from core import (message_handle)

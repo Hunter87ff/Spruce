@@ -11,7 +11,7 @@ import config
 from core import payment
 from discord.ext import commands
 from ext import checks
-from ext.models import Tester
+from models import Tester
 from typing import Any, TYPE_CHECKING
 import psutil, enum
 
