@@ -59,7 +59,6 @@ class ConfirmedTeamModel:
         if self.message:
             await self.message.delete()
             self.message = None
-            del self
         else:
             raise ValueError("Message has already been deleted or does not exist.")
 
