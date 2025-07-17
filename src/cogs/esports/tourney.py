@@ -1302,7 +1302,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         limit = _event.reged - (base_index + _event.spg)
         messages: list[Message] = []
         
-        async for message in confirm_channel.history(limit=limit+1):
+        async for message in confirm_channel.history(limit=limit+_event.spg, oldest_first=True):
             if all([message.author == ctx.guild.me, message.mentions]):
                 messages.append(message)
 
@@ -1311,7 +1311,6 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         if shuffle:
             random_shuffle(messages)
 
-        messages.reverse()
         total_messages = len(messages)
 
         if base_index > total_messages:
