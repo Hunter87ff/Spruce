@@ -5,7 +5,6 @@ A module for moderation commands in Spruce.
     :license: GPL-3, see LICENSE for more details.
 """
 
-import time
 import discord
 from discord import app_commands
 from asyncio import sleep
@@ -72,6 +71,7 @@ class ModerationCog(commands.Cog):
     @app_commands.describe(role="The role to lock the channel for", channel="The channel to lock")
     async def lock_channel(self, ctx:commands.Context, channel: discord.TextChannel, role:discord.Role=None):
         await self.lock(ctx, role=role, channel=channel)
+
 
 
     @lock.command(name="category", description="Lock a category for a specific role", aliases=["lc"])
@@ -296,32 +296,31 @@ class ModerationCog(commands.Cog):
         _processing = await ctx.send(f"**{self.bot.emoji.loading} | Deleting {amount} messages...**")
 
         def filter(m:discord.Message):
-            if m.id == _processing.id:
+            if any([
+                m.id == _processing.id,
+                self.bot.is_ws_ratelimited()
+            ]):
                 return False
-            
-            if self.bot.is_ws_ratelimited():
-                return False
-            
+
             if not target:
-                time.sleep(0.2)
                 return True
             
             if m.author.id == target.id:
-                time.sleep(0.2)
                 return True
             
             else:
                 return False
             
-        
+        try:
+            await ctx.channel.purge(limit=_limit, check=filter, bulk=True)
+            if _processing:
+                await _processing.edit(
+                    content=f"**{self.bot.emoji.tick} | Successfully deleted {amount} messages!**",
+                    delete_after=5
+                )
 
-        if not ctx.channel.permissions_for(ctx.guild.me).manage_messages:
-            await _processing.edit(content=f"{self.bot.emoji.cross} | I don't have permission to manage messages in this channel!")
-
-        await ctx.channel.purge(limit=_limit, check=filter, bulk=True)
-        if _processing:
-            await _processing.edit(content=f"**{self.bot.emoji.tick} | Successfully deleted {amount} messages!**")
-
+        except Exception as e:
+            self.bot.error_log(f"Guild: {ctx.guild.name}\nChannel: {ctx.channel.name}\nCommand : clear\nError: {e}")
 
 
     @commands.hybrid_command(name="clear_perms", description="Clear all permissions from a role")
@@ -385,10 +384,13 @@ class ModerationCog(commands.Cog):
         
         if ctx.author.top_role.position < member.top_role.position:
             await ctx.send(f"{member}'s role is higher than yours", delete_after=5)
+
         elif member == ctx.author:
             await ctx.send("**You can't ban your self**", delete_after=5)
+
         elif ctx.guild.me.top_role.position < member.top_role.position:
             await ctx.send("**I can't ban him**", delete_after=5)
+            
         else:
             await ctx.guild.ban(member, reason=reason or f"{member} banned by {ctx.author}")
             await ctx.send(f"{member} banned", delete_after=5)
