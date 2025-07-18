@@ -66,6 +66,17 @@ class MusicCog(commands.Cog):
             await user.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
 
 
+    @commands.Cog.listener()
+    async def on_lavalink_callback(self) -> None:
+        try:
+            self.bot.logger.info("Connecting to Lavalink...")
+            _nodes = [wavelink.Node(uri=self.bot.config.LOCAL_LAVA[0], password=self.bot.config.LOCAL_LAVA[1])]
+            await wavelink.Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
+
+        except Exception as e:
+            self.bot.logger.error(f"Failed to connect to Lavalink: {e}")
+            await self.bot.unload_extension("cogs.music")
+
 
     @commands.hybrid_command(name="join", aliases=["j"], description="Join a voice channel.")
     async def join(self, ctx: commands.Context) -> None:
