@@ -56,7 +56,12 @@ class ModerationCog(commands.Cog):
         await channel.set_permissions(role, overwrite=overwrite)
 
         if ctx.channel.permissions_for(ctx.guild.me).send_messages:
-            await ctx.send(self._declear(channel, role, "locked"), delete_after=5)
+            await ctx.send(
+                embed=EmbedBuilder.success(
+                    self._declear(channel, role, "locked")
+                    ), 
+                delete_after=5
+            )
 
 
     @lock.command(name="channel", description="Lock a channel for a specific role")
@@ -110,7 +115,10 @@ class ModerationCog(commands.Cog):
         overwrite = channel.overwrites_for(role)
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
-        await ctx.send(f'{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`', delete_after=5)
+        await ctx.send(
+            embed=EmbedBuilder.success(f'{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`'),
+            delete_after=5
+        )
 
 
 

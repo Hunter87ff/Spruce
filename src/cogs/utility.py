@@ -199,8 +199,77 @@ class UtilityCog(commands.Cog):
             ephemeral=True
         )
 
+    @app_commands.command(name="edit_embed", description="Edit an existing embed message")
+    @app_commands.checks.has_permissions(manage_messages=True)
+    @app_commands.describe(
+        message_id="ID of the message to edit",
+        channel="Channel where the message is located(optional, defaults to current channel)",
+        content="New content for the embed (optional)",
+        title="New title for the embed",
+        description="New description for the embed",
+        color="New color for the embed (hex code or color name)",
+        thumbnail="New thumbnail image URL",
+        image="New main image URL"
+    )
+    @app_commands.checks.cooldown(2, 60, key=lambda i: i.user.id)
+    async def edit_embed_command(
+        self, 
+        interaction: Interaction,
+        message_id: str, 
+        channel: discord.TextChannel = None,
+        content: str = None, 
+        title: str = "Title", 
+        description: str = "Description", 
+        color: ColorOptions = ColorOptions.teal, 
+        thumbnail: str = None,
+        image: str = None
+    ):
+        await interaction.response.defer(ephemeral=True)
 
+        channel = channel or interaction.channel
+        if len(content or "") > 500:
+            await interaction.followup.send("Content is too long. Maximum 500 characters allowed.", ephemeral=True)
+            return
 
+        if len(title or "") > 256:
+            await interaction.followup.send("Title is too long. Maximum 256 characters allowed.", ephemeral=True)
+            return
+
+        if len(description or "") > 2000:
+            await interaction.followup.send("Description is too long. Maximum 2000 characters allowed.", ephemeral=True)
+            return
+
+        try:
+            message = await channel.fetch_message(int(message_id))
+
+            if message.author.id != self.bot.user.id:
+                await interaction.followup.send("You can only edit embeds sent by the bot.", ephemeral=True)
+                return
+            
+            if not message.embeds:
+                await interaction.followup.send("The message does not contain an embed.", ephemeral=True)
+                return
+            
+            embed = message.embeds[0] if message.embeds else Embed()
+
+            embed.title = title or embed.title
+            embed.description = description.replace("/n", "\n") if description else embed.description
+            embed.color = color.value or embed.color
+
+            if self.bot.validator.is_valid_url(thumbnail):
+                embed.set_thumbnail(url=thumbnail)
+
+            if self.bot.validator.is_valid_url(image):
+                embed.set_image(url=image)
+
+            embed.set_footer(text=f"{interaction.user.name}")
+            embed.timestamp = interaction.created_at
+
+            await message.edit(content=content.replace("/n", "\n"), embed=embed)
+            await interaction.followup.send("Embed edited successfully.", ephemeral=True)
+
+        except (Exception, discord.NotFound):
+            await interaction.followup.send("Unable to update !!", ephemeral=True)
 
 
     @commands.hybrid_command(description="Convert text to speech")
