@@ -79,7 +79,8 @@ class Spruce(commands.AutoShardedBot):
             command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
             intents=intents,
             allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
-            activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help")
+            activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help"),
+            chunk_guilds_at_startup=False
         )
         self.tree.on_error = self.tree_error_handler
         self.instance = self
@@ -100,9 +101,7 @@ class Spruce(commands.AutoShardedBot):
         self.config.TESTERS = await Tester.all(self)
         
 
-
-    @property
-    def current_datetime(self):
+    def now(self):
         """Returns the current time in the specified format."""
         return self.time.now()
 
@@ -126,6 +125,11 @@ class Spruce(commands.AutoShardedBot):
             self.config_data = self.db.config_col.find_one({"config_id": 87}) or {}
             self.blocked_words = self.config_data.get("bws", [])
             self.last_run = int(self.config_data.get("last_run", time.time()))
+
+            self.logger.info("Chunking guilds...")
+            await asyncio.gather(*(g.chunk() for g in self.guilds if not g.chunked))
+            self.logger.info("All guilds chunked successfully.")
+            
             exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
 
         except Exception as e:
@@ -143,9 +147,7 @@ class Spruce(commands.AutoShardedBot):
         
         await self.process_commands(message)
         if message.guild:
-            # print("Tourney handle is detached!! make sure to attack it before push")
             await message_handle.tourney(message, self)
-
 
          
     async def on_command_error(self, ctx:commands.Context, error:Exception):
@@ -157,26 +159,14 @@ class Spruce(commands.AutoShardedBot):
         await error_handle.manage_backend_error(error, self)
 
 
-
     def debug(self, message: str, is_debug=False):
         """Debug function to print messages if DEBUG is True."""
         frame = inspect.currentframe().f_back
         line_number = inspect.getframeinfo(frame).lineno
         module_name = frame.f_globals["__name__"]
+
         if self.config.IS_DEV_ENV and is_debug:
             print(f"[{module_name}:{line_number}] {message} ")
-
-
-    async def on_lavalink_callback(self) -> None:
-        try:
-            self.logger.info("Connecting to Lavalink...")
-            _nodes = [wavelink.Node(uri=self.config.LOCAL_LAVA[0], password=self.config.LOCAL_LAVA[1])]
-            await wavelink.Pool.connect(nodes=_nodes, client=self, cache_capacity=None)
-
-        except Exception as e:
-            self.logger.error(f"Failed to connect to Lavalink: {e}")
-            await self.unload_extension("cogs.music")
-
 
 
     async def log(self, exc: Exception) -> None:
@@ -197,6 +187,11 @@ class Spruce(commands.AutoShardedBot):
             line (int): The line number where the error occurred.
             message (str): The error message to log.
         """
+        if not self.log_channel:
+            self.log_channel = self.get_channel(self.config.client_error_log)
+            if not self.log_channel:
+                return
+            
         embed=Embed(title=f"Error {module.split('.')[-1]} | `Module : {module} | Line : {line}`", description=f"```{''.join(message)}```",  color=self.color.red)
         await self.log_channel.send(embed=embed)
 
@@ -208,7 +203,10 @@ class Spruce(commands.AutoShardedBot):
         Args:
             message (tuple[str]): The error message to log.
         """
-        await self.log_channel.send(f"```py\n{' '.join(messages)}\n```")
+        if not self.log_channel:
+            self.log_channel = self.get_channel(self.config.client_error_log)
+            if not self.log_channel:
+                return
 
 
     async def sleep(self, seconds:float=1) -> None:
