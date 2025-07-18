@@ -11,7 +11,6 @@ import cogs
 import config
 import asyncio
 import inspect
-import wavelink
 import traceback
 from .cache import Cache
 from typing import Unpack
@@ -19,7 +18,7 @@ from models import Tester
 from ext.types import BotConfig
 from discord.ext import commands
 from core import (message_handle)
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, error as error_handle
+from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, Activities, error as error_handle
 from discord import (
     AllowedMentions, 
     Intents, 
@@ -73,17 +72,16 @@ class Spruce(commands.AutoShardedBot):
         self.cache = Cache()
         self.db = Database()
 
-
         super().__init__(
-            shard_count=kwargs.get("shards", config.SHARDS),
-            command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
-            intents=intents,
-            allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
-            activity=Activity(type=ActivityType.listening, name=f"{self.config.PREFIX}help"),
-            chunk_guilds_at_startup=False
+                    # shard_count=kwargs.get("shards", config.SHARDS),
+                    command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
+                    intents=intents,
+                    allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
+                    chunk_guilds_at_startup=False
         )
         self.tree.on_error = self.tree_error_handler
         self.instance = self
+
 
     async def get_prefix(self, message):
             prefixes = [self.config.PREFIX] # you can add more prefixes here
@@ -104,11 +102,22 @@ class Spruce(commands.AutoShardedBot):
     def now(self):
         """Returns the current time in the specified format."""
         return self.time.now()
+    
+
+    async def _chunk_guilds(self):
+        for guild in self.guilds:
+            if not guild.chunked:
+                try:
+                    await self.loop.create_task(guild.chunk())
+
+                except Exception as e:
+                    self.logger.error(f"Failed to chunk guild {guild.id}: {e}")
 
 
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
         try:
+            Activities(self)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
 
@@ -127,10 +136,12 @@ class Spruce(commands.AutoShardedBot):
             self.last_run = int(self.config_data.get("last_run", time.time()))
 
             self.logger.info("Chunking guilds...")
-            await asyncio.gather(*(g.chunk() for g in self.guilds if not g.chunked))
+            await self._chunk_guilds()
             self.logger.info("All guilds chunked successfully.")
             
             exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
+            
+
 
         except Exception as e:
             self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))

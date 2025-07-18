@@ -1,14 +1,11 @@
 """
-                    GNU GENERAL PUBLIC LICENSE
-                       Version 3, 29 June 2007
-
- Copyright (C) 2022-present hunter87.dev@gmail.com
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- This module contains all the constants used in the bot.
+A module containing constants used across the application.
+    :author: hunter87
+    :copyright: (c) 2022-present hunter87.dev@gmail.com
+    :license: GPL-3, see LICENSE for more details.
 """
 
+from enum import Enum
 
 __all__ = (
     "NaturalLang",
@@ -22,7 +19,7 @@ __all__ = (
     "repl_yes",
 )
 
-from enum import Enum
+
 
 
 
@@ -172,3 +169,4 @@ class Alerts:
     SUCCESS = "Your request was processed successfully."
     WARNING = "Please be cautious while proceeding."
     TIMEOUT = "Timeout. Please try again later."
+

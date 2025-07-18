@@ -16,10 +16,11 @@ from .color import ColorOptions, Color as color
 from . import  files, helper, checks, validator
 from .time import ClientTime
 from .embed import EmbedBuilder
-
+from .activity import Activities
 
 
 __all__ = (
+    "Activities",
     "setup",
     "Database", 
     "Tourney", 
