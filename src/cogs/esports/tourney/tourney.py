@@ -1261,7 +1261,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             for member in msg.mentions:
                 if isinstance(member, Member):
                     await member.add_roles(
-                        role, reason=f"Adding group role"
+                        role, reason="Adding group role"
                     )
                     await self.bot.sleep(1)
 
