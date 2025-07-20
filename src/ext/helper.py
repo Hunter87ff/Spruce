@@ -203,7 +203,8 @@ async def get_input(
     modal = discord.ui.Modal(title=title)
     modal.add_item(discord.ui.TextInput(label=label, style=style, placeholder=placeholder,  max_length=max_length))
     await interaction.response.send_modal(modal)
-    async def mod_val(interaction:discord.Interaction):await interaction.response.defer()
+    async def mod_val(interaction: discord.Interaction):
+        await interaction.response.defer()
     modal.on_submit = mod_val
     await modal.wait()
     if modal.is_finished():return modal.children[0].value
