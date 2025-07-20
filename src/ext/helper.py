@@ -8,7 +8,7 @@ of this license document, but changing it is not allowed.
 import os
 import re
 import discord
-import requests, uuid
+import uuid
 from discord.ext import commands
 from typing import TYPE_CHECKING
 
@@ -18,16 +18,6 @@ if TYPE_CHECKING:
 
      
 def parse_team_name(message:discord.Message, strict:bool=False) -> str | None:
-    """
-    Parses the team name from a message content.
-    If the message contains a mention of a team, it extracts the name and formats it.
-    If no team name is found, it defaults to the author's name followed by "'s team".
-    Args:
-        message (discord.Message): The message object containing the content to parse.
-        strict (bool): If True, it will only return the team name if it is explicitly mentioned.
-    Returns:
-        str: The formatted team name.
-    """
     content = message.content.lower()
     teamname = re.search(r"team.*", content)
     if teamname is None:
@@ -80,15 +70,6 @@ class DuplicateTag:
 
 
 async def duplicate_tag(bot:"Spruce", crole:discord.Role, message:discord.Message, slots=None) -> DuplicateTag | None:
-    """
-    Checks if a message mentions a user with the same role as the author.
-    If a user with the same role is mentioned in previous messages, it returns that user.
-    Args:
-        crole (discord.Role): The role to check against.
-        message (discord.Message): The message object to check for mentions.
-    Returns:
-        discord.Member | None: The first mentioned user with the same role, or None if no such user is found.
-    """
     if not message.guild:
         return None
 
@@ -108,18 +89,6 @@ async def duplicate_tag(bot:"Spruce", crole:discord.Role, message:discord.Messag
 
 
 def get_event_prefix(name:str):
-    """
-    Returns the event prefix for a given name.
-    If the first word is less than or equal to 2 characters, it returns the first word followed by a hyphen.
-    Otherwise, it returns the first two letters of the first word followed by a hyphen.
-
-    Args:
-        name (str): The name to extract the prefix from.
-
-    Returns:
-        str: The event prefix. eg: "T3-", "WS-", "MC-", etc.
-    """
-
     if len(name.split()[0]) <=2:
         return name.split()[0] + "-"
 
@@ -142,22 +111,6 @@ def get_tourney_log(guild:discord.Guild):
 
 
 async def unlock_channel(channel:discord.TextChannel, role:discord.Role=None):
-    """
-    Unlocks a channel to allow a specific role to send messages.
-    This method updates the permissions overwrites for a channel to allow a role to send messages.
-
-    Args:
-        channel (discord.TextChannel): The channel to be unlocked.
-        role (discord.Role, optional): The role to grant send message permissions to.
-            Defaults to the guild's default role if not provided.
-
-    Returns:
-        None: This method doesn't return anything.
-
-    Raises:
-        discord.Forbidden: If the bot doesn't have permissions to modify channel permissions.
-        discord.HTTPException: If modifying the permissions fails.
-    """
     if not channel.permissions_for(channel.guild.me).manage_permissions:
         raise commands.errors.MissingPermissions([
             "manage_permissions",
@@ -171,23 +124,6 @@ async def unlock_channel(channel:discord.TextChannel, role:discord.Role=None):
 
 
 async def lock_channel(channel:discord.TextChannel, role:discord.Role=None):
-    """
-    Locks a channel to prevent a specific role from sending messages.
-    This method updates the permissions overwrites for a channel to deny a role from sending messages.
-
-    Args:
-        channel (discord.TextChannel): The channel to be locked.
-        role (discord.Role, optional): The role to deny send message permissions to.
-            Defaults to the guild's default role if not provided.
-
-    Returns:
-        None: This method doesn't return anything.
-
-    Raises:
-        commands.errors.MissingPermissions: If the bot lacks the required permissions to manage channel permissions.
-        Exception: If any other error occurs while locking the channel.
-    """
-
     if not channel.permissions_for(channel.guild.me).manage_permissions:
         raise commands.errors.MissingPermissions([
             "manage_permissions",
@@ -202,18 +138,6 @@ async def lock_channel(channel:discord.TextChannel, role:discord.Role=None):
 
 
 async def translate(token, from_lang:str, to_lang:str, text:str):
-    """
-    Translates text from one language to another using Microsoft Translator API.
-    Args:
-        token (str): The subscription key for the Microsoft Translator API.
-
-        from_lang (str): The source language code (e.g., 'en' for English).
-        to_lang (str): The target language code (e.g., 'es' for Spanish).
-        text (str): The text to be translated.
-
-    Returns:
-        str: The translated text if successful, otherwise an error message.
-    """
     import aiohttp
     api = "https://api.cognitive.microsofttranslator.com/translate"
     headers = {
@@ -266,3 +190,22 @@ async def download(url:str, fp:str):
     """
     silent = "> NUL 2>&1" if os.name == "nt" else "> /dev/null 2>&1"
     return os.system(f"wget {url} {'-O' + fp if fp else ''} {silent}")
+
+
+async def get_input(
+        interaction:discord.Interaction, 
+        title:str="Enter Value", 
+        label:str="Enter Value", 
+        style:discord.TextStyle=discord.TextStyle.short, 
+        max_length:int=None, 
+        placeholder:str=None):
+    
+    modal = discord.ui.Modal(title=title)
+    modal.add_item(discord.ui.TextInput(label=label, style=style, placeholder=placeholder,  max_length=max_length))
+    await interaction.response.send_modal(modal)
+    async def mod_val(interaction: discord.Interaction):
+        await interaction.response.defer()
+    modal.on_submit = mod_val
+    await modal.wait()
+    if modal.is_finished():
+        return modal.children[0].value
