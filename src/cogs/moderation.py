@@ -320,7 +320,8 @@ class ModerationCog(commands.Cog):
                 )
 
         except Exception as e:
-            self.bot.error_log(f"Guild: {ctx.guild.name}\nChannel: {ctx.channel.name}\nCommand : clear\nError: {e}")
+            self.bot.debug(f"Error while clearing messages: {e}", is_debug=True)
+            #await self.bot.error_log(f"Guild: {ctx.guild.name}\nChannel: {ctx.channel.name}\nCommand : clear\nError: {e}")
 
 
     @commands.hybrid_command(name="clear_perms", description="Clear all permissions from a role")
