@@ -71,7 +71,7 @@ class Spruce(commands.AutoShardedBot):
         self.member_count = 0
 
         super().__init__(
-                    shard_count=kwargs.get("shards", config.SHARDS),
+                    # shard_count=kwargs.get("shards", config.SHARDS),
                     command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
                     intents=intents,
                     allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
