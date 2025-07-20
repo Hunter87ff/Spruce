@@ -7,7 +7,6 @@ if TYPE_CHECKING:
     from pymongo.asynchronous.collection import AsyncCollection
     from core.bot import Spruce
 
-_tourney_cache: dict[int, 'TourneyModel'] = {}
 
 class TournamentPayload(TypedDict):
     guild_id: int
@@ -67,6 +66,7 @@ class TourneyModel:
     """
     Tourney class represents a tournament with various properties.
     """
+    _cache: dict[int, 'TourneyModel'] = {}
     col: "AsyncCollection" = None  # MongoDB collection name for tournaments
     bot : "Spruce" = None  # Reference to the bot instance
 
@@ -99,8 +99,12 @@ class TourneyModel:
     def __eq__(self, value):
         if isinstance(value, int):
             return self.reg_channel == value
+        
         elif isinstance(value, TourneyModel):
-            return self.reg_channel == value.reg_channel and self.guild_id == value.guild_id
+            return any[
+                self.reg_channel == value.reg_channel,
+                self.slot_manager == value.slot_manager,
+            ]
         return False
 
 
@@ -132,18 +136,18 @@ class TourneyModel:
             TournamentPayload: A dictionary representation of the Tournament instance.
         """
         return {
-            "guild_id": self.guild_id,
-            "reg_channel": self.reg_channel,
-            "slot_channel": self.slot_channel,
-            "confirm_role": self.confirm_role,
-            "group_channel": self.group_channel,
-            "total_slot": self.total_slots,
-            "team_count": self.team_count,
-            "published": self.published,
-            "slot_per_group": self.slot_per_group,
-            "current_group": self.current_group,
-            "slot_manager": self.slot_manager,
-            "created_at": self.created_at
+            "guild": self.guild_id,
+            "rch": self.reg_channel,
+            "cch": self.slot_channel,
+            "crole": self.confirm_role,
+            "gch": self.group_channel,
+            "tslot": self.total_slots,
+            "reged": self.team_count,
+            "pub": self.published,
+            "spg": self.slot_per_group,
+            "cgp": self.current_group,
+            "mch": self.slot_manager,
+            "cat": self.created_at
         }
     
 
@@ -152,11 +156,12 @@ class TourneyModel:
         if not self.validate():
             raise ValueError("Invalid Tournament instance. Cannot save to database.")
 
-        return await self.col.update_one(
+        await self.col.update_one(
             {"reg_channel": self.reg_channel, "guild_id": self.guild_id},
             {"$set": self.to_dict()},
             upsert=True
         )
+        return self
     
 
     @classmethod
@@ -169,12 +174,24 @@ class TourneyModel:
         Returns:
             TournamentModel: An instance of TournamentModel if found, otherwise None.
         """
+
+        # async find from cache 
+        _temp = cls(**kwargs)
+        for tourney in cls._cache.values():
+            if _temp == tourney:
+                return tourney
+
         document = await cls.col.find_one(**kwargs)
         if document is None:
             return None
-        return cls(**document)
+        # Create a new instance of TourneyModel with the fetched data
+        
+        _temp = cls(**document)
+        cls._cache[_temp.reg_channel] = _temp
 
-    
+        return _temp
+
+
     @classmethod
     async def get(cls, reg_channel:int) -> 'TourneyModel':
         """Fetches a Tournament instance from the database by its registration channel.
@@ -185,15 +202,15 @@ class TourneyModel:
         Returns:
             TourneyModel: An instance of TourneyModel if found, otherwise None.
         """
-        if reg_channel in _tourney_cache:
-            return _tourney_cache[reg_channel]
+        if reg_channel in cls._cache:
+            return cls._cache[reg_channel]
 
         data = await cls.find_one({"reg_channel": reg_channel})
         if not data:
             return None
 
         tournament = cls(**data)
-        _tourney_cache[reg_channel] = tournament
+        cls._cache[reg_channel] = tournament
         return tournament
     
 
@@ -216,7 +233,7 @@ class TourneyModel:
 
         tournament = cls(**kwargs)
         await tournament.save()
-        _tourney_cache[tournament.reg_channel] = tournament
+        cls._cache[tournament.reg_channel] = tournament
         return tournament
     
 
@@ -230,12 +247,12 @@ class TourneyModel:
         Returns:
             bool: True if the tournament was deleted, False otherwise.
         """
-        if reg_channel not in _tourney_cache:
+        if reg_channel not in cls._cache:
             return False
-        
-        _tourney_cache.pop(reg_channel, None)
+
+        cls._cache.pop(reg_channel, None)
         result = await cls.col.delete_one({"reg_channel": reg_channel})
         if result.deleted_count > 0:
-            _tourney_cache.pop(reg_channel, None)
+            cls._cache.pop(reg_channel, None)
             return True
         return False

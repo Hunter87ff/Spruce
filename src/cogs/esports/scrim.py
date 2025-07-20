@@ -1089,6 +1089,40 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.followup.send(f"Slot channel for scrim `{_scrim.name}` has been set to <#{slot_channel.id}>.", ephemeral=True)
 
 
+    @set_app.command(name="manager", description="Set the manager for the tournament")
+    @commands.guild_only()
+    @checks.scrim_mod()
+    @app.describe(reg_channel="The channel where the scrim is registered")
+    async def set_manager(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+        if not scrim:
+            return await ctx.followup.send(embed=discord.Embed(description=self.DEFAULT_NO_SCRIM_MSG, color=self.bot.color.red))
+        
+        manage_channel = await reg_channel.category.create_text_channel(name="manage-slot")
+        emb = discord.Embed(
+            title=reg_channel.category.name,
+            description=f"{self.bot.emoji.arow} **Cancel Slot** : To Cancel Your Slot\n{self.bot.emoji.arow} **My Slot** : To Get Details Of Your Slot\n{self.bot.emoji.arow} **Team Name** : To Change Your Team Name\n{self.bot.emoji.arow} **Transfer Slot** : To Transfer Your Slot To Another User",
+            color=self.bot.base_color
+        )
+        buttons = [
+            discord.ui.Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-cancel-slot"),
+            discord.ui.Button(label='My Slot', style=discord.ButtonStyle.blurple, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-my-slot"),
+            discord.ui.Button(label='Team Name', style=discord.ButtonStyle.green, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-team-name"),
+            discord.ui.Button(label="Transfer Slot", style=discord.ButtonStyle.grey, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-transfer-slot"),
+        ]
+
+        view = discord.ui.View()
+        for i in buttons:
+            view.add_item(i)
+
+        await manage_channel.send(embed=emb, view=view)
+        await self.bot.helper.lock_channel(channel=manage_channel)
+
+        await ctx.followup.send(f"{self.bot.emoji.tick} | {manage_channel.mention} created")
+
+
     @setup_app.command(name="group", description="setup scrim group.")
     @app.guild_only()
     @app.describe(reg_channel="Registration channel of the scrim to setup group (required)",)
@@ -1133,7 +1167,7 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.followup.send(embed=embed, ephemeral=True)
 
 
-    @add_app.command(name="reserved_slots", description="View or update the reserved slots for a scrim.")
+    @add_app.command(name="reserved_slot", description="View or update the reserved slots for a scrim.")
     @app.guild_only()
     @checks.scrim_mod(interaction=True)
     @app.describe(
@@ -1537,44 +1571,6 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
             f"Scrim `{_scrim.name}` has been deleted as its registration channel <#{channel.id}> was deleted.",
             self.bot.color.red
         )
-
-
-
-
-    @set_app.command(name="manager", description="Set the manager for the tournament")
-    @commands.guild_only()
-    @checks.scrim_mod()
-    @app.describe(reg_channel="The channel where the scrim is registered")
-    async def set_manager(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
-        await ctx.response.defer(ephemeral=True)
-
-        scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
-        if not scrim:
-            return await ctx.followup.send(embed=discord.Embed(description=self.DEFAULT_NO_SCRIM_MSG, color=self.bot.color.red))
-        
-        manage_channel = await reg_channel.category.create_text_channel(name="manage-slot")
-        emb = discord.Embed(
-            title=reg_channel.category.name,
-            description=f"{self.bot.emoji.arow} **Cancel Slot** : To Cancel Your Slot\n{self.bot.emoji.arow} **My Slot** : To Get Details Of Your Slot\n{self.bot.emoji.arow} **Team Name** : To Change Your Team Name\n{self.bot.emoji.arow} **Transfer Slot** : To Transfer Your Slot To Another User",
-            color=self.bot.base_color
-        )
-        buttons = [
-            discord.ui.Button(label='Cancel Slot', style=discord.ButtonStyle.red, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-cancel-slot"),
-            discord.ui.Button(label='My Slot', style=discord.ButtonStyle.blurple, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-my-slot"),
-            discord.ui.Button(label='Team Name', style=discord.ButtonStyle.green, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-team-name"),
-            discord.ui.Button(label="Transfer Slot", style=discord.ButtonStyle.grey, custom_id=f"{scrim.reg_channel}-{ctx.guild.id}-scrim-transfer-slot"),
-        ]
-
-        view = discord.ui.View()
-        for i in buttons:
-            view.add_item(i)
-
-        await manage_channel.send(embed=emb, view=view)
-        await self.bot.helper.lock_channel(channel=manage_channel)
-
-        await ctx.followup.send(f"{self.bot.emoji.tick} | {manage_channel.mention} created")
-
-
 
 
     async def handle_my_slot_callback(self, interaction:discord.Interaction, scrim:ScrimModel, teams:list[Team]):
