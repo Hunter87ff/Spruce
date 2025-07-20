@@ -29,7 +29,7 @@ SPOTIFY_CLIENT_SECRET = getenv("SPOTIFY_CLIENT_SECRET", "SPOTIFY_CLIENT_SECRET")
 LOCAL_LAVA  = ["http://localhost:8787", "hunter87"] if getenv("LOCAL_LAVA", None) else None
 DOMAIN = "sprucebot.tech"
 BASE_URL = f"https://{DOMAIN}"
-INVITE_URL = f"{BASE_URL}/invite"
+INVITE_URL = f"https://dsc.gg/sprucebot"
 
 SUPPORT_SERVER = "https://discord.gg/vMnhpAyFZm"
 SUPPORT_SERVER_ID = 947443790053015623

@@ -24,7 +24,7 @@ class ModerationCog(commands.Cog):
  
     def __init__(self, bot:"Spruce"):
         self.bot = bot
-
+        self.debug_mode = False
 
     def _declear(self,target:discord.TextChannel, role:discord.Role, action:str):
         return "{channel} is now {action} for {role}".format(
@@ -505,20 +505,20 @@ class ModerationCog(commands.Cog):
             for channel in category.channels:
                 try:
                     await channel.delete(reason=f'Deleted by {ctx.author.name}')
-                    await sleep(1)
+                    await self.bot.sleep(1)
+
                     if len(category.channels) == 0:
                         await category.delete()
                         return await del_t_con.edit(
-                            embed=discord.Embed( description=f"**{self.bot.emoji.tick} | Successfully Deleted ~~{category.name}~~ Category**")
+                            embed=EmbedBuilder.success(message=f"**Successfully Deleted ~~{category.name}~~ Category**")
                         ) if del_t_con else None
+                    
                 except Exception as e:
-                    self.bot.logger.error(f"core.channel Line: 95 | Error deleting channel {channel.name}: {e}")
+                    self.bot.debug(f"Failed to delete channel {channel.name} in category {category.name}: {e}", is_debug=self.debug_mode)
 
                     await del_t_con.edit(
                         content=None,
-                        embed=discord.Embed(
-                            color=0xff0000,
-                            description=f"**{self.bot.emoji.cross} | Failed to Delete ~~{channel.name}~~ Channel**"
+                        embed=EmbedBuilder.alert(f"**Failed to Delete `{channel.name}` Channel\nReason : maybe i don't have `permission`**"
                         ),
                         view=None
                     )
