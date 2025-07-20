@@ -17,13 +17,10 @@ from typing import Unpack
 from models import Tester
 from ext.types import BotConfig
 from discord.ext import commands
-from core import (message_handle)
 from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, Activities, error as error_handle
 from discord import (
     AllowedMentions, 
-    Intents, 
-    ActivityType, 
-    Activity, 
+    Intents,  
     TextChannel, 
     Message, Embed, 
 )
@@ -71,6 +68,7 @@ class Spruce(commands.AutoShardedBot):
         self.misc = kwargs
         self.cache = Cache()
         self.db = Database()
+        self.member_count = 0
 
         super().__init__(
                     shard_count=kwargs.get("shards", config.SHARDS),
@@ -92,7 +90,6 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def setup_hook(self) -> None:
-        # Set up the database
         await cogs.setup(self)
 
         #load testers
@@ -105,10 +102,12 @@ class Spruce(commands.AutoShardedBot):
     
 
     async def _chunk_guilds(self):
+
         for guild in self.guilds:
             if not guild.chunked:
                 try:
-                    await self.loop.create_task(guild.chunk())
+                    self.member_count += guild.member_count or 1
+                    #await self.loop.create_task(guild.chunk())
 
                 except Exception as e:
                     self.logger.error(f"Failed to chunk guild {guild.id}: {e}")
@@ -157,8 +156,6 @@ class Spruce(commands.AutoShardedBot):
             return
         
         await self.process_commands(message)
-        if message.guild:
-            await message_handle.tourney(message, self)
 
          
     async def on_command_error(self, ctx:commands.Context, error:Exception):

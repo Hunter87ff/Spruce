@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 from discord.ui import Button, View 
 from gtts import gTTS
 from ext import constants, emoji, color, ColorOptions
-
+from core.abstract import Cog
 
 if TYPE_CHECKING:
     from core.bot import Spruce
@@ -37,10 +37,9 @@ from discord import (
 
 	
 
-class UtilityCog(commands.Cog):
-    def __init__(self, bot:"Spruce"):
-        self.bot = bot
-       
+class UtilityCog(Cog):
+    def __init__(self, bot):
+        self.bot: "Spruce" = bot
 
 
     @app_commands.command(name="translate", description="Translate a message from one language to another")
@@ -453,7 +452,7 @@ class UtilityCog(commands.Cog):
         system_info = f"`{memory.total / (1024**3):.2f} GB`/ `{psutil.Process(os.getpid()).memory_info().rss//2**20} MB`/ `{mem_percent}%`"
         emb = Embed(title="Spruce Bot", color=color.green)
         emb.add_field(name=f"{emoji.servers} __Servers__", value=f"`{len(self.bot.guilds)}`", inline=True)
-        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(len(self.bot.users))}`", inline=True)
+        emb.add_field(name=f"{emoji.invite} __Members__", value=f"`{'{:,}'.format(self.bot.member_count)}`", inline=True)
         emb.add_field(name=f"{emoji.wifi} __Latency__", value=f"`{round(self.bot.latency*1000)}ms`", inline=True)
         emb.add_field(name=f"{emoji.ram} __Memory(Total/Usage/Percent)__", value=f"{system_info}", inline=False)
         emb.set_footer(text="Made with ❤️ | By hunter87ff")
@@ -569,11 +568,13 @@ class UtilityCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction:Interaction):
-        if interaction.user.bot:return
+        if interaction.user.bot:
+            return
         if "custom_id" not in interaction.data or interaction.message.author.id != self.bot.user.id: return
         
         if interaction.data["custom_id"] == f"{self.bot.user.id}SPticket":
-            if not interaction.channel.category: return await interaction.response.send_message("**Please move this channel to a category. to create tickets**", delete_after=10)
+            if not interaction.channel.category: 
+                return await interaction.response.send_message("**Please move this channel to a category. to create tickets**", delete_after=10)
             channel = await interaction.channel.category.create_text_channel(f"ticket-{interaction.user}", reason="Ticket Created")
             await channel.set_permissions(interaction.user, read_messages=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True, add_reactions=True)
             embed = Embed(title="Ticket Created", description=f"**{emoji.arow}Thanks for contacting\n{emoji.arow}Feel free to communicate**", color=color.green)

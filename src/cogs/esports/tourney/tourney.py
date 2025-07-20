@@ -7,12 +7,13 @@ A module for managing esports tournaments in a Discord server.
 
 import datetime
 import asyncio
+from . import checker
 from asyncio import sleep
 from random import shuffle as random_shuffle
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord import app_commands
-from core import checker
+from .message_handle import tourney_registration
 from ext import constants, checks, Tourney, emoji, color, files, EmbedBuilder
 from discord import (
     ui,
@@ -72,6 +73,14 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
 
 
     @commands.Cog.listener()
+    async def on_message(self, message:Message):
+        if message.author.bot:
+            return
+        
+        await tourney_registration(message, self.bot)
+
+
+    @commands.Cog.listener()
     async def on_guild_role_delete(self, role: Role):
         members = []
         if self.dbc.find_one({"crole":role.id}):
@@ -106,18 +115,6 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
     
 
     async def log(self, guild:Guild, message:str, color:int=color.cyan):
-        """
-        Logs a message to the tourney log channel.
-        
-        Parameters
-        ----------
-        guild : Guild
-            The guild where the log channel is located.
-        message : str
-            The message to log.
-        color : int, optional
-            The color of the embed, defaults to color.cyan.
-        """
         channel = utils.get(guild.text_channels, name=self.TOURNEY_LOG_CHANNEL_NAME)
         if not channel:
             return 

@@ -48,7 +48,7 @@ async def log_event(message:Message, desc:str, color:int=None):
 
 
 #Tourney System
-async def tourney(message: Message, bot: 'Spruce'):
+async def tourney_registration(message: Message, bot: 'Spruce'):
     if not message.guild:
         return
     
