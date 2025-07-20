@@ -557,7 +557,8 @@ class UtilityCog(Cog):
         await ms.edit(content="Creating Ticket Message...")
         embed = Embed(title="Create Ticket", description=message.replace("/n", "\n"), color=color.green)
         embed.set_footer(text=ctx.guild.name, icon_url=ctx.guild.icon.url)
-        if not button_color:button_color = ButtonStyle.blurple
+        if not button_color:
+            button_color = ButtonStyle.blurple
         else:button_color = button_color.value
         view = View().add_item(Button(emoji=button_emoji or emoji.default_ticket, label=button_label or "Create Ticket", style=button_color, custom_id=f"{self.bot.user.id}SPticket"))
         await ms.edit(content="Sending Ticket Message...")
