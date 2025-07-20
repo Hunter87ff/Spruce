@@ -106,7 +106,7 @@ class Spruce(commands.AutoShardedBot):
         for guild in self.guilds:
             if not guild.chunked:
                 try:
-                    self.member_count += guild.member_count or 1
+                    self.member_count += guild.member_count if guild.member_count is not None else 0
                     #await self.loop.create_task(guild.chunk())
 
                 except Exception as e:
