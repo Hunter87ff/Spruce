@@ -101,10 +101,10 @@ class TourneyModel:
             return self.reg_channel == value
         
         elif isinstance(value, TourneyModel):
-            return any[
+            return any([
                 self.reg_channel == value.reg_channel,
                 self.slot_manager == value.slot_manager,
-            ]
+            ])
         return False
 
 
