@@ -207,4 +207,5 @@ async def get_input(
         await interaction.response.defer()
     modal.on_submit = mod_val
     await modal.wait()
-    if modal.is_finished():return modal.children[0].value
+    if modal.is_finished():
+        return modal.children[0].value
