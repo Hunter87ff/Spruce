@@ -1089,6 +1089,54 @@ class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attr
         await ctx.followup.send(f"Slot channel for scrim `{_scrim.name}` has been set to <#{slot_channel.id}>.", ephemeral=True)
 
 
+    @set_app.command(name="days", description="Set or update days for scrim to operate")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    @app.describe(reg_channel="The registration channel of the scrim to update")
+    async def set_days(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _scrim = ScrimModel.find_by_reg_channel(reg_channel.id)
+        if not _scrim:
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+
+        select = discord.ui.Select(
+            placeholder="Select the days for the scrim to operate",
+            min_values=1,
+            max_values=7,
+            options=[
+                discord.SelectOption(label=day, value=day.lower(), default=(day.lower() in _scrim.open_days))
+                for day in ["mo", "tu", "we", "th", "fr", "sa", "su"]
+            ]
+        )
+
+        async def update_days(callback_interaction: discord.Interaction):
+            await callback_interaction.response.defer(ephemeral=True)
+            selected_days = select.values
+            if not selected_days:
+                return await callback_interaction.followup.send("Please select at least one day.", ephemeral=True)
+
+            _scrim.open_days = selected_days
+            await _scrim.save()
+            await callback_interaction.followup.send(f"Updated days for scrim `{_scrim.name}` to: {', '.join(selected_days)}", ephemeral=True)
+
+        select.callback = update_days
+
+
+        view = discord.ui.View()
+        view.add_item(select)
+
+        await ctx.followup.send(
+            embed=discord.Embed(
+                title=f"Select Days for Scrim: {_scrim.name}",
+                description="Select the days for the scrim to operate. You can select multiple days.",
+                color=self.bot.color.random()
+            ),
+            view=view,
+            ephemeral=True
+        )
+
+
     @set_app.command(name="manager", description="Set the manager for the tournament")
     @commands.guild_only()
     @checks.scrim_mod()
