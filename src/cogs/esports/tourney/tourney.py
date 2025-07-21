@@ -64,6 +64,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
 
     def __init__(self, bot:'Spruce'):
         self.bot:"Spruce" = bot
+        self.emoji = self.bot.emoji.cup
         self.dbc = bot.db.dbc
         self.TOURNEY_LOG_CHANNEL_NAME = f"{self.bot.user.name.lower()}-tourney-log"
         self.HIGHER_ROLE_POSITION = "{role.mention} has a higher role position than me. Please move it below my role and try again."

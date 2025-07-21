@@ -25,6 +25,7 @@ class ModerationCog(Cog):
  
     def __init__(self, bot:"Spruce"):
         self.bot = bot
+        self.emoji = self.bot.emoji.mod
         self.debug_mode = False
 
     def _declear(self,target:discord.TextChannel, role:discord.Role, action:str):
