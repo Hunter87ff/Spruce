@@ -13,6 +13,7 @@ from random import shuffle as random_shuffle
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord import app_commands
+from core.abstract import GroupCog
 from .message_handle import tourney_registration
 from ext import constants, checks, Tourney, emoji, color, files, EmbedBuilder
 from discord import (
@@ -53,7 +54,7 @@ class GroupConfig:
         self.group_category = group_category
 
 
-class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
+class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
     """
     ## TourneyCog
     This class contains commands and event listeners for managing esports tournaments.
@@ -79,20 +80,6 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         
         await tourney_registration(message, self.bot)
 
-
-    @commands.Cog.listener()
-    async def on_guild_role_delete(self, role: Role):
-        members = []
-        if self.dbc.find_one({"crole":role.id}):
-            db = self.dbc.find_one({"crole":role.id})
-            cch = utils.get(role.guild.channels,id=db["cch"])
-            messages = cch.history(limit=int(db["reged"])+50)
-            members = {m async for msg in messages for m in role.guild.members if m.mention in msg.content}
-            newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Role use &tourney command")
-            self.dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
-            
-            for i in members:
-                await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")
 
 
     async def get_input(self, ctx:commands.Context, check=None, timeout=30):
@@ -166,9 +153,16 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
     @commands.cooldown(1, 30, commands.BucketType.user)
     @commands.bot_has_guild_permissions(send_messages=True, attach_files=True)
     @app_commands.describe( registration_channel="The channel where the tournament is registered, usually the registration channel." )
-    async def export_event_data(self, ctx:Interaction, registration_channel: TextChannel):
-        if ctx.user.bot:return
+    async def export(self, ctx: Interaction, registration_channel: TextChannel):
+        if ctx.user.bot:
+            return
+        
         await ctx.response.defer(ephemeral=True)
+        await self.export_event_data(ctx, registration_channel)
+
+
+    async def export_event_data(self, ctx:Interaction, registration_channel: TextChannel):
+
 
         try:
             _event = Tourney.findOne(registration_channel.id)
@@ -1145,7 +1139,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                         delete_after=5
                     )
                 
-            async def export_event_data_callback(interaction:Interaction):
+            async def export_event_data_callback(export_data_interaction:Interaction):
                 """
                 Callback handler for exporting event data.
 
@@ -1161,12 +1155,12 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
                 Raises:
                     None: Exceptions are handled internally
                 """
-                if interaction.user != ctx.author:
-                    await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
+                if export_data_interaction.user != ctx.author:
+                    await export_data_interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
                     return
-                await interaction.response.defer(ephemeral=True)
-                await interaction.edit_original_response(content="Exporting Event Data...")
-                await self.export_event_data(ctx, rch)
+                await export_data_interaction.response.defer(ephemeral=True)
+                await export_data_interaction.edit_original_response(content="Exporting Event Data...")
+                await self.export_event_data(export_data_interaction, rch)
 
                 
 
@@ -1259,6 +1253,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             overwrite.update(view_channel=True, send_messages=False, add_reactions=False, attach_files=True)
             await channel.set_permissions(role, overwrite=overwrite)
             for member in msg.mentions:
+                member = await self.get_member(role.guild, member.id)
                 if isinstance(member, Member):
                     await member.add_roles(
                         role, reason="Adding group role"
@@ -1394,7 +1389,7 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         await interaction.followup.send(embed= Embed(description="Group Channel Created Successfully", color=self.bot.base_color), ephemeral=True)
 
 
-    @app_commands.command(name="team_name" , description="Change your team name in the tournament")
+    @app_set.command(name="team_name" , description="Change team name in the tournament")
     @app_commands.guild_only()
     @checks.tourney_mod(interaction=True)
     async def team_name(self, interaction:Interaction, registration_channel: TextChannel, player:  Member, new_name:str=None):
@@ -1431,7 +1426,9 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         await interaction.followup.send(embed= Embed(description="Team Name Updated Successfully", color=color.green), ephemeral=True)
 
 
-    @commands.hybrid_command(with_app_command = True, description="list of all the ongoing tournaments")
+
+    @commands.hybrid_command(name="tconfig", description="list of all the ongoing tournaments")
+    @app_commands.guild_only() 
     @commands.guild_only()
     @checks.tourney_mod()
     async def tconfig(self,ctx:commands.Context):
@@ -1504,13 +1501,13 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
             if _msg: await _msg.delete()
 
 
-        async def export_event_data_callback(interaction:Interaction):
-            if interaction.user != ctx.author:
-                await interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
+        async def export_event_data_callback(export_event_interaction:Interaction):
+            if export_event_interaction.user != ctx.author:
+                await export_event_interaction.response.send_message(self.ONLY_AUTHOR_BUTTON)
                 return
-            await interaction.response.defer(ephemeral=True)
-            await interaction.edit_original_response(content="Exporting Event Data...")
-            await self.export_event_data(ctx, ctx.guild.get_channel(int(tlist.values[0])))
+            await export_event_interaction.response.defer(ephemeral=True)
+            await export_event_interaction.edit_original_response(content="Exporting Event Data...")
+            await self.export_event_data(export_event_interaction, ctx.guild.get_channel(int(tlist.values[0])))
 
 
         async def cancel_button_callback(interaction:Interaction):
@@ -1776,3 +1773,18 @@ class TourneyCog(commands.GroupCog, name="tourney", group_name="tourney"):
         if tourch:
             self.dbc.delete_one({"rch" : channel.id})
             await dlog.send(f"```json\n{tourch}\n```")
+
+
+    @commands.Cog.listener()
+    async def on_guild_role_delete(self, role: Role):
+        members = []
+        if self.dbc.find_one({"crole":role.id}):
+            db = self.dbc.find_one({"crole":role.id})
+            cch = utils.get(role.guild.channels,id=db["cch"])
+            messages = cch.history(limit=int(db["reged"])+50)
+            members = {m async for msg in messages for m in role.guild.members if m.mention in msg.content}
+            newr = await role.guild.create_role(name=role.name, reason="[Recovering] If You Want To Delete This Role use &tourney command")
+            self.dbc.update_one({"crole":int(role.id)}, {"$set" : {"crole" :int(newr.id)}})
+            
+            for i in members:
+                await i.add_roles(newr, reason="[Recovering] Previous Confirm Role Was acidentally Deleted.")

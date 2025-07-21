@@ -4,16 +4,16 @@ A module for managing roles in a Discord server.
     :copyright: (c) 2022-present hunter87.dev@gmail.com
     :license: GPL-3, see LICENSE for more details.
 """
-import os
-import aiofiles
+
 from asyncio import sleep
+from turtle import st
 from discord.ext import commands
-from ext import constants,  color
+from ext import constants
 from discord.ui import View, Button
 from ext import EmbedBuilder
-from discord import  Embed, Role, File, Member, Message, app_commands, Interaction, ButtonStyle
+from discord import  Embed, Role, Member, Message, app_commands, Interaction, ButtonStyle
 from typing import TYPE_CHECKING
-
+from core.abstract import Cog 
 
 if TYPE_CHECKING:
     from core.bot import Spruce
@@ -30,7 +30,7 @@ class RoleCogException(Exception):
 
 
 
-class RoleCog(commands.Cog):
+class RoleCog(Cog):
     """
     ## RoleCog Class
     This class contains commands for managing roles in a Discord server.
@@ -46,6 +46,9 @@ class RoleCog(commands.Cog):
         """
         Raise an exception if the user does not have permission to manage the role.
         """
+
+        if not isinstance(user, Member) or not isinstance(role, Role):
+            raise RoleCogException("**Invalid user or role**")
 
         # if suddenly someone remove manage_roles permission from the bot, this will be helpful
         if not user.guild.me.guild_permissions.manage_roles:
@@ -87,7 +90,7 @@ class RoleCog(commands.Cog):
 
     @commands.command(aliases=["droles"])
     @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     async def del_roles(self, ctx:commands.Context, *roles : Role):
         if ctx.author.bot:return
         
@@ -133,13 +136,19 @@ class RoleCog(commands.Cog):
                 color=self.bot.color.red
             ))
 
-        if not members and not ctx.message.reference:
+        if all([
+            not members,
+            not ctx.message.reference
+        ]):
             return await ctx.send(embed=Embed(
                 description="**Please mention users or reply to a message with users to give them a role**",
                 color=self.bot.color.red
             ))
         
-        if not members and ctx.message.reference:
+        if all([
+            not members,
+            ctx.message.reference
+        ]):
             members = ctx.message.reference.resolved.mentions
 
         if len(members) > 1 and role.permissions.administrator:
@@ -149,12 +158,14 @@ class RoleCog(commands.Cog):
             ))
 
         for user in members:
-            if not isinstance(user, Member):
+            user = await self.get_member(ctx.guild, user.id)
+
+            if any([not user, not isinstance(user, Member)]):
                 continue
 
             await user.add_roles(role)
             given.append(user)
-            await sleep(self.DEFAULT_SLEEP)
+            await self.bot.sleep()
 
         base_message:Message
 
@@ -200,7 +211,7 @@ class RoleCog(commands.Cog):
         
         view = View(timeout=20)
         reverse_btn = Button(
-            emoji=self.bot.emoji.remove,
+            # emoji=self.bot.emoji.remove,
             label="Reverse Role",
             style=ButtonStyle.green,
             custom_id="reverse_role"
@@ -215,103 +226,6 @@ class RoleCog(commands.Cog):
         )
 
         base_message = await ctx.send(embed=embed, view=view, delete_after=20)
-
-
-    @app_commands.command(description="Remove members from a role")
-    @commands.guild_only()
-    @app_commands.guild_only()
-    @commands.has_permissions(administrator=True)
-    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
-    @app_commands.describe(role="The role to remove from all members fom", reason="The reason for removing the role")
-    async def remove_members(self, interaction: Interaction, role: Role, reason: str = None):
-        await interaction.response.defer(ephemeral=True)
-        if interaction.user.bot:
-            return
-        
-        try:
-            self.check_access(interaction.user, role)
-
-        except Exception as e:
-            return await interaction.followup.send(
-                embed=Embed(
-                    description=str(e),
-                    color=self.bot.color.red
-                ),
-                ephemeral=True
-            )
-
-
-        await interaction.response.send_message(f"{self.bot.emoji.loading} | {constants.PROCESSING}", ephemeral=True)
-
-        if reason is None:
-            reason = f"{role} removed from everyone by {interaction.user}"
-
-        for member in role.members:
-            await member.remove_roles(role, reason=reason)
-            await sleep(self.DEFAULT_SLEEP)
-
-        await interaction.followup.send(embed=Embed(
-            description=f"**{self.bot.emoji.tick} | {role} Removed from everyone**",
-            color=self.bot.color.green
-        ), ephemeral=True)
-
-
-
-    @app_commands.command(name="inrole", description="Get the list of members in a role ")
-    @commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(send_messages=True, manage_roles=True)
-    @app_commands.describe(role="Mention the role to get member list")
-    async def inrole(self, interaction:Interaction, role:Role):
-        if interaction.user.bot:return
-
-        elif (len(role.members) == 0):
-            return await interaction.response.send_message("No members in this role", ephemeral=True)
-        
-        msg=""
-        for i in role.members:
-            msg = msg + f"\n{i.display_name} : <@{i.id}>"
-        if len(msg) < 2000:
-            emb = Embed(title=f"{role.name}", description=msg, color=color.random(color.cyan))
-            await interaction.response.send_message(embed=emb)
-        else:
-            async with aiofiles.open(file=f"{role.name}-{role.id}-members.txt", mode="w", encoding="utf-8") as f:
-                await f.write(msg)
-            await interaction.response.send_message(file=File(f"{role.name}-{role.id}-members.txt"))
-            os.remove(f"{role.name}-{role.id}-members.txt")
-        
-
-
-
-    @commands.hybrid_command(with_app_command = True)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    @commands.guild_only()
-    async def port(self, ctx:commands.Context, role1: Role, role2: Role, reason=None):
-        await ctx.defer()
-        if ctx.author.bot:return
-
-        try:
-            self.check_access(ctx.author, role2)
-
-        except Exception as e:
-            return await ctx.send(embed=Embed(
-                description=str(e),
-                color=self.bot.color.red
-            ), delete_after=10)
-        
-        await ctx.reply("If You're Running this command by mistake! You Can Run `&help ra_role`")
-
-        if reason == None:
-            reason = f"{role2.name} added by {ctx.author}"
-
-        msg = await ctx.send(f"**{self.bot.emoji.loading} {constants.PROCESSING}**")
-
-        for member in role1.members:
-            await member.add_roles(role2, reason=reason)
-            await sleep(self.DEFAULT_SLEEP)
-
-        await msg.edit(content=f"{self.bot.emoji.tick} **Role Added Successfully.**", delete_after=30)
 
 
 
@@ -344,7 +258,8 @@ class RoleCog(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     async def add_roles(self, ctx:commands.Context, user:Member, *roles:Role):
-        if ctx.author.bot:return
+        if ctx.author.bot:
+            return
 
 
         for role in roles:
@@ -372,21 +287,33 @@ class RoleCog(commands.Cog):
         if ctx.author.bot:return
         await ctx.defer()
 
+        if not ctx.guild.chunked:
+            await ctx.send(
+                embed=EmbedBuilder.warning(
+                    "this command isn't available right now !!"
+                )
+            )
+
         if role.permissions.administrator:
-            return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all members !!**"))
+            await ctx.send(
+                embed=EmbedBuilder.warning("**This role has admin permissions and not secure to add to all members !!**")
+            )
+            return
         
         try:
             self.check_access(ctx.author, role)
+
         except Exception as e:
-            return await ctx.send(embed=Embed(
-                description=str(e),
-                color=self.bot.color.red
-            ))
+            await ctx.send(
+                embed= EmbedBuilder.warning(
+                    str(e)
+                )
+            )
 
         for member in ctx.guild.members:
             if not member.bot:
                 await member.add_roles(role, reason=f"role all command used by {ctx.author}")
-                await sleep(self.DEFAULT_SLEEP)
+                await self.bot.sleep()
 
         await ctx.send(content=None, embed=Embed(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
 
@@ -400,7 +327,13 @@ class RoleCog(commands.Cog):
     async def role_all_bot(self, ctx:commands.Context, role: Role):
         if ctx.author.bot:return
         await ctx.defer()
-
+        
+        if not ctx.guild.chunked:
+                    await ctx.send(
+                        embed=EmbedBuilder.warning(
+                            "this command isn't available right now !!"
+                        )
+                    )
         if role.permissions.administrator:
             return await ctx.send(embed=Embed(description="**This role has admin permissions and not secure to add to all bots !!**"))
         
