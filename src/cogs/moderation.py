@@ -351,6 +351,7 @@ class ModerationCog(commands.Cog):
             emb = discord.Embed(descriptio=f'{self.bot.emoji.tick} | All permissions removed from all role below {bt.top_role.mention}')
             return await ms.edit(content=None, embed=emb)
 
+
     @commands.hybrid_command(name="kick", description="Kick a member from the server")
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_guild_permissions(kick_members=True, send_messages=True)
@@ -443,19 +444,6 @@ class ModerationCog(commands.Cog):
         return await ctx.followup.send("**Please provide a valid user to unban or use the `all` option**")
 
 
-    @commands.command(aliases=['chm'])
-    @commands.guild_only()
-    @commands.has_permissions(manage_channels=True)
-    @commands.bot_has_permissions(manage_channels=True)
-    async def channel_make(self, ctx:commands.Context,  *names):
-        if ctx.author.bot:return
-        ms = await ctx.send("Processing...")
-        for name in names:
-            await ctx.guild.create_text_channel(name, reason=f"created by : {ctx.author}")
-            await sleep(1)
-        await ms.edit(content=f'**{self.bot.emoji.tick} | All channels Created.**')
-        
-
     @commands.command(aliases=['chd'])
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True)
@@ -464,11 +452,11 @@ class ModerationCog(commands.Cog):
         ms =await ctx.send("Processing...")
         for ch in channels:
             await ch.delete(reason=f"deleted by: {ctx.author}")
-            await sleep(1)
+            await self.bot.sleep()
         await ms.edit(content=f'**{self.bot.emoji.tick} | Channels deleted Successfully**')
         
 
-    @commands.hybrid_command(with_app_commands=True, aliases=['dc'])
+    @commands.hybrid_command(aliases=['dc'], description="Delete a category and all its channels")
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(manage_channels=True)
@@ -530,16 +518,3 @@ class ModerationCog(commands.Cog):
             
         bt11.callback = dc_confirmed
         bt12.callback = del_msg
-
-    @commands.command(aliases=["cch"])
-    @commands.guild_only()
-    @commands.has_permissions(manage_channels=True)
-    @commands.bot_has_guild_permissions(manage_channels=True, manage_messages=True)
-    async def create_channel(self, ctx:commands.Context,  category:discord.CategoryChannel, *names:str):
-        if ctx.author.bot:
-            return
-        ms = await ctx.send(embed=discord.Embed(description=f"**{self.bot.emoji.loading} | Creating Channels...**"))
-        for name in names:
-            await ctx.guild.create_text_channel(name, category=category, reason=f"{ctx.author} created")
-        await ms.edit(embed=discord.Embed(description=f"**{self.bot.emoji.default_tick} | All Channels Created**", color=0x00ff00))
-    
