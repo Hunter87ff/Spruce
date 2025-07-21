@@ -10,12 +10,13 @@ from discord import app_commands
 from asyncio import sleep
 from ext import EmbedBuilder
 from discord.ext import commands
+from core.abstract import Cog
 import typing
 
 if typing.TYPE_CHECKING:
     from core.bot import Spruce
 
-class ModerationCog(commands.Cog):
+class ModerationCog(Cog):
     """
     ## ModerationCog Class
     This class contains commands for moderating a Discord server.

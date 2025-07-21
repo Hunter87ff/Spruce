@@ -12,6 +12,7 @@ from core import payment
 from discord.ext import commands
 from ext import checks
 from models import Tester
+from core.abstract import Cog
 from typing import Any, TYPE_CHECKING
 import psutil, enum
 
@@ -33,7 +34,7 @@ class CogEnum(enum.Enum):
     utility = "utility"
 
 
-class DevCog(commands.Cog):
+class DevCog(Cog):
     """
     ## DevCog Class
     This class contains commands for developers and admins to manage the bot and its features.
