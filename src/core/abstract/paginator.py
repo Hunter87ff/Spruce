@@ -33,7 +33,7 @@ class PageSelect(Select):
             # Add description from embed if available
             description = ""
             if isinstance(page, Embed) and page.description:
-                description = page.short_desc or page.description[:100]  # Discord limit for select option description
+                description = getattr(page, 'short_desc', None) or page.description[:100]  # Discord limit for select option description
             
             options.append(SelectOption(
                 label=label,
