@@ -9,7 +9,7 @@ class EmbedBuilder(Embed):
     Provides a consistent look and feel across different embeds.
     """
     
-    def __init__(self, title: str = None, description: str = None, color: int = color.cyan, emoji: str=None, short_desc:str=None):
+    def __init__(self, title: str = None, description: str = None, color: int = color.cyan, emoji: str = None, short_desc: str = None):
         super().__init__(title=title, description=description, color=color)
         # self.set_footer(text="Spruce | Born to host battles")
         self.timestamp = utils.utcnow()
