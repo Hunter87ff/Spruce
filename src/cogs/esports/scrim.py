@@ -13,6 +13,8 @@ from ext import constants, checks
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 from models.scrim import ScrimModel, Team
+from core.abstract import GroupCog
+
 from config import IS_DEV_ENV
 from discord import Embed, TextChannel,  Interaction,   app_commands as app
 
@@ -22,7 +24,7 @@ if TYPE_CHECKING:
 
 _resolved_scrims: dict[str, bool] = {}
 
-class ScrimCog(commands.GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
+class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
     """Cog for managing scrims in the server."""
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot

@@ -61,7 +61,7 @@ class RoleCog(Cog):
                 "**This is a default role and cannot be managed**"
             )
 
-        if user.id != user.guild.owner.id and user.top_role.position < role.position:
+        if user.id != user.guild.owner_id and user.top_role.position < role.position:
             raise RoleCogException(
                 self.ROLE_HIGHER_THAN_YOU.format(role=role)
             )
@@ -121,6 +121,7 @@ class RoleCog(Cog):
         if ctx.author.bot:
             return
         given = []
+
         try:
             self.check_access(ctx.author, role)
 

@@ -11,14 +11,17 @@ from discord.ext import commands
 from typing import TYPE_CHECKING
 from models import GuildAutoRoleModel
 from discord import app_commands, Role, Member, Embed, Interaction
+from core.abstract import GroupCog
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
 
-class AutoRoleCog(commands.GroupCog, name="autorole", description="Auto role management commands"):
+
+class AutoRoleCog(GroupCog, name="autorole", description="Auto role management commands"):
     def __init__(self, bot:'Spruce') -> None:
         self.bot = bot
+        
 
     autorole_add = app_commands.Group(
         name="add",

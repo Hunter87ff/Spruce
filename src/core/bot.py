@@ -17,6 +17,7 @@ from typing import Unpack
 from models import Tester
 from ext.types import BotConfig
 from discord.ext import commands
+from .Help import HelpCommand
 from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, Activities, error as error_handle
 from discord import (
     AllowedMentions, 
@@ -69,13 +70,14 @@ class Spruce(commands.AutoShardedBot):
         self.cache = Cache()
         self.db = Database()
         self.member_count = 0
-
         super().__init__(
                     # shard_count=kwargs.get("shards", config.SHARDS),
                     command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
                     intents=intents,
                     allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
-                    chunk_guilds_at_startup=False
+                    chunk_guilds_at_startup=False,
+                    help_command=HelpCommand(),
+                    case_insensitive=True,
         )
         self.tree.on_error = self.tree_error_handler
         self.instance = self
