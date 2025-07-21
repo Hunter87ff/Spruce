@@ -39,7 +39,7 @@ class PageSelect(Select):
                 label=label,
                 description=description,
                 value=str(i),
-                emoji=page.emoji or "📄"
+                emoji=getattr(page, 'emoji', None) or "📄"
             ))
         
         super().__init__(
