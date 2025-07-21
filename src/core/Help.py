@@ -1,4 +1,4 @@
-# custom help utility from command description with pagination
+# Custom help utility for command description with pagination
 
 import discord
 from typing import TYPE_CHECKING, Mapping, List
