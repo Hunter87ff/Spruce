@@ -37,6 +37,7 @@ class HelpCommand(commands.HelpCommand):
                     description=f"{server} **|** {invite} **|** {dashboard}\n\n",
                     emoji="ℹ️",
                 )
+            main_menu.set_footer(text=ctx.author, icon_url=ctx.author.display_avatar.url)
             
             embeds.append(main_menu)
             cog : "Cog"
@@ -44,11 +45,11 @@ class HelpCommand(commands.HelpCommand):
             for cog, commands in mapping.items():
                 
                 cog_emoji = getattr(cog, 'emoji', None) or ""
-                cog_name = cog.qualified_name.title() if cog else "General Commands"
+                cog_name = cog.qualified_name.title().replace("Cog", "") if cog else "General Commands"
                 main_menu.add_field(name=f"{cog_emoji}{cog_name}", value="", inline=False)
 
                 embed = EmbedBuilder(
-                    title=cog.qualified_name.title() if cog else "General Commands"
+                    title=cog.qualified_name.title().replace("Cog", "") if cog else "General Commands"
                 )
 
                 if cog and cog.qualified_name not in hidden:

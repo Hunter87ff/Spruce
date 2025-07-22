@@ -37,6 +37,7 @@ class RoleCog(Cog):
     """
     def __init__(self, bot:"Spruce"):
         self.bot = bot
+        self.emoji = self.bot.emoji.role
         self.DEFAULT_SLEEP = 1
         self.ROLE_HIGHER_THAN_YOU = "{role.mention} Is Higher or Equal To Your Top Role. So I Can't Manage It"
         self.ROLE_HIGHER_THAN_ME = "{role.mention} Is Higher or Equal To My Top Role. So I Can't Manage It"
