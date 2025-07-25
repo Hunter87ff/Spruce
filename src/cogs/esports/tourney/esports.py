@@ -9,6 +9,7 @@ A comprehensive module for managing esports tournaments in Discord servers.
 
 import asyncio
 import logging
+import traceback
 from typing import TYPE_CHECKING, Optional, List
 from random import shuffle as random_shuffle
 
@@ -67,12 +68,6 @@ class GroupConfig:
 class Esports(GroupCog, name="esports", group_name="esports"):
     """
     Tournament Management Cog
-    
-    Provides comprehensive tournament management features including:
-    - Tournament setup and configuration
-    - Team registration and management
-    - Group generation and organization
-    - Event monitoring and logging
     """
     
     # Constants
@@ -282,15 +277,16 @@ class Esports(GroupCog, name="esports", group_name="esports"):
 
             # Create tournament in database
             tournament = await TourneyModel.create(
-                guild_id=interaction.guild.id,
-                reg_channel=reg_channel.id,
-                slot_channel=confirm_channel.id,
-                group_channel=group_channel.id,
-                confirm_role=confirm_role.id,
-                total_slots=total_slots,
+                guild=interaction.guild.id,
+                name=name,
+                rch=reg_channel.id,
+                cch=confirm_channel.id,
                 mentions=mentions,
-                slot_per_group=slots_per_group,
-                name=name
+                crole=confirm_role.id,
+                gch=group_channel.id,
+                tslot=total_slots,
+                spg=slots_per_group,
+                mch=confirm_channel.id,  # Slot manager channel is the confirmation channel
             )
 
             # Set channel permissions
@@ -322,7 +318,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         except TourneyError as e:
             await interaction.followup.send(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
         except Exception as e:
-            logger.error(f"Error creating tournament: {e}")
+            logger.error(f"Error creating tournament: {traceback.format_exc()}")
             await interaction.followup.send(
                 embed=EmbedBuilder.warning("An error occurred while creating the tournament. Please try again."),
                 ephemeral=True
@@ -696,9 +692,9 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     # Team Management Commands
     # ========================
 
-    @commands.hybrid_command(description="Cancel a slot for a team")
-    @commands.guild_only()
-    @checks.tourney_mod()
+    @app_commands.command(name="cancel_slot", description="Cancel a slot for a team")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
     @app_commands.describe(
         registration_channel="The tournament registration channel",
         member="The member whose slot you want to cancel",
@@ -706,24 +702,24 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     )
     async def cancel_slot(
         self,
-        ctx: commands.Context,
+        interaction: discord.Interaction,
         registration_channel: discord.TextChannel,
         member: discord.Member,
         reason: str = "Not Provided"
     ):
         """Cancel a team's slot in the tournament."""
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
 
         try:
             tournament = await self.get_tourney_or_error(registration_channel.id)
             
-            confirm_role = ctx.guild.get_role(tournament.confirm_role)
+            confirm_role = interaction.guild.get_role(tournament.confirm_role)
             confirm_channel = self.bot.get_channel(tournament.slot_channel)
 
             if not confirm_channel:
                 raise TourneyError("Confirmation channel not found.")
 
-            if ctx.channel == confirm_channel:
+            if interaction.channel == confirm_channel:
                 raise TourneyError("Cannot use this command in the confirmation channel.")
 
             if confirm_role not in member.roles:
@@ -746,11 +742,11 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                         embed = EmbedBuilder.success(
                             f"Slot canceled for {member.mention}\n**Reason:** {reason}"
                         )
-                        await ctx.send(embed=embed)
+                        await interaction.followup.send(embed=embed)
                         
                         await self.log_tournament_action(
-                            ctx.guild,
-                            f"Slot canceled for {member.mention} by {ctx.author.mention}\nReason: {reason}",
+                            interaction.guild,
+                            f"Slot canceled for {member.mention} by {interaction.user.mention}\nReason: {reason}",
                             color.red
                         )
                         return
@@ -760,17 +756,17 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             raise TourneyError("Could not find the team's registration message.")
 
         except TourneyError as e:
-            await ctx.send(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
+            await interaction.followup.send(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
         except Exception as e:
             logger.error(f"Error canceling slot: {e}")
-            await ctx.send(
+            await interaction.followup.send(
                 embed=EmbedBuilder.warning("Failed to cancel slot. Please try again."),
                 ephemeral=True
             )
 
-    @commands.hybrid_command(description="Add a slot for a team")
-    @commands.guild_only()
-    @checks.tourney_mod()
+    @app_commands.command(name="add_slot", description="Add a slot for a team")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
     @app_commands.describe(
         reg_channel="The tournament registration channel",
         member="The member to add to the slot",
@@ -778,19 +774,19 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     )
     async def add_slot(
         self,
-        ctx: commands.Context,
+        interaction: discord.Interaction,
         reg_channel: discord.TextChannel,
         member: discord.Member,
         *,
         team_name: str
     ):
         """Add a slot for a team in the tournament."""
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
 
         try:
             tournament = await self.get_tourney_or_error(reg_channel.id)
             
-            confirm_role = ctx.guild.get_role(tournament.confirm_role)
+            confirm_role = interaction.guild.get_role(tournament.confirm_role)
             confirm_channel = self.bot.get_channel(tournament.slot_channel)
 
             if not confirm_role:
@@ -828,18 +824,18 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             success_embed = EmbedBuilder.success(
                 f"Slot added for {member.mention}\n**Team:** {team_name}"
             )
-            await ctx.send(embed=success_embed)
+            await interaction.followup.send(embed=success_embed)
             
             await self.log_tournament_action(
-                ctx.guild,
-                f"Slot added for {member.mention} by {ctx.author.mention}\nTeam: {team_name}"
+                interaction.guild,
+                f"Slot added for {member.mention} by {interaction.user.mention}\nTeam: {team_name}"
             )
 
         except TourneyError as e:
-            await ctx.send(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
+            await interaction.followup.send(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
         except Exception as e:
             logger.error(f"Error adding slot: {e}")
-            await ctx.send(
+            await interaction.followup.send(
                 embed=EmbedBuilder.warning("Failed to add slot. Please try again."),
                 ephemeral=True
             )
@@ -909,78 +905,6 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 ephemeral=True
             )
 
-    # Information Commands
-    # ====================
-
-    @commands.hybrid_command(name="ongoing", description="Get ongoing tournaments")
-    @commands.cooldown(2, 60, commands.BucketType.user)
-    @commands.guild_only()
-    async def ongoing_tournaments(self, ctx: commands.Context):
-        """Display ongoing tournaments in the server."""
-        await ctx.defer(ephemeral=True)
-
-        try:
-            # This would require a method to get all tournaments for a guild
-            # You may need to add this to the TourneyModel
-            embed = EmbedBuilder(
-                title="🏆 Ongoing Tournaments",
-                description="Feature under development. Please check individual tournament channels.",
-                color=color.cyan
-            )
-            await ctx.send(embed=embed)
-
-        except Exception as e:
-            logger.error(f"Error getting ongoing tournaments: {e}")
-            await ctx.send(
-                embed=EmbedBuilder.warning("Failed to retrieve ongoing tournaments."),
-                ephemeral=True
-            )
-
-    @commands.hybrid_command(description="Publish a tournament", aliases=["pub"])
-    @commands.guild_only()
-    @commands.cooldown(2, 20, commands.BucketType.user)
-    @checks.tourney_mod()
-    @app_commands.describe(
-        reg_channel="The tournament registration channel",
-        prize="The prize for the tournament"
-    )
-    async def publish(
-        self,
-        ctx: commands.Context,
-        reg_channel: discord.TextChannel,
-        *,
-        prize: str
-    ):
-        """Publish a tournament to make it visible in the ongoing tournaments list."""
-        await ctx.defer(ephemeral=True)
-
-        try:
-            if len(prize) > 100:
-                raise TourneyError("Prize description must be 100 characters or less.")
-
-            tournament = await self.get_tourney_or_error(reg_channel.id)
-            
-            # Update tournament to be published
-            tournament.published = "yes"
-            # You may want to add a prize field to the model
-            await tournament.save()
-            
-            embed = EmbedBuilder.success(f"**{tournament.name}** is now published with prize: **{prize}**")
-            await ctx.send(embed=embed)
-            
-            await self.log_tournament_action(
-                ctx.guild,
-                f"Tournament published by {ctx.author.mention}\nPrize: {prize}"
-            )
-
-        except TourneyError as e:
-            await ctx.send(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
-        except Exception as e:
-            logger.error(f"Error publishing tournament: {e}")
-            await ctx.send(
-                embed=EmbedBuilder.warning("Failed to publish tournament."),
-                ephemeral=True
-            )
 
     # Configuration Commands
     # ======================
@@ -1057,6 +981,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             if tournament:
                 await TourneyModel.delete(channel.id)
                 logger.info(f"Tournament deleted due to channel deletion: {channel.id}")
+
         except Exception as e:
             logger.error(f"Error handling channel deletion: {e}")
 
@@ -1069,8 +994,3 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             logger.info(f"Role deleted: {role.name} ({role.id})")
         except Exception as e:
             logger.error(f"Error handling role deletion: {e}")
-
-
-async def setup(bot: 'Spruce'):
-    """Setup function for the cog."""
-    await bot.add_cog(TourneyCog(bot))

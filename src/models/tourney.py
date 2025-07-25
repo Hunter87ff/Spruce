@@ -4,26 +4,28 @@ import time
 from typing import TYPE_CHECKING
 from typing import Unpack, TypedDict
 
+from discord import mentions
+
 
 if TYPE_CHECKING:
     from discord import Message, Member
+    from pymongo.collection import Collection
     from pymongo.asynchronous.collection import AsyncCollection
     from core.bot import Spruce
 
 
 class TournamentPayload(TypedDict):
-    guild_id: int
-    reg_channel: int
-    slot_channel: int
-    confirm_role: int
-    group_channel: int
-    total_slot: int
-    team_count: int
-    auto_group: str | None
-    published: str | None
-    slot_per_group: int
-    current_group: int | None
-    created_at: int
+    guild: int
+    rch: int
+    cch: int
+    mentions: int
+    crole: int
+    gch: int
+    tslot: int
+    reged: int
+    spg: int
+    cgp: int | None
+    cat: int
 
 
 class ConfirmedTeamModel:
@@ -71,7 +73,7 @@ class TourneyModel:
     Tourney class represents a tournament with various properties.
     """
     _cache: dict[int, 'TourneyModel'] = {}
-    _col: "AsyncCollection" = None  # MongoDB collection name for tournaments
+    _col: "Collection" = None  # MongoDB collection name for tournaments
     bot : "Spruce" = None  # Reference to the bot instance
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
@@ -80,12 +82,11 @@ class TourneyModel:
         self.reg_channel: int = kwargs.get("rch")
         self.slot_channel: int = kwargs.get("cch")
         self.group_channel: int = kwargs.get("gch")
-        self.slot_manager: int = kwargs.get("mch", None) #slot manager channel id
+        self.slot_manager: int = kwargs.get("mch") #slot manager channel id
         self.mentions: int = kwargs.get("mentions", 4) # minimum mentions required to register
         self.confirm_role: int = kwargs.get("crole") # confirmation role id
-        self.total_slots: int = kwargs.get("slots") # total slots available in the tournament
+        self.total_slots: int = kwargs.get("tslot") # total slots available in the tournament
         self.team_count: int = kwargs.get("reged", 0) # number of teams registered in the tournament
-        self.published: str = kwargs.get("pub", None)
         self.slot_per_group: int = kwargs.get("spg", 12) #number of slots per group (default: 12)
         self.current_group: int = kwargs.get("cgp", 0) # current group number (default: 0)
         self.created_at: int = kwargs.get("cat", int(time.time()))
@@ -118,6 +119,7 @@ class TourneyModel:
         Returns:
             bool: True if the instance is valid, False otherwise.
         """
+        
         return all([
             isinstance(self.guild_id, int),
             isinstance(self.reg_channel, int),
@@ -126,9 +128,7 @@ class TourneyModel:
             isinstance(self.group_channel, int),
             isinstance(self.total_slots, int) and self.total_slots > 0,
             isinstance(self.team_count, int) and self.team_count >= 0,
-            isinstance(self.published, (str, type(None))),
-            isinstance(self.slot_per_group, int) and self.slot_per_group > 0 and self.slot_per_group <= 100,
-            isinstance(self.current_group, (int, type(None))),
+            isinstance(self.slot_per_group, int) and self.slot_per_group > 0 and self.slot_per_group <= 25,
             isinstance(self.created_at, int)
         ])
 
@@ -143,11 +143,11 @@ class TourneyModel:
             "guild": self.guild_id,
             "rch": self.reg_channel,
             "cch": self.slot_channel,
+            "mentions": self.mentions,
             "crole": self.confirm_role,
             "gch": self.group_channel,
             "tslot": self.total_slots,
             "reged": self.team_count,
-            "pub": self.published,
             "spg": self.slot_per_group,
             "cgp": self.current_group,
             "mch": self.slot_manager,
@@ -160,7 +160,7 @@ class TourneyModel:
         if not self.validate():
             raise ValueError("Invalid Tournament instance. Cannot save to database.")
 
-        await self._col.update_one(
+        self._col.update_one(
             {"reg_channel": self.reg_channel, "guild_id": self.guild_id},
             {"$set": self.to_dict()},
             upsert=True
@@ -178,7 +178,7 @@ class TourneyModel:
                 return tourney
             await asyncio.sleep(0)
 
-        document: dict = await cls._col.find_one(**kwargs)
+        document: dict = cls._col.find_one(kwargs)
         if document is None:
             return None
         # Create a new instance of TourneyModel with the fetched data
@@ -221,14 +221,17 @@ class TourneyModel:
         Returns:
             TourneyModel: The created TournamentModel instance.
         """
-        if not kwargs.get("guild_id") or not kwargs.get("reg_channel"):
+        if any([
+            kwargs.get("guild_id") is None,
+            kwargs.get("reg_channel") is None
+        ]):
             raise ValueError("guild_id and reg_channel are required to create a tournament.")
 
-        existing_tournament = await cls.find_one({"reg_channel": kwargs["reg_channel"], "guild_id": kwargs["guild_id"]})
+        existing_tournament = await cls.get(kwargs.get("reg_channel"))
         if existing_tournament:
             return existing_tournament
-
-        tournament = cls(**kwargs)
+        print("Creating new tournament with kwargs:", kwargs)
+        tournament = TourneyModel(**kwargs)
         await tournament.save()
         cls._cache[tournament.reg_channel] = tournament
         return tournament
@@ -248,7 +251,7 @@ class TourneyModel:
             return False
 
         cls._cache.pop(reg_channel, None)
-        result = await cls._col.delete_one({"reg_channel": reg_channel})
+        result = cls._col.delete_one({"reg_channel": reg_channel})
         if result.deleted_count > 0:
             cls._cache.pop(reg_channel, None)
             return True

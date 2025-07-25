@@ -43,7 +43,9 @@ _cogs : list["Cog"] = [
 if IS_DEV_ENV:
 
     from .testing import TestingCog
+    from .esports import Esports
     _cogs.append(TestingCog)
+    _cogs.append(Esports)
 
 
 
