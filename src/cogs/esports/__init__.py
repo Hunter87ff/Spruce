@@ -1,8 +1,9 @@
 from .scrim import ScrimCog
-from .tourney import TourneyCog
+from .tourney import TourneyCog, Esports
 
 
 __all__ =(
     "ScrimCog",
     "TourneyCog",
+    "Esports",
 )
