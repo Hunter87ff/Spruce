@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Unpack, TypedDict
 if TYPE_CHECKING:
     from pymongo.collection import Collection
 
-guild_cache:dict = {}
 
 
 class GuildAutoRoleModelDict(TypedDict):
@@ -12,8 +11,9 @@ class GuildAutoRoleModelDict(TypedDict):
     auto_role_bot: list[int] | None
     auto_role_all: list[int] | None
 
-class GuildAutoRoleModel:
 
+class GuildAutoRoleModel:
+    _cache : dict[int, 'GuildAutoRoleModel'] = {}
     col:"Collection" = None
 
     def __init__(self, **kwargs : Unpack[GuildAutoRoleModelDict]):
@@ -68,7 +68,7 @@ class GuildAutoRoleModel:
     @classmethod
     async def find_one(cls, guild_id:int) -> 'GuildAutoRoleModel':
         """Find a single GuildAutoRoleModel by guild_id"""
-        _guild:GuildAutoRoleModel = guild_cache.get(guild_id)
+        _guild:GuildAutoRoleModel = cls._cache.get(guild_id)
         if _guild:
             return _guild
         
@@ -85,8 +85,8 @@ class GuildAutoRoleModel:
         })
         if _del.deleted_count == 0:
             return None
-        
-        guild_cache.pop(self.guild_id, None)
+
+        self._cache.pop(self.guild_id, None)
         return True
     
 
@@ -97,5 +97,5 @@ class GuildAutoRoleModel:
             {"$set": self.to_dict()},
             upsert=True
         )
-        guild_cache[self.guild_id] = self
+        self._cache[self.guild_id] = self
         return self

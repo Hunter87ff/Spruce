@@ -135,11 +135,8 @@ class Spruce(commands.AutoShardedBot):
             self.config_data = self.db.config_col.find_one({"config_id": 87}) or {}
             self.blocked_words = self.config_data.get("bws", [])
             self.last_run = int(self.config_data.get("last_run", time.time()))
-
-            self.logger.info("Chunking guilds...")
             await self._chunk_guilds()
-            self.logger.info("All guilds chunked successfully.")
-            
+    
             exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
             
 
