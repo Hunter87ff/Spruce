@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 from typing import Unpack, TypedDict
 from pymongo.collection import Collection
 from pymongo.asynchronous.collection import AsyncCollection
@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class TournamentPayload(TypedDict):
+    name: str
+    status: bool
     guild: int
     rch: int
     cch: int
@@ -75,6 +77,7 @@ class TourneyModel:
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
         self.guild_id: int = kwargs.get("guild")
+        self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
         self.name: str = kwargs.get("name", "Tournament")
         self.reg_channel: int = kwargs.get("rch")
         self.slot_channel: int = kwargs.get("cch")
@@ -87,6 +90,7 @@ class TourneyModel:
         self.slot_per_group: int = kwargs.get("spg", 12) #number of slots per group (default: 12)
         self.current_group: int = kwargs.get("cgp", 0) # current group number (default: 0)
         self.created_at: int = kwargs.get("cat", int(time.time()))
+
 
         if kwargs.get("col"):
             self._col = kwargs.get("col", None)
