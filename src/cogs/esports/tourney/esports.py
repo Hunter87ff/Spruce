@@ -145,7 +145,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                     reason=f"Created by {ctx.user} for tournament setup"
                 )
                 _channel_names[channel_name] = _channel
-                await self.bot.sleep()  # Avoid rate limits
+                await self.bot.sleep(0.5)  # Avoid rate limits
 
             except Exception as e:
                 await ctx.followup.send(
@@ -155,7 +155,8 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 return
 
         try:
-            await  TourneyModel.create(
+
+            tournament = TourneyModel(
                 guild=ctx.guild.id,
                 name=event_name,
                 tslot=total_slot,
@@ -164,7 +165,9 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 rch= _channel_names.get("register-here").id,
                 cch= _channel_names.get("confirmed-teams").id,
                 gch= _channel_names.get("groups").id,
+                #crole=0,  # Will be set later when confirm role is created
             )
+            await tournament.save()  # Save the tournament model to the database
             
             how_to_register_content = ""
             for i in range(1, mentions+1): how_to_register_content+=f"\nPLAYER {i}:\nUID: PLAYER ID\nIGN : PLAYER NAME\n"
@@ -244,6 +247,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         )
         
         _tourney.status = False  # Set tournament status to inactive
+        await _tourney.save()  # Save changes to database
         await ctx.followup.send(
             embed=EmbedBuilder.success("Tournament registration has been paused."),
             ephemeral=True
@@ -260,7 +264,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         _tourney = await self.model.get(reg_channel.id)
         if not _tourney:
             await ctx.followup.send(
-                embed=EmbedBuilder.warning(self),
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
                 ephemeral=True
             )
             return
@@ -279,6 +283,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         )
 
         _tourney.status = True  # Set tournament status to active
+        await _tourney.save()  # Save changes to database
         await ctx.followup.send(
             embed=EmbedBuilder.success("Tournament registration has been started."),
             ephemeral=True

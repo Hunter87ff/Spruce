@@ -104,7 +104,7 @@ class ScrimModel:
         self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
 
         if kwargs.get("col"):
-            self.col = kwargs.get("col")
+            ScrimModel.col = kwargs.get("col")
 
 
     def __eq__(self, other):

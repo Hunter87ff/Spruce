@@ -24,6 +24,7 @@ class TournamentPayload(TypedDict):
     reged: int
     spg: int
     cgp: int | None
+    mch: int
     cat: int
 
 
@@ -76,30 +77,31 @@ class TourneyModel:
     bot : "Spruce" = None  # Reference to the bot instance
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
+        print("Initializing TourneyModel with kwargs:", kwargs)
         self.guild_id: int = kwargs.get("guild")
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
-        self.name: str = kwargs.get("name", "Tournament")
-        self.reg_channel: int = kwargs.get("rch")
-        self.slot_channel: int = kwargs.get("cch")
-        self.group_channel: int = kwargs.get("gch")
+        self.name: str = str(kwargs.get("name", "Tournament"))
+        self.reg_channel: int = int(kwargs.get("rch"))
+        self.slot_channel: int = int(kwargs.get("cch"))
+        self.group_channel: int = int(kwargs.get("gch"))
         self.slot_manager: int = kwargs.get("mch") #slot manager channel id
-        self.mentions: int = kwargs.get("mentions", 4) # minimum mentions required to register
-        self.confirm_role: int = kwargs.get("crole") # confirmation role id
-        self.total_slots: int = kwargs.get("tslot") # total slots available in the tournament
-        self.team_count: int = kwargs.get("reged", 0) # number of teams registered in the tournament
-        self.slot_per_group: int = kwargs.get("spg", 12) #number of slots per group (default: 12)
+        self.mentions: int = int(kwargs.get("mentions", 4)) # minimum mentions required to register
+        self.confirm_role: int = int(kwargs.get("crole")) # confirmation role id
+        self.total_slots: int = int(kwargs.get("tslot")) # total slots available in the tournament
+        self.team_count: int = int(kwargs.get("reged", 0)) # number of teams registered in the tournament
+        self.slot_per_group: int = int(kwargs.get("spg", 12)) #number of slots per group (default: 12)
         self.current_group: int = kwargs.get("cgp", 0) # current group number (default: 0)
-        self.created_at: int = kwargs.get("cat", int(time.time()))
+        self.created_at: int = int(kwargs.get("cat", time.time()))
 
 
         if kwargs.get("col"):
-            self._col = kwargs.get("col", None)
+            TourneyModel._col = kwargs.get("col", None)
 
     def __repr__(self) -> str:
-        return f"<Tournament guild_id={self.guild_id} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} pub={self.published} spg={self.slot_per_group} cgp={self.current_group} created_at={self.created_at}>"
-    
+        return f"<Tournament guild={self.guild_id} status={self.status} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} spg={self.slot_per_group} cgp={self.current_group} cat={self.created_at}>"
+
     def __str__(self) -> str:
-        return f"Tournament(guild_id={self.guild_id}, reg_channel={self.reg_channel}, slot_channel={self.slot_channel}, confirm_role={self.confirm_role}, group_channel={self.group_channel}, total_slot={self.total_slots}, team_count={self.team_count}, published={self.published}, slot_per_group={self.slot_per_group}, current_group={self.current_group}, created_at={self.created_at})"
+        return f"Tournament(guild={self.guild_id}, status={self.status}, rch={self.reg_channel}, cch={self.slot_channel}, crole={self.confirm_role}, gch={self.group_channel}, tslot={self.total_slots}, reged={self.team_count}, spg={self.slot_per_group}, cgp={self.current_group}, cat={self.created_at})"
 
 
     def __eq__(self, value):
@@ -142,6 +144,8 @@ class TourneyModel:
         """
         return {
             "guild": self.guild_id,
+            "status": self.status,
+            "name": self.name,
             "rch": self.reg_channel,
             "cch": self.slot_channel,
             "mentions": self.mentions,
@@ -212,7 +216,7 @@ class TourneyModel:
         if reg_channel in cls._cache:
             return cls._cache[reg_channel]
 
-        data = await cls.find_one(reg_channel=reg_channel)
+        data = await cls.find_one(rch=reg_channel)
         if not data:
             return None
 
@@ -232,15 +236,15 @@ class TourneyModel:
             TourneyModel: The created TournamentModel instance.
         """
         if any([
-            kwargs.get("guild_id") is None,
-            kwargs.get("reg_channel") is None
+            kwargs.get("guild") is None,
+            kwargs.get("rch") is None
         ]):
             raise ValueError("guild_id and reg_channel are required to create a tournament.")
 
-        existing_tournament = await cls.get(kwargs.get("reg_channel"))
+        existing_tournament = await cls.get(kwargs.get("rch"))
         if existing_tournament:
             return existing_tournament
-        print("Creating new tournament with kwargs:", kwargs)
+        
         tournament = TourneyModel(**kwargs)
         await tournament.save()
         cls._cache[tournament.reg_channel] = tournament
@@ -262,12 +266,13 @@ class TourneyModel:
 
         cls._cache.pop(reg_channel, None)
         result = cls._col.delete_one(
-            filter={"reg_channel": reg_channel}
+            filter={"rch": reg_channel}
         ) if isinstance(cls._col, Collection) else await cls._col.delete_one(
-            filter={"reg_channel": reg_channel}
+            filter={"rch": reg_channel}
         )
         
         if result.deleted_count > 0:
             cls._cache.pop(reg_channel, None)
             return True
         return False
+    
