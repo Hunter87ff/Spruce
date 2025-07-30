@@ -13,8 +13,8 @@ import asyncio
 import inspect
 import traceback
 from .cache import Cache
-from typing import Unpack
-from models import Tester
+from typing import  Unpack
+from models import TesterModel
 from ext.types import BotConfig
 from discord.ext import commands
 from .Help import HelpCommand
@@ -32,8 +32,6 @@ intents.message_content = True
 intents.members = True
 intents.voice_states = True
 intents.guilds = True
- 
-
 
 
 class Spruce(commands.AutoShardedBot):
@@ -60,9 +58,7 @@ class Spruce(commands.AutoShardedBot):
         self.guild_leave_log:TextChannel
         self.time = ClientTime()
         self.validator = validator
-        self.testers:list[Tester] = self.config.TESTERS
         self.config_data : dict[str, str] = {}
-        self.devs : list[int] = self.config.DEVELOPERS
         self.blocked_words:list[str] = []
         self.base_color = self.color.cyan
         self.last_run:int = int(time.time())
@@ -94,10 +90,7 @@ class Spruce(commands.AutoShardedBot):
     async def setup_hook(self) -> None:
         await cogs.setup(self)
 
-        #load testers
-        self.config.TESTERS = await Tester.all(self)
         
-
     def now(self):
         """Returns the current time in the specified format."""
         return self.time.now()
@@ -136,9 +129,11 @@ class Spruce(commands.AutoShardedBot):
             self.blocked_words = self.config_data.get("bws", [])
             self.last_run = int(self.config_data.get("last_run", time.time()))
             await self._chunk_guilds()
-    
+
             exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
-            
+
+            #load testers
+            self.config.TESTERS = await TesterModel.all()
 
 
         except Exception as e:

@@ -1,16 +1,13 @@
 import asyncio
 import time
-
 from typing import TYPE_CHECKING
 from typing import Unpack, TypedDict
-
-from discord import mentions
+from pymongo.collection import Collection
+from pymongo.asynchronous.collection import AsyncCollection
 
 
 if TYPE_CHECKING:
     from discord import Message, Member
-    from pymongo.collection import Collection
-    from pymongo.asynchronous.collection import AsyncCollection
     from core.bot import Spruce
 
 
@@ -73,7 +70,7 @@ class TourneyModel:
     Tourney class represents a tournament with various properties.
     """
     _cache: dict[int, 'TourneyModel'] = {}
-    _col: "Collection" = None  # MongoDB collection name for tournaments
+    _col: Collection | AsyncCollection = None  # MongoDB collection name for tournaments
     bot : "Spruce" = None  # Reference to the bot instance
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
@@ -159,12 +156,21 @@ class TourneyModel:
     async def save(self):
         if not self.validate():
             raise ValueError("Invalid Tournament instance. Cannot save to database.")
+        
+        if isinstance(self._col, Collection):
+            self._col.update_one(
+                {"rch": self.reg_channel, "guild": self.guild_id},
+                {"$set": self.to_dict()},
+                upsert=True
+            )
 
-        self._col.update_one(
-            {"reg_channel": self.reg_channel, "guild_id": self.guild_id},
-            {"$set": self.to_dict()},
-            upsert=True
-        )
+        elif isinstance(self._col, AsyncCollection):
+            await self._col.update_one(
+                {"rch": self.reg_channel, "guild": self.guild_id},
+                {"$set": self.to_dict()},
+                upsert=True
+            )
+
         return self
     
 
@@ -178,7 +184,7 @@ class TourneyModel:
                 return tourney
             await asyncio.sleep(0)
 
-        document: dict = cls._col.find_one(kwargs)
+        document: dict = cls._col.find_one(kwargs) if isinstance(cls._col, Collection) else await cls._col.find_one(kwargs)
         if document is None:
             return None
         # Create a new instance of TourneyModel with the fetched data
@@ -251,7 +257,12 @@ class TourneyModel:
             return False
 
         cls._cache.pop(reg_channel, None)
-        result = cls._col.delete_one({"reg_channel": reg_channel})
+        result = cls._col.delete_one(
+            filter={"reg_channel": reg_channel}
+        ) if isinstance(cls._col, Collection) else await cls._col.delete_one(
+            filter={"reg_channel": reg_channel}
+        )
+        
         if result.deleted_count > 0:
             cls._cache.pop(reg_channel, None)
             return True
