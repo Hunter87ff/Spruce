@@ -1,73 +1,17 @@
 from __future__ import annotations
-import asyncio
+
 import time
-from typing import TYPE_CHECKING, Literal
-from typing import Unpack, TypedDict
+import asyncio
+from typing import TYPE_CHECKING
+from typing import Unpack
+
 from pymongo.collection import Collection
 from pymongo.asynchronous.collection import AsyncCollection
-
+from ext.types import TournamentPayload, TourneyTeamPayload
+from .team import TeamModel
 
 if TYPE_CHECKING:
-    from discord import Message, Member
     from core.bot import Spruce
-
-
-class TournamentPayload(TypedDict):
-    name: str
-    status: bool
-    guild: int
-    rch: int
-    cch: int
-    mentions: int
-    ftch: bool
-    crole: int
-    gch: int
-    tslot: int
-    reged: int
-    spg: int
-    cgp: int | None
-    mch: int
-    cat: int
-
-
-class ConfirmedTeamModel:
-    def __init__(self, message: 'Message'):
-        self.message: 'Message' = message
-        if not isinstance(message, Message):
-            raise TypeError("message must be an instance of discord.Message")
-        
-        if message.author.id != message.guild.me.id:
-            raise ValueError("message must be sent by the bot itself")
-        
-        if len(message.mentions) != 1 or not message.embeds:
-            raise ValueError("message must mention exactly one user and contain an embed")
-        
-        self.captain = message.mentions[0]
-        self.name = message.content.replace(self.captain.mention, "").strip() if message.content else f"{self.captain.name}'s Team"
-        self.players = message.embeds[0].description.split("\n")[1].replace("Players: ", "").split(", ") if message.embeds[0].description else []
-
-
-    
-    async def edit(self, name: str = None, captain: "Member" = None):
-        """Edit the team name and/or players in the confirmation message."""
-
-        content = f"{name or self.name} {captain.mention or self.captain.mention}"
-        embed = self.message.embeds[0]
-        embed.description = embed.description.replace(self.name, name) if name else embed.description
- 
-        self.name = name if name else self.name
-        self.captain = captain if captain else self.captain
-        
-        await self.message.edit(content=content, embed=embed)
-
-
-    async def delete(self):
-        """Delete the confirmation message."""
-        if self.message:
-            await self.message.delete()
-            self.message = None
-        else:
-            raise ValueError("Message has already been deleted or does not exist.")
 
 
 class TourneyModel:
@@ -93,8 +37,8 @@ class TourneyModel:
         self.total_slots: int = kwargs.get("tslot") # total slots available in the tournament
         self.team_count: int = kwargs.get("reged", 0) # number of teams registered in the tournament
         self.slot_per_group: int = kwargs.get("spg", 12) #number of slots per group (default: 12)
-        self.current_group: int = kwargs.get("cgp", 1) # current group number (default: 1)
         self.created_at: int = int(kwargs.get("cat", time.time()))
+        self.__teams : list[TeamModel] = []
 
 
         if kwargs.get("col"):
@@ -146,9 +90,9 @@ class TourneyModel:
             TournamentPayload: A dictionary representation of the Tournament instance.
         """
         return {
+            "name": self.name,
             "guild": self.guild_id,
             "status": self.status,
-            "name": self.name,
             "rch": self.reg_channel,
             "cch": self.slot_channel,
             "mentions": self.mentions,
@@ -158,7 +102,6 @@ class TourneyModel:
             "tslot": self.total_slots,
             "reged": self.team_count,
             "spg": self.slot_per_group,
-            "cgp": self.current_group,
             "mch": self.slot_manager,
             "cat": self.created_at,
             "_v": 1,  # Versioning for future changes
@@ -252,6 +195,33 @@ class TourneyModel:
 
         self._cache[self.reg_channel] = self
         return self
+    
+
+    async def get_teams(self) -> list[TeamModel]:
+        """Fetches all teams registered in the tournament."""
+        if self.__teams:
+            return self.__teams
+
+        self.__teams = await TeamModel.find_by_tid(self.reg_channel)
+        return self.__teams if self.__teams else []
+
+    
+
+    async def add_team(self, **kwargs: Unpack[TourneyTeamPayload]) -> None:
+        """Adds a team to the tournament."""
+        
+        try:
+            team = TeamModel(**kwargs)
+            await team.save()
+            self.__teams.append(team)
+            self.team_count += 1
+            await self.save()
+            self._cache[self.reg_channel] = self  # Update cache
+            return team
+
+        except Exception as e:
+            raise ValueError(f"Failed to add team: {e}")
+
     
 
     @classmethod
