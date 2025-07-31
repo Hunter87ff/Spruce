@@ -240,7 +240,7 @@ class TourneyModel:
             return False
         
         _name = _tourney.name
-
+        await TeamModel.delete_by_tid(reg_channel)
         cls._cache.pop(reg_channel, None)
         result = cls._col.delete_one(
             filter={"rch": reg_channel}

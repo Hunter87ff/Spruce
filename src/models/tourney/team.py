@@ -83,3 +83,16 @@ class TeamModel:
         _teams = [cls(**doc) for doc in document]
         cls._cache[tid] = _teams
         return _teams
+    
+    
+    @classmethod
+    async def delete_by_tid(cls, tid: int) -> bool:
+        """Deletes a team by its tournament ID."""
+        if not cls._col:
+            raise ValueError("Collection is not set for TeamModel.")
+        
+        if tid in cls._cache:
+            cls._cache.pop(tid, None)
+
+        result = await cls._col.delete_one({"tid": tid})
+        return result.deleted_count > 0

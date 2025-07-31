@@ -21,6 +21,6 @@ __all__ = (
 def init(db:"Database"):
     GuildAutoRoleModel.col = db.autoroles
     ScrimModel.col = db.scrims
-    TourneyModel._col = db.sprucedb["tournaments"]
     TesterModel._col = db.testers
+    TourneyModel._col = db.sprucedb["tournaments"]
     TeamModel._col = db.sprucedb["teams"]
