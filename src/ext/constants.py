@@ -170,3 +170,21 @@ class Alerts:
     WARNING = "Please be cautious while proceeding."
     TIMEOUT = "Timeout. Please try again later."
 
+
+class Messages:
+    TOURNAMENT_PAUSED = "Tournament registration has been paused."
+    NO_ACTIVE_TOURNAMENT = "No active tournament found."
+    ONLY_AUTHOR_BUTTON = "Only the author can use this button."
+    TESTER_ONLY = "Currently it's only available for testers. Please wait for the public release or apply for early access."
+    UNDER_MAINTENANCE = "This feature is currently under maintenance. Please try again later."
+    DEPRECATED = "This feature is deprecated and will be removed in future versions."
+    DEV_ONLY = "This feature is for developers only. Please do not use it unless you are a developer."
+
+
+    TOO_MANY_CATEGORIES = "Server has too many categories(~50). Please remove some before creating a new one."
+    TOO_MANY_CHANNELS = "Server has too many channels(~500). Please remove some before creating a new one."
+    TOO_MANY_ROLES = "Server has too many roles(~250). Please remove some before creating a new one."
+
+
+    TOURNEY_PAUSED = "Registration has been paused. No new registrations will be accepted until further notice."
+    TOURNEY_RESUMED = "Registration has been resumed. New registrations will be accepted again."

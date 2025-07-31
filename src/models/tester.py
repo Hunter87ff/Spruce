@@ -1,10 +1,8 @@
 from discord import Guild, Member, User
 from typing import TypedDict, Unpack
-from typing import TYPE_CHECKING
+from pymongo.collection import Collection
+from pymongo.asynchronous.collection import AsyncCollection
 
-
-if TYPE_CHECKING:
-    from core.bot import Spruce
 
 class TesterPayload(TypedDict):
     """
@@ -17,10 +15,12 @@ class TesterPayload(TypedDict):
     active: bool
 
 
-class Tester:
+class TesterModel:
     """
     Represents a tester.
     """
+    _col : Collection | AsyncCollection = None
+
     def __init__(self, **kwargs: Unpack[TesterPayload]) -> None:
         self.id = kwargs.get("id")
         self.name = kwargs.get("name")
@@ -49,27 +49,33 @@ class Tester:
         }
 
 
-    @staticmethod
-    async def all(bot: "Spruce") -> list["Tester"]:
+    @classmethod
+    async def all(cls) -> list["TesterModel"]:
         """
         Fetches all testers from the database.
-        Args:
-            bot (Spruce): The bot instance.
         Returns:
             list[Tester]: A list of Tester instances.
         """
-        testers_data = bot.db.testers.find().to_list(length=None)
-        return [Tester(**data) for data in testers_data]
+        testers_data : list[dict] = None
+        if isinstance(cls._col, AsyncCollection):
+            testers_data = await cls._col.find().to_list(length=None)
+        else:
+            testers_data = cls._col.find().to_list(length=None)
+
+        return [cls(**data) for data in testers_data]
     
 
-    async def save(self, bot: "Spruce") -> None:
+    async def save(self) -> None:
         """
         Saves the Tester instance to the database.
         Args:
             bot (Spruce): The bot instance.
         """
-        bot.db.testers.update_one(
-            {"id": self.id},
-            {"$set": self.to_dict()},
-            upsert=True
-        )
+        queries: list[dict] = [ {"id": self.id}, {"$set": self.to_dict()} ]
+
+        if isinstance(self._col, AsyncCollection):
+            await self._col.update_one( filter=queries[0], update=queries[1], upsert=True)
+        else:
+            self._col.update_one( filter=queries[0], update=queries[1], upsert=True)
+
+        return self

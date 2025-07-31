@@ -11,7 +11,7 @@ import config
 from core import payment
 from discord.ext import commands
 from ext import checks
-from models import Tester
+from models import TesterModel
 from core.abstract import Cog
 from typing import Any, TYPE_CHECKING
 import psutil, enum
@@ -75,9 +75,10 @@ class DevCog(Cog):
         """
         Add a user to the tester list.
         """
-        if ctx.author.bot:return
+        if ctx.author.bot:
+            return
         if member not in self.bot.config.TESTERS:
-            _tester = Tester(id=member.id, name=str(member),  guild=guild.id if guild else None,  level=0.0,  active=True  )
+            _tester = TesterModel(id=member.id, name=str(member),  guild=guild.id if guild else None,  level=0.0,  active=True  )
             await _tester.save(self.bot)
             self.bot.config.TESTERS.append(_tester)
             

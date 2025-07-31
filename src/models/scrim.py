@@ -1,12 +1,14 @@
 from datetime import datetime
 from discord import Member
-from typing import TypedDict, Unpack
+from typing import Any, TypedDict, Unpack
+
+from pymongo.results import DeleteResult
 from ext.types.errors import ScrimAlreadyExists
-from typing import TYPE_CHECKING
 
+# for dynamic instance checking
+from pymongo.collection import Collection
+from pymongo.asynchronous.collection import AsyncCollection
 
-if TYPE_CHECKING:
-    from pymongo.collection import Collection
 
 _scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
 IS_DEV_ENV = False  # Set this to True if you want to enable debug messages
@@ -69,7 +71,7 @@ def debug(message:str):
 
 
 class ScrimModel:
-    col: "Collection" = None
+    col: Collection | AsyncCollection = None
 
     def __init__(self, **kwargs: Unpack[ScrimPayload]):
         """
@@ -102,7 +104,7 @@ class ScrimModel:
         self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
 
         if kwargs.get("col"):
-            self.col = kwargs.get("col")
+            ScrimModel.col = kwargs.get("col")
 
 
     def __eq__(self, other):
@@ -257,7 +259,7 @@ class ScrimModel:
             ValueError: If the instance is not valid.
         """
         if not self._id:
-            _existing = ScrimModel.find_one(reg_channel=self.reg_channel)
+            _existing = await self.find_one(reg_channel=self.reg_channel)
 
             if _existing and _existing == self:
                 return
@@ -291,12 +293,19 @@ class ScrimModel:
         if self.reg_channel in _scrim_cache_by_channel:
             del _scrim_cache_by_channel[self.reg_channel]
 
-        result = self.col.delete_one({"reg_channel": self.reg_channel, "guild_id": self.guild_id})
+        result: DeleteResult
+        query = {"reg_channel": self.reg_channel, "guild_id": self.guild_id}
+
+        if isinstance(self.col, Collection):
+            result = self.col.delete_one(query)
+        else:
+            result = await self.col.delete_one(query)
+
         return result.deleted_count > 0
 
 
     @classmethod
-    def find_by_reg_channel(cls, channel_id:int) -> "ScrimModel | None":
+    async def find_by_reg_channel(cls, channel_id:int) -> "ScrimModel | None":
         """
         Finds a ScrimModel instance by its registration channel ID.
         Args:
@@ -307,7 +316,14 @@ class ScrimModel:
         if channel_id in _scrim_cache_by_channel:
             return _scrim_cache_by_channel[channel_id]
         
-        data = cls.col.find_one({"reg_channel": channel_id})
+        query = {"reg_channel": channel_id}
+        data : dict[str, Any] = None
+
+        if isinstance(cls.col, Collection):
+            data = cls.col.find_one(query)
+        else:
+            data = await cls.col.find_one(query)
+
         if data:
             scrim = cls(**data)
             _scrim_cache_by_channel[channel_id] = scrim
@@ -317,7 +333,7 @@ class ScrimModel:
 
 
     @classmethod
-    def find_one(cls, **kwargs: Unpack[ScrimPayload]) -> "ScrimModel | None":
+    async def find_one(cls, **kwargs: Unpack[ScrimPayload]) -> "ScrimModel | None":
         """        Finds a single ScrimModel instance based on the provided keyword arguments.
         Args:
             **kwargs: Keyword arguments to filter the ScrimModel instances.
@@ -329,13 +345,13 @@ class ScrimModel:
             if channel_id in _scrim_cache_by_channel:
                 return _scrim_cache_by_channel[channel_id]
             
-        if "manage_channel" in kwargs:
-            channel_id = kwargs["manage_channel"]
-            if channel_id in _scrim_cache_by_channel:
-                return _scrim_cache_by_channel[channel_id]
-            
+        data : dict[str, Any] = None
 
-        data = cls.col.find_one(kwargs)
+        if isinstance(cls.col, Collection):
+            data = cls.col.find_one(kwargs)
+        else:
+            data = await cls.col.find_one(kwargs)
+
         if data:
             scrim = cls(**data)
             _scrim_cache_by_channel[scrim.reg_channel] = scrim
@@ -349,13 +365,19 @@ class ScrimModel:
 
 
     @classmethod
-    def find(cls, **kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"]:
+    async def find(cls, **kwargs: Unpack[ScrimPayload]) -> list["ScrimModel"]:
         """
         Finds all ScrimModel instances.
         Returns:
             list[ScrimModel]: A list of all ScrimModel instances.
         """
-        data = cls.col.find(kwargs).to_list(length=None)
+        data : list[dict[str, Any]] = []
+
+        if isinstance(cls.col, Collection):
+            data = cls.col.find(kwargs).to_list(length=None)
+        else:
+            data = await cls.col.find(kwargs).to_list(length=None)
+
         return [cls(**item) for item in data]
 
 

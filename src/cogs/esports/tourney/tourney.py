@@ -7,14 +7,14 @@ A module for managing esports tournaments in a Discord server.
 
 import datetime
 import asyncio
-from . import checker
+from .ext import checker
 from asyncio import sleep
 from random import shuffle as random_shuffle
 from typing import TYPE_CHECKING
 from discord.ext import commands
 from discord import app_commands
 from core.abstract import GroupCog
-from .message_handle import tourney_registration
+from .ext.message_handle import tourney_registration
 from ext import constants, checks, Tourney, emoji, color, files, EmbedBuilder
 from discord import (
     ui,
