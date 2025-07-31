@@ -417,7 +417,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             )
             return
 
-        _tourney.slots_per_group = slots_per_group
+        _tourney.slot_per_group = slots_per_group
         await _tourney.save()
 
         await ctx.followup.send(
@@ -449,7 +449,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             )
             return
 
-        _tourney.event_name = event_name
+        _tourney.name = event_name
         await _tourney.save()
 
         await ctx.followup.send(
