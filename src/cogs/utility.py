@@ -605,7 +605,7 @@ class UtilityCog(Cog):
     async def on_guild_join(self, guild:Guild):
         try:
             self.bot.member_count += guild.member_count
-            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nMembers : {guild.member_count}```"
+            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner_id}\nMembers : {guild.member_count}```"
             await self.bot.guild_join_log.send(msg)
 
         except Exception as e:
@@ -616,7 +616,7 @@ class UtilityCog(Cog):
     async def on_guild_remove(self, guild:Guild):
         try:
             self.bot.member_count -= guild.member_count
-            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner}\nMembers : {guild.member_count}```"
+            msg= f"```py\nGuild Name : {guild.name}\nGuild Id : {guild.id}\nGuild Owner : {guild.owner_id}\nMembers : {guild.member_count}```"
             await self.bot.guild_leave_log.send(msg)
 
         except Exception as e:
