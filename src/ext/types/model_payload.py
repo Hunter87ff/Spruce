@@ -47,7 +47,9 @@ class TourneyTeamPayload(TypedDict):
 
 
 class TourneyRoundPayload(TypedDict):
-     name : str
-     spg : int
-     slots : int
-     teams : list[int]
+     _id: int  # Unique identifier for the round
+     tid: int  # Tournament ID
+     name: str
+     spg: int
+     slots: int
+     teams: list[int]
