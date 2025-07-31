@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 import time
 from typing import TYPE_CHECKING, Literal
@@ -77,7 +78,7 @@ class TourneyModel:
     bot : "Spruce" = None  # Reference to the bot instance
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
-        # print("Initializing TourneyModel with kwargs:", kwargs)
+        print("Initializing TourneyModel with kwargs:", kwargs)
         self.guild_id: int = kwargs.get("guild")
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
         self.name: str = str(kwargs.get("name", "Tournament"))
@@ -87,10 +88,10 @@ class TourneyModel:
         self.slot_manager: int = kwargs.get("mch") #slot manager channel id
         self.mentions: int = kwargs.get("mentions", 4) # minimum mentions required to register
         self.confirm_role: int = kwargs.get("crole") # confirmation role id
-        self.total_slots: int = int(kwargs.get("tslot")) # total slots available in the tournament
-        self.team_count: int = int(kwargs.get("reged", 0)) # number of teams registered in the tournament
-        self.slot_per_group: int = int(kwargs.get("spg", 12)) #number of slots per group (default: 12)
-        self.current_group: int = kwargs.get("cgp", 0) # current group number (default: 0)
+        self.total_slots: int = kwargs.get("tslot") # total slots available in the tournament
+        self.team_count: int = kwargs.get("reged", 0) # number of teams registered in the tournament
+        self.slot_per_group: int = kwargs.get("spg", 12) #number of slots per group (default: 12)
+        self.current_group: int = kwargs.get("cgp", 1) # current group number (default: 1)
         self.created_at: int = int(kwargs.get("cat", time.time()))
 
 
@@ -183,7 +184,7 @@ class TourneyModel:
     
 
     @classmethod
-    async def find_one(cls, **kwargs:Unpack[TournamentPayload]):
+    async def find_one(cls, **kwargs: Unpack[TournamentPayload]) -> TourneyModel | None:
 
         # async find from cache 
         _temp = cls(**kwargs)
@@ -204,7 +205,7 @@ class TourneyModel:
 
 
     @classmethod
-    async def get(cls, reg_channel:int) :
+    async def get(cls, reg_channel:int) -> TourneyModel | None:
         """Fetches a Tournament instance from the database by its registration channel.
 
         Args:
@@ -216,15 +217,12 @@ class TourneyModel:
         if reg_channel in cls._cache:
             return cls._cache[reg_channel]
 
-        data = await cls.find_one(rch=reg_channel)
-        if not data:
+        _tourney = await cls.find_one(rch=reg_channel)
+        if not _tourney:
             return None
 
-        tournament = cls(**data)
-        cls._cache[reg_channel] = tournament
-        return tournament
-    
-    
+        cls._cache[reg_channel] = _tourney
+        return _tourney
 
     @classmethod
     async def delete(cls, reg_channel: int):

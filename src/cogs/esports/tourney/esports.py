@@ -333,20 +333,8 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 ephemeral=True
             )
             return
-        
-        embed = EmbedBuilder(
-            title=f"{_tourney.name}",
-            description=f"**Guild ID:** {ctx.guild.id}\n"
-                        f"**Status:** {'Active' if _tourney.status else 'Inactive'}\n"
-                        f"**Total Slots:** {_tourney.total_slots}\n"
-                        f"**Registered Teams:** {_tourney.team_count}\n"
-                        f"**Slots per Group:** {_tourney.slot_per_group}\n"
-                        f"**Current Group:** {_tourney.current_group}\n"
-                        f"**Created At:** <t:{_tourney.created_at}:F>",
-            color=self.bot.color.cyan
-        )
 
-        await ctx.followup.send(embed=embed, ephemeral=True)
+        await ctx.followup.send(embed=self.utils.tourney_info_embed(_tourney), ephemeral=True)
 
 
     @app_commands.command(name="list", description="List all active tournaments in the server")
@@ -367,17 +355,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         
 
         for _tourney in _tournaments:
-            _embeds.append( EmbedBuilder(
-                title=_tourney.name,
-                description=f"**Guild ID:** {ctx.guild.id}\n"
-                            f"**Status:** {'Active' if _tourney.status else 'Inactive'}\n"
-                            f"**Total Slots:** {_tourney.total_slots}\n"
-                            f"**Registered Teams:** {_tourney.team_count}\n"
-                            f"**Slots per Group:** {_tourney.slot_per_group}\n"
-                            f"**Current Group:** {_tourney.current_group}\n"
-                            f"**Created At:** <t:{_tourney.created_at}:F>",
-                color=self.bot.color.cyan
-            ))
+            _embeds.append( self.utils.tourney_info_embed(_tourney) )
 
         paginator = EmbedPaginator(pages=_embeds, author=ctx.user, delete_on_timeout=True)
         await paginator.start(await self.bot.get_context(ctx))

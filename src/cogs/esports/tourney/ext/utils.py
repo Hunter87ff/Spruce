@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Literal
 from ext import EmbedBuilder, constants
 from discord import  utils, PermissionOverwrite
@@ -5,6 +7,7 @@ from discord import  utils, PermissionOverwrite
 
 if TYPE_CHECKING:
     from core.bot import Spruce
+    from models import TourneyModel
     from discord import Guild, TextChannel
 
 
@@ -77,3 +80,28 @@ class TourneyUtils:
         )
 
         await log_channel.send(embed=embed)
+
+    @classmethod
+    def tourney_info_embed(cls, tournament: "TourneyModel") -> EmbedBuilder: 
+        embed = EmbedBuilder(
+            title=f"{tournament.name.upper()}",
+            description=f"Details for tournament in {tournament.guild_id}",
+            color=cls.bot.color.blue,
+            short_desc=f"ID: {tournament.reg_channel}",
+            emoji="🏆"
+        )
+        embed.add_field(name="Status", value="`Active`" if tournament.status else "`Inactive`")
+        embed.add_field(name="Registered Teams", value=tournament.team_count)
+        embed.add_field(name="Total Slots", value=tournament.total_slots)
+        embed.add_field(name="Mentions Required", value=tournament.mentions)
+        embed.add_field(name="Slots per Group", value=tournament.slot_per_group)
+        embed.add_field(name="Current Group", value=tournament.current_group)
+        embed.add_field(name="Registration Channel", value=f"<#{tournament.reg_channel}>")
+        embed.add_field(name="Confirm Channel", value=f"<#{tournament.slot_channel or 45245245}>")
+        embed.add_field(name="Group Channel", value=f"<#{tournament.group_channel or 45245245}>")
+        embed.add_field(name="Slot Manager Channel", value=f"<#{tournament.slot_manager or 45245245}>")
+        embed.add_field(name="Confirmation Role", value=f"<@&{tournament.confirm_role or 45245245}>")
+        embed.add_field(name="Created At", value=f"<t:{tournament.created_at}:R>")
+
+        
+        return embed
