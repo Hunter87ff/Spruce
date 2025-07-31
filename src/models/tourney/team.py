@@ -25,7 +25,7 @@ class TeamModel:
         self.members: list[int] = kwargs.get("members", [])
 
         if kwargs.get("col"):
-            TeamModel.col = kwargs.get("col", None)
+            TeamModel._col = kwargs.get("col", None)
 
 
     def __eq__(self, value: object) -> bool:
