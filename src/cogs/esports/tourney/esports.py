@@ -7,7 +7,6 @@ A comprehensive module for managing esports tournaments in Discord servers.
 :license: GPL-3, see LICENSE for more details.
 """
 
-
 import logging
 import discord
 import traceback
@@ -30,7 +29,6 @@ logger = logging.getLogger(__name__)
 
 class GroupConfig:
     """Configuration for group generation."""
-    
     def __init__(
         self,
         current_group: int,
@@ -56,7 +54,11 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     """
     
     # Constants
-    
+    MAX_TOTAL_SLOTS = 500
+    MAX_SLOTS_PER_GROUP = 25
+    MAX_MENTIONS_COUNT = 11
+
+
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
     model : TourneyModel = TourneyModel
     
@@ -86,9 +88,9 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     async def setup_tourney(
         self,
         ctx: Interaction,
-        total_slot:  app_commands.Range[int, 2, 500],
-        mentions: app_commands.Range[int, 0, 11],
-        slot_per_group: app_commands.Range[int, 2, 25],
+        total_slot:  app_commands.Range[int, 2, MAX_TOTAL_SLOTS],
+        mentions: app_commands.Range[int, 0, MAX_MENTIONS_COUNT],
+        slot_per_group: app_commands.Range[int, 2, MAX_SLOTS_PER_GROUP],
         event_name: str = "New Tournament"
     ):
         await ctx.response.defer(ephemeral=True)
@@ -359,3 +361,135 @@ class Esports(GroupCog, name="esports", group_name="esports"):
 
         paginator = EmbedPaginator(pages=_embeds, author=ctx.user, delete_on_timeout=True)
         await paginator.start(await self.bot.get_context(ctx))
+
+    @app_set.command(name="total_slots", description="Set the total number of slots for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        total_slots="Total number of slots available for the tournament (2-500)"
+    )
+    async def set_total_slots(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        total_slots: app_commands.Range[int, 2, MAX_TOTAL_SLOTS]
+    ):
+        await ctx.response.defer(ephemeral=True)
+        
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        _tourney.total_slots = total_slots
+        await _tourney.save()
+        
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully updated total slots to {total_slots} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+
+    @app_set.command(name="slots_per_group", description="Set the number of slots per group for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        slots_per_group="Number of slots per group (1-25)"
+    )
+    async def set_slots_per_group(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        slots_per_group: app_commands.Range[int, 1, MAX_SLOTS_PER_GROUP]
+    ):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        _tourney.slots_per_group = slots_per_group
+        await _tourney.save()
+
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully updated slots per group to {slots_per_group} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+
+    @app_set.command(name="event_name", description="Set the name of the tournament event")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        event_name="Name of the tournament event (default: 'New Tournament')"
+    )
+    async def set_event_name(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        event_name: app_commands.Range[str, 1, 30]
+    ):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        _tourney.event_name = event_name
+        await _tourney.save()
+
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully updated event name to '{event_name}' for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+    @app_set.command(name="mentions", description="Set the number of players to mention in the registration form")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        mentions="Number of players to mention in the registration form (0-11)"
+    )
+    async def set_mentions(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        mentions: app_commands.Range[int, 0, MAX_MENTIONS_COUNT]
+    ):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        _tourney.mentions = mentions
+        await _tourney.save()
+
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully updated mentions to {mentions} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+
+    
+
+    
+

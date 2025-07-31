@@ -19,6 +19,7 @@ class TournamentPayload(TypedDict):
     rch: int
     cch: int
     mentions: int
+    ftch: bool
     crole: int
     gch: int
     tslot: int
@@ -78,10 +79,11 @@ class TourneyModel:
     bot : "Spruce" = None  # Reference to the bot instance
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
-        print("Initializing TourneyModel with kwargs:", kwargs)
+        # print("Initializing TourneyModel with kwargs:", kwargs)
         self.guild_id: int = kwargs.get("guild")
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
-        self.name: str = str(kwargs.get("name", "Tournament"))
+        self.name: str = str(kwargs.get("name", "New Tournament"))
+        self.tag_filter: bool = kwargs.get('ftch', False)  # duplicate tag filter
         self.reg_channel: int = int(kwargs.get("rch"))
         self.slot_channel: int = kwargs.get("cch")
         self.group_channel: int = kwargs.get("gch")
@@ -150,6 +152,7 @@ class TourneyModel:
             "rch": self.reg_channel,
             "cch": self.slot_channel,
             "mentions": self.mentions,
+            "ftch": self.tag_filter,
             "crole": self.confirm_role,
             "gch": self.group_channel,
             "tslot": self.total_slots,
@@ -157,7 +160,8 @@ class TourneyModel:
             "spg": self.slot_per_group,
             "cgp": self.current_group,
             "mch": self.slot_manager,
-            "cat": self.created_at
+            "cat": self.created_at,
+            "_v": 1,  # Versioning for future changes
         }
     
 
@@ -206,14 +210,7 @@ class TourneyModel:
 
     @classmethod
     async def get(cls, reg_channel:int) -> TourneyModel | None:
-        """Fetches a Tournament instance from the database by its registration channel.
-
-        Args:
-            reg_channel (int): The registration channel ID.
-
-        Returns:
-            TourneyModel: An instance of TourneyModel if found, otherwise None.
-        """
+        """Fetches a Tournament instance by its registration channel ID. from cache then from database"""
         if reg_channel in cls._cache:
             return cls._cache[reg_channel]
 
@@ -223,6 +220,39 @@ class TourneyModel:
 
         cls._cache[reg_channel] = _tourney
         return _tourney
+
+
+    @classmethod
+    async def get_by_guild(cls, guild_id:int):
+        _query = {"guild": guild_id}
+        
+        document:list[dict] | None = None
+        if isinstance(cls._col, Collection):
+            document = cls._col.find(_query)
+        else:
+            document = await cls._col.find(_query)
+
+        if document is None:
+            return None
+
+        return [cls(**doc) for doc in document]
+    
+
+    async def update(self, **kwargs: Unpack[TournamentPayload]) -> TourneyModel:
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        
+        query = {"rch": self.reg_channel, "guild": self.guild_id}
+        update_data = self.to_dict()
+        if isinstance(self._col, Collection):
+            self._col.update_one(query, {"$set": update_data}, upsert=True)
+        elif isinstance(self._col, AsyncCollection):
+            await self._col.update_one(query, {"$set": update_data}, upsert=True)
+
+        self._cache[self.reg_channel] = self
+        return self
+    
 
     @classmethod
     async def delete(cls, reg_channel: int):
@@ -253,22 +283,8 @@ class TourneyModel:
 
             return _name
         
-        return False
+        return 
     
 
 
-
-    @classmethod
-    async def get_by_guild(cls, guild_id:int):
-        _query = {"guild": guild_id}
-        
-        document:list[dict] | None = None
-        if isinstance(cls._col, Collection):
-            document = cls._col.find(_query)
-        else:
-            document = await cls._col.find(_query)
-
-        if document is None:
-            return None
-
-        return [cls(**doc) for doc in document]
+    
