@@ -14,7 +14,7 @@ import traceback
 from typing import TYPE_CHECKING, Optional, List
 
 from .ext.utils import TourneyUtils
-from core.abstract import GroupCog
+from core.abstract import EmbedPaginator, GroupCog
 from models.tourney import TourneyModel
 
 from ext import ( checks, EmbedBuilder)
@@ -196,9 +196,9 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             updates_channel = _channel_names["updates"]
             if updates_channel:
                 embed=EmbedBuilder(
-                    f"**{event_name}** Registration is now open! "
-                    f"Total Slot is : {total_slot}"
-                    f"If you want to register your team, please use the registration form <#{_channel_names.get('how-to-register')}>.\n fill it and send while mentioning your {mentions} teammates in the registration channel.",
+                    f"**{event_name}** Registration is now open! ",
+                    description= f"Total Slot is : {total_slot}\n"
+                                f"If you want to register your team, please use the registration form <#{_channel_names.get('how-to-register').id}>.\n fill it and send while mentioning your {mentions} teammates in the <#{_channel_names.get('register-here').id}> channel.",
                     color=self.bot.base_color
                 )
                 if ctx.guild.icon:
@@ -288,3 +288,96 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             embed=EmbedBuilder.success("Tournament registration has been started."),
             ephemeral=True
         )
+
+    @app_commands.command(name="delete", description="Delete a tournament and all associated channels")
+    @app_commands.guild_only()
+    @app_commands.describe(
+        reg_channel="The registration channel of the tournament to delete",
+        confirm="Type 'DELETE' to confirm deletion"
+    )
+    @checks.tourney_mod(True)
+    async def delete_tournament(self, ctx: Interaction, reg_channel: TextChannel, confirm: str):
+        await ctx.response.defer(ephemeral=True)
+
+        if confirm.upper() != "DELETE":
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("Please type 'DELETE' to confirm tournament deletion."),
+                ephemeral=True
+            )
+            return
+        
+        _deleted = await self.model.delete(reg_channel.id)
+        if not _deleted:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("No active tournament found for the specified registration channel."),
+                ephemeral=True
+            )
+            return
+
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully deleted tournament **{_deleted}** and all associated channels."),
+            ephemeral=True
+        )
+
+
+    @app_commands.command(name="info", description="Get information about the current tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    async def tournament_info(self, ctx: Interaction, reg_channel: TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        
+        embed = EmbedBuilder(
+            title=f"{_tourney.name}",
+            description=f"**Guild ID:** {ctx.guild.id}\n"
+                        f"**Status:** {'Active' if _tourney.status else 'Inactive'}\n"
+                        f"**Total Slots:** {_tourney.total_slots}\n"
+                        f"**Registered Teams:** {_tourney.team_count}\n"
+                        f"**Slots per Group:** {_tourney.slot_per_group}\n"
+                        f"**Current Group:** {_tourney.current_group}\n"
+                        f"**Created At:** <t:{_tourney.created_at}:F>",
+            color=self.bot.color.cyan
+        )
+
+        await ctx.followup.send(embed=embed, ephemeral=True)
+
+
+    @app_commands.command(name="list", description="List all active tournaments in the server")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    async def list_tournaments(self, ctx: Interaction):
+        await ctx.response.defer(ephemeral=True)
+
+        _tournaments = await self.model.get_by_guild(ctx.guild.id)
+
+        if not _tournaments:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("No active tournaments found in this server."),
+                ephemeral=True
+            )
+            return
+        _embeds : list[EmbedBuilder] = []
+        
+
+        for _tourney in _tournaments:
+            _embeds.append( EmbedBuilder(
+                title=_tourney.name,
+                description=f"**Guild ID:** {ctx.guild.id}\n"
+                            f"**Status:** {'Active' if _tourney.status else 'Inactive'}\n"
+                            f"**Total Slots:** {_tourney.total_slots}\n"
+                            f"**Registered Teams:** {_tourney.team_count}\n"
+                            f"**Slots per Group:** {_tourney.slot_per_group}\n"
+                            f"**Current Group:** {_tourney.current_group}\n"
+                            f"**Created At:** <t:{_tourney.created_at}:F>",
+                color=self.bot.color.cyan
+            ))
+
+        paginator = EmbedPaginator(pages=_embeds, author=ctx.user, delete_on_timeout=True)
+        await paginator.start(await self.bot.get_context(ctx))

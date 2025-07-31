@@ -77,16 +77,16 @@ class TourneyModel:
     bot : "Spruce" = None  # Reference to the bot instance
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
-        print("Initializing TourneyModel with kwargs:", kwargs)
+        # print("Initializing TourneyModel with kwargs:", kwargs)
         self.guild_id: int = kwargs.get("guild")
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
         self.name: str = str(kwargs.get("name", "Tournament"))
         self.reg_channel: int = int(kwargs.get("rch"))
-        self.slot_channel: int = int(kwargs.get("cch"))
-        self.group_channel: int = int(kwargs.get("gch"))
+        self.slot_channel: int = kwargs.get("cch")
+        self.group_channel: int = kwargs.get("gch")
         self.slot_manager: int = kwargs.get("mch") #slot manager channel id
-        self.mentions: int = int(kwargs.get("mentions", 4)) # minimum mentions required to register
-        self.confirm_role: int = int(kwargs.get("crole")) # confirmation role id
+        self.mentions: int = kwargs.get("mentions", 4) # minimum mentions required to register
+        self.confirm_role: int = kwargs.get("crole") # confirmation role id
         self.total_slots: int = int(kwargs.get("tslot")) # total slots available in the tournament
         self.team_count: int = int(kwargs.get("reged", 0)) # number of teams registered in the tournament
         self.slot_per_group: int = int(kwargs.get("spg", 12)) #number of slots per group (default: 12)
@@ -204,7 +204,7 @@ class TourneyModel:
 
 
     @classmethod
-    async def get(cls, reg_channel:int) -> 'TourneyModel':
+    async def get(cls, reg_channel:int) :
         """Fetches a Tournament instance from the database by its registration channel.
 
         Args:
@@ -224,35 +224,10 @@ class TourneyModel:
         cls._cache[reg_channel] = tournament
         return tournament
     
-
-    @classmethod
-    async def create(cls, **kwargs: Unpack[TournamentPayload]) -> 'TourneyModel':
-        """Creates a new Tournament instance and saves it to the database.
-
-        Args:
-            **kwargs: Keyword arguments to initialize the tournament.
-
-        Returns:
-            TourneyModel: The created TournamentModel instance.
-        """
-        if any([
-            kwargs.get("guild") is None,
-            kwargs.get("rch") is None
-        ]):
-            raise ValueError("guild_id and reg_channel are required to create a tournament.")
-
-        existing_tournament = await cls.get(kwargs.get("rch"))
-        if existing_tournament:
-            return existing_tournament
-        
-        tournament = TourneyModel(**kwargs)
-        await tournament.save()
-        cls._cache[tournament.reg_channel] = tournament
-        return tournament
     
 
     @classmethod
-    async def delete(cls, reg_channel: int) -> bool:
+    async def delete(cls, reg_channel: int):
         """Deletes a Tournament instance from the database.
 
         Args:
@@ -261,8 +236,12 @@ class TourneyModel:
         Returns:
             bool: True if the tournament was deleted, False otherwise.
         """
-        if reg_channel not in cls._cache:
+        _tourney = cls._cache.get(reg_channel)
+
+        if _tourney is None:
             return False
+        
+        _name = _tourney.name
 
         cls._cache.pop(reg_channel, None)
         result = cls._col.delete_one(
@@ -273,6 +252,25 @@ class TourneyModel:
         
         if result.deleted_count > 0:
             cls._cache.pop(reg_channel, None)
-            return True
+
+            return _name
+        
         return False
     
+
+
+
+    @classmethod
+    async def get_by_guild(cls, guild_id:int):
+        _query = {"guild": guild_id}
+        
+        document:list[dict] | None = None
+        if isinstance(cls._col, Collection):
+            document = cls._col.find(_query)
+        else:
+            document = await cls._col.find(_query)
+
+        if document is None:
+            return None
+
+        return [cls(**doc) for doc in document]
