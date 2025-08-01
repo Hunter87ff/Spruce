@@ -161,6 +161,10 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 return
 
         try:
+            _confirm_role = await ctx.guild.create_role(
+                name=f"{_event_prefix}-confirm",
+                color=self.bot.color.random(),
+            )
 
             tournament = TourneyModel(
                 guild=ctx.guild.id,
@@ -171,7 +175,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 rch= _channel_names.get("register-here").id,
                 cch= _channel_names.get("confirmed-teams").id,
                 gch= _channel_names.get("groups").id,
-                #crole=0,  # Will be set later when confirm role is created
+                crole=_confirm_role.id,
             )
             await tournament.save()  # Save the tournament model to the database
             
@@ -494,6 +498,44 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         )
 
 
+    @app_set.command(name="confirm_role", description="Set the confirmation role for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel ="The registration channel of the tournament",
+        role="Role to be used for confirming team registrations")
+    async def set_confirm_role(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        role: discord.Role
+    ):
+        await ctx.response.defer(ephemeral=True)
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        if role.position >= ctx.guild.me.top_role.position:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.HIGHER_ROLE_POSITION),
+                ephemeral=True
+            )
+            return
+        
+        _tourney.confirm_role = role.id
+        await _tourney.save()
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully set confirmation role to {role.mention} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+
+
+
     @Cog.listener()
     async def on_ready(self):
         await self.model.load_all()
@@ -504,7 +546,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         if message.author.bot or not message.guild:
             return
         
-        if not self.model.is_register_channel(message.channel.id):
+        if not await self.model.is_register_channel(message.channel.id):
             return
         
         # check for permissions
