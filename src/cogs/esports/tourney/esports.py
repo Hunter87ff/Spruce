@@ -183,10 +183,11 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 )
 
             ) if how_to_register_channel else None
-            await self.bot.sleep(0.5)  # Avoid rate limits
-            await how_to_register_message.pin(reason="Pinned by tournament setup command for reference.")
-            await self.bot.sleep(0.5)  # Avoid rate limits
-            await how_to_register_message.add_reaction(self.bot.emoji.tick)
+            if how_to_register_message:
+                await self.bot.sleep(0.5)  # Avoid rate limits
+                await how_to_register_message.pin(reason="Pinned by tournament setup command for reference.")
+                await self.bot.sleep(0.5)  # Avoid rate limits
+                await how_to_register_message.add_reaction(self.bot.emoji.tick)
 
 
             await ctx.followup.send(
