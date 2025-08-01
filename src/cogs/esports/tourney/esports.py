@@ -11,13 +11,15 @@ import logging
 import discord
 import traceback
 from typing import TYPE_CHECKING, Optional, List
+from discord.ext import commands
 
-from .ext.utils import TourneyUtils
-from core.abstract import EmbedPaginator, GroupCog
+from cogs.esports.ext.utils import TourneyUtils
+from core.abstract import EmbedPaginator, GroupCog, Cog
+from models import TeamModel
 from models.tourney import TourneyModel
 
 from ext import ( checks, EmbedBuilder)
-from discord import Interaction, TextChannel, app_commands
+from discord import Interaction, Message, TextChannel, app_commands
 
 
 if TYPE_CHECKING:
@@ -29,6 +31,8 @@ logger = logging.getLogger(__name__)
 
 class GroupConfig:
     """Configuration for group generation."""
+    _REGISTER_CHANNEL_CACHE:set[int] = set()
+
     def __init__(
         self,
         current_group: int,
@@ -490,7 +494,91 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         )
 
 
-    
+    @Cog.listener()
+    async def on_ready(self):
+        await self.model.load_all()
 
     
+    @Cog.listener()
+    async def on_message(self, message: Message):
+        if message.author.bot or not message.guild:
+            return
+        
+        if not self.model.is_register_channel(message.channel.id):
+            return
+        
+        # check for permissions
+        if not all([
+            message.channel.permissions_for(message.guild.me).send_messages,
+            message.channel.permissions_for(message.guild.me).embed_links,
+            message.channel.permissions_for(message.guild.me).read_message_history,
+            message.channel.permissions_for(message.guild.me).add_reactions,
+            message.channel.permissions_for(message.guild.me).manage_messages,
+            message.channel.permissions_for(message.guild.me).manage_channels,
+            message.channel.permissions_for(message.guild.me).manage_roles]):
+            await self.utils.log(
+                guild=message.guild,
+                message="I need the following permissions to manage tournaments:\n"
+                    "- Send Messages\n"
+                    "- Embed Links\n"
+                    "- Read Message History\n"
+                    "- Add Reactions\n"
+                    "- Manage Messages\n"
+                    "- Manage Channels\n"
+                    "- Manage Roles"
+            )
+            return
 
+        # Handle the message for the registered tournament channel
+        _tourney = await self.model.get(message.channel.id)
+        if not _tourney:
+            return
+        
+        if any([
+            not _tourney.status,
+            _tourney.total_slots <= _tourney.team_count,
+        ]):
+            return
+        
+        _slot_channel = message.guild.get_channel(_tourney.slot_channel)
+        if not _slot_channel:
+            await message.delete()
+            await message.channel.send(
+                embed=EmbedBuilder.warning("Slot channel not found. Please check the tournament configuration."),
+                allowed_mentions=discord.AllowedMentions.none()
+            )
+            return
+        
+        _teamname = self.utils.parse_team_name(message)
+        _team = TeamModel(
+            tid=_tourney.reg_channel,
+            name=_teamname,
+            capt= message.author.id,
+            members=set([mention.id for mention in list(message.mentions or [message.author.id])])
+        )
+
+        try:
+            _tourney.validate_team(_team)
+            await message.add_reaction(self.bot.emoji.tick)
+            _embed = self.utils.confirm_message_embed(_team, _tourney, message)
+            
+            _confirm_message = await _slot_channel.send(embed=_embed)
+            await _confirm_message.add_reaction(self.bot.emoji.tick)
+            _team._id = _confirm_message.id  # Set the message ID for the team
+            await _tourney.add_team(_team)
+
+
+        except Exception as e:
+            await message.channel.send(
+                embed=EmbedBuilder.warning(f"Failed to register team: {str(e)}"),
+                allowed_mentions=discord.AllowedMentions.none()
+            )
+            await self.bot.sleep(0.5)
+            await message.delete()
+
+            await self.utils.log(
+                guild=message.guild,
+                message=f"Failed to register team in tournament **{_tourney.name}**: {str(e)}",
+                level="warning"
+            )
+            return

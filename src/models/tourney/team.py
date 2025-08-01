@@ -15,14 +15,13 @@ class TeamModel:
     """
     _col : Collection | AsyncCollection = None  # MongoDB collection name for teams
     _bot : "Spruce" = None  # Reference to the bot instance
-    _cache : dict[int, list['TeamModel']] = {}  # Cache for team instances followed by tid
 
     def __init__(self, **kwargs: Unpack[TourneyTeamPayload]) -> None:
-        self._id: int = kwargs.get("_id")
-        self.tid : int = kwargs.get("tid")
+        self._id: int = kwargs.get("_id") #confirm message id
+        self.tid : int = kwargs.get("tid") # tournament registration channel id
         self.name: str = kwargs.get("name", "New Team")
-        self.captain: int = kwargs.get("capt")
-        self.members: list[int] = kwargs.get("members", [])
+        self.captain: int = kwargs.get("capt") # captain's user id
+        self.members: set[int] = set(kwargs.get("members", [])) # set of member user ids
 
         if kwargs.get("col"):
             TeamModel.col = kwargs.get("col", None)
@@ -44,7 +43,7 @@ class TeamModel:
             "tid" : self.tid,
             "name": self.name,
             "capt": self.captain,
-            "members": self.members
+            "members": list(self.members)
         }
     
 
@@ -63,11 +62,8 @@ class TeamModel:
 
 
     @classmethod
-    async def find_by_tid(cls, tid: int) -> TeamModel | None:
+    async def find_by_tid(cls, tid: int):
         """Fetches a team by its tournament ID."""
-        if tid in cls._cache:
-            return cls._cache[tid]
-
         if not cls._col:
             raise ValueError("Collection is not set for TeamModel.")
         
@@ -79,9 +75,8 @@ class TeamModel:
 
         if not document:
             return None
-        
+
         _teams = [cls(**doc) for doc in document]
-        cls._cache[tid] = _teams
         return _teams
     
     
@@ -91,8 +86,5 @@ class TeamModel:
         if not cls._col:
             raise ValueError("Collection is not set for TeamModel.")
         
-        if tid in cls._cache:
-            cls._cache.pop(tid, None)
-
         result = await cls._col.delete_one({"tid": tid})
         return result.deleted_count > 0

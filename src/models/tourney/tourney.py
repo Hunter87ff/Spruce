@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from multiprocessing import Value
 import time
 import asyncio
 from typing import TYPE_CHECKING
@@ -21,6 +22,8 @@ class TourneyModel:
     _cache: dict[int, 'TourneyModel'] = {}
     _col: Collection | AsyncCollection = None  # MongoDB collection name for tournaments
     bot : "Spruce" = None  # Reference to the bot instance
+    _REGISTER_CHANNEL_CACHE: set[int] = set()  # Cache for registered tournament channels
+
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
         # print("Initializing TourneyModel with kwargs:", kwargs)
@@ -38,7 +41,7 @@ class TourneyModel:
         self.team_count: int = kwargs.get("reged", 0) # number of teams registered in the tournament
         self.slot_per_group: int = kwargs.get("spg", 12) #number of slots per group (default: 12)
         self.created_at: int = int(kwargs.get("cat", time.time()))
-        self.__teams : list[TeamModel] = []
+        self.__teams : list[TeamModel] = []  # List to hold teams registered in the tournament
 
 
         if kwargs.get("col"):
@@ -163,6 +166,12 @@ class TourneyModel:
 
         cls._cache[reg_channel] = _tourney
         return _tourney
+    
+
+    @classmethod
+    async def is_register_channel(cls, reg_channel:int) -> bool:
+        """Checks if a given channel ID is a registered tournament channel."""
+        return reg_channel in cls._REGISTER_CHANNEL_CACHE
 
 
     @classmethod
@@ -196,22 +205,63 @@ class TourneyModel:
         self._cache[self.reg_channel] = self
         return self
     
+    def create_team(self, **kwargs: Unpack[TourneyTeamPayload]) -> TeamModel:
+        """Creates a new team instance for the tournament."""
+        team = TeamModel(**kwargs)
+        team.tid = self.reg_channel
+        return team
 
-    async def get_teams(self) -> list[TeamModel]:
+    async def get_teams(self) -> set[TeamModel]:
         """Fetches all teams registered in the tournament."""
         if self.__teams:
             return self.__teams
 
         self.__teams = await TeamModel.find_by_tid(self.reg_channel)
-        return self.__teams if self.__teams else []
-
+        return self.__teams
     
+    
+    async def get_team_by_player_id(self, player_id:int):
+        """Fetches a team by a player's ID."""
+        if not self.__teams:
+            await self.get_teams()
+        
+        _teams : list[TeamModel] = []
+
+        for team in self.__teams:
+            if player_id in team.members:
+                _teams.append(team)
+
+        return _teams 
+
+
+    async def validate_team(self, team: TeamModel) -> bool:
+        """Validates if a team can be added to the tournament."""
+        if not team.captain:
+            raise ValueError("Team must have a captain.")
+
+        if self.tag_filter:
+            for _team in self.__teams:
+                if len(_team.members.intersection(team.members)) > 0:
+                    raise ValueError("Duplicate tags found in the team members.")
+
+        if team.tid != self.reg_channel:
+            raise ValueError("Team is not registered in this tournament.")
+        
+        if self.team_count >= self.total_slots:
+            raise ValueError("Tournament is full. Cannot add more teams.")
+        
+        if len(team.members) < self.mentions:
+            raise ValueError(f"Team does not meet the minimum mentions requirement of {self.mentions} members.")
+                
+        return True    
+
 
     async def add_team(self, **kwargs: Unpack[TourneyTeamPayload]) -> None:
         """Adds a team to the tournament."""
         
         try:
             team = TeamModel(**kwargs)
+            await self.validate_team(team)
             await team.save()
             self.__teams.append(team)
             self.team_count += 1
@@ -220,9 +270,28 @@ class TourneyModel:
             return team
 
         except Exception as e:
-            raise ValueError(f"Failed to add team: {e}")
+            raise ValueError(str(e))
 
     
+    @classmethod
+    async def load_all(cls) -> list[TourneyModel]:
+        """Loads all tournaments from the database and caches them."""
+        if isinstance(cls._col, Collection):
+            documents = cls._col.find({})
+
+        elif isinstance(cls._col, AsyncCollection):
+            documents = await cls._col.find({})
+
+        if documents is None:
+            return []
+
+        for doc in documents:
+            _tourney = cls(**doc)
+            cls._cache[_tourney.reg_channel] = _tourney
+            cls._REGISTER_CHANNEL_CACHE.add(_tourney.reg_channel)
+
+        return cls._cache.values()
+
 
     @classmethod
     async def delete(cls, reg_channel: int):
@@ -250,7 +319,7 @@ class TourneyModel:
         
         if result.deleted_count > 0:
             cls._cache.pop(reg_channel, None)
-
+            cls._REGISTER_CHANNEL_CACHE.discard(reg_channel)
             return _name
         
         return 
