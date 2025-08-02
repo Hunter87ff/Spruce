@@ -1,0 +1,188 @@
+/* Minimal clean theme similar to Carl-bot */
+:root {
+  --md-primary-fg-color: #5865f2;
+  --md-primary-fg-color--light: #5865f2;
+  --md-primary-fg-color--dark: #4752c4;
+  --md-accent-fg-color: #5865f2;
+}
+
+/* Clean layout with no fancy effects */
+.md-header {
+  background-color: var(--md-default-bg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  box-shadow: none;
+}
+
+.md-nav__title {
+  color: var(--md-default-fg-color);
+  font-weight: 500;
+}
+
+.md-nav__item--active > .md-nav__link {
+  color: var(--md-primary-fg-color);
+  font-weight: 500;
+}
+
+.md-content__inner {
+  padding: 1.5rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Simple typography */
+.md-typeset h1 {
+  font-size: 2.5rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+.md-typeset h2 {
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  padding-bottom: 0.5rem;
+}
+
+.md-typeset ul li {
+  margin-bottom: 0.3rem;
+}
+
+/* Clean buttons */
+.md-button {
+  border-radius: 4px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  text-transform: none;
+  border: 1px solid var(--md-primary-fg-color);
+  background: transparent;
+  color: var(--md-primary-fg-color);
+}
+
+.md-button:hover {
+  background: var(--md-primary-fg-color);
+  color: white;
+}
+
+/* Simple navigation */
+.md-nav__link {
+  border-radius: 0;
+}
+
+.md-nav__link:hover,
+.md-nav__link:focus {
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+/* Clean search */
+.md-search__input {
+  border-radius: 4px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* Simple footer */
+.md-footer {
+  background-color: var(--md-default-bg-color);
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* Clean code blocks */
+.md-typeset pre {
+  border-radius: 4px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset code {
+  background: var(--md-code-bg-color);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+/* Simple tables */
+.md-typeset table:not([class]) {
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--md-default-fg-color--lightest);
+  font-weight: 500;
+}
+
+/* Clean admonitions */
+.md-typeset .admonition {
+  border-radius: 4px;
+  border-left: 4px solid var(--md-primary-fg-color);
+  background: var(--md-code-bg-color);
+}
+
+.md-typeset .admonition-title {
+  font-weight: 500;
+}
+
+/* Command syntax styling */
+.command-syntax {
+  background: var(--md-code-bg-color);
+  border: 1px solid var(--md-primary-fg-color);
+  border-radius: 4px;
+  padding: 1rem;
+  font-family: var(--md-code-font);
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  color: var(--md-primary-fg-color);
+  font-weight: 500;
+}
+
+/* Remove any fancy animations or gradients */
+* {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Restore only essential transitions */
+.md-nav__link,
+.md-button {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Hide any hero sections or complex layouts */
+.hero-section,
+.grid.cards,
+.stats-container,
+.community-section,
+.footer-section {
+  display: none;
+}
+
+/* Ensure clean sidebar */
+.md-nav--primary .md-nav__title {
+  background: transparent;
+  color: var(--md-primary-fg-color);
+  font-weight: 600;
+}
+
+/* Clean content spacing */
+.md-typeset > * {
+  margin-bottom: 1rem;
+}
+
+.md-typeset > h2 {
+  margin-top: 2rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .md-content__inner {
+    padding: 1rem 0.5rem;
+  }
+  
+  .md-typeset h1 {
+    font-size: 2rem;
+  }
+  
+  .md-typeset h2 {
+    font-size: 1.5rem;
+  }
+}

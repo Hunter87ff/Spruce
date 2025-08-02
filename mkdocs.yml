@@ -1,0 +1,194 @@
+site_name: Spruce Docs
+site_description: Discord bot documentation
+site_author: NexinLabs
+site_url: https://docs.sprucebot.tech
+
+# Repository
+# repo_name: Hunter87ff/Spruce
+# repo_url: https://github.com/hunter87ff/Spruce
+# edit_uri: edit/main/docs/
+
+# Copyright
+copyright: Copyright &copy; 2024 Spruce Bot
+
+# Configuration
+theme:
+  name: material
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  
+  font:
+    text: Roboto
+    code: Roboto Mono
+  
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - toc.follow
+    - content.code.copy
+  
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    admonition:
+      note: octicons/tag-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/squirrel-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/beaker-16
+      quote: octicons/quote-16
+
+# Navigation
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Setup: getting-started/quick-setup.md
+    - Permissions: getting-started/permissions.md
+  - Commands:
+    - commands/index.md
+    - AutoRole: commands/autorole.md
+    - Moderation: commands/moderation.md
+    - Role Management: commands/roles.md
+    - Utility: commands/utility.md
+    - Tournaments: commands/tournaments.md
+    - Scrims: commands/scrims.md
+    - Developer: commands/developer.md
+  # - Features:
+  #   - features/index.md
+  #   - Tournament System: features/tournaments.md
+  #   - Scrim Management: features/scrims.md
+  #   - Auto Moderation: features/auto-moderation.md
+  #   - Ticket System: features/tickets.md
+  # - Guides:
+  #   - guides/index.md
+  #   - Setting up Tournaments: guides/tournament-setup.md
+  #   - Managing Scrims: guides/scrim-management.md
+  #   - Role Automation: guides/role-automation.md
+  #   - Moderation Best Practices: guides/moderation-best-practices.md
+  - Troubleshooting:
+    - troubleshooting/index.md
+    # - Common Issues: troubleshooting/common-issues.md
+    # - Permission Problems: troubleshooting/permissions.md
+    # - Performance Issues: troubleshooting/performance.md
+  # - API Reference:
+  #   - api/index.md
+  #   - Commands: api/commands.md
+  #   - Events: api/events.md
+  - About:
+    - about/index.md
+    - Changelog: about/changelog.md
+    - Contributing: about/contributing.md
+    - Support: about/support.md
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      title: Page Contents
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      normalize_issue_symbols: true
+      repo_url_shorthand: true
+      user: NexinLabs
+      repo: Spruce
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Extra
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/youtube
+      link: https://youtube.com/@spruceHQ
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/vMnhpAyFZm
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:support@sprucebot.tech
+  generator: false
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+
+extra_css:
+  - stylesheets/minimal.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

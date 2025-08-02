@@ -1,0 +1,341 @@
+/* Custom Dark Theme Styles for Spruce Bot Documentation */
+
+:root {
+  --md-primary-fg-color: #673ab7;
+  --md-primary-fg-color--light: #9c27b0;
+  --md-primary-fg-color--dark: #512da8;
+  --md-accent-fg-color: #ba68c8;
+  --md-accent-fg-color--transparent: rgba(186, 104, 200, 0.1);
+  
+  /* Dark theme specific colors */
+  --md-default-bg-color: #0f0f0f;
+  --md-default-fg-color: #e0e0e0;
+  --md-default-fg-color--light: #b0b0b0;
+  --md-default-fg-color--lighter: #808080;
+  --md-default-fg-color--lightest: #606060;
+  
+  /* Card and surface colors */
+  --md-code-bg-color: #1a1a1a;
+  --md-code-fg-color: #e8eaed;
+  --md-code-hl-color: rgba(186, 104, 200, 0.3);
+  
+  /* Custom gradients */
+  --hero-gradient: linear-gradient(135deg, #673ab7 0%, #9c27b0 50%, #e91e63 100%);
+  --card-gradient: linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 100%);
+  --border-gradient: linear-gradient(90deg, #673ab7, #9c27b0, #e91e63);
+}
+
+/* Hero Section Styling */
+.hero-section {
+  background: var(--hero-gradient);
+  padding: 4rem 2rem;
+  margin: -1.5rem -1.5rem 2rem -1.5rem;
+  border-radius: 0 0 20px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-section h1 {
+  color: white !important;
+  font-size: 3.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 1rem !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-section p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.3rem !important;
+  margin-bottom: 2rem !important;
+  font-weight: 300;
+}
+
+/* Badge styling in hero */
+.hero-section img[alt*="Discord"],
+.hero-section img[alt*="Commands"],
+.hero-section img[alt*="Version"] {
+  margin: 0 0.5rem 1rem 0.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Button styling */
+.md-button {
+  border-radius: 25px !important;
+  padding: 0.8rem 2rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+}
+
+.md-button--primary {
+  background: linear-gradient(45deg, #673ab7, #9c27b0) !important;
+  border: none !important;
+}
+
+.md-button--primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(103, 58, 183, 0.4) !important;
+}
+
+.md-button:not(.md-button--primary) {
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  color: white !important;
+  background: rgba(255,255,255,0.1) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.md-button:not(.md-button--primary):hover {
+  background: rgba(255,255,255,0.2) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Grid Cards Styling */
+.grid.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.grid.cards > * {
+  background: var(--card-gradient) !important;
+  border: 1px solid rgba(186, 104, 200, 0.2) !important;
+  border-radius: 15px !important;
+  padding: 2rem !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.grid.cards > *::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--border-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.grid.cards > *:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 30px rgba(186, 104, 200, 0.2) !important;
+  border-color: rgba(186, 104, 200, 0.4) !important;
+}
+
+.grid.cards > *:hover::before {
+  opacity: 1;
+}
+
+/* Icon styling in cards */
+.grid.cards h3:first-child {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  color: var(--md-accent-fg-color) !important;
+  font-size: 1.3rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Stats Container */
+.stats-container {
+  margin: 2rem 0;
+}
+
+.stats-container .admonition {
+  background: var(--card-gradient) !important;
+  border-left: 4px solid var(--md-accent-fg-color) !important;
+  border-radius: 10px !important;
+}
+
+/* Community Section */
+.community-section {
+  background: var(--card-gradient);
+  padding: 2rem;
+  border-radius: 15px;
+  margin: 2rem 0;
+  border: 1px solid rgba(186, 104, 200, 0.2);
+}
+
+/* Footer Section */
+.footer-section {
+  text-align: center;
+  padding: 2rem;
+  background: var(--card-gradient);
+  border-radius: 15px;
+  margin-top: 3rem;
+  border: 1px solid rgba(186, 104, 200, 0.2);
+}
+
+/* Code blocks */
+.highlight {
+  border-radius: 10px !important;
+  border: 1px solid rgba(186, 104, 200, 0.2) !important;
+}
+
+.highlight pre {
+  background: var(--md-code-bg-color) !important;
+  border-radius: 10px !important;
+}
+
+/* Tables */
+table {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(186, 104, 200, 0.2) !important;
+}
+
+thead tr {
+  background: var(--card-gradient) !important;
+}
+
+tbody tr:hover {
+  background: rgba(186, 104, 200, 0.1) !important;
+}
+
+/* Admonitions */
+.admonition {
+  border-radius: 10px !important;
+  border: 1px solid rgba(186, 104, 200, 0.2) !important;
+  background: var(--card-gradient) !important;
+}
+
+.admonition.tip {
+  border-left-color: #00e676 !important;
+}
+
+.admonition.warning {
+  border-left-color: #ff9800 !important;
+}
+
+.admonition.note {
+  border-left-color: #2196f3 !important;
+}
+
+.admonition.info {
+  border-left-color: var(--md-accent-fg-color) !important;
+}
+
+/* Navigation tabs */
+.md-tabs {
+  background: var(--card-gradient) !important;
+  border-bottom: 1px solid rgba(186, 104, 200, 0.2) !important;
+}
+
+.md-tabs__item {
+  border-radius: 10px 10px 0 0 !important;
+  margin: 0 0.2rem !important;
+}
+
+.md-tabs__link--active {
+  background: rgba(186, 104, 200, 0.2) !important;
+  color: var(--md-accent-fg-color) !important;
+}
+
+/* Search */
+.md-search__form {
+  border-radius: 25px !important;
+  background: var(--card-gradient) !important;
+  border: 1px solid rgba(186, 104, 200, 0.2) !important;
+}
+
+.md-search__input {
+  background: transparent !important;
+}
+
+/* Sidebar */
+.md-sidebar__scrollwrap {
+  background: var(--card-gradient) !important;
+  border-radius: 15px !important;
+  margin: 1rem !important;
+  border: 1px solid rgba(186, 104, 200, 0.2) !important;
+}
+
+/* Content area */
+.md-content__inner {
+  padding-bottom: 3rem !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 1rem;
+    margin: -1rem -1rem 2rem -1rem;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  .grid.cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .grid.cards > * {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid.cards > * {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.grid.cards > *:nth-child(1) { animation-delay: 0.1s; }
+.grid.cards > *:nth-child(2) { animation-delay: 0.2s; }
+.grid.cards > *:nth-child(3) { animation-delay: 0.3s; }
+.grid.cards > *:nth-child(4) { animation-delay: 0.4s; }
+.grid.cards > *:nth-child(5) { animation-delay: 0.5s; }
+.grid.cards > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--md-default-bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-accent-fg-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-primary-fg-color);
+}
