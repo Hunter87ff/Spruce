@@ -57,7 +57,7 @@ class TourneyRoundModel:
             if isinstance(TourneyRoundModel._col, AsyncCollection):
                 data = await TourneyRoundModel._col.find(query).to_list(length=None)
             else:
-                data = TourneyRoundModel._col.find(query).to_list(length=None)
+                data = list(TourneyRoundModel._col.find(query))
 
             self._teams = [TeamModel(**team) for team in data]
         

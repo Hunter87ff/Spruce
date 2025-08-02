@@ -24,7 +24,7 @@ class TeamModel:
         self.members: set[int] = set(kwargs.get("members", [])) # set of member user ids
 
         if kwargs.get("col"):
-            TeamModel.col = kwargs.get("col", None)
+            TeamModel._col = kwargs.get("col", None)
 
 
     def __eq__(self, value: object) -> bool:
@@ -48,14 +48,14 @@ class TeamModel:
     
 
     async def save(self) -> None:
-        if not TeamModel.col:
+        if not TeamModel._col:
             raise ValueError("Collection is not set for TeamModel.")
         query = [{"_id": self._id}, {"$set": self.to_dict()}]
-        if isinstance(TeamModel.col, AsyncCollection):
-            await TeamModel.col.update_one(query[0], query[1], upsert=True)
+        if isinstance(TeamModel._col, AsyncCollection):
+            await TeamModel._col.update_one(query[0], query[1], upsert=True)
 
-        if isinstance(TeamModel.col, Collection):
-            TeamModel.col.update_one(query[0], query[1], upsert=True)
+        if isinstance(TeamModel._col, Collection):
+            TeamModel._col.update_one(query[0], query[1], upsert=True)
 
         return self
     
