@@ -1,0 +1,346 @@
+/* Additional custom styles for enhanced dark theme */
+
+/* Command tables styling */
+.command-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  background: var(--card-gradient);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(186, 104, 200, 0.2);
+}
+
+.command-table th {
+  background: linear-gradient(45deg, #673ab7, #9c27b0);
+  color: white;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.command-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(186, 104, 200, 0.1);
+}
+
+.command-table tr:last-child td {
+  border-bottom: none;
+}
+
+.command-table code {
+  background: rgba(186, 104, 200, 0.2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: var(--md-accent-fg-color);
+  font-weight: 600;
+}
+
+/* Feature highlights */
+.feature-highlight {
+  background: var(--card-gradient);
+  border: 2px solid rgba(186, 104, 200, 0.3);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--border-gradient);
+}
+
+.feature-highlight h3 {
+  color: var(--md-accent-fg-color);
+  margin-top: 0;
+}
+
+/* Command syntax highlighting */
+.command-syntax {
+  background: #1a1a1a;
+  border: 2px solid var(--md-accent-fg-color);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-family: 'Roboto Mono', monospace;
+  position: relative;
+}
+
+.command-syntax::before {
+  content: '$ ';
+  color: var(--md-accent-fg-color);
+  font-weight: bold;
+}
+
+/* Permission badges */
+.permission-badge {
+  display: inline-block;
+  background: var(--md-accent-fg-color);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.2rem;
+}
+
+.permission-badge.admin {
+  background: #f44336;
+}
+
+.permission-badge.mod {
+  background: #ff9800;
+}
+
+.permission-badge.user {
+  background: #4caf50;
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-indicator.online {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.status-indicator.offline {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.status-indicator.maintenance {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
+
+.status-indicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Command examples */
+.command-example {
+  background: rgba(186, 104, 200, 0.1);
+  border-left: 4px solid var(--md-accent-fg-color);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.command-example .title {
+  font-weight: 600;
+  color: var(--md-accent-fg-color);
+  margin-bottom: 0.5rem;
+}
+
+/* Interactive elements */
+.interactive-demo {
+  background: var(--card-gradient);
+  border: 2px dashed rgba(186, 104, 200, 0.3);
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+}
+
+.interactive-demo:hover {
+  border-style: solid;
+  background: rgba(186, 104, 200, 0.05);
+}
+
+/* Progress indicators */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(186, 104, 200, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--border-gradient);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Quick reference boxes */
+.quick-ref {
+  background: var(--card-gradient);
+  border: 1px solid rgba(186, 104, 200, 0.2);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.quick-ref h4 {
+  color: var(--md-accent-fg-color);
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-ref ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.quick-ref li {
+  margin: 0.5rem 0;
+}
+
+/* Expandable sections */
+details {
+  background: var(--card-gradient);
+  border: 1px solid rgba(186, 104, 200, 0.2);
+  border-radius: 10px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+summary {
+  background: rgba(186, 104, 200, 0.1);
+  padding: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--md-accent-fg-color);
+  transition: background 0.3s ease;
+}
+
+summary:hover {
+  background: rgba(186, 104, 200, 0.2);
+}
+
+details[open] summary {
+  border-bottom: 1px solid rgba(186, 104, 200, 0.2);
+}
+
+details div {
+  padding: 1rem;
+}
+
+/* Keyboard shortcuts */
+.kbd {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  background: var(--md-code-bg-color);
+  border: 1px solid rgba(186, 104, 200, 0.3);
+  border-radius: 6px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--md-accent-fg-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Tooltip styling */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dashed var(--md-accent-fg-color);
+  cursor: help;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: var(--md-code-bg-color);
+  color: var(--md-default-fg-color);
+  text-align: center;
+  border-radius: 6px;
+  padding: 0.5rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border: 1px solid rgba(186, 104, 200, 0.3);
+  font-size: 0.85rem;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Custom list styling */
+ul.feature-list {
+  list-style: none;
+  padding: 0;
+}
+
+ul.feature-list li {
+  padding: 0.5rem 0;
+  position: relative;
+  padding-left: 2rem;
+}
+
+ul.feature-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--md-accent-fg-color);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .command-table {
+    font-size: 0.9rem;
+  }
+  
+  .command-table th,
+  .command-table td {
+    padding: 0.6rem;
+  }
+  
+  .feature-highlight {
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .grid.cards {
+    gap: 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .hero-section,
+  .md-header,
+  .md-sidebar,
+  .md-footer {
+    display: none !important;
+  }
+  
+  .md-content {
+    margin: 0 !important;
+  }
+}
