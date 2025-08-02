@@ -18,9 +18,18 @@ __all__ = (
     "TourneyRoundModel",
 )
 
+class ModelNames:
+    SCRIM = "scrim"
+    TESTER = "tester"
+    TOURNEY = "tourney"
+    AUTOROLE = "autorole"
+    TEAM = "team"
+    ROUND = "round"
+
+
 def init(db:"Database"):
     GuildAutoRoleModel.col = db.autoroles
     ScrimModel.col = db.scrims
     TesterModel._col = db.testers
-    TourneyModel._col = db.sprucedb["tournaments"]
-    TeamModel._col = db.sprucedb["teams"]
+    TourneyModel._col = db.tournaments
+    TeamModel._col = db.teams

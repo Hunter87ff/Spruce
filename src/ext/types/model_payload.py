@@ -41,10 +41,10 @@ class ScrimPayload(TypedDict, total=False):
 
 class TourneyTeamPayload(TypedDict):
     _id : int #message id
-    tid : int # team id
+    tid : int
     name : str
     capt : int
-    members : list[int]
+    members : set[int]
 
 
 class TourneyRoundPayload(TypedDict):
@@ -53,4 +53,5 @@ class TourneyRoundPayload(TypedDict):
      name: str
      spg: int
      slots: int
-     teams: list[int]
+     teams: set[int]
+

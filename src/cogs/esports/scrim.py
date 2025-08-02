@@ -26,6 +26,7 @@ _resolved_scrims: dict[str, bool] = {}
 
 class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
     """Cog for managing scrims in the server."""
+
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
         self.SCRIM_LIMIT = 4
@@ -1302,16 +1303,19 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
     @commands.Cog.listener()
     async def on_scrim_open_time_hit(self, scrim:ScrimModel):
         """Listener for when a scrim start time is hit."""
-        self.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}")
+        _debug = False
+        self.bot.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}", is_debug=_debug)
 
         #  check for open days
         week_day = self.time.now(scrim.time_zone).strftime("%a").lower()[0:2]
         if week_day not in scrim.open_days:
-            self.debug(f"Scrim {scrim.name} is not open today ({week_day}). Skipping opening.")
+            self.bot.debug(f"Scrim {scrim.name} is not open today ({week_day}). Skipping opening.", is_debug=_debug)
+            # update close time to next open day
+            scrim.close_time += self.scrim_interval
+            await scrim.save()
             return
 
         _channel = self.bot.get_channel(scrim.reg_channel)
-
         if not _channel:
 
             if scrim.open_time < (self.time.now(scrim.time_zone).timestamp() - int(self.scrim_interval * 30)):
@@ -1578,6 +1582,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
     @tasks.loop(seconds=2)
     async def monitor_scrims(self):
+        _debug = False
         time = self.time.now().strftime("%H%M")
 
         if time in _resolved_scrims:
@@ -1585,15 +1590,19 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         scrims_by_open_time = await  self.current_scrims(is_open=True, time=time)
         scrims_by_close_time = await self.current_scrims(is_open=False, time=time)
+        #print(f"Monitoring scrims at {time} - Open: {len(scrims_by_open_time)}, Close: {len(scrims_by_close_time)}")
+
 
         if len(scrims_by_open_time) > 0:
             for scrim in scrims_by_open_time:
                 scrim.status = True
+                self.bot.debug(f"Scrim {scrim.name} is now open for registration at {time}.", is_debug=_debug)
                 self.bot.dispatch("scrim_open_time_hit", scrim)
 
         if len(scrims_by_close_time) > 0:
             for scrim in scrims_by_close_time:
                 scrim.status = False
+                self.bot.debug(f"Scrim {scrim.name} is now closed for registration at {time}.", is_debug=_debug)
                 self.bot.dispatch("scrim_close_time_hit", scrim)
 
 

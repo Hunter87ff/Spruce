@@ -65,7 +65,10 @@ async def manage_backend_error(error: Exception, bot: "Spruce"):
     Returns:
         None
     """
-
+    if not hasattr(bot, "log_channel") or not bot.log_channel:
+        Logger.warning("Log channel is not set. Cannot send error message.")
+        return
+    
     if isinstance(error, errors.HTTPException):
         await bot.log_channel.send(f"```json\n{error.text}\nStatus Code : {error.status}\n```")
     elif isinstance(error, errors.ConnectionClosed):
@@ -75,7 +78,7 @@ async def manage_backend_error(error: Exception, bot: "Spruce"):
     elif isinstance(error, errors.RateLimited):
         await bot.log_channel.send(f"```json\n{error}\n```")
     else:
-        await bot.log_channel.send(f"```json\n{error}\n```") if bot.log_channel else None
+        await bot.log_channel.send(f"```json\n{error}\n```")
 
 
 

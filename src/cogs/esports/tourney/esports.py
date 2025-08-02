@@ -10,14 +10,15 @@ A comprehensive module for managing esports tournaments in Discord servers.
 import logging
 import discord
 import traceback
-from typing import TYPE_CHECKING, Optional, List
-
-from .ext.utils import TourneyUtils
-from core.abstract import EmbedPaginator, GroupCog
+from typing import TYPE_CHECKING
+from cogs.esports.ext.utils import TourneyUtils
+from core.abstract import EmbedPaginator, GroupCog, Cog
+from models import TeamModel
 from models.tourney import TourneyModel
 
 from ext import ( checks, EmbedBuilder)
-from discord import Interaction, TextChannel, app_commands
+from events.esports import handle_tourney_registration
+from discord import Interaction, Member, TextChannel, app_commands
 
 
 if TYPE_CHECKING:
@@ -26,54 +27,34 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-
-class GroupConfig:
-    """Configuration for group generation."""
-    def __init__(
-        self,
-        current_group: int,
-        messages: List[discord.Message],
-        total_messages: int,
-        event: TourneyModel,
-        group_channel: discord.TextChannel,
-        group_category: Optional[discord.CategoryChannel] = None
-    ):
-        self.current_group = current_group
-        self.messages = messages
-        self.total_messages = total_messages
-        self.event = event
-        self.group_channel = group_channel
-        self.group_category = group_category
-
-
-
-
 class Esports(GroupCog, name="esports", group_name="esports"):
     """
     Tournament Management Cog
     """
     
     # Constants
+    MAX_EVENT_PER_GUILD = 5
     MAX_TOTAL_SLOTS = 500
     MAX_SLOTS_PER_GROUP = 25
     MAX_MENTIONS_COUNT = 11
+    MAX_EVENT_NAME_LENGTH = 30
 
 
     MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
     model : TourneyModel = TourneyModel
     
     def __init__(self, bot: 'Spruce'):
+        TourneyUtils.bot = bot
+        self.model.bot = bot
         self.bot: 'Spruce' = bot
-        self.utils = TourneyUtils(self.bot)
+        self.utils = TourneyUtils
         self.TOURNEY_LOG_CHANNEL_NAME = f"{self.bot.user.name.lower()}-tourney-log"
         self.HIGHER_ROLE_POSITION = "{role.mention} has a higher role position than me. Please move it below my role and try again."
-        
-        # Setup the model collection reference
-        TourneyModel._col = self.bot.db.dbc
-        TourneyModel.bot = self.bot
-
+       
     # App command groups
     app_set = app_commands.Group(name="set", description="Tournament configuration commands")
+    app_add = app_commands.Group(name="add", description="Tournament management commands")
+    app_remove = app_commands.Group(name="remove", description="Tournament removal commands")
 
 
     @app_commands.command(name="setup", description="Setup a new tournament")
@@ -91,7 +72,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         total_slot:  app_commands.Range[int, 2, MAX_TOTAL_SLOTS],
         mentions: app_commands.Range[int, 0, MAX_MENTIONS_COUNT],
         slot_per_group: app_commands.Range[int, 2, MAX_SLOTS_PER_GROUP],
-        event_name: str = "New Tournament"
+        event_name: app_commands.Range[str, 1, MAX_EVENT_NAME_LENGTH] = "New Tournament"
     ):
         await ctx.response.defer(ephemeral=True)
 
@@ -102,20 +83,27 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             )
             return
         
-        if len(ctx.guild.channels) > 500:
+        if len(ctx.guild.channels) >= 490:
             await ctx.followup.send(
                 embed=EmbedBuilder.warning(self.utils.constants.Messages.TOO_MANY_CHANNELS),
                 ephemeral=True
             )
             return
-        
-        if len(event_name) > 30:
+
+        if len(event_name) > self.MAX_EVENT_NAME_LENGTH:
             await ctx.followup.send(
-                embed=EmbedBuilder.warning("Event name is too long. Please keep it under 30 characters."),
+                embed=EmbedBuilder.warning(f"Event name is too long. Please keep it under {self.MAX_EVENT_NAME_LENGTH} characters."),
                 ephemeral=True
             )
             return
-
+        
+        _all_events = await self.model.get_by_guild(ctx.guild.id)
+        if len(_all_events) >= self.MAX_EVENT_PER_GUILD:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(f"Maximum of {self.MAX_EVENT_PER_GUILD} events reached for this guild."),
+                ephemeral=True
+            )
+            return
 
         _event_prefix = self.bot.helper.get_event_prefix(event_name)
         
@@ -157,6 +145,10 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 return
 
         try:
+            _confirm_role = await ctx.guild.create_role(
+                name=f"{_event_prefix}-confirm",
+                color=self.bot.color.random(),
+            )
 
             tournament = TourneyModel(
                 guild=ctx.guild.id,
@@ -167,7 +159,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 rch= _channel_names.get("register-here").id,
                 cch= _channel_names.get("confirmed-teams").id,
                 gch= _channel_names.get("groups").id,
-                #crole=0,  # Will be set later when confirm role is created
+                crole=_confirm_role.id,
             )
             await tournament.save()  # Save the tournament model to the database
             
@@ -183,10 +175,12 @@ class Esports(GroupCog, name="esports", group_name="esports"):
                 )
 
             ) if how_to_register_channel else None
-            await self.bot.sleep(0.5)  # Avoid rate limits
-            await how_to_register_message.pin(reason="Pinned by tournament setup command for reference.")
-            await self.bot.sleep(0.5)  # Avoid rate limits
-            await how_to_register_message.add_reaction(self.bot.emoji.tick)
+
+            if how_to_register_message:
+                await self.bot.sleep(0.5)  # Avoid rate limits
+                await how_to_register_message.pin(reason="Pinned by tournament setup command for reference.")
+                await self.bot.sleep(0.5)  # Avoid rate limits
+                await how_to_register_message.add_reaction(self.bot.emoji.tick)
 
 
             await ctx.followup.send(
@@ -362,6 +356,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         paginator = EmbedPaginator(pages=_embeds, author=ctx.user, delete_on_timeout=True)
         await paginator.start(await self.bot.get_context(ctx))
 
+
     @app_set.command(name="total_slots", description="Set the total number of slots for the tournament")
     @app_commands.guild_only()
     @checks.tourney_mod(True)
@@ -399,13 +394,13 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     @checks.tourney_mod(True)
     @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
     @app_commands.describe(
-        slots_per_group="Number of slots per group (1-25)"
+        slots_per_group="Number of slots per group (2-25)"
     )
     async def set_slots_per_group(
         self,
         ctx: Interaction,
         reg_channel: TextChannel,
-        slots_per_group: app_commands.Range[int, 1, MAX_SLOTS_PER_GROUP]
+        slots_per_group: app_commands.Range[int, 2, MAX_SLOTS_PER_GROUP]
     ):
         await ctx.response.defer(ephemeral=True)
 
@@ -437,7 +432,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         self,
         ctx: Interaction,
         reg_channel: TextChannel,
-        event_name: app_commands.Range[str, 1, 30]
+        event_name: app_commands.Range[str, 1, MAX_EVENT_NAME_LENGTH]
     ):
         await ctx.response.defer(ephemeral=True)
 
@@ -489,7 +484,267 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         )
 
 
-    
+    @app_set.command(name="confirm_role", description="Set the confirmation role for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel ="The registration channel of the tournament",
+        role="Role to be used for confirming team registrations")
+    async def set_confirm_role(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        role: discord.Role
+    ):
+        await ctx.response.defer(ephemeral=True)
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        if role.position >= ctx.guild.me.top_role.position:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.HIGHER_ROLE_POSITION),
+                ephemeral=True
+            )
+            return
+        
+        _tourney.confirm_role = role.id
+        await _tourney.save()
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully set confirmation role to {role.mention} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
 
     
+    @app_set.command(name="group_channel", description="Set the group channel for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel="The registration channel of the tournament",
+        group_channel="Channel to be used for displaying tournament groups"
+    )
+    async def set_group_channel(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        group_channel: TextChannel
+    ):
+        await ctx.response.defer(ephemeral=True)
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        
+        if group_channel.category and group_channel.category.id != reg_channel.category_id:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("Group channel must be in the same category as the registration channel."),
+                ephemeral=True
+            )
+            return
 
+        _tourney.group_channel = group_channel.id
+        await _tourney.save()
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully set group channel to {group_channel.mention} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+    @app_set.command(name="slot_channel", description="Set the slot manager channel for the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel="The registration channel of the tournament",
+        slot_channel="Channel to be used for managing team slots"
+    )
+    async def set_slot_channel(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        slot_channel: TextChannel
+    ):
+        await ctx.response.defer(ephemeral=True)
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        
+        if slot_channel.category and slot_channel.category.id != reg_channel.category_id:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("Slot channel must be in the same category as the registration channel."),
+                ephemeral=True
+            )
+            return
+        
+        _tourney.slot_channel = slot_channel.id
+        await _tourney.save()
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully set slot channel to {slot_channel.mention} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
+    @app_add.command(name="team", description="Add a team to the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    async def add_team(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        team_name: str,
+        captain: Member
+    ):
+        await ctx.response.defer(ephemeral=True)
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        
+        if not _tourney.status:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("Tournament registration is currently paused. Please resume it before adding teams."),
+                ephemeral=True
+            )
+            return
+        
+        if _tourney.total_slots <= _tourney.team_count:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("All slots are already filled. Cannot add more teams."),
+                ephemeral=True
+            )
+            return
+        
+        _slot_channel = ctx.guild.get_channel(_tourney.slot_channel)
+        if not _slot_channel:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning("Slot channel not found. Please check the tournament configuration."),
+                ephemeral=True
+            )
+            return
+        _team = TeamModel(name=team_name, tid=_tourney.reg_channel, capt=captain.id, members={captain.id})
+        _embed = self.utils.confirm_message_embed(
+            team=_team,
+            tourney=_tourney
+        )
+        try:
+            await _tourney.validate_team(_team)
+            _confirm_message = await _slot_channel.send(embed=_embed)
+            await _confirm_message.add_reaction(self.bot.emoji.tick)
+            _team._id = _confirm_message.id  # Set the message ID for the team
+            await _tourney.add_team(_team)
+            await ctx.followup.send(
+                content=f"{_team.name} {captain.mention}",
+                embed=EmbedBuilder.success(f"Successfully added team **{team_name}** to tournament **{_tourney.name}**."),
+                ephemeral=True
+            )
+
+        except Exception as e:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(f"Failed to add team: {str(e)}"),
+                ephemeral=True
+            )
+            await self.utils.log(
+                guild=ctx.guild,
+                message=f"Failed to add team in tournament **{_tourney.name}**: {str(e)}",
+                level="warning"
+            )
+            return
+            
+
+    @app_remove.command(name="team", description="Remove a team from the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    async def remove_team(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        captain: Member
+    ):
+        await ctx.response.defer(ephemeral=True)
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        
+
+        _teams = await _tourney.get_team_by_player_id(captain.id)
+        if not _teams:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(f"No teams found for {captain.mention} in tournament **{_tourney.name}**."),
+                ephemeral=True
+            )
+            return
+        
+        _options = []
+        for team in _teams:
+            _options.append(discord.SelectOption(label=f"{team.name}", value=team._id))
+
+        _view = discord.ui.View(timeout=60.0)
+        _select = discord.ui.Select(
+            placeholder="Select a team to remove",
+            options=_options,
+            min_values=1,
+            max_values=1
+        )
+        _view.add_item(_select)
+
+        async def select_callback(interaction: Interaction):
+            if interaction.user.id != ctx.user.id:
+                await interaction.response.send_message(
+                    embed=EmbedBuilder.warning("You are not allowed to remove teams from this tournament."),
+                    ephemeral=True
+                )
+                return
+            
+            selected_team_id = int(_select.values[0])
+            _team = await _tourney.get_team_by_id(selected_team_id)
+            if not _team:
+                await interaction.response.send_message(
+                    embed=EmbedBuilder.warning("Selected team not found."),
+                    ephemeral=True
+                )
+                return
+            
+            await _tourney.remove_team(_team)
+            await interaction.response.send_message(
+                embed=EmbedBuilder.success(f"Successfully removed team **{_team.name}** from tournament **{_tourney.name}**."),
+                ephemeral=True
+            )
+            await self.utils.log(
+                guild=ctx.guild,
+                message=f"Team **{_team.name}** has been removed from tournament **{_tourney.name}** by {ctx.user.mention}.",
+                level="info"
+            )
+
+        _select.callback = select_callback
+
+        await ctx.followup.send(
+            content=f"Please select a team to remove from tournament **{_tourney.name}**:",
+            view=_view,
+            ephemeral=True
+        )
+
+    @Cog.listener()
+    async def on_ready(self):
+        await self.model.load_all()
+
+    
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):
+        await handle_tourney_registration(self, message)

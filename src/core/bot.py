@@ -45,14 +45,12 @@ class Spruce(commands.AutoShardedBot):
     
     def __init__(self, **kwargs : Unpack[BotConfig]) -> None:
         self.config = config
-        Database.mongo_uri = self.config.MONGO_URI 
         self.logger:Logger = Logger
         self.helper = helper
         self.color = color
         self.emoji = emoji
         self.constants = constants
         self.log_channel:TextChannel
-        self.query_error_log:TextChannel
         self.client_start_log:TextChannel
         self.guild_join_log:TextChannel
         self.guild_leave_log:TextChannel
@@ -64,10 +62,11 @@ class Spruce(commands.AutoShardedBot):
         self.last_run:int = int(time.time())
         self.misc = kwargs
         self.cache = Cache()
-        self.db = Database()
+        self.db = Database(config.MONGO_URI)
         self.member_count = 0
+
         super().__init__(
-                    # shard_count=kwargs.get("shards", config.SHARDS),
+                    shard_count=kwargs.get("shards"),
                     command_prefix=commands.when_mentioned_or(kwargs.get("prefix", config.PREFIX)),
                     intents=intents,
                     allowed_mentions=AllowedMentions(roles=True, replied_user=True, users=True),
@@ -120,7 +119,6 @@ class Spruce(commands.AutoShardedBot):
 
             await self.tree.sync()
             self.log_channel:TextChannel = self.get_channel(config.client_error_log)
-            self.query_error_log = self.get_channel(self.config.query_error_log)
             self.client_start_log = self.get_channel(self.config.client_start_log)
             self.guild_join_log = self.get_channel(self.config.guild_join_log)
             self.guild_leave_log = self.get_channel(self.config.guild_leave_log)
