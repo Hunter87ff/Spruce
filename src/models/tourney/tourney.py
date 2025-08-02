@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from multiprocessing import Value
 import time
 import asyncio
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 from typing import Unpack
 
 from pymongo.collection import Collection
@@ -44,8 +43,6 @@ class TourneyModel:
         self.__teams : list[TeamModel] = []  # List to hold teams registered in the tournament
 
 
-        if kwargs.get("col"):
-            TourneyModel._col = kwargs.get("col", None)
 
     def __repr__(self) -> str:
         return f"<Tournament guild={self.guild_id} status={self.status} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} spg={self.slot_per_group} cgp={self.current_group} cat={self.created_at}>"
@@ -72,18 +69,49 @@ class TourneyModel:
         Returns:
             bool: True if the instance is valid, False otherwise.
         """
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise ValueError("name must be a non-empty string")
         
-        return all([
-            isinstance(self.guild_id, int),
-            isinstance(self.reg_channel, int),
-            isinstance(self.slot_channel, int),
-            isinstance(self.confirm_role, int),
-            isinstance(self.group_channel, int),
-            isinstance(self.total_slots, int) and self.total_slots > 0,
-            isinstance(self.team_count, int) and self.team_count >= 0,
-            isinstance(self.slot_per_group, int) and self.slot_per_group > 0 and self.slot_per_group <= 25,
-            isinstance(self.created_at, int)
-        ])
+        if len(self.name) > 30:
+            raise ValueError("name must be less than 30 characters long")
+
+        if not isinstance(self.status, bool):
+            raise ValueError("status must be a boolean")
+
+        if not isinstance(self.mentions, int) or self.mentions <= 0:
+            raise ValueError("mentions must be a positive integer")
+
+        if not isinstance(self.tag_filter, bool):
+            raise ValueError("tag_filter must be a boolean")
+
+        if not isinstance(self.guild_id, int):
+            raise ValueError("guild_id must be an integer")
+        
+        if not isinstance(self.reg_channel, int):
+            raise ValueError("reg_channel must be an integer")
+        
+        if not isinstance(self.slot_channel, int):
+            raise ValueError("slot_channel must be an integer")
+        
+        if not isinstance(self.confirm_role, int):
+            raise ValueError("confirm_role must be an integer")
+        
+        if not isinstance(self.group_channel, int):
+            raise ValueError("group_channel must be an integer")
+        
+        if not isinstance(self.total_slots, int) or self.total_slots <= 0:
+            raise ValueError("total_slots must be a positive integer")
+        
+        if not isinstance(self.team_count, int) or self.team_count < 0:
+            raise ValueError("team_count must be a non-negative integer")
+        
+        if not isinstance(self.slot_per_group, int) or self.slot_per_group <= 0 or self.slot_per_group > 25:
+            raise ValueError("slot_per_group must be an integer between 1 and 25")
+        
+        if not isinstance(self.created_at, int):
+            raise ValueError("created_at must be an integer")
+        
+        return True
 
 
     def to_dict(self) -> TournamentPayload:
@@ -113,9 +141,7 @@ class TourneyModel:
 
     
     async def save(self):
-        if not self.validate():
-            raise ValueError("Invalid Tournament instance. Cannot save to database.")
-        
+        self.validate()
         if isinstance(self._col, Collection):
             self._col.update_one(
                 {"rch": self.reg_channel, "guild": self.guild_id},
@@ -175,7 +201,7 @@ class TourneyModel:
 
 
     @classmethod
-    async def get_by_guild(cls, guild_id:int):
+    async def get_by_guild(cls, guild_id:int) -> list[Self]:
         _query = {"guild": guild_id}
         
         document:list[dict] | None = None
@@ -185,10 +211,39 @@ class TourneyModel:
             document = await cls._col.find(_query)
 
         if document is None:
-            return None
+            return []
 
         return [cls(**doc) for doc in document]
     
+    @classmethod
+    async def get_by_slot_manager(cls, slot_manager:int) -> TourneyModel | None:
+        """Fetches all tournaments that have a specific slot manager channel."""
+        # Check cache first
+        for tourney in cls._cache.values():
+            if tourney.slot_manager == slot_manager:
+                return tourney
+            
+        _query = {"mch": slot_manager}
+        document: dict | None = None
+        
+        if isinstance(cls._col, Collection):
+            document = cls._col.find_one(_query)
+        else:
+            document = await cls._col.find_one(_query)
+
+        if document is None:
+            return None
+        
+        _tourney = cls(**document)
+        if cls._cache.get(_tourney.reg_channel):
+            return cls._cache[_tourney.reg_channel]
+        
+        cls._cache[_tourney.reg_channel] = _tourney
+        cls._REGISTER_CHANNEL_CACHE.add(_tourney.reg_channel)
+
+        return _tourney
+
+
 
     async def update(self, **kwargs: Unpack[TournamentPayload]) -> TourneyModel:
         for key, value in kwargs.items():
@@ -221,26 +276,29 @@ class TourneyModel:
     
     
     async def get_team_by_player_id(self, player_id:int):
-        """Fetches a team by a player's ID."""
-        if not self.__teams:
-            await self.get_teams()
-        
+        """Fetches a team by a player's ID.""" 
         _teams : list[TeamModel] = []
 
-        for team in self.__teams:
+        for team in await self.get_teams():
             if player_id in team.members:
                 _teams.append(team)
 
         return _teams 
-
+    
+    async def get_team_by_id(self, team_id:int) -> TeamModel | None:
+        """Fetches a team by its ID."""
+        for team in await self.get_teams():
+            if team._id == team_id:
+                return team
+        return None
+    
 
     async def validate_team(self, team: TeamModel) -> bool:
         """Validates if a team can be added to the tournament."""
-        if not team.captain:
-            raise ValueError("Team must have a captain.")
+        team.validate()
 
         if self.tag_filter:
-            for _team in self.__teams:
+            for _team in await self.get_teams():
                 if len(_team.members.intersection(team.members)) > 0:
                     raise ValueError("Duplicate tags found in the team members.")
 
@@ -256,11 +314,10 @@ class TourneyModel:
         return True    
 
 
-    async def add_team(self, **kwargs: Unpack[TourneyTeamPayload]) -> None:
+    async def add_team(self, team : TeamModel) -> None:
         """Adds a team to the tournament."""
         
         try:
-            team = TeamModel(**kwargs)
             await self.validate_team(team)
             await team.save()
             self.__teams.append(team)
@@ -272,7 +329,20 @@ class TourneyModel:
         except Exception as e:
             raise ValueError(str(e))
 
-    
+
+    async def remove_team(self, team: TeamModel) -> bool:
+        """Removes a team from the tournament."""
+        if team not in self.__teams:
+            raise ValueError("Team not found in the tournament.")
+        await team.delete()
+        self.__teams.remove(team)
+        self.team_count -= 1
+        await self.save()
+        
+        self._cache[self.reg_channel] = self  # Update cache
+        return True
+
+
     @classmethod
     async def load_all(cls) -> list[TourneyModel]:
         """Loads all tournaments from the database and caches them."""

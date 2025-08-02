@@ -1,7 +1,7 @@
-pip install --upgrade pip
-pip install uv
-uv sync
-clear
+# pip install --upgrade pip
+# pip install uv
+# uv sync
+# clear
 
 
 MAX_RUNS=2

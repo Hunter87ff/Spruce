@@ -70,6 +70,7 @@ class TourneyUtils(BaseEsportsUtils):
 
     def __init__(self, bot: "Spruce") -> None:
         super().__init__(bot)
+        self.bot = bot
 
 
     @classmethod
@@ -127,10 +128,13 @@ class TourneyUtils(BaseEsportsUtils):
 
 
     @classmethod
-    def confirm_message_embed(cls, team: "TeamModel", tourney: "TourneyModel", message: Message) -> EmbedBuilder:
-        embed = EmbedBuilder(color=cls.bot.color.cyan, description=f"**{tourney.team_count}) TEAM NAME: [{team.name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
-        embed.set_author(name=message.guild.name, icon_url=message.guild.icon if message.guild.icon else None)
-        embed.timestamp = message.created_at
-        embed.set_thumbnail(url=message.author.display_avatar or message.guild.icon or cls.bot.user.display_avatar)
-
+    def confirm_message_embed(cls, team: "TeamModel", tourney: "TourneyModel") -> EmbedBuilder:
+        _guild = cls.bot.get_guild(tourney.guild_id)
+        embed = EmbedBuilder(
+            color=cls.bot.color.cyan, 
+            description=f"**{tourney.team_count+1}) TEAM NAME: {team.name.upper()}**"
+            f"\n**Players: **{', '.join([f'<@{member}>' for member in team.members or [team.captain]])}\n\n"
+        )
+        embed.set_author(name=_guild.name, icon_url=_guild.icon if _guild.icon else None)
+        embed.timestamp = utils.utcnow()
         return embed
