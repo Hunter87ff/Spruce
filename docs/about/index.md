@@ -96,58 +96,44 @@ Spruce Bot has been featured in:
 
 Support development and unlock premium features:
 
-=== "Premium Plans"
-    **Monthly:** $49/month
-    
+=== "Monthly"
+    **Standard:** `$1/month`
+
     - Priority support
     - Advanced tournament features
     - Custom branding options
     - Enhanced limits
-    
-    **Yearly:** $429/year (Save 27%)
-    
-    - All monthly features
+
+    **Premium:** `$3/month`
+
+    - All standard features
     - Additional customization
     - Early access to new features
     - Direct developer contact
 
-=== "Lifetime"
-    **One-time:** $4,444
-    
+=== "Yearly"
+    **Standard:** `$10/year`
+
     - All premium features forever
     - Exclusive access to beta features
     - Direct input on development roadmap
     - Special recognition in community
 
-## :memo: License
+    **Premium:** `$30/year`
 
-Spruce Bot's source code is available under specific licensing terms. Please refer to our [GitHub repository](https://github.com/NexinLabs/Spruce) for detailed licensing information.
+    - All premium features
+    - Direct input on development roadmap
+    - Special recognition in community
+    - Direct developer contact
 
-## :mailbox: Contact
-
-**General Inquiries:**
-- Email: contact@nexinlabs.com
-- Discord: [Support Server](https://discord.gg/vMnhpAyFZm)
-
-**Business/Partnership:**
-- Email: business@nexinlabs.com
-
-**Security Issues:**
-- Email: security@nexinlabs.com
-- Responsible disclosure appreciated
-
-**Press/Media:**
-- Email: press@nexinlabs.com
 
 ## :gift_heart: Support Development
 
 Help us continue improving Spruce Bot:
 
 1. **[Vote on Top.gg](https://top.gg/bot/931202912888164474/vote)** - Free and helps visibility
-2. **[Star on GitHub](https://github.com/NexinLabs/Spruce)** - Show your support
-3. **[Join Premium](mailto:business@nexinlabs.com)** - Unlock advanced features
-4. **[Contribute Code](contributing.md)** - Help with development
-5. **[Spread the Word](https://discord.gg/vMnhpAyFZm)** - Tell your friends
+2. **[Spread the Word](https://discord.gg/vMnhpAyFZm)** - Tell your friends
+
 
 ## :scroll: Changelog
 
@@ -156,18 +142,20 @@ Stay updated with the latest changes:
 ### Recent Updates
 
 **v2.1.1** (Latest)
+
 - Fixed tournament registration issues
 - Improved scrim time zone handling
 - Enhanced error messages
 - Performance optimizations
 
 **v2.1.0**
+
 - Added advanced scrim features
 - New tournament management tools
 - Improved documentation
 - Bug fixes and stability improvements
 
-[View Full Changelog →](changelog.md)
+<!-- [View Full Changelog →](changelog.md) -->
 
 ## :crystal_ball: Roadmap
 
@@ -203,6 +191,6 @@ Special thanks to:
 
 ---
 
-**Want to contribute?** Check out our [Contributing Guide →](contributing.md)
+<!-- **Want to contribute?** Check out our [Contributing Guide →](contributing.md) -->
 
 **Need support?** Join our [Discord Community →](https://discord.gg/vMnhpAyFZm)

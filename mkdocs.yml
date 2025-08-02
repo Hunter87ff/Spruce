@@ -67,8 +67,8 @@ nav:
   - Getting Started:
     - getting-started/index.md
     - Installation: getting-started/installation.md
-    - Quick Setup: getting-started/quick-setup.md
-    - Permissions: getting-started/permissions.md
+    # - Quick Setup: getting-started/quick-setup.md
+    # - Permissions: getting-started/permissions.md
   - Commands:
     - commands/index.md
     - AutoRole: commands/autorole.md
@@ -101,9 +101,9 @@ nav:
   #   - Events: api/events.md
   - About:
     - about/index.md
-    - Changelog: about/changelog.md
-    - Contributing: about/contributing.md
-    - Support: about/support.md
+    # - Changelog: about/changelog.md
+    # - Contributing: about/contributing.md
+    # - Support: about/support.md
 
 # Plugins
 plugins:
@@ -130,7 +130,9 @@ markdown_extensions:
       smart_enable: all
   - pymdownx.caret
   - pymdownx.details
-  - pymdownx.emoji
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
