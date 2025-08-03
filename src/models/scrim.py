@@ -1,16 +1,19 @@
+from __future__ import annotations
+
+import asyncio
 from datetime import datetime
 from discord import Member
 from typing import Any, TypedDict, Unpack
+import pytz
 
 from pymongo.results import DeleteResult
-from ext.types.errors import ScrimAlreadyExists
 
 # for dynamic instance checking
 from pymongo.collection import Collection
 from pymongo.asynchronous.collection import AsyncCollection
 
 
-_scrim_cache_by_channel: dict[int, "ScrimModel | None"]  = {}
+
 IS_DEV_ENV = False  # Set this to True if you want to enable debug messages
 
 class TeamPayload(TypedDict, total=False):
@@ -57,22 +60,13 @@ class ScrimPayload(TypedDict, total=False):
         total_slots:int
         time_zone:str
         ping_role:int
-        col: "Collection"
         
-
-
-
-def debug(message:str):
-    if IS_DEV_ENV:
-        debug(f"\033[1;34mDEBUG\033[0m: {message}")
-    else:
-        # In production, you might want to log this to a file or a logging service
-        pass
 
 
 class ScrimModel:
     col: Collection | AsyncCollection = None
-
+    _cache : dict[int, "ScrimModel"] = {}
+    _REGISTER_CHANNEL_CACHE : set[int] = set()
     def __init__(self, **kwargs: Unpack[ScrimPayload]):
         """
         Initializes a ScrimModel instance with the provided keyword arguments.
@@ -137,16 +131,16 @@ class ScrimModel:
         if not self.reg_channel or not isinstance(self.reg_channel, int):
             raise ValueError(f"Invalid registration channel ID. Expected an integer, got {type(self.reg_channel).__name__}.")
         
-        if not self.guild_id or not isinstance(self.guild_id, int):
+        if not isinstance(self.guild_id, int):
             raise ValueError(f"Invalid guild ID. Expected an integer, got {type(self.guild_id).__name__}.")
-        
-        if not self.open_time or not isinstance(self.open_time, int):
+
+        if not isinstance(self.open_time, int):
             raise ValueError(f"Invalid open time. Expected an integer, got {type(self.open_time).__name__}.")
-        
-        if not self.close_time or not isinstance(self.close_time, int):
+
+        if not isinstance(self.close_time, int):
             raise ValueError(f"Invalid close time. Expected an integer, got {type(self.close_time).__name__}.")
-        
-        if not self.total_slots or not isinstance(self.total_slots, int):
+
+        if not isinstance(self.total_slots, int):
             raise ValueError(f"Invalid total slots. Expected an integer, got {type(self.total_slots).__name__}.")
         
         if self.total_slots <= len(self.reserved):
@@ -219,20 +213,12 @@ class ScrimModel:
     
 
     def add_reserved(self, captain:int, name:str) -> Team:
-        """
-        Adds a reserved team to the scrim.
-        Args:
-            captain (int): The ID of the team captain.
-            name (str): The name of the team.
-        Returns:
-            Team: The added reserved team.
-        """
         if  isinstance(captain, Member):
             captain = captain.id
 
         new_team = Team(name=name, captain=captain)
         if not self.multi_register and new_team in self.reserved:
-            raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team named {name.upper()}.")
+            raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team")
         
         self.reserved.append(new_team)
         return new_team
@@ -246,8 +232,6 @@ class ScrimModel:
         self.teams = []
  
 
-
-
     async def save(self):
         """
         Saves the ScrimModel instance to the database.
@@ -258,30 +242,27 @@ class ScrimModel:
             ScrimAlreadyExists: If a scrim with the same registration channel already exists.
             ValueError: If the instance is not valid.
         """
-        if not self._id:
-            _existing = await self.find_one(reg_channel=self.reg_channel)
-
-            if _existing and _existing == self:
-                return
-            
-            raise ScrimAlreadyExists("A scrim with this registration channel already exists.")
-
         self.validate()
-
-        _saved = self.col.update_one(
-            {"reg_channel": self.reg_channel},
-            {"$set": self.to_dict()},
-            upsert=True
-        )
-
+        if isinstance(self.col, AsyncCollection):
+            _saved = await self.col.update_one(
+                {"reg_channel": self.reg_channel},
+                {"$set": self.to_dict()},
+                upsert=True
+            )
+        else:
+            _saved = self.col.update_one(
+                {"reg_channel": self.reg_channel},
+                {"$set": self.to_dict()},
+                upsert=True
+            )
 
         if _saved.modified_count > 0 or _saved.upserted_id:
-            _scrim_cache_by_channel[self.reg_channel] = self
-            
-            if self.manage_channel:
-                _scrim_cache_by_channel[self.manage_channel] = self
+            ScrimModel._cache[self.reg_channel] = self
 
-        return _saved
+            if self.manage_channel:
+                ScrimModel._cache[self.manage_channel] = self
+
+        return self
 
 
     async def delete(self):
@@ -290,8 +271,8 @@ class ScrimModel:
         Returns:
             bool: True if the deletion was successful, False otherwise.
         """
-        if self.reg_channel in _scrim_cache_by_channel:
-            del _scrim_cache_by_channel[self.reg_channel]
+        if self.reg_channel in self._cache:
+            del ScrimModel._cache[self.reg_channel]
 
         result: DeleteResult
         query = {"reg_channel": self.reg_channel, "guild_id": self.guild_id}
@@ -313,9 +294,9 @@ class ScrimModel:
         Returns:
             ScrimModel: The ScrimModel instance if found, None otherwise.
         """
-        if channel_id in _scrim_cache_by_channel:
-            return _scrim_cache_by_channel[channel_id]
-        
+        if channel_id in cls._cache:
+            return cls._cache[channel_id]
+
         query = {"reg_channel": channel_id}
         data : dict[str, Any] = None
 
@@ -326,7 +307,7 @@ class ScrimModel:
 
         if data:
             scrim = cls(**data)
-            _scrim_cache_by_channel[channel_id] = scrim
+            cls._cache[channel_id] = scrim
             return scrim
 
         return None
@@ -342,9 +323,10 @@ class ScrimModel:
         """
         if "reg_channel" in kwargs:
             channel_id = kwargs["reg_channel"]
-            if channel_id in _scrim_cache_by_channel:
-                return _scrim_cache_by_channel[channel_id]
-            
+
+            if channel_id in cls._cache:
+                return cls._cache[channel_id]
+
         data : dict[str, Any] = None
 
         if isinstance(cls.col, Collection):
@@ -354,13 +336,10 @@ class ScrimModel:
 
         if data:
             scrim = cls(**data)
-            _scrim_cache_by_channel[scrim.reg_channel] = scrim
-
-            if scrim.manage_channel:
-                _scrim_cache_by_channel[scrim.manage_channel] = scrim
+            cls._cache[scrim.reg_channel] = scrim
             return scrim
 
-        _scrim_cache_by_channel[kwargs.get("reg_channel", None)] = None
+        cls._cache[kwargs.get("reg_channel", None)] = None
         return None
 
 
@@ -379,5 +358,84 @@ class ScrimModel:
             data = await cls.col.find(kwargs).to_list(length=None)
 
         return [cls(**item) for item in data]
+    
+
+    async def skip_to_next_day(self):
+        """
+        Skips the scrim to the next day.
+        This method updates the open and close times to the next day based on the current time zone.
+        """
+        self.open_time += 24 * 60 * 60  # Add 24 hours in seconds
+        self.close_time += 24 * 60 * 60  # Add 24 hours in seconds
+        await self.save()
+
+    def next_open_time(self):
+        self.open_time += 24 * 60 * 60
 
 
+    def next_close_time(self):
+        self.close_time += 24 * 60 * 60
+
+
+    def open(self, next=False, clear_teams=False):
+        """
+        Opens the scrim and sets the status to True.
+        Args:
+            next (bool): If True, sets the next open time.
+            clear_teams (bool): If True, clears the teams in the scrim.
+        """
+        self.status = True
+        if next:
+            self.next_open_time()
+
+        if clear_teams:
+            self.clear_teams()
+
+
+    def close(self, next=False):
+        """
+        Closes the scrim and sets the status to False.
+        Args:
+            next (bool): If True, sets the next close time.
+        """
+        self.status = False
+        if next:
+            self.next_close_time()
+
+
+    def disable(self):
+        self.status = None
+
+    def is_open_day(self) -> bool:
+        """
+        Checks if the scrim is open on the current day.
+        """
+        tz = pytz.timezone(self.time_zone)
+        current_day = datetime.now(tz).strftime("%a").lower()[0:2]
+        return current_day in self.open_days
+    
+
+    def is_inactive(self):
+        """detect if last open time is 30 ago"""
+        last_open_time = datetime.fromtimestamp(self.open_time)
+        current_time = datetime.now()
+        return (current_time - last_open_time).total_seconds() > 30 * 60
+
+
+    @classmethod
+    async def load_all(cls):
+        """
+        Loads all scrim instances from the database.
+        """
+        if isinstance(cls.col, Collection):
+            data = cls.col.find({}).to_list(length=None)
+        else:
+            data = await cls.col.find({}).to_list(length=None)
+
+        for item in data:
+            _scrim = cls(**item)
+            cls._cache[_scrim.reg_channel] = _scrim
+            cls._REGISTER_CHANNEL_CACHE.add(_scrim.reg_channel)
+            await asyncio.sleep(0.1)  # Yield control to the event loop
+
+        return cls._cache.values()
