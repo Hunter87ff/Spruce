@@ -25,6 +25,12 @@ _resolved_scrims: dict[str, bool] = {}
 class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
     """Cog for managing scrims in the server."""
 
+    CUSTOM_ID_SLOT_REFRESH = "scrim-slot-refresh"
+    CUSTOM_ID_MY_SLOT = "scrim-my-slot"
+    CUSTOM_ID_TEAM_NAME = "scrim-team-name"
+    CUSTOM_ID_CANCEL_SLOT = "scrim-cancel-slot"
+    CUSTOM_ID_TRANSFER_SLOT = "scrim-transfer-slot"
+
     def __init__(self, bot:"Spruce") -> None:
         self.bot = bot
         self.SCRIM_LIMIT = 4
@@ -123,8 +129,15 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             _description = "No teams registered yet."
 
         group_embed.description = _description
-        await slot_channel.send(embed=group_embed)
 
+        _view = discord.ui.View(timeout=None)
+        _buttons = [
+            discord.ui.Button(emoji=self.bot.emoji.refresh, style=discord.ButtonStyle.secondary, custom_id=f"{scrim.reg_channel}-{scrim.guild_id}-scrim-slot-refresh"),
+        ]
+        for _button in _buttons:
+            _view.add_item(_button)
+
+        await slot_channel.send(embed=group_embed, view=_view)
         
         await self.log(
             guild=reg_channel.guild,
@@ -157,7 +170,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         embed.add_field(name="Mentions", value=f"`{scrim.mentions:02d}`")
         embed.add_field(name="Success Role", value=f"<@&{scrim.idp_role}>")
         embed.add_field(name="Ping Role", value=f"<@&{scrim.ping_role}>" if scrim.ping_role else "None")
-        embed.add_field(name="Slots", value=f"`{available_slots}`/`{scrim.total_slots}`")
+        embed.add_field(name="Slots Left", value=f"`{available_slots}`/`{scrim.total_slots}`")
         embed.add_field(name="Reserved Slots", value=f"`{len(scrim.reserved)}`")
         embed.add_field(name="Open Days", value="`" + "`, `".join(scrim.open_days) + "`")
         embed.set_footer(text=f"Scrim ID: {scrim.reg_channel}")
@@ -849,26 +862,26 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         DISALLOW = 0
 
 
-    @set_app.command(name="fake_tag", description="Enable or disable fake tag filter for a scrim.")
+    @set_app.command(name="fake_tag", description="Enable or disable duplicate tag filter for a scrim.")
     @app.guild_only()
     @app.describe(
-        reg_channel="Registration channel of the scrim to set fake tag filter (required)",
-        fake_tag="Enable or disable fake tag filter (required)",
+        reg_channel="Registration channel of the scrim to set duplicate tag filter (required)",
+        filter="Enable or disable duplicate tag filter (required)",
     )
     @checks.scrim_mod(interaction=True)
-    async def set_fake_tag(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, fake_tag:DuplicateTagCheck):
-        """Enable or disable fake tag filter for a scrim."""
+    async def set_fake_tag(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, filter:DuplicateTagCheck):
+        """Enable or disable duplicate tag filter for a scrim."""
         await ctx.response.defer(ephemeral=True)
 
         _scrim = await ScrimModel.find_by_reg_channel(reg_channel.id)
         if not _scrim:
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
-        # Update the fake tag filter in the scrim
-        _scrim.duplicate_tag = bool(fake_tag.value)
+        # Update the duplicate tag filter in the scrim
+        _scrim.duplicate_tag = bool(filter.value)
         await _scrim.save()
 
-        await ctx.followup.send(f"Fake tag filter for scrim `{_scrim.name}` has been {fake_tag.value}.", ephemeral=True)
+        await ctx.followup.send(f"Duplicate tag filter for scrim `{_scrim.name}` has been {'Disabled' if _scrim.duplicate_tag else 'Enabled'}.", ephemeral=True)
 
 
 
@@ -1297,6 +1310,9 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         await ctx.followup.send(f"Reserved slot for captain {captain.mention} has been removed successfully.", ephemeral=True)
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await ScrimModel.load_all()
 
     @commands.Cog.listener()
     async def on_scrim_open_time_hit(self, scrim:ScrimModel):

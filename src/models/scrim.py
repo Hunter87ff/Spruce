@@ -212,6 +212,22 @@ class ScrimModel:
         return new_team
     
 
+    async def remove_team(self, team: Team):
+        """
+        Removes a team from the scrim.
+        Args:
+            team (Team): The team to remove.
+        """
+        if team in self.teams:
+            self.teams.remove(team)
+
+        elif team in self.reserved:
+            self.reserved.remove(team)
+
+        else:
+            raise ValueError(f"Team {team.name} not found in scrim teams or reserved teams.")
+    
+
     def add_reserved(self, captain:int, name:str) -> Team:
         if  isinstance(captain, Member):
             captain = captain.id
@@ -258,9 +274,7 @@ class ScrimModel:
 
         if _saved.modified_count > 0 or _saved.upserted_id:
             ScrimModel._cache[self.reg_channel] = self
-
-            if self.manage_channel:
-                ScrimModel._cache[self.manage_channel] = self
+            ScrimModel._REGISTER_CHANNEL_CACHE.add(self.reg_channel)
 
         return self
 
@@ -273,6 +287,7 @@ class ScrimModel:
         """
         if self.reg_channel in self._cache:
             del ScrimModel._cache[self.reg_channel]
+            self._REGISTER_CHANNEL_CACHE.discard(self.reg_channel)
 
         result: DeleteResult
         query = {"reg_channel": self.reg_channel, "guild_id": self.guild_id}
@@ -308,6 +323,7 @@ class ScrimModel:
         if data:
             scrim = cls(**data)
             cls._cache[channel_id] = scrim
+            cls._REGISTER_CHANNEL_CACHE.add(channel_id)
             return scrim
 
         return None
@@ -405,6 +421,7 @@ class ScrimModel:
 
     def disable(self):
         self.status = None
+
 
     def is_open_day(self) -> bool:
         """

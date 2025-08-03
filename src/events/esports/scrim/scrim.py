@@ -24,6 +24,10 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
         return
     self.debug("✅ Check 1 passed for scrim registration. bot having all the permsissions.")
 
+    if message.channel.id not in ScrimModel._REGISTER_CHANNEL_CACHE:
+        self.debug(f"❌ Check 1.1 failed for scrim registration. Channel {message.channel.id} is not a scrim registration channel.")
+        return
+
     if discord.utils.get(message.author.roles, name=self.bot.config.TAG_IGNORE_ROLE):
         return  # Ignore messages from users with the scrim-ignore-tag role
 
@@ -237,7 +241,7 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
 
 
 
-async def handle_scrim_end(self, scrim:ScrimModel):
+async def handle_scrim_end(self : ScrimCog, scrim:ScrimModel):
     """Listener for when a scrim end time is hit."""
 
     scrim.close_time += self.scrim_interval

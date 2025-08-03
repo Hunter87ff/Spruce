@@ -95,7 +95,7 @@ async def handle_teamname_change_callback(self : ScrimCog, interaction:discord.I
                     await modal_interaction.response.send_message(embed=EmbedBuilder.success(f"Your team name has been changed to `{new_team_name}`."), ephemeral=True)
 
                 except Exception as e:
-                    await modal_interaction.response.send_message(embed=EmbedBuilder.warning(description=str(e)), ephemeral=True)
+                    await modal_interaction.response.send_message(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
 
             modal.on_submit = modal_callback
             await select_interaction.response.send_modal(modal)
@@ -145,7 +145,7 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
                 await member_interaction.response.send_message(embed=EmbedBuilder.success(f"Your slot has been transferred to {new_member.mention}."), ephemeral=True)
 
             except Exception as e:
-                await member_interaction.response.send_message(embed=EmbedBuilder.warning(description=str(e)), ephemeral=True)
+                await member_interaction.response.send_message(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
 
         member_input.callback = member_selection_callback
         await select_interaction.response.send_message(
@@ -164,8 +164,72 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
     return await interaction.response.send_message(view=view, ephemeral=True)
 
 
+async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interaction, scrim: ScrimModel):
+    # Refresh the slot list for the scrim
+    if not interaction.user.guild_permissions.manage_guild:
+        await interaction.response.send_message(
+            embed=EmbedBuilder.warning("You do not have permission to refresh the scrim slots."),
+            ephemeral=True
+        )
+    if len(scrim.teams) < 1:
+        await interaction.response.send_message(
+            embed=EmbedBuilder.warning("No teams registered for this scrim."),
+            ephemeral=True
+        )
+        return
+    
+    await self.setup_group(scrim)
+    await interaction.message.delete()
+
+
+
+async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Interaction, scrim:ScrimModel, teams:list[Team]):
+        if not teams:
+            return await interaction.response.send_message(embed=EmbedBuilder.warning(self.YOU_ARE_NOT_REGISTERED), ephemeral=True)
+
+        options = [
+            discord.SelectOption(
+                label=f"{slot}) TEAM {team.name.upper()}",
+                value=str(slot-1)
+            ) for slot, team in enumerate(teams, start=1)
+        ]
+
+        # Create a select menu for the user to choose which slot to change the team name
+        select = discord.ui.Select(
+            placeholder=self.SELECT_TEAM_PLACEHOLDER,
+            options=options
+        )
+
+        # Callback for the select menu 
+        async def select_callback(select_interaction:discord.Interaction):
+            selected_slot = int(select.values[0])
+            team = teams[selected_slot]
+            try:
+                await scrim.remove_team(team)
+                await scrim.save()
+                await select_interaction.response.send_message(
+                    embed=EmbedBuilder.success(f"Your slot for team `{team.name}` has been removed successfully."),
+                    ephemeral=True
+                )
+            except Exception as e:
+                await select_interaction.response.send_message(
+                    embed=EmbedBuilder.warning(f"Failed to remove your slot: {str(e)}"),
+                    ephemeral=True
+                )
+
+
+        select.callback = select_callback
+        view = discord.ui.View()
+        view.add_item(select)
+        return await interaction.response.send_message(view=view, ephemeral=True)
+
+
+
+
+
 async def handle_scrim_slot_manager_interaction(self : ScrimCog, interaction:discord.Interaction):
     """Handle scrim interactions."""
+    # await interaction.response.defer(ephemeral=True)
 
     custom_id = interaction.data.get("custom_id", "")
     reg_channel = self.bot.get_channel(int(custom_id.split("-")[0]))
@@ -195,17 +259,20 @@ async def handle_scrim_slot_manager_interaction(self : ScrimCog, interaction:dis
     ]):
         teams = scrim.teams
 
-    if custom_id.endswith("scrim-cancel-slot"):
-        await self._cancel_slot(interaction, reg_channel, interaction.user)
+    if custom_id.endswith(self.CUSTOM_ID_CANCEL_SLOT):
+        await handle_remove_slot_callback(self, interaction=interaction, scrim=scrim, teams=teams)
 
     #  get the team details for the user
-    if custom_id.endswith("scrim-my-slot"):
+    if custom_id.endswith(self.CUSTOM_ID_MY_SLOT):
         await handle_my_slot_callback(self, interaction=interaction, scrim=scrim, teams=teams)
 
 
-    if custom_id.endswith("scrim-team-name"):
+    if custom_id.endswith(self.CUSTOM_ID_TEAM_NAME):
         await handle_teamname_change_callback(self, interaction=interaction, scrim=scrim, teams=teams)
 
 
-    if custom_id.endswith("scrim-transfer-slot"):
+    if custom_id.endswith(self.CUSTOM_ID_TRANSFER_SLOT):
         await handle_transfer_slot_callback(self, interaction=interaction, scrim=scrim, teams=teams)
+
+    if custom_id.endswith(self.CUSTOM_ID_SLOT_REFRESH):
+        await handle_scrim_slot_refresh(self, interaction=interaction, scrim=scrim)
