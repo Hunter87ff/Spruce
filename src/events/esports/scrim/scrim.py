@@ -130,3 +130,128 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
         self.bot.dispatch("scrim_close_time_hit", _scrim)
 
     await self.log(message.guild, f"{message.author.mention} has registered for scrim {_scrim.name}.", color=self.bot.color.green)
+
+
+async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
+    """Listener for when a scrim start time is hit."""
+    _debug = False
+    self.bot.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}", is_debug=_debug)
+
+    if not scrim.is_open_day():
+        await scrim.skip_to_next_day()
+        return await self.log(
+            self.bot.get_guild(scrim.guild_id),
+            f"Scrim {scrim.name} is not open today. Skipping to next open day.",
+            self.bot.color.yellow
+        )
+
+    _channel = self.bot.get_channel(scrim.reg_channel)
+    if not _channel or scrim.is_inactive():
+        guild = self.bot.get_guild(scrim.guild_id)
+        await self.log(
+            guild,
+            f"Scrim {scrim.name} registration channel not found, and the scrim is older than 30 days. Deleting the scrim.",
+            self.bot.color.red
+        )
+        await scrim.delete()
+        return
+
+    # check all the perms
+    if not all([
+        _channel.permissions_for(_channel.guild.me).send_messages,
+        _channel.permissions_for(_channel.guild.me).add_reactions,
+        _channel.permissions_for(_channel.guild.me).read_message_history,
+        _channel.guild.me.guild_permissions.manage_messages,
+        _channel.guild.me.guild_permissions.manage_roles,
+    ]):
+        return await self.log(
+            _channel.guild,
+            f"Scrim {_channel.mention} could not be started as I don't have the required permissions : `manage_messages`, `add_reactions`, `manage_roles`, `read_message_history`, in the registration channel.",
+            self.bot.color.red
+        )
+
+    _idp_role = _channel.guild.get_role(scrim.idp_role)
+    try:
+        if not _idp_role:
+            return await self.log(
+                _channel.guild,
+                "Idp role not found to start scrim.",
+                self.bot.color.red
+            )
+        for member in _idp_role.members if _idp_role else []:
+            if _idp_role.position >= _channel.guild.me.top_role.position:
+                await self.log(
+                    _channel.guild,
+                    f"Could not remove IDP role {scrim.idp_role} from {member.mention} in scrim {_channel.mention} as the role is higher than my top role.",
+                    self.bot.color.red
+                )
+                continue
+            await member.remove_roles(_idp_role, reason="Scrim registration started, removing IDP role.")
+
+    except Exception:
+        return await self.log(
+            _channel.guild,
+            f"Could not remove IDP role <@&{scrim.idp_role}> from members in scrim {_channel.mention} due to insufficient permissions. or missing role. \nPlease ensure I have the `manage_roles` permission. and the IDP role is lower than my top role.",
+            self.bot.color.red
+        )
+
+    # update the scrim status and open time
+    scrim.open(next=True, clear_teams=True)
+    await scrim.save()
+
+    ping_role = _channel.guild.get_role(scrim.ping_role) if scrim.ping_role else None
+    mention_content = None
+    
+    if ping_role:
+        if ping_role.is_default():
+            mention_content = "@everyone"
+
+        else:
+            mention_content = ping_role.mention
+        
+    available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
+    start_message = await _channel.send(
+        content=mention_content,
+        embed = discord.Embed(
+            title=f"**{self.bot.emoji.cup} | REGISTRATION STARTED | {self.bot.emoji.cup}**",
+            description=f"**{self.bot.emoji.tick} | AVAILABLE SLOTS : {available_slots}/{scrim.total_slots}\n{self.bot.emoji.tick} | RESERVED SLOTS : {len(scrim.reserved)}\n{self.bot.emoji.tick} | REQUIRED MENTIONS : {scrim.mentions}\n{self.bot.emoji.tick} | CLOSE TIME : <t:{int(scrim.close_time)}:t>(<t:{int(scrim.close_time)}:R>)**",
+            color=self.bot.color.green
+        )
+    )
+
+    if _channel.permissions_for(_channel.guild.me).add_reactions:
+        await start_message.add_reaction(self.bot.emoji.tick)
+
+    def purge_filter(message: discord.Message):
+        return not self.bot.is_ws_ratelimited()
+
+    await _channel.purge(limit=scrim.total_slots+10, check=purge_filter, before=start_message)
+    await self.bot.helper.unlock_channel(_channel)
+
+
+    await self.log(
+        _channel.guild,
+        f"Scrim <#{_channel.id}> has been opened for registration. Available slots: {available_slots}/{scrim.total_slots}.",
+        self.bot.color.green
+    )
+
+
+
+async def handle_scrim_end(self, scrim:ScrimModel):
+    """Listener for when a scrim end time is hit."""
+
+    scrim.close_time += self.scrim_interval
+    self.debug(f"Scrim close time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}")
+
+    scrim.status = False
+    await scrim.save()
+
+    _channel = self.bot.get_channel(scrim.reg_channel)
+    team_count = len(scrim.teams) + len(scrim.reserved)
+
+    await self.log(_channel.guild, f"Scrim {_channel.mention} has ended. Team registered : {team_count}.", color=self.bot.color.green)
+    self.debug(f"Setting up scrim group for {scrim.name} in {_channel.guild.name}.")
+    await self.setup_group(scrim)
+    self.debug(f"Scrim group setup completed for {scrim.name} in {_channel.guild.name}. locking registration channel.")
+    await self.bot.helper.lock_channel(_channel)
+
