@@ -284,6 +284,7 @@ class ModerationCog(Cog):
     @app_commands.describe(amount="The number of messages to delete", target="The user to filter messages by")
     @commands.bot_has_guild_permissions(manage_messages=True)
     async def clear(self, ctx:commands.Context, amount:int=10, target:discord.Member=None):
+        _debug = False
         await ctx.defer()
         if ctx.author.bot:
             return
@@ -295,13 +296,9 @@ class ModerationCog(Cog):
                     delete_after=5
                 )
         _limit= min(amount, max(amount, 50))
-        _processing = await ctx.send(f"**{self.bot.emoji.loading} | Deleting {amount} messages...**")
 
         def filter(m:discord.Message):
-            if any([
-                m.id == _processing.id,
-                self.bot.is_ws_ratelimited()
-            ]):
+            if any([self.bot.is_ws_ratelimited()]):
                 return False
 
             if not target:
@@ -315,14 +312,16 @@ class ModerationCog(Cog):
             
         try:
             await ctx.channel.purge(limit=_limit, check=filter, bulk=True)
-            if _processing:
-                await _processing.edit(
-                    content=f"**{self.bot.emoji.tick} | Successfully deleted {amount} messages!**",
-                    delete_after=5
-                )
+            await self.bot.sleep(1)  # To avoid hitting rate limits
+            await ctx.send(
+                embed=EmbedBuilder.success(
+                    f"Cleared {amount} messages"
+                ),
+                delete_after=5
+            )
 
         except Exception as e:
-            self.bot.debug(f"Error while clearing messages: {e}", is_debug=True)
+            self.bot.debug(f"Error while clearing messages: {e}", is_debug=_debug)
             #await self.bot.error_log(f"Guild: {ctx.guild.name}\nChannel: {ctx.channel.name}\nCommand : clear\nError: {e}")
 
 
