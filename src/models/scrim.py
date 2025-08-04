@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-import asyncio
-from datetime import datetime
-from discord import Member
-from typing import Any, TypedDict, Unpack
+
+
 import pytz
+import asyncio
+from ext import Logger
+from discord import Member
+from datetime import datetime
 
 from pymongo.results import DeleteResult
+from typing import Any, TypedDict, Unpack
 
 # for dynamic instance checking
 from pymongo.collection import Collection
@@ -455,4 +458,5 @@ class ScrimModel:
             cls._REGISTER_CHANNEL_CACHE.add(_scrim.reg_channel)
             await asyncio.sleep(0.1)  # Yield control to the event loop
 
+        Logger.info(f"Loaded {len(cls._cache)} scrims from the database.")
         return cls._cache.values()

@@ -5,6 +5,7 @@ import asyncio
 from typing import TYPE_CHECKING, Self
 from typing import Unpack
 
+from ext import Logger
 from pymongo.collection import Collection
 from pymongo.asynchronous.collection import AsyncCollection
 from ext.types import TournamentPayload, TourneyTeamPayload
@@ -359,7 +360,7 @@ class TourneyModel:
             _tourney = cls(**doc)
             cls._cache[_tourney.reg_channel] = _tourney
             cls._REGISTER_CHANNEL_CACHE.add(_tourney.reg_channel)
-
+        Logger.info(f"Loaded {len(cls._cache)} tournaments from the database.")
         return cls._cache.values()
 
 

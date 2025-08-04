@@ -747,4 +747,6 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        if message.author.bot or not message.guild:
+            return
         await handle_tourney_registration(self, message)
