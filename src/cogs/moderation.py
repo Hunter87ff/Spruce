@@ -286,7 +286,7 @@ class ModerationCog(Cog):
     @commands.cooldown(2, 30, commands.BucketType.user)
     @app_commands.describe(amount="The number of messages to delete", target="The user to filter messages by")
     @commands.bot_has_guild_permissions(manage_messages=True)
-    async def clear(self, ctx:commands.Context, amount:int=10, target:discord.Member=None):
+    async def clear(self, ctx:commands.Context, amount:int=10, target:discord.User=None):
         _debug = False
         await ctx.defer()
         if ctx.author.bot:
