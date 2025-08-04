@@ -8,11 +8,15 @@ from ext.db import Database
 from datetime import datetime
 tourneys = Database().dbc
 
+from pymongo.collation import Collation
+from pymongo.asynchronous.collection import AsyncCollection
 
 class Tourney:
     """
     Tourney class represents a tournament with various properties.
     """
+    _col : AsyncCollection | Collation = tourneys
+
     def __init__(self, obj: dict):
         self.obj = obj 
         self.guild_id: int = obj.get("guild_id", 0)

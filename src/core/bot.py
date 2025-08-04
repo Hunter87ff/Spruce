@@ -14,11 +14,13 @@ import inspect
 import traceback
 from .cache import Cache
 from typing import  Unpack
+from .Help import HelpCommand
 from models import TesterModel
+from ext import Database
 from ext.types import BotConfig
 from discord.ext import commands
-from .Help import HelpCommand
-from ext import Database, Logger, color, helper, emoji, constants, ClientTime, validator, Activities, error as error_handle
+import ext
+
 from discord import (
     AllowedMentions, 
     Intents,  
@@ -44,18 +46,19 @@ class Spruce(commands.AutoShardedBot):
     instance: "Spruce" = None
     
     def __init__(self, **kwargs : Unpack[BotConfig]) -> None:
+        self.ext = ext
         self.config = config
-        self.logger:Logger = Logger
-        self.helper = helper
-        self.color = color
-        self.emoji = emoji
-        self.constants = constants
+        self.logger:ext.Logger = ext.Logger
+        self.helper = ext.helper
+        self.color = ext.color
+        self.emoji = ext.emoji
+        self.constants = ext.constants
         self.log_channel:TextChannel
         self.client_start_log:TextChannel
         self.guild_join_log:TextChannel
         self.guild_leave_log:TextChannel
-        self.time = ClientTime()
-        self.validator = validator
+        self.time = ext.ClientTime()
+        self.validator = ext.validator
         self.config_data : dict[str, str] = {}
         self.blocked_words:list[str] = []
         self.base_color = self.color.cyan
@@ -83,7 +86,7 @@ class Spruce(commands.AutoShardedBot):
             return commands.when_mentioned_or(*prefixes)(self, message)
 
     async def tree_error_handler(self, interaction, error):
-        await error_handle.handle_interaction_error(interaction, error, self)
+        await ext.error.handle_interaction_error(interaction, error, self)
 
 
     async def setup_hook(self) -> None:
@@ -110,7 +113,7 @@ class Spruce(commands.AutoShardedBot):
     async def on_ready(self):
         """Event that triggers when the bot is ready."""
         try:
-            Activities(self)
+            ext.Activities(self)
             starter_message = f'{self.user} | {len(self.commands)} Commands | Version : {config.VERSION} | Boot Time : {round(time.time() - self._started_at, 2)}s'
             self.logger.info(starter_message)
 
@@ -134,9 +137,8 @@ class Spruce(commands.AutoShardedBot):
             self.config.TESTERS = await TesterModel.all()
 
 
-        except Exception as e:
-            self.logger.error("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))
-
+        except Exception:
+            self.logger.error(traceback.format_exc())
 
     async def on_disconnect(self):
         self.logger.info('Disconnected from Discord. Reconnecting...')
@@ -151,12 +153,12 @@ class Spruce(commands.AutoShardedBot):
 
          
     async def on_command_error(self, ctx:commands.Context, error:Exception):
-        await error_handle.manage_context(ctx, error, self)
+        await ext.error.manage_context(ctx, error, self)
 
 
     async def on_error(self, event, *args, **kwargs):
         error = traceback.format_exc()
-        await error_handle.manage_backend_error(error, self)
+        await ext.error.manage_backend_error(error, self)
 
 
     def debug(self, message: str, is_debug=False):
@@ -167,15 +169,6 @@ class Spruce(commands.AutoShardedBot):
 
         if self.config.IS_DEV_ENV and is_debug:
             print(f"[{module_name}:{line_number}] {message} ")
-
-
-    async def log(self, exc: Exception) -> None:
-        """
-        Logs the error message to the error log channel.
-        Args:
-            exc (Exception): The error message to log.
-        """
-        await error_handle.manage_backend_error(exc, self)
 
 
     async def embed_log(self, module:str, line:int, *message:str) -> None:
@@ -196,44 +189,19 @@ class Spruce(commands.AutoShardedBot):
         await self.log_channel.send(embed=embed)
 
 
-
-    async def error_log(self, *messages:str) -> None:
-        """
-        Logs the error message to the error log channel.
-        Args:
-            message (tuple[str]): The error message to log.
-        """
-        if not self.log_channel:
-            self.log_channel = self.get_channel(self.config.client_error_log)
-            if not self.log_channel:
-                return
-
-
     async def sleep(self, seconds:float=1) -> None:
-        """
-        Sleeps for the given number of seconds.
-        Args:
-            seconds (float): The number of seconds to sleep.
-        """
-        if seconds <= 0:
-            return
-        
+        seconds = max(seconds, 0.1)
         await asyncio.sleep(seconds)
 
 
-    async def start(self, _started_at:float) -> None:
-        """
-        Starts the bot and calculates the total boot time.
-        Args:
-            _start (float): boot start time to calculate the total boot time.
-        """
+    async def start(self) -> None:
         try:
-            self._started_at = _started_at
+            self._started_at = self.now().timestamp()
             await super().start(self.config.BOT_TOKEN, reconnect=True)
 
-        except Exception as e:
+        except Exception:
             import os
-            self.logger.error(f"Failed to start the bot: {e}")
+            self.logger.error(f"Failed to start the bot: {traceback.format_exc()}")
             os._exit(1)
 
 

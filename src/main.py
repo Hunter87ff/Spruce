@@ -6,8 +6,6 @@ of this license document, but changing it is not allowed.
 """
 
 
-import time
-_start=time.time()
 import asyncio
 import traceback
 from dotenv import load_dotenv
@@ -18,7 +16,7 @@ load_dotenv()
 async def launch():
     try:
         bot = Spruce()
-        await bot.start(_start)
+        await bot.start()
         
     except Exception as e:
         print("\n".join(traceback.format_exception(type(e), e, e.__traceback__)))

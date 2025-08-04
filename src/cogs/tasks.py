@@ -11,10 +11,9 @@ class TaskCog(commands.Cog):
         self.bot = bot
         self.update_prime.start()
         self.paylog:discord.TextChannel = self.bot.get_channel(self.bot.config.paylog)
-        # self.primes:list[dict[str:str]] = self.bot.config.primedbc.find()
+
 
     @tasks.loop(seconds=3600)
     async def update_prime(self):
         """Delete all the documents from the database where the expiry time is less than the current time. with inbuild features of pymongo"""
         self.bot.db.primedbc.delete_many({"end_time": {"$lt": datetime.datetime.now()}})
-

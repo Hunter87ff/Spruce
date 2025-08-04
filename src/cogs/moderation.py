@@ -4,14 +4,13 @@ A module for moderation commands in Spruce.
     :copyright: (c) 2022-present hunter87.dev@gmail.com
     :license: GPL-3, see LICENSE for more details.
 """
+from __future__ import annotations
 
+import typing
 import discord
 from discord import app_commands
-from asyncio import sleep
-from ext import EmbedBuilder
 from discord.ext import commands
 from core.abstract import Cog
-import typing
 
 if typing.TYPE_CHECKING:
     from core.bot import Spruce
@@ -27,6 +26,7 @@ class ModerationCog(Cog):
         self.bot = bot
         self.emoji = self.bot.emoji.mod
         self.debug_mode = False
+        self.Embed = self.bot.ext.EmbedBuilder
 
     def _declear(self,target:discord.TextChannel, role:discord.Role, action:str):
         return "{channel} is now {action} for {role}".format(
@@ -34,6 +34,9 @@ class ModerationCog(Cog):
             action=action, 
             role=role
         )
+    
+
+    
 
 
     @commands.hybrid_group(name="lock", description="Lock a channel for a specific role", invoke_without_command=True)
@@ -58,7 +61,7 @@ class ModerationCog(Cog):
 
         if ctx.channel.permissions_for(ctx.guild.me).send_messages:
             await ctx.send(
-                embed=EmbedBuilder.success(
+                embed=self.Embed.success(
                     self._declear(channel, role, "locked")
                     ), 
                 delete_after=5
@@ -71,8 +74,8 @@ class ModerationCog(Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     @app_commands.describe(role="The role to lock the channel for", channel="The channel to lock")
-    async def lock_channel(self, ctx:commands.Context, channel: discord.TextChannel, role:discord.Role=None):
-        await self.lock(ctx, role=role, channel=channel)
+    async def lock_channel(self, ctx:commands.Context, channel: discord.TextChannel=None, role:discord.Role=None):
+        await self.lock(ctx, role=role, channel=channel or ctx.channel)
 
 
 
@@ -92,7 +95,7 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(send_messages=False, add_reactions=False)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
 
         if ms:
             await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is locked for {role.name}')
@@ -118,7 +121,7 @@ class ModerationCog(Cog):
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
         await ctx.send(
-            embed=EmbedBuilder.success(f'{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`'),
+            embed=self.Embed.success(f'{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`'),
             delete_after=5
         )
 
@@ -152,7 +155,7 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(send_messages=True, add_reactions=True)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
 
         if ms:
             await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is unlocked for {role.name}')
@@ -191,7 +194,7 @@ class ModerationCog(Cog):
 
 
 
-    @hide.command(name="category", description="Hide a category from a specific role", aliases=["hide_category"])
+    @hide.command(name="category", description="Hide a category from a specific role", aliases=["hide_category", "hc"])
     @commands.guild_only()
     @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
@@ -209,7 +212,7 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(view_channel=False)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
 
         if ms:
             await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is hidden from {role.name}')
@@ -270,7 +273,7 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(view_channel=True)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
         
         if ctx.channel.permissions_for(ctx.guild.me).send_messages and _processing:
             await _processing.edit(content=f"**{self.bot.emoji.tick} | {category.name} is now visible to {role.name}**")
@@ -314,7 +317,7 @@ class ModerationCog(Cog):
             await ctx.channel.purge(limit=_limit, check=filter, bulk=True)
             await self.bot.sleep(1)  # To avoid hitting rate limits
             await ctx.send(
-                embed=EmbedBuilder.success(
+                embed=self.Embed.success(
                     f"Cleared {amount} messages"
                 ),
                 delete_after=5
@@ -322,7 +325,6 @@ class ModerationCog(Cog):
 
         except Exception as e:
             self.bot.debug(f"Error while clearing messages: {e}", is_debug=_debug)
-            #await self.bot.error_log(f"Guild: {ctx.guild.name}\nChannel: {ctx.channel.name}\nCommand : clear\nError: {e}")
 
 
     @commands.hybrid_command(name="clear_perms", description="Clear all permissions from a role")
@@ -335,22 +337,26 @@ class ModerationCog(Cog):
     async def clear_perms(self, ctx:commands.Context, role: discord.Role=None):
         await ctx.defer()
         if ctx.author.bot:return
-        bt = ctx.guild.get_member(self.bot.user.id)
-       
+
         ms:discord.Message = await ctx.send(f"**{self.bot.emoji.loading} Processing...**")
-        if role:
-            if role.position < bt.top_role.position:
-                await role.edit(permissions=discord.Permissions(permissions=0))
-                emb = discord.Embed(description=f'{self.bot.emoji.tick} | All Permissions Removed from {role.mention}')
-                return await ms.edit(content=None, embed=emb)
-            
-        elif not role:
-            for role in ctx.guild.roles:
-                if role.position < bt.top_role.position:
-                    await role.edit(permissions=discord.Permissions(permissions=0))
-                    await sleep(1)
-            emb = discord.Embed(descriptio=f'{self.bot.emoji.tick} | All permissions removed from all role below {bt.top_role.mention}')
-            return await ms.edit(content=None, embed=emb)
+        if not role:
+            for _role in ctx.guild.roles:
+                if _role.position >= ctx.guild.me.top_role.position:
+                    continue
+
+                await _role.edit(permissions=discord.Permissions(permissions=0))
+                await self.bot.sleep()
+                continue
+
+            emb = self.Embed.success(f'All permissions removed from all role below {ctx.guild.me.top_role.mention}')
+            await ms.edit(content=None, embed=emb)
+            return
+
+        if role.position < ctx.guild.me.top_role.position:
+            await role.edit(permissions=discord.Permissions(permissions=0))
+            emb = self.Embed.success(f'All Permissions Removed from {role.mention}')
+            await ms.edit(content=None, embed=emb)
+            return
 
 
     @commands.hybrid_command(name="kick", description="Kick a member from the server")
@@ -376,34 +382,35 @@ class ModerationCog(Cog):
 
 
     @commands.hybrid_command(name="ban", description="Ban a member from the server")
-    @commands.bot_has_guild_permissions(ban_members=True, send_messages=True)
-    @commands.has_permissions(ban_members=True)
-    @commands.cooldown(2, 15, commands.BucketType.user)
     @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_guild_permissions(ban_members=True, send_messages=True)
+    @commands.cooldown(2, 30, commands.BucketType.user)
     @app_commands.describe(member="The member to ban", reason="The reason for banning the member")
     async def ban(self, ctx:commands.Context, member: discord.Member, reason=None):
         await ctx.defer()
         if ctx.author.bot: return
         
         if ctx.author.top_role.position < member.top_role.position:
-            await ctx.send(f"{member}'s role is higher than yours", delete_after=5)
+            await ctx.send(embed=self.Embed.warning(f"{member}'s role is higher than yours"), delete_after=5)
 
         elif member == ctx.author:
-            await ctx.send("**You can't ban your self**", delete_after=5)
+            await ctx.send(embed=self.Embed.warning("**You can't ban your self**"), delete_after=5)
 
         elif ctx.guild.me.top_role.position < member.top_role.position:
-            await ctx.send("**I can't ban him**", delete_after=5)
+            await ctx.send(embed=self.Embed.warning("**I can't ban him**"), delete_after=5)
             
         else:
             await ctx.guild.ban(member, reason=reason or f"{member} banned by {ctx.author}")
-            await ctx.send(f"{member} banned", delete_after=5)
+            await ctx.send(embed=self.Embed.success(f"{member} banned"), delete_after=5)
 
 
     @app_commands.command(name="unban", description="Unban a member from the server, Note: process might disrupt from discord's side!!")
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(ban_members=True)
     @app_commands.checks.bot_has_permissions(ban_members=True, send_messages=True)
-    @commands.cooldown(2, 15, commands.BucketType.user)
+    @app_commands.checks.cooldown(1, 60, key=lambda i: i.guild.id)
     @app_commands.describe(user="user id or username", unban_all="Whether to unban all (200 at a time) users", reason="The reason for unbanning the member")
     async def unban(self, ctx:discord.Interaction, user: discord.User=None, unban_all:bool=False, reason:str=None):
         await ctx.response.defer()
@@ -477,14 +484,14 @@ class ModerationCog(Cog):
 
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(
-                    embed=EmbedBuilder.warning(f"{self.bot.emoji.cross} | You are not allowed to do this"),
+                    embed=self.Embed.warning(f"{self.bot.emoji.cross} | You are not allowed to do this"),
                     ephemeral=True
                 )
                 return
             
             if not ctx.guild.me.guild_permissions.manage_channels:
                 await interaction.response.send_message(
-                    embed=EmbedBuilder.warning(f"I don't have permission to manage channels"),
+                    embed=self.Embed.warning(f"I don't have permission to manage channels"),
                     ephemeral=True
                 )
                 return
@@ -500,7 +507,7 @@ class ModerationCog(Cog):
                     if len(category.channels) == 0:
                         await category.delete()
                         return await del_t_con.edit(
-                            embed=EmbedBuilder.success(message=f"**Successfully Deleted ~~{category.name}~~ Category**")
+                            embed=self.Embed.success(message=f"**Successfully Deleted ~~{category.name}~~ Category**")
                         ) if del_t_con else None
                     
                 except Exception as e:
@@ -508,7 +515,7 @@ class ModerationCog(Cog):
 
                     await del_t_con.edit(
                         content=None,
-                        embed=EmbedBuilder.alert(f"**Failed to Delete `{channel.name}` Channel\nReason : maybe i don't have `permission`**"
+                        embed=self.Embed.alert(f"**Failed to Delete `{channel.name}` Channel\nReason : maybe i don't have `permission`**"
                         ),
                         view=None
                     )
@@ -519,3 +526,30 @@ class ModerationCog(Cog):
             
         bt11.callback = dc_confirmed
         bt12.callback = del_msg
+
+
+    
+    @commands.hybrid_command(name="slowmode", description="Set slowmode for a channel")
+    @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_guild_permissions(manage_channels=True, send_messages=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    @app_commands.describe(seconds="The number of seconds to set slowmode for", channel="The channel to set slowmode for")
+    async def slowmode(self, ctx:commands.Context, seconds:int=5, channel:discord.TextChannel=None):
+        await ctx.defer()
+        if ctx.author.bot:
+            return
+        
+        channel = channel or ctx.channel
+        if seconds < 0:
+            return await ctx.send(embed=self.Embed.warning("**Slowmode can't be negative**"), delete_after=5)
+        
+        if seconds > 21600:
+            return await ctx.send(embed=self.Embed.warning("**Slowmode can't be more than 6 hours**"), delete_after=5)
+
+        await channel.edit(slowmode_delay=seconds)
+        await ctx.send(embed=self.Embed.success(f"**{channel.mention} slowmode set to {seconds} seconds**"), delete_after=5)
+
+
+    
