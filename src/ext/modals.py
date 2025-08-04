@@ -4,19 +4,22 @@ Copyright (C) 2022-present hunter87.dev@gmail.com
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
-from ext.db import Database
 from datetime import datetime
-tourneys = Database().dbc
-
-from pymongo.collation import Collation
+from pymongo.collection import Collection
 from pymongo.asynchronous.collection import AsyncCollection
+from ext.types import TournamentPayload
+
+
+from typing import Unpack
+
 
 class Tourney:
     """
     Tourney class represents a tournament with various properties.
     """
-    _col : AsyncCollection | Collation = tourneys
-
+    _col : AsyncCollection | Collection = None
+    tourneys = _col
+    
     def __init__(self, obj: dict):
         self.obj = obj 
         self.guild_id: int = obj.get("guild_id", 0)
@@ -51,14 +54,14 @@ class Tourney:
         Set the value of a specific key in the tournament object.
         """
         self.obj[key] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {key: value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {key: value}})
 
 
     def save(self):
         """
         Save the tournament object to the database.
         """
-        tourneys.update_one({"rch": self.rch}, {"$set": self.obj}, upsert=True)
+        Tourney._col.update_one({"rch": self.rch}, {"$set": self.obj}, upsert=True)
 
 
 
@@ -67,8 +70,20 @@ class Tourney:
         """
         Find a tournament by registration channel and guild ID.
         """
-        result = tourneys.find_one({"rch": registration_channel})
+        result = Tourney._col.find_one({"rch": registration_channel})
         return Tourney(result) if result else None
+    
+
+    @classmethod
+    async def find_one(cls, **kwargs: Unpack[TournamentPayload]) -> "Tourney":
+        if isinstance(cls._col, AsyncCollection):
+            result =  await cls._col.find_one(kwargs)
+        else:
+            result = cls._col.find_one(kwargs)
+
+        return cls(**result) if result else None
+
+
 
     @property
     def tname(self) -> str:
@@ -79,7 +94,7 @@ class Tourney:
     def tname(self, value: str):
         """Sets the name of the tournament"""
         self.obj["tname"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"tname": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"tname": value}})
 
     @property
     def mentions(self) -> int:
@@ -90,7 +105,7 @@ class Tourney:
     def mentions(self, value: int):
         """Sets the number of mentions required"""
         self.obj["mentions"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"mentions": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"mentions": value}})
 
     @property
     def rch(self) -> int:
@@ -101,7 +116,7 @@ class Tourney:
     def rch(self, value: int):
         """Sets the registration channel"""
         self.obj["rch"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"rch": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"rch": value}})
 
     @property
     def cch(self) -> int:
@@ -112,7 +127,7 @@ class Tourney:
     def cch(self, value: int):
         """Sets the confirmation channel"""
         self.obj["cch"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"cch": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"cch": value}})
 
     @property
     def crole(self) -> int:
@@ -123,7 +138,7 @@ class Tourney:
     def crole(self, value: int):
         """Sets the confirmation role"""
         self.obj["crole"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"crole": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"crole": value}})
 
     @property
     def gch(self) -> int:
@@ -134,7 +149,7 @@ class Tourney:
     def gch(self, value: int):
         """Sets the group division channel"""
         self.obj["gch"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"gch": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"gch": value}})
 
     @property
     def tslot(self) -> int:
@@ -145,7 +160,7 @@ class Tourney:
     def tslot(self, value: int):
         """Sets the total slots"""
         self.obj["tslot"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"tslot": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"tslot": value}})
 
     @property
     def prefix(self) -> str:
@@ -156,7 +171,7 @@ class Tourney:
     def prefix(self, value: str):
         """Sets the prefix"""
         self.obj["prefix"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"prefix": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"prefix": value}})
 
     @property
     def prize(self) -> str:
@@ -167,7 +182,7 @@ class Tourney:
     def prize(self, value: str):
         """Sets the prize"""
         self.obj["prize"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"prize": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"prize": value}})
 
     @property
     def faketag(self) -> str:
@@ -178,7 +193,7 @@ class Tourney:
     def faketag(self, value: str):
         """Sets the fake tag"""
         self.obj["faketag"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"faketag": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"faketag": value}})
 
     @property
     def reged(self) -> int:
@@ -189,7 +204,7 @@ class Tourney:
     def reged(self, value: int):
         """Sets the number of registered teams"""
         self.obj["reged"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"reged": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"reged": value}})
 
     @property
     def status(self) -> str:
@@ -200,7 +215,7 @@ class Tourney:
     def status(self, value: str):
         """Sets the status"""
         self.obj["status"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"status": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"status": value}})
 
     @property
     def pub(self) -> str:
@@ -211,7 +226,7 @@ class Tourney:
     def pub(self, value: str):
         """Sets the publication status"""
         self.obj["pub"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"pub": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"pub": value}})
 
     @property
     def spg(self) -> int:
@@ -222,7 +237,7 @@ class Tourney:
     def spg(self, value: int):
         """Sets the slots per group"""
         self.obj["spg"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"spg": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"spg": value}})
 
     @property
     def auto_grp(self) -> int:
@@ -233,7 +248,7 @@ class Tourney:
     def auto_grp(self, value: int):
         """Sets the auto group division status"""
         self.obj["auto_grp"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"auto_grp": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"auto_grp": value}})
 
     @property
     def cgp(self) -> int:
@@ -244,5 +259,5 @@ class Tourney:
     def cgp(self, value: int):
         """Sets the current group division status"""
         self.obj["cgp"] = value
-        tourneys.update_one({"rch": self.rch}, {"$set": {"cgp": value}})
+        Tourney._col.update_one({"rch": self.rch}, {"$set": {"cgp": value}})
 

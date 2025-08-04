@@ -5,7 +5,7 @@ This project is licensed under the GNU GPL v3.0.
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 """
-
+import ext
 import time
 import cogs
 import config
@@ -16,10 +16,9 @@ from .cache import Cache
 from typing import  Unpack
 from .Help import HelpCommand
 from models import TesterModel
-from ext import Database
 from ext.types import BotConfig
 from discord.ext import commands
-import ext
+
 
 from discord import (
     AllowedMentions, 
@@ -65,7 +64,7 @@ class Spruce(commands.AutoShardedBot):
         self.last_run:int = int(time.time())
         self.misc = kwargs
         self.cache = Cache()
-        self.db = Database(config.MONGO_URI)
+        self.db = ext.Database(config.MONGO_URI)
         self.member_count = 0
 
         super().__init__(
