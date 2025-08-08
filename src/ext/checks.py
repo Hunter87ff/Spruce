@@ -66,6 +66,23 @@ def _has_role (ctx:commands.Context | discord.Interaction, role:str|int) -> bool
     return discord.utils.get(ctx.author.roles, name=role) is not None
 
 
+def _has_any_role(ctx:commands.Context | discord.Interaction, roles:list[str|int]) -> bool:
+    """Check if the user has any of the specified roles"""
+    if _is_dev(ctx):
+        return True
+
+    if isinstance(ctx, discord.Interaction):
+        return any(
+            ctx.user.get_role(role) is not None if isinstance(role, int) else discord.utils.get(ctx.user.roles, name=role) is not None
+            for role in roles
+        )
+
+    return any(
+        ctx.author.get_role(role) is not None if isinstance(role, int) else discord.utils.get(ctx.author.roles, name=role) is not None
+        for role in roles
+    )
+
+
 def tourney_mod(interaction:bool = False):
     """Check if the user is a tourney mod"""
     def predicate(ctx:commands.Context | discord.Interaction):

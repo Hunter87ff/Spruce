@@ -58,6 +58,8 @@ class Esports(GroupCog, name="esports", group_name="esports"):
 
 
     @app_commands.command(name="setup", description="Setup a new tournament")
+    @checks.testers_only(True)
+    @checks.tourney_mod(True)
     @app_commands.guild_only()
     @app_commands.describe(
         total_slot="Total number of slots available for the tournament (2-500)",
@@ -65,7 +67,6 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         slot_per_group="Number of slots per group (1-25)",
         event_name="Name of the tournament event (default: 'New Tournament')"
     )
-    @checks.tourney_mod(True)
     async def setup_tourney(
         self,
         ctx: Interaction,

@@ -37,7 +37,7 @@ modemb   = EmbedBuilder(
 )
 
 espemb   = EmbedBuilder(
-    description=f"{hel_p}__**Tourney**__\n`setup`, `add_slot`, `cancel_slot`, `ignore_me`,`change_slot`, `pause`, `start`, `config`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`, `export`, `set log`"
+    description=f"{hel_p}__**Tourney**__\n`setup`, `add_slot`, `cancel_slot`, `ignore_me`,`change_slot`, `pause`, `start`, `config`, `faketag`, `girls_lobby`, `auto_group`, `tconfig`, `export`, `set log`"
 )
 
 scrimemb = EmbedBuilder(

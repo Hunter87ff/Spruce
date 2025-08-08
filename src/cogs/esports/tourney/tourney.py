@@ -451,50 +451,48 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
 
         
 
-    @commands.hybrid_command(description="Cancel a slot for a team")
-    @commands.guild_only()
-    @checks.tourney_mod()
+    @app_commands.command(name="cancel_slot", description="Cancel a slot for a team")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
     @app_commands.describe(
         registration_channel="The channel where the tournament is registered, usually the registration channel.",
         member="The member whose slot you want to cancel",
         reason="The reason for canceling the slot"
     )
-    async def cancel_slot(self, ctx:commands.Context, registration_channel :  TextChannel, member :  Member, reason:str="Not Provided"):
-        await ctx.defer(ephemeral=True)
-        if ctx.author.bot:return
+    async def cancel_slot(self, ctx:Interaction, registration_channel: TextChannel, member: Member, reason:str="Not Provided"):
+        await ctx.response.defer(ephemeral=True)
+        if ctx.user.bot:
+            return
 
         tourney = Tourney.findOne(registration_channel.id)
 
         if not tourney:
-            return await ctx.send(embed= Embed(description=f"**{self._tnotfound}**", color=self.bot.color.red), delete_after=10)
+            return await ctx.followup.send(embed= Embed(description=f"**{self._tnotfound}**", color=self.bot.color.red), ephemeral=True)
 
         crole = ctx.guild.get_role(tourney.crole)
 
         cch = self.bot.get_channel(int(tourney.cch))
 
         if not cch:
-            return await ctx.send(embed= Embed(description="**Confirm Channel Not Found**", color=self.bot.color.red), delete_after=10)
+            return await ctx.followup.send(embed= EmbedBuilder.warning("Confirm Channel Not Found"), ephemeral=True)
 
-        if ctx.channel == cch:
-            return await ctx.message.delete()
-        
         if crole not in member.roles:
-            return await ctx.send(embed= Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=self.bot.color.red), delete_after=60)
+            return await ctx.followup.send(embed= EmbedBuilder.warning("Player Not Registered `or` Don't have Confirmed Role"), ephemeral=True)
 
-        if crole in member.roles:
-            await member.remove_roles(crole)
-            self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : tourney.reged - 1}})
 
-            async for message in cch.history(limit=tourney.reged+50, oldest_first=True):
-                if member.mention in message.content and message.author.id == self.bot.user.id:
-                    await message.delete() 
-                    await ctx.send(
-                        embed= Embed(
-                            title=f"{member}'s Slot Canceled with reason of {reason}", 
-                            color=color.green
-                        )
+        await member.remove_roles(crole)
+        self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : tourney.reged - 1}})
+
+        async for message in cch.history(limit=tourney.reged+50, oldest_first=True):
+            if member.mention in message.content and message.author.id == self.bot.user.id:
+                await message.delete() 
+                await ctx.followup.send(
+                    embed= Embed(
+                        title=f"{member}'s Slot Canceled with reason of {reason}", 
+                        color=color.green
                     )
-
+                )
+                break
 
 
     @commands.hybrid_command(description="Add a slot for a team")
@@ -598,33 +596,6 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
             if ms:
                 await ms.edit(content="Please Check Your DM") 
         
-
-
-    @commands.hybrid_command(description="Publish a tournament", aliases=["pub"])
-    @commands.guild_only()
-    @commands.cooldown(2, 20, commands.BucketType.user)
-    @checks.tourney_mod()
-    @app_commands.describe(
-        reg_channel="The channel where the tournament is registered",
-        prize="The prize for the tournament"
-    )
-    async def publish(self, ctx:commands.Context, reg_channel:  TextChannel, *, prize: str):
-        await ctx.defer(ephemeral=True)
-
-        if ctx.author.bot:
-            return
-
-        if len(prize) > 30:
-            return await ctx.reply("Only 30 Letters Allowed ")
-        try:
-            dbcd = self.dbc.find_one({"rch" : reg_channel.id})
-            if dbcd["reged"] < dbcd["tslot"]*0.1:
-                return await ctx.send("You need To Fill 10% Of Total Slot. To Publish This Tournament")
-        except Exception:
-            return await ctx.send(self._tnotfound)
-        self.dbc.update_one({"rch" : reg_channel.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
-        await ctx.send(f"**{reg_channel.category.name} is now public**")
-
 
 
     @commands.hybrid_command(description="Toggle the fake tag filter for a tournament")
