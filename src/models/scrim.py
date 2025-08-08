@@ -70,6 +70,8 @@ class ScrimModel:
     col: Collection | AsyncCollection = None
     _cache : dict[int, "ScrimModel"] = {}
     _REGISTER_CHANNEL_CACHE : set[int] = set()
+    _INACTIVE_INTERVAL = int(60 * 60 * 24 * 30)  # 30 days in seconds
+
     def __init__(self, **kwargs: Unpack[ScrimPayload]):
         """
         Initializes a ScrimModel instance with the provided keyword arguments.
@@ -436,10 +438,22 @@ class ScrimModel:
     
 
     def is_inactive(self):
-        """detect if last open time is 30 ago"""
-        last_open_time = datetime.fromtimestamp(self.open_time)
-        current_time = datetime.now()
-        return (current_time - last_open_time).total_seconds() > 30 * 60
+        """detect if last open time is 30 days ago"""
+        last_open_time = self.open_time
+        current_time = datetime.now().timestamp()
+        return current_time - last_open_time > self._INACTIVE_INTERVAL
+
+
+
+    async def find_inactive(cls):
+        """
+        Finds all inactive scrims.
+        """
+
+        return [
+            scrim for scrim in cls._cache.values()
+            if scrim.is_inactive()
+        ]
 
 
     @classmethod

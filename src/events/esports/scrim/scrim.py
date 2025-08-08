@@ -150,11 +150,11 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
         )
 
     _channel = self.bot.get_channel(scrim.reg_channel)
-    if not _channel or scrim.is_inactive():
+    if not _channel:
         guild = self.bot.get_guild(scrim.guild_id)
         await self.log(
             guild,
-            f"Scrim {scrim.name} registration channel not found, and the scrim is older than 30 days. Deleting the scrim.",
+            f"Scrim {scrim.name} registration channel not found. Deleting the scrim.",
             self.bot.color.red
         )
         await scrim.delete()
