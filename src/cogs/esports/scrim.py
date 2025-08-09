@@ -8,7 +8,7 @@ A module for managing scrims in a Discord server.
 import discord
 from enum import Enum
 from typing import TYPE_CHECKING
-from ext import constants, checks
+from ext import EmbedBuilder, constants, checks
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 from models.scrim import ScrimModel, Team
@@ -169,7 +169,8 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         embed.add_field(name="Duplicate Tags", value=f"`{'Allowed' if scrim.duplicate_tag else 'Not Allowed'}`")
         embed.add_field(name="Mentions", value=f"`{scrim.mentions:02d}`")
         embed.add_field(name="Success Role", value=f"<@&{scrim.idp_role}>")
-        embed.add_field(name="Ping Role", value=f"<@&{scrim.ping_role}>" if scrim.ping_role else "None")
+        embed.add_field(name="Ping Role", value=f"<@&{scrim.ping_role}>" if scrim.ping_role else "`not-set`")
+        embed.add_field(name="Open Role", value=f"<@&{scrim.open_role}>" if scrim.open_role else "`not-set`")
         embed.add_field(name="Slots Left", value=f"`{available_slots}`/`{scrim.total_slots}`")
         embed.add_field(name="Reserved Slots", value=f"`{len(scrim.reserved)}`")
         embed.add_field(name="Open Days", value="`" + "`, `".join(scrim.open_days) + "`")
@@ -309,18 +310,17 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         if not _scrim:
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
-        
 
-        current_time = int(discord.utils.utcnow().timestamp())
-        #  if scrim open and close time is way behind and scrim status is disabled, then sync the open and close time to next day
-        if _scrim.open_time < current_time or _scrim.close_time < current_time:
+        next_open_timestamp = self.time.parse_datetime(
+            time_str=_scrim.open_time_str(), 
+            tz=_scrim.time_zone).timestamp()
 
-            # calculate behind day count
-            behind_close_days = datetime.fromtimestamp(max(current_time - _scrim.close_time, 0)).day
-            behind_open_days = datetime.fromtimestamp(max(current_time - _scrim.open_time, 0)).day
+        next_close_timestamp = self.time.parse_datetime(
+            time_str=_scrim.close_time_str(), 
+            tz=_scrim.time_zone).timestamp()
 
-            _scrim.open_time = _scrim.open_time + int(timedelta(days=behind_open_days).total_seconds()) #fixed ValueError Expected an integer, got float.
-            _scrim.close_time = _scrim.close_time + int(timedelta(days=behind_close_days).total_seconds())
+        _scrim.open_time = int(next_open_timestamp)
+        _scrim.close_time = int(next_close_timestamp)
 
         _status = False
         if status == self.ScrimStatus.OPEN:
@@ -335,7 +335,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         _scrim.status = _status
         await _scrim.save()
 
-        await ctx.followup.send(embed=discord.Embed(description=f"{self.bot.emoji.tick} | Scrim {reg_channel.mention} status updated to: {status.value}", color=self.bot.base_color), ephemeral=True)
+        await ctx.followup.send(embed=EmbedBuilder.success(f"Scrim {reg_channel.mention} status updated to: {status.value}"), ephemeral=True)
 
 
     @app.command(name="start", description="Start a scrim by its ID.")
@@ -605,40 +605,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         await ctx.followup.send(embed=discord.Embed(description=f"Scrim `{_scrim.name}` has been deleted successfully.", color=self.bot.color.red), ephemeral=True)
 
 
-    @app.command(name="toggle", description="Toggle the status of a scrim by its ID.")
-    @app.guild_only()
-    @checks.scrim_mod(interaction=True)
-    @app.describe(reg_channel="Registration channel of the scrim to toggle (required)",)
-    async def toggle_scrim(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
-        await ctx.response.defer(ephemeral=True)
-        """Toggle the status of a scrim by its registration channel."""
-        _scrim = await ScrimModel.find_by_reg_channel(reg_channel.id)
-
-        if not _scrim:
-            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
-        
-        current_time = int(discord.utils.utcnow().timestamp())
-        #  if scrim open and close time is way behind and scrim status is disabled, then sync the open and close time to next day
-        if _scrim.open_time < current_time or _scrim.close_time < current_time:
-
-            # calculate behind day count
-            behind_close_days = datetime.fromtimestamp(max(current_time - _scrim.close_time, 0)).day
-            behind_open_days = datetime.fromtimestamp(max(current_time - _scrim.open_time, 0)).day
-
-            _scrim.open_time = int(_scrim.open_time + timedelta(days=behind_open_days).total_seconds())
-            _scrim.close_time = int(_scrim.close_time + timedelta(days=behind_close_days).total_seconds())
-
-        
-        # Toggle the scrim status
-        _scrim.status = not _scrim.status
-        await _scrim.save()
-
-        status = "opened" if _scrim.status else "closed"
-        await reg_channel.send(embed=discord.Embed(description=f"The scrim has been {status}!", color=self.bot.color.green))
-        await ctx.followup.send(embed=discord.Embed(description=f"Scrim {reg_channel.mention} has been {status}.", color=self.bot.color.green), ephemeral=True)
-
-
-
     @app.command(name="list", description="List all scrims in the server.")
     @app.guild_only()
     @checks.scrim_mod(interaction=True)
@@ -862,14 +828,14 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         DISALLOW = 0
 
 
-    @set_app.command(name="fake_tag", description="Enable or disable duplicate tag filter for a scrim.")
+    @set_app.command(name="duplicate_tag", description="Enable or disable duplicate tag filter for a scrim.")
     @app.guild_only()
     @app.describe(
         reg_channel="Registration channel of the scrim to set duplicate tag filter (required)",
         filter="Enable or disable duplicate tag filter (required)",
     )
     @checks.scrim_mod(interaction=True)
-    async def set_fake_tag(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, filter:DuplicateTagCheck):
+    async def set_duplicate_tag(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, filter:DuplicateTagCheck):
         """Enable or disable duplicate tag filter for a scrim."""
         await ctx.response.defer(ephemeral=True)
 
@@ -882,6 +848,34 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         await _scrim.save()
 
         await ctx.followup.send(f"Duplicate tag filter for scrim `{_scrim.name}` has been {'Disabled' if _scrim.duplicate_tag else 'Enabled'}.", ephemeral=True)
+
+
+    class TeamCompulsionCheck(Enum):
+        ENABLE = 1
+        DISABLE = 0
+
+
+    @set_app.command(name="team_compulsion", description="Toggle Team Compulsion filter")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    @app.describe(
+        reg_channel="Registration channel of the scrim to set team compulsion filter (required)",
+        filter="Enable or disable team compulsion filter (required)",
+    )
+    @checks.scrim_mod(interaction=True)
+    async def set_team_compulsion(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, filter:TeamCompulsionCheck):
+        """Enable or disable team compulsion filter for a scrim."""
+        await ctx.response.defer(ephemeral=True)
+
+        _scrim = await ScrimModel.find_by_reg_channel(reg_channel.id)
+        if not _scrim:
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+
+        # Update the team compulsion filter in the scrim
+        _scrim.team_compulsion = bool(filter.value)
+        await _scrim.save()
+
+        await ctx.followup.send(f"Team compulsion filter for scrim `{_scrim.name}` has been {'Disabled' if _scrim.team_compulsion else 'Enabled'}.", ephemeral=True)
 
 
 
@@ -996,10 +990,30 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         #  update the open time in the scrim
         _scrim.open_time = parsed_open_time
         await _scrim.save()
-
-        
-
         await ctx.followup.send(f"Open time for scrim <#{reg_channel.id}> has been set to <t:{parsed_open_time}:t>.", ephemeral=True)
+
+
+    @set_app.command(name="open_role", description="Set or update the open role for a scrim.")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    @app.describe(
+        reg_channel="Registration channel of the scrim to update open role (required)",
+        open_role="Open role for the scrim (required)",
+    )
+    async def set_open_role(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, open_role:discord.Role):
+        """Set or update the open role for a scrim."""
+        await ctx.response.defer(ephemeral=True)
+
+        _scrim = await ScrimModel.find_by_reg_channel(reg_channel.id)
+        if not _scrim:
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
+
+        #  update the open role in the scrim
+        _scrim.open_role = open_role.id
+        await _scrim.save()
+
+        await ctx.followup.send(embed=EmbedBuilder.success(f"Open role for scrim <#{reg_channel.id}> has been set to {open_role}."), ephemeral=True)
+
 
 
     @set_app.command(name="close_time", description="Set or update the close time for a scrim.")
@@ -1355,7 +1369,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         scrims_by_open_time = await  self.current_scrims(is_open=True, time=time)
         scrims_by_close_time = await self.current_scrims(is_open=False, time=time)
-        #print(f"Monitoring scrims at {time} - Open: {len(scrims_by_open_time)}, Close: {len(scrims_by_close_time)}")
 
 
         if len(scrims_by_open_time) > 0:

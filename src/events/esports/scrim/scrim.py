@@ -1,5 +1,6 @@
 from __future__ import annotations
 import discord
+from events.esports import scrim
 from models import ScrimModel
 from typing import TYPE_CHECKING
 
@@ -140,15 +141,14 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
     """Listener for when a scrim start time is hit."""
     _debug = False
     self.bot.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}", is_debug=_debug)
-
-    if not scrim.is_open_day():
-        await scrim.skip_to_next_day()
+    _open_time_delta = self.time.now().timestamp() - scrim.open_time
+    if _open_time_delta > self.scrim_interval or not scrim.is_open_day():
+        scrim.next_open_time()
         return await self.log(
             self.bot.get_guild(scrim.guild_id),
             f"Scrim {scrim.name} is not open today. Skipping to next open day.",
             self.bot.color.yellow
         )
-
     _channel = self.bot.get_channel(scrim.reg_channel)
     if not _channel:
         guild = self.bot.get_guild(scrim.guild_id)
@@ -182,7 +182,8 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
                 "Idp role not found to start scrim.",
                 self.bot.color.red
             )
-        for member in _idp_role.members if _idp_role else []:
+        
+        for member in _idp_role.members:
             if _idp_role.position >= _channel.guild.me.top_role.position:
                 await self.log(
                     _channel.guild,
@@ -201,7 +202,7 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
 
     # update the scrim status and open time
     scrim.open(next=True, clear_teams=True)
-    await scrim.save()
+    
 
     ping_role = _channel.guild.get_role(scrim.ping_role) if scrim.ping_role else None
     mention_content = None
@@ -223,16 +224,15 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
         )
     )
 
-    if _channel.permissions_for(_channel.guild.me).add_reactions:
-        await start_message.add_reaction(self.bot.emoji.tick)
-
     def purge_filter(message: discord.Message):
         return not self.bot.is_ws_ratelimited()
 
     await _channel.purge(limit=scrim.total_slots+10, check=purge_filter, before=start_message)
-    await self.bot.helper.unlock_channel(_channel)
+    scrim.cleared = True
+    await scrim.save()
 
-
+    await self.bot.helper.unlock_channel(_channel, _channel.guild.get_role(scrim.open_role or 582005))
+    
     await self.log(
         _channel.guild,
         f"Scrim <#{_channel.id}> has been opened for registration. Available slots: {available_slots}/{scrim.total_slots}.",
@@ -241,21 +241,25 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
 
 
 
+
 async def handle_scrim_end(self : ScrimCog, scrim:ScrimModel):
     """Listener for when a scrim end time is hit."""
-
-    scrim.close_time += self.scrim_interval
+    
     self.debug(f"Scrim close time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}")
 
-    scrim.status = False
-    await scrim.save()
-
     _channel = self.bot.get_channel(scrim.reg_channel)
+    if not _channel:
+        return
+    
+    scrim.next_close_time()
     team_count = len(scrim.teams) + len(scrim.reserved)
+    scrim.status = False
+    scrim.cleared = False
+    await scrim.save()
 
     await self.log(_channel.guild, f"Scrim {_channel.mention} has ended. Team registered : {team_count}.", color=self.bot.color.green)
     self.debug(f"Setting up scrim group for {scrim.name} in {_channel.guild.name}.")
     await self.setup_group(scrim)
     self.debug(f"Scrim group setup completed for {scrim.name} in {_channel.guild.name}. locking registration channel.")
-    await self.bot.helper.lock_channel(_channel)
+    await self.bot.helper.lock_channel(_channel, _channel.guild.get_role(scrim.open_role or 582005))
 

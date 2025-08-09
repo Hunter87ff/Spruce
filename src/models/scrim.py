@@ -59,6 +59,7 @@ class ScrimPayload(TypedDict, total=False):
         slot_channel:int
         idp_role : int
         open_time:int
+        open_role:int
         close_time:int
         total_slots:int
         time_zone:str
@@ -71,11 +72,12 @@ class ScrimModel:
     _cache : dict[int, "ScrimModel"] = {}
     _REGISTER_CHANNEL_CACHE : set[int] = set()
     _INACTIVE_INTERVAL = int(60 * 60 * 24 * 30)  # 30 days in seconds
-
+    _DAY_INTERVAL = 86400  # 1 day in seconds
     def __init__(self, **kwargs: Unpack[ScrimPayload]):
         """
         Initializes a ScrimModel instance with the provided keyword arguments.
         """
+        self._id:str = str(kwargs.get("_id", None))
         self.name: str = kwargs.get("name", "Scrim")
         self.status: bool = kwargs.get("status", False) #represents whether the scrim is active or not
         self.guild_id:int = kwargs.get("guild_id")
@@ -86,18 +88,16 @@ class ScrimModel:
         self.idp_role: int = kwargs.get("idp_role")
         self.ping_role:int = kwargs.get("ping_role", None)
         self.open_time:int = kwargs.get("open_time")
+        self.open_role:int = kwargs.get("open_role", None)
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
-
+        self.cleared: bool = kwargs.get("cleared", True) # whether channel purged or not
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
-        self._id:str = str(kwargs.get("_id", None))
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
         self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
         self.multi_register:bool = kwargs.get("multi_register", False) #if true, it will allow duplicate teams to register
         self.duplicate_tag:bool = kwargs.get("duplicate_tag", False) #if true, it will check for duplicate tags in the registration channel        
         self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
-        self.clear_messages:bool = kwargs.get("clear_messages", True) #if true, it will purge the messages in the registration channel when the scrim is closed
-        self.clear_idp_role:bool = kwargs.get("clear_idp_role", True) #if true, it will remove the idp role from the users when the scrim is closed
 
         self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] # List of teams, initialized with Team instances
         self.reserved : list[Team] = [Team(**team) for team in kwargs.get("reserved", [])] # List of reserved teams, initialized with Team instances
@@ -175,6 +175,7 @@ class ScrimModel:
             "ping_role": self.ping_role,
             "open_days": self.open_days,
             "open_time": self.open_time,
+            "open_role": self.open_role,
             "reserved": [team.to_dict() for team in self.reserved],
             "reg_channel": self.reg_channel,
             "slot_channel": self.slot_channel,
@@ -182,9 +183,7 @@ class ScrimModel:
             "total_slots": self.total_slots,
             "time_zone": self.time_zone,
             "teams": [team.to_dict() for team in self.teams],
-            "team_compulsion": self.team_compulsion,
-            "clear_messages": self.clear_messages,
-            "clear_idp_role" : self.clear_idp_role,
+            "team_compulsion": self.team_compulsion
         }
         
         if self.manage_channel:
@@ -291,8 +290,8 @@ class ScrimModel:
             bool: True if the deletion was successful, False otherwise.
         """
         if self.reg_channel in self._cache:
-            del ScrimModel._cache[self.reg_channel]
-            self._REGISTER_CHANNEL_CACHE.discard(self.reg_channel)
+            ScrimModel._cache.pop(self.reg_channel, None)
+            ScrimModel._REGISTER_CHANNEL_CACHE.discard(self.reg_channel)
 
         result: DeleteResult
         query = {"reg_channel": self.reg_channel, "guild_id": self.guild_id}
@@ -397,7 +396,6 @@ class ScrimModel:
     def next_close_time(self):
         self.close_time += 24 * 60 * 60
 
-
     def open(self, next=False, clear_teams=False):
         """
         Opens the scrim and sets the status to True.
@@ -474,3 +472,17 @@ class ScrimModel:
 
         Logger.info(f"Loaded {len(cls._cache)} scrims from the database.")
         return cls._cache.values()
+    
+    
+    def open_time_str(self):
+        """return time in hh:mm in 24h format"""
+        tz = pytz.timezone(self.time_zone)
+        open_time = datetime.fromtimestamp(self.open_time, tz).strftime("%H:%M")
+        return open_time
+
+
+    def close_time_str(self):
+        """return time in hh:mm in 24h format"""
+        tz = pytz.timezone(self.time_zone)
+        close_time = datetime.fromtimestamp(self.close_time, tz).strftime("%H:%M")
+        return close_time
