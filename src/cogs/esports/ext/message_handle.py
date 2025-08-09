@@ -9,13 +9,23 @@ import re, traceback
 from typing import TYPE_CHECKING
 from ext.modals import Tourney
 from discord import utils, Embed, Message
-from ext import helper, color as Color
+from ext import helper, color as Color, Logger
 
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
 IS_DEBUG = False
+
+
+async def add_reaction(message : Message, emoji : str):
+    try:
+        await message.add_reaction(emoji)
+
+    except Exception as e:
+        Logger.debug(f"Error adding reaction: {e}")
+
+
 
 
 def find_team(message:Message):
@@ -180,7 +190,7 @@ async def tourney_registration(message: Message, bot: 'Spruce'):
     bot.cache.tourney_reged.insert(rch, message)
 
     await message.author.add_roles(crole)
-    await message.add_reaction("✅")
+    await add_reaction(message, bot.emoji.tick)
     tournament.reged += 1
 
     bot.debug(f"✅ Check 8 passed - User {message.author} successfully registered in {rch.mention}.", is_debug=IS_DEBUG)
