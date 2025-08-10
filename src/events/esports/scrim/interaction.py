@@ -19,7 +19,7 @@ async def handle_my_slot_callback(self : ScrimCog, interaction:discord.Interacti
             discord.SelectOption(
                 label=f"{slot}) TEAM {team.name.upper()}",
                 value=str(slot-1)
-            ) for slot, team in enumerate(teams, start=1)
+            ) for slot, team in enumerate(teams[0:24], start=1)
         ]
 
         # Create a select menu for the user to choose which slot to cancel
@@ -110,12 +110,12 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
     """Handle the transfer slot callback for scrim interactions."""
     if not teams:
         return await interaction.response.send_message(embed=EmbedBuilder.warning(self.YOU_ARE_NOT_REGISTERED), ephemeral=True)
-
+    
     options = [
         discord.SelectOption(
             label=f"{slot}) TEAM {team.name.upper()}",
             value=str(slot-1)
-        ) for slot, team in enumerate(teams, start=1)
+        ) for slot, team in enumerate(iterable=teams[0:24], start=1)
     ]
 
     # Create a select menu for the user to choose which slot to transfer
@@ -191,7 +191,7 @@ async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Inter
             discord.SelectOption(
                 label=f"{slot}) TEAM {team.name.upper()}",
                 value=str(slot-1)
-            ) for slot, team in enumerate(teams, start=1)
+            ) for slot, team in enumerate(teams[0:24], start=1)
         ]
 
         # Create a select menu for the user to choose which slot to change the team name

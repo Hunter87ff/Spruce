@@ -126,6 +126,20 @@ class ScrimModel:
         return _content + ")"
 
 
+    def available_slots(self):
+        return self.total_slots - len(self.teams) - len(self.reserved)
+
+
+
+    def get_teams(self):
+        _teams = self.teams.copy()
+        _teams.extend(self.reserved)
+        return _teams
+
+
+    def get_teams_by_captain(self, captain_id:int):
+        return [team for team in self.get_teams() if team.captain == captain_id]
+
 
     def validate(self) -> bool:
         """
@@ -202,7 +216,7 @@ class ScrimModel:
             Team: The added team.
         """
 
-        if len(self.teams) + len(self.reserved) >= self.total_slots:
+        if self.available_slots() <= 0:
             raise Exception(f"Cannot add more teams. Total slots ({self.total_slots}) already filled with {len(self.teams) + len(self.reserved)} teams.")
 
         if isinstance(captain, Member):

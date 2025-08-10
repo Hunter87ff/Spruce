@@ -1264,6 +1264,13 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         if(len(_scrim.reserved) >= _scrim.total_slots):
             return await ctx.followup.send("All slots are already reserved for this scrim.", ephemeral=True)
 
+        if _scrim.available_slots() <= 0:
+            return await ctx.followup.send(
+                embed=EmbedBuilder.warning(
+                    message="No available slots for this scrim. try again after finishing it. or remove a slot to get one"
+                    ), ephemeral=True
+            )
+
         try:
             _scrim.add_reserved(captain=captain.id, name=team_name)
             await _scrim.save()
