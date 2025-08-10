@@ -251,13 +251,15 @@ async def handle_scrim_slot_manager_interaction(self : ScrimCog, interaction:dis
 
     if not scrim:
         return await interaction.response.send_message(embed=EmbedBuilder.warning(self.DEFAULT_NO_SCRIM_MSG), ephemeral=True)
+    _teams = scrim.teams
+    _teams.extend(scrim.reserved)
 
-    teams = [team for team in scrim.teams if team.captain == interaction.user.id]
+    teams = [team for team in _teams if team.captain == interaction.user.id]
     if any([
         interaction.user.guild_permissions.manage_guild,
         discord.utils.get(interaction.user.roles, name=self.SCRIM_MOD_ROLE),
     ]):
-        teams = scrim.teams
+        teams = _teams
 
     if custom_id.endswith(self.CUSTOM_ID_CANCEL_SLOT):
         await handle_remove_slot_callback(self, interaction=interaction, scrim=scrim, teams=teams)
