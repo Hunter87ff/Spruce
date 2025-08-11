@@ -11,7 +11,7 @@ import config
 from core import payment
 from discord.ext import commands
 from ext import checks
-from models import TesterModel
+from models import TesterModel, ScrimModel
 from core.abstract import Cog
 from typing import Any, TYPE_CHECKING
 import psutil, enum
@@ -302,11 +302,32 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         except Exception as e:
             await ctx.response.send_message(f"Failed to load cog `{cog_name.value}`: {e}", ephemeral=True)
 
-    
+
+    @discord.app_commands.command(name="load_events", description="Load all the events (Dev only)")
+    @checks.dev_only(interaction=True)
+    @discord.app_commands.guild_only()
+    @discord.app_commands.checks.cooldown(1, 60, key=lambda i: i.user.id)
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
+    async def load_events(self, ctx: discord.Interaction):
+        await ctx.response.defer(ephemeral=True)
+        try:
+            _loaded_scrims = await ScrimModel.load_all()
+            await ctx.followup.send(f"{len(_loaded_scrims)} scrim events loaded successfully.", ephemeral=True)
+
+            # implementation for tourney (later on)
+            # _loaded_tourneys = await TourneyModel.load_all()
+            # await ctx.followup.send(f"{len(_loaded_tourneys)} tourney events loaded successfully.", ephemeral=True)
+
+        except Exception as e:
+            await ctx.followup.send(f"Failed to load events: {e}", ephemeral=True)
+
+
+
     @commands.hybrid_command(name="add_role", description="(Dev only): Add a role to a member in a specific guild")
+    @checks.dev_only()
     @commands.guild_only()
     @discord.app_commands.guild_only()
-    @checks.dev_only()
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
     @discord.app_commands.describe(
         guild_id="ID of the guild where the member is located",
         member_id="ID of the member to whom the role will be added",
@@ -337,3 +358,42 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
         else:
             await ctx.send(f"{member.name} already has the role {role.name}.")
+
+
+    @discord.app_commands.command(name="remove_role", description="(Dev only): Remove a role from a member in a specific guild")
+    @checks.dev_only()
+    @commands.guild_only()
+    @discord.app_commands.guild_only()
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
+    @discord.app_commands.describe(
+        guild_id="ID of the guild where the member is located",
+        member_id="ID of the member from whom the role will be removed",
+        role_id="ID of the role to be removed"
+    )
+    async def remove_role(self, ctx: commands.Context, guild_id: int, member_id: int, role_id: int):
+        guild = self.bot.get_guild(guild_id)
+        if not guild:
+            return await ctx.send("Guild not found.")
+
+        member = guild.get_member(member_id)
+        if not member:
+            return await ctx.send("Member not found in the specified guild.")
+
+        role = guild.get_role(role_id)
+        if not role:
+            return await ctx.send("Role not found in the specified guild.")
+
+        if role not in member.roles:
+            return await ctx.send(f"{member.name} does not have the role {role.name}.")
+
+        await member.remove_roles(role)
+        await ctx.send(f"Removed role {role.name} from {member.name}.")
+
+
+    @discord.app_commands.command(name="migrate_tourney", description="Migrate legacy tourney data into the new format")
+    @checks.dev_only()
+    @discord.app_commands.guild_only()
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
+    async def migrate_tourney(self, ctx: discord.Interaction):
+        # not implemented yet
+        await ctx.response.send_message("Migration not implemented yet.", ephemeral=True)

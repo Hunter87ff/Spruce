@@ -1,6 +1,6 @@
 from __future__ import annotations
+
 import discord
-from events.esports import scrim
 from models import ScrimModel
 from typing import TYPE_CHECKING
 
@@ -23,7 +23,6 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
         message.guild.me.guild_permissions.manage_roles,
     ]):
         return
-    self.debug("✅ Check 1 passed for scrim registration. bot having all the permsissions.")
 
     if message.channel.id not in ScrimModel._REGISTER_CHANNEL_CACHE:
         self.debug(f"❌ Check 1.1 failed for scrim registration. Channel {message.channel.id} is not a scrim registration channel.")
@@ -40,8 +39,6 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
     #  if no scrim is found or not active, return
     if not _scrim.status:
         return
-    
-    self.debug(f"✅ Check 1.1 passed for scrim registration. Scrim found: {_scrim.name} with status: {_scrim.status}")
 
 
     #  Check if the member is already registered for the scrim (having idp role)
@@ -51,21 +48,16 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
         await self.log(message.guild, f"{message.author.mention} tried to register a team but is already registered.", self.bot.color.red)
         return
     
-    self.debug("✅ Check 1.6 passed for scrim registration. Member is not already registered.")
-
-    available_slots = _scrim.total_slots - (len(_scrim.reserved) + len(_scrim.teams))
     confirm_role = message.guild.get_role(_scrim.idp_role)
-    self.debug(f"✅ Check 2 passed for scrim registration. Available slots: {available_slots}, IDP Role: {confirm_role}")
 
     #  check if there is any available slot for registration
-    if available_slots <= 0:
+    if _scrim.available_slots() <= 0:
         await message.channel.send( f"**{message.author.mention}**: All slots are full for this scrim. Please wait for the next one.", delete_after=10 )
         
         #  log action info
         await self.log(message.guild, f"All slots are full for scrim <#{_scrim.reg_channel}>. {message.author.mention} tried to register a team.", self.bot.color.red)
         return
     
-    self.debug("✅ Check 3 passed for scrim registration.")
 
     # check if idp role exists or not, if  not, then close the scrim and inform the scrim mod role if exists
     if not confirm_role:
@@ -110,28 +102,20 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
             await self.log(message.guild, f"{message.author.mention} tried to register a team with a duplicate tag: {is_duplicate_tag.mention}.", color=self.bot.color.red)
             return
         
-    self.debug("✅ Check 4 passed for scrim registration. Team name and mentions are valid.")
     try:
-        await message.author.add_roles(confirm_role, reason="Scrim registration")
         await message.add_reaction(self.bot.emoji.tick)
+        _scrim.add_team(captain=message.author.id, name=_team_name)
+        await message.author.add_roles(confirm_role, reason="Scrim registration")
 
     except Exception as e:
         await self.log(
             message.guild,
             "Registration message deleted suddenly, unable to add tick reaction"
         )
-        self.debug(f"❌ Check 5 failed for scrim registration. Error: {str(e)}")
-        
-    self.debug("✅ Check 5 passed for scrim registration. IDP role added to the author.")
 
-    #  add the team to the scrim
-    _scrim.add_team(captain=message.author.id, name=_team_name)
     await _scrim.save()
-    self.debug("✅ Check 6 passed for scrim registration. Team added to the scrim.")
 
-    team_count = len(_scrim.teams) + len(_scrim.reserved)
-
-    if team_count >= _scrim.total_slots:
+    if _scrim.available_slots() <= 0:
         self.bot.dispatch("scrim_close_time_hit", _scrim)
 
     await self.log(message.guild, f"{message.author.mention} has registered for scrim {_scrim.name}.", color=self.bot.color.green)
@@ -140,7 +124,6 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
 async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
     """Listener for when a scrim start time is hit."""
     _debug = False
-    self.bot.debug(f"Scrim open time hit for {scrim.name} in {scrim.guild_id} at {self.time.now()}", is_debug=_debug)
     _open_time_delta = self.time.now().timestamp() - scrim.open_time
     if _open_time_delta > self.scrim_interval or not scrim.is_open_day():
         scrim.next_open_time()
