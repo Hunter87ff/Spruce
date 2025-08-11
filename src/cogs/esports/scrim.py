@@ -111,7 +111,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             )
 
         slot_channel = self.bot.get_channel(scrim.slot_channel)
-        scrim.teams.extend(scrim.reserved)
 
         def format_slot(number:int, team_name:str):
             """Format the slot number and team name."""
@@ -123,9 +122,9 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             color=self.bot.color.random()
         )
         group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
-        _description = "```" + "\n".join([format_slot(i, team.name) for i, team in enumerate(scrim.teams, start=1)]) + "```"
+        _description = "```" + "\n".join([format_slot(i, team.name) for i, team in enumerate(scrim.get_teams(), start=1)]) + "```"
 
-        if len(scrim.teams) == 0:
+        if len(scrim.get_teams()) == 0:
             _description = "No teams registered yet."
 
         group_embed.description = _description
