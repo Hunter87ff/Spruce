@@ -132,8 +132,7 @@ class ScrimModel:
 
 
     def get_teams(self):
-        _teams = self.teams.copy()
-        _teams.extend(self.reserved)
+        _teams = self.reserved + self.teams
         return _teams
 
 

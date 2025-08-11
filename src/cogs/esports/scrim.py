@@ -81,7 +81,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         return embed
     
 
-    async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None):
+    async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None, end_time:int=None):
         """Setup the scrim group with the provided scrim model."""
 
         if not scrim._id:
@@ -94,7 +94,9 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         if not reg_channel:
             raise ValueError("Registration channel not found in the scrim. Please update it.")
-        
+
+        end_time = int(end_time or discord.utils.utcnow().timestamp())
+
         if not reg_channel.permissions_for(reg_channel.guild.me).send_messages:
             raise commands.BotMissingPermissions(
                 missing_permissions= [
@@ -116,13 +118,18 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             """Format the slot number and team name."""
             return f"Slot {number:02d} -> Team {team_name.upper()}"
         
-        time_taken = int(discord.utils.utcnow().timestamp()) - (scrim.open_time - self.scrim_interval)  # Interval is now configurable
+        time_taken = end_time - (scrim.open_time - self.scrim_interval)  # Interval is now configurable
         group_embed = discord.Embed(
             title=f"**{self.bot.emoji.cup} | {scrim.name.upper()} SLOT LIST | {self.bot.emoji.cup}**",
             color=self.bot.color.random()
         )
         group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
-        _description = "```" + "\n".join([format_slot(i, team.name) for i, team in enumerate(scrim.get_teams(), start=1)]) + "```"
+        _description = "```\n"
+
+        print(len(scrim.get_teams()))
+        for i, team in enumerate(scrim.get_teams(), start=1):
+            _description += format_slot(i, team.name) + "\n"
+        _description += "```"
 
         if len(scrim.get_teams()) == 0:
             _description = "No teams registered yet."

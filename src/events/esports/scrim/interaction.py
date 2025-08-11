@@ -178,7 +178,7 @@ async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interac
         )
         return
     
-    await self.setup_group(scrim)
+    await self.setup_group(scrim, end_time=interaction.message.created_at.timestamp())
     await interaction.message.delete()
 
 
@@ -251,8 +251,7 @@ async def handle_scrim_slot_manager_interaction(self : ScrimCog, interaction:dis
 
     if not scrim:
         return await interaction.response.send_message(embed=EmbedBuilder.warning(self.DEFAULT_NO_SCRIM_MSG), ephemeral=True)
-    _teams = scrim.teams
-    _teams.extend(scrim.reserved)
+    _teams = scrim.get_teams()
 
     teams = [team for team in _teams if team.captain == interaction.user.id]
     if any([
