@@ -81,7 +81,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         return embed
     
 
-    async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None, end_time:int=None):
+    async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None, end_time:int=None, message:discord.Message = None):
         """Setup the scrim group with the provided scrim model."""
 
         if not scrim._id:
@@ -126,7 +126,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
         _description = "```\n"
 
-        print(len(scrim.get_teams()))
         for i, team in enumerate(scrim.get_teams(), start=1):
             _description += format_slot(i, team.name) + "\n"
         _description += "```"
@@ -143,8 +142,12 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         for _button in _buttons:
             _view.add_item(_button)
 
-        await slot_channel.send(embed=group_embed, view=_view)
-        
+        if not message:
+            await slot_channel.send(embed=group_embed, view=_view)
+
+        if message:
+            await message.edit(embed=group_embed, view=_view)
+
         await self.log(
             guild=reg_channel.guild,
             message=f"Scrim group setup completed for `{scrim.name}` in {reg_channel.mention}.\nGroup of {slot_per_group} slots",

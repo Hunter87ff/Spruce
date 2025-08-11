@@ -166,6 +166,8 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
 
 async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interaction, scrim: ScrimModel):
     # Refresh the slot list for the scrim
+    await interaction.response.defer(ephemeral=True)
+    
     if not interaction.user.guild_permissions.manage_guild:
         await interaction.response.send_message(
             embed=EmbedBuilder.warning("You do not have permission to refresh the scrim slots."),
@@ -178,8 +180,7 @@ async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interac
         )
         return
     
-    await self.setup_group(scrim, end_time=interaction.message.created_at.timestamp())
-    await interaction.message.delete()
+    await self.setup_group(scrim, end_time=interaction.message.created_at.timestamp(), message=interaction.message)
 
 
 
