@@ -3,7 +3,10 @@ from __future__ import annotations
 import discord
 from ext import EmbedBuilder
 from models import ScrimModel
+from models.scrim import Team
 from typing import TYPE_CHECKING
+
+
 
 if TYPE_CHECKING:
     from cogs.esports import ScrimCog
@@ -76,6 +79,9 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
 
     #  Check if the team name is valid
     _team_name = self.bot.helper.parse_team_name(message, _scrim.team_compulsion)
+    _message_mentions = message.mentions[0:_scrim.mentions]
+    _players = [player.id for player in _message_mentions if isinstance(player, discord.Member)]
+
     if not _team_name:
         await message.channel.send( f"**{message.author.mention}**: You must provide a team name. something like `TEAM NAME : XPERIENCED`", delete_after=10 )
         return
@@ -90,22 +96,21 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
 
     #  checking for duplicate tag invalidation if duplicate tag is enabled
     if not _scrim.duplicate_tag: #if duplicate tag is not allowed
-        is_duplicate_tag = await self.bot.helper.duplicate_tag(self.bot, confirm_role, message)
-            
+        is_duplicate_tag = await _scrim.is_duplicate_tag(Team(name=_team_name, players=_players))
         if is_duplicate_tag:
             await message.delete(delay=1)
             await message.channel.send(
                 embed=discord.Embed(
                     title="Duplicate Tag Detected",
-                    description=f"{is_duplicate_tag.mention} you've mentioned is registered to a different [team]({is_duplicate_tag.message.jump_url}). Please check your mentions and try again.", color=self.bot.color.red
+                    description=f"Player you've mentioned is already registered to  {is_duplicate_tag.name.upper()}. Please check your mentions and try again.", color=self.bot.color.red
                 ), delete_after=10
             )
-            await self.log(message.guild, f"{message.author.mention} tried to register a team with a duplicate tag: {is_duplicate_tag.mention}.", color=self.bot.color.red)
+            await self.log(message.guild, f"{message.author.mention} tried to register a team with tag of team :  {is_duplicate_tag.name.upper()}.", color=self.bot.color.red)
             return
         
     try:
         await message.add_reaction(self.bot.emoji.tick)
-        _scrim.add_team(captain=message.author.id, name=_team_name)
+        _scrim.add_team(captain=message.author.id, name=_team_name, players=_players)
         await message.author.add_roles(confirm_role, reason="Scrim registration")
 
     except Exception as e:

@@ -22,12 +22,14 @@ IS_DEV_ENV = False  # Set this to True if you want to enable debug messages
 class TeamPayload(TypedDict, total=False):
     name: str
     captain: int
+    players : list[int]
 
 
 class Team:
     def __init__(self, **kwargs: Unpack[TeamPayload]):
         self.name = kwargs.get("name", "Unknown")
         self.captain = kwargs.get("captain", 0)
+        self.players : set[int] = set(kwargs.get("players", []))
 
     def __eq__(self, other):
         if isinstance(other, Team):
@@ -45,7 +47,8 @@ class Team:
     def to_dict(self) -> dict:
         return {
             "name": self.name.lower().strip(),
-            "captain": self.captain
+            "captain": self.captain,
+            "players": list(self.players),
         }
 
 
@@ -136,13 +139,11 @@ class ScrimModel:
 
 
     def captain_ids(self):
-        return [team.captain for team in self.get_teams()]
+        return set([team.captain for team in self.get_teams()])
 
 
     def get_teams_by_captain(self, captain_id:int):
         return [team for team in self.get_teams() if team.captain == captain_id]
-
-
 
 
     def validate(self) -> bool:
@@ -211,7 +212,7 @@ class ScrimModel:
         return _obj
 
 
-    def add_team(self, captain:int, name:str) -> Team:
+    def add_team(self, captain:int, name:str, players:list[int]) -> Team:
         """
         Adds a team to the scrim.
         Args:
@@ -227,7 +228,7 @@ class ScrimModel:
         if isinstance(captain, Member):
             captain = captain.id
 
-        new_team = Team(name=name, captain=captain)
+        new_team = Team(name=name, captain=captain, players=players)
         if not self.multi_register and captain in self.teams:
             raise ValueError(f"Multiple registration is not allowed and <@{captain}> is already registered.")
 
@@ -255,13 +256,17 @@ class ScrimModel:
         if  isinstance(captain, Member):
             captain = captain.id
 
-        new_team = Team(name=name, captain=captain)
+        new_team = Team(name=name, captain=captain, players=[captain])
         if not self.multi_register and new_team in self.reserved:
             raise ValueError(f"Duplicate reserved team is not allowed. <@{captain}> already has a reserved team")
         
         self.reserved.append(new_team)
         return new_team
 
+    async def is_duplicate_tag(self, team : Team):
+        for _team in self.get_teams():
+            if _team.players.intersection(team.players):
+                return _team
 
 
     def clear_teams(self):

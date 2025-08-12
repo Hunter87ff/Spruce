@@ -1309,7 +1309,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         try:
-            scrim.add_team(captain=captain.id, name=team_name)
+            scrim.add_team(captain=captain.id, name=team_name, players=set([captain.id]))
 
         except Exception as e:
             return await ctx.followup.send(str(e), ephemeral=True)

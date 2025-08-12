@@ -206,7 +206,11 @@ async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Inter
             selected_slot = int(select.values[0])
             team = teams[selected_slot]
             try:
+                _idp_role = select_interaction.guild.get_role(scrim.idp_role)
+                _captain = await self.get_member(select_interaction.guild, team.captain)
                 await scrim.remove_team(team)
+                if _captain:
+                    await _captain.remove_roles(_idp_role)
                 await scrim.save()
                 await select_interaction.response.send_message(
                     embed=EmbedBuilder.success(f"Your slot for team `{team.name}` has been removed successfully."),
