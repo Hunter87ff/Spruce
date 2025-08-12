@@ -94,9 +94,9 @@ class ScrimModel:
         self.cleared: bool = kwargs.get("cleared", bool(self.status))
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
-        self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
-        self.multi_register:bool = kwargs.get("multi_register", False) #if true, it will allow duplicate teams to register
-        self.duplicate_tag:bool = kwargs.get("duplicate_tag", False) #if true, it will check for duplicate tags in the registration channel        
+        self.team_compulsion: bool = kwargs.get("team_compulsion", False)
+        self.multi_register:bool = kwargs.get("multi_register", False) 
+        self.duplicate_tag:bool = kwargs.get("duplicate_tag", True) 
         self.open_days:list[str] = kwargs.get("open_days", ["mo","tu","we","th","fr","sa","su"]) # List of days when the scrim is open
 
         self.teams:list[Team] = [Team(**team) for team in kwargs.get("teams", [])] # List of teams, initialized with Team instances
@@ -298,6 +298,11 @@ class ScrimModel:
         if _saved.modified_count > 0 or _saved.upserted_id:
             ScrimModel._cache[self.reg_channel] = self
             ScrimModel._REGISTER_CHANNEL_CACHE.add(self.reg_channel)
+
+        else:
+            ScrimModel._REGISTER_CHANNEL_CACHE.discard(self.reg_channel)
+            self._cache.pop(self.reg_channel, None)
+            return None
 
         return self
 

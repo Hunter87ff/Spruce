@@ -1374,7 +1374,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         _scrim.cleared = True
         _scrim.clear_teams()
         await _scrim.save()
-        await ctx.followup.send(EmbedBuilder.success(f"Scrim <#{_scrim.reg_channel}> has been cleaned up."), ephemeral=True)
+        await ctx.followup.send(embed=EmbedBuilder.success(f"Scrim <#{_scrim.reg_channel}> has been cleaned up."), ephemeral=True)
 
 
 
