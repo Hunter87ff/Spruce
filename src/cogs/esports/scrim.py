@@ -1435,8 +1435,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
                 self.bot.dispatch("scrim_close_time_hit", scrim)
 
 
-        await self.bot.loop.create_task(self.schedule_scrim_cleaner())
-
+        await self.schedule_scrim_cleaner()
 
     @monitor_scrims.before_loop
     async def before_monitor_scrims(self):
