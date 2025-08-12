@@ -35,7 +35,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         self.bot = bot
         self.SCRIM_LIMIT = 4
         self.time = bot.time
-        self.monitor_scrims.start()
         self.DEFAULT_START_TIME = "10:00 AM"
         self.DEFAULT_END_TIME = "4:00 PM"
         self.TAG_IGNORE_ROLE = "scrim-tag-ignore"
@@ -1397,9 +1396,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
 
     async def schedule_scrim_cleaner(self):
-        if not self.bot.is_ready():
-            return
-        
         _time = int(self.time.now().timestamp())
         _count = 0
         for _scrim in ScrimModel._cache.values():
@@ -1451,10 +1447,10 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         await self.bot.wait_until_ready()
 
 
-
     @commands.Cog.listener()
     async def on_ready(self):
         await ScrimModel.load_all()
+        self.monitor_scrims.start()
 
     @commands.Cog.listener()
     async def on_scrim_open_time_hit(self, scrim:ScrimModel):
