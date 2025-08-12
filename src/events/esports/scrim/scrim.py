@@ -48,7 +48,7 @@ async def handle_scrim_registration(self : ScrimCog, message:discord.Message):
     #  Check if the member is already registered for the scrim (having idp role)
     if not _scrim.multi_register and message.author.id in _scrim.captain_ids():
         await message.delete(delay=1)
-        await message.channel.send( f"**{message.author.mention}**: You are already registered. Please wait for the next one.",  delete_after=10 )
+        await message.channel.send(message.author.mention, embed=EmbedBuilder.warning(f"You are already registered. Please wait for the next one."),  delete_after=10 )
         await self.log(message.guild, f"{message.author.mention} tried to register a team but is already registered.", self.bot.color.red)
         return
     
