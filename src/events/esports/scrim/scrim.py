@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import discord
+from ext import EmbedBuilder
 from models import ScrimModel
 from typing import TYPE_CHECKING
 
@@ -166,6 +167,9 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
             self.bot.color.red
         )
         
+    if len(scrim.teams) > 0:
+        await handle_scrim_clear(self, scrim)
+
 
     # update the scrim status and open time
     scrim.start()
@@ -245,4 +249,14 @@ async def handle_scrim_clear(self: ScrimCog, scrim: ScrimModel):
     scrim.cleared = True
     scrim.clear_teams()
     await scrim.save()
+
+    _embed = EmbedBuilder(
+        title=f"{scrim.name}".upper(),
+        description=f"{self.bot.emoji.dot_green} Slots : `{scrim.total_slots}({len(scrim.reserved)} Reserved)`"
+        f"\n{self.bot.emoji.dot_green} Registration Open Timer <t:{scrim.open_time}:t>(<t:{scrim.open_time}:R>)",
+        color=self.bot.base_color
+    )
+    _embed._timestamp = None
+    await _reg_channel.send(embed=_embed)
+
     await self.log(idp_role.guild, f"Scrim <#{scrim.reg_channel}> has been cleaned up.", self.bot.color.yellow)

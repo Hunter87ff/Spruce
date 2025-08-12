@@ -1393,6 +1393,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
 
     async def schedule_scrim_cleaner(self):
+        await self.bot.wait_until_ready()
         _time = int(self.time.now().timestamp())
         _count = 0
         for _scrim in ScrimModel._cache.values():
@@ -1434,8 +1435,9 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
                 self.bot.debug(f"Scrim {scrim.name} is now closed for registration at {time}.", is_debug=_debug)
                 self.bot.dispatch("scrim_close_time_hit", scrim)
 
-
         await self.schedule_scrim_cleaner()
+
+
 
     @monitor_scrims.before_loop
     async def before_monitor_scrims(self):
