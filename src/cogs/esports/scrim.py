@@ -66,7 +66,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         if not scrim_log_channel:
             return
         _webhook = await self.webhook(scrim_log_channel)
-        
+
         if _webhook:
             await _webhook.send(
                 content="@scrim-mod" if mention else None,
@@ -1397,7 +1397,9 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
 
     async def schedule_scrim_cleaner(self):
-        await self.bot.wait_until_ready()
+        if not self.bot.is_ready():
+            return
+        
         _time = int(self.time.now().timestamp())
         _count = 0
         for _scrim in ScrimModel._cache.values():
