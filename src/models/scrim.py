@@ -91,7 +91,7 @@ class ScrimModel:
         self.open_role:int = kwargs.get("open_role", None)
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
-        self.cleared: bool = kwargs.get("cleared", False) 
+        self.cleared: bool = kwargs.get("cleared", bool(self.status))
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
         self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register

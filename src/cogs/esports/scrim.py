@@ -63,8 +63,12 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             return
         mention = kwargs.get("mention", None)
         scrim_log_channel = discord.utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}-scrim-log")
-        if scrim_log_channel:
-            await scrim_log_channel.send(
+        if not scrim_log_channel:
+            return
+        _webhook = await self.webhook(scrim_log_channel)
+        
+        if _webhook:
+            await _webhook.send(
                 content="@scrim-mod" if mention else None,
                 embed=self.log_embed(message=message, color=color or self.bot.color.green)
             )

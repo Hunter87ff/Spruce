@@ -1,4 +1,6 @@
+import traceback
 from discord import Guild
+import discord
 from discord.ext import commands
 
 __all__ = ("Cog", "GroupCog")
@@ -6,7 +8,8 @@ __all__ = ("Cog", "GroupCog")
 
 class BaseCog(commands.Cog):
     """A base class for custom Cog implementations."""
-    
+    _CACHE_HOOKS : dict[int, discord.Webhook] = {}
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.emoji: str = kwargs.pop("emoji", None)
@@ -49,6 +52,25 @@ class BaseCog(commands.Cog):
             members.append(member)
         
         return members
+    
+
+    async def webhook(self, channel : discord.TextChannel):
+        if channel.id in self._CACHE_HOOKS:
+            return self._CACHE_HOOKS[channel.id]
+
+        try:
+            webhooks = await channel.webhooks()
+            if webhooks:
+                self._CACHE_HOOKS[channel.id] = webhooks[0]
+                return webhooks[0]
+            
+            _webhook = await channel.create_webhook(name=channel.guild.me.name)
+            self._CACHE_HOOKS[channel.id] = _webhook
+            return _webhook
+        
+        except Exception:
+            self._CACHE_HOOKS.pop(channel.id, None)
+            return None
 
 
 class Cog(BaseCog):
