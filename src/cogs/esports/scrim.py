@@ -966,7 +966,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         total_slots="Total number of slots for the scrim (required)",
     )
     @checks.scrim_mod(interaction=True)
-    async def set_total_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, total_slots:int):
+    async def set_total_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, total_slots:app.Range[int, 2, 25):
         """Set or update the total number of slots for a scrim."""
         await ctx.response.defer(ephemeral=True)
 
