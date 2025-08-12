@@ -91,7 +91,7 @@ class ScrimModel:
         self.open_role:int = kwargs.get("open_role", None)
         self.close_time:int = kwargs.get("close_time")
         self.total_slots:int = kwargs.get("total_slots", 12)
-        self.cleared: bool = kwargs.get("cleared", True) # whether channel purged or not
+        self.cleared: bool = kwargs.get("cleared", False) 
         self.time_zone:str = kwargs.get("time_zone", "Asia/Kolkata")
         self.created_at:int = kwargs.get("created_at", int(datetime.now().timestamp())) #timestamp of when the scrim was created
         self.team_compulsion: bool = kwargs.get("team_compulsion", False) #if true, it will require a team to register
@@ -130,14 +130,19 @@ class ScrimModel:
         return self.total_slots - len(self.teams) - len(self.reserved)
 
 
-
     def get_teams(self):
         _teams = self.reserved + self.teams
         return _teams
 
 
+    def captain_ids(self):
+        return [team.captain for team in self.get_teams()]
+
+
     def get_teams_by_captain(self, captain_id:int):
         return [team for team in self.get_teams() if team.captain == captain_id]
+
+
 
 
     def validate(self) -> bool:
@@ -179,6 +184,7 @@ class ScrimModel:
         _obj =  {
             "created_at": self.created_at,
             "close_time": self.close_time,
+            "cleared" : self.cleared,
             "multi_register": self.multi_register,
             "duplicate_tag": self.duplicate_tag, 
             "guild_id": self.guild_id,
@@ -398,41 +404,29 @@ class ScrimModel:
         Skips the scrim to the next day.
         This method updates the open and close times to the next day based on the current time zone.
         """
-        self.open_time += 24 * 60 * 60  # Add 24 hours in seconds
-        self.close_time += 24 * 60 * 60  # Add 24 hours in seconds
+        self.open_time += self._DAY_INTERVAL
+        self.close_time += self._DAY_INTERVAL
         await self.save()
 
     def next_open_time(self):
-        self.open_time += 24 * 60 * 60
+        self.open_time += self._DAY_INTERVAL
 
 
     def next_close_time(self):
-        self.close_time += 24 * 60 * 60
+        self.close_time += self._DAY_INTERVAL
 
-    def open(self, next=False, clear_teams=False):
-        """
-        Opens the scrim and sets the status to True.
-        Args:
-            next (bool): If True, sets the next open time.
-            clear_teams (bool): If True, clears the teams in the scrim.
-        """
+
+    def start(self):
         self.status = True
-        if next:
-            self.next_open_time()
-
-        if clear_teams:
-            self.clear_teams()
+        self.next_open_time()
+        self.clear_teams()
+        ScrimModel._cache[self.reg_channel] = self
 
 
-    def close(self, next=False):
-        """
-        Closes the scrim and sets the status to False.
-        Args:
-            next (bool): If True, sets the next close time.
-        """
+    def close(self):
         self.status = False
-        if next:
-            self.next_close_time()
+        self.next_close_time()
+        ScrimModel._cache[self.reg_channel] = self
 
 
     def disable(self):
@@ -456,7 +450,7 @@ class ScrimModel:
 
 
 
-    async def find_inactive(cls):
+    async def inactive_scrims(cls):
         """
         Finds all inactive scrims.
         """

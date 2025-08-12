@@ -158,33 +158,18 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
         )
 
     _idp_role = _channel.guild.get_role(scrim.idp_role)
-    try:
-        if not _idp_role:
-            return await self.log(
-                _channel.guild,
-                "Idp role not found to start scrim.",
-                self.bot.color.red
-            )
-        
-        for member in _idp_role.members:
-            if _idp_role.position >= _channel.guild.me.top_role.position:
-                await self.log(
-                    _channel.guild,
-                    f"Could not remove IDP role {scrim.idp_role} from {member.mention} in scrim {_channel.mention} as the role is higher than my top role.",
-                    self.bot.color.red
-                )
-                continue
-            await member.remove_roles(_idp_role, reason="Scrim registration started, removing IDP role.")
 
-    except Exception:
+    if not _idp_role:
         return await self.log(
             _channel.guild,
-            f"Could not remove IDP role <@&{scrim.idp_role}> from members in scrim {_channel.mention} due to insufficient permissions. or missing role. \nPlease ensure I have the `manage_roles` permission. and the IDP role is lower than my top role.",
+            "Idp role not found to start scrim.",
             self.bot.color.red
         )
+        
 
     # update the scrim status and open time
-    scrim.open(next=True, clear_teams=True)
+    scrim.start()
+    await scrim.save()
     
 
     ping_role = _channel.guild.get_role(scrim.ping_role) if scrim.ping_role else None
@@ -196,9 +181,9 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
 
         else:
             mention_content = ping_role.mention
-        
-    available_slots = scrim.total_slots - (len(scrim.reserved) + len(scrim.teams))
-    start_message = await _channel.send(
+
+    available_slots = scrim.available_slots()
+    await _channel.send(
         content=mention_content,
         embed = discord.Embed(
             title=f"**{self.bot.emoji.cup} | REGISTRATION STARTED | {self.bot.emoji.cup}**",
@@ -207,13 +192,6 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
         )
     )
 
-    def purge_filter(message: discord.Message):
-        return not self.bot.is_ws_ratelimited()
-
-    await _channel.purge(limit=scrim.total_slots+10, check=purge_filter, before=start_message)
-    scrim.cleared = True
-    await scrim.save()
-
     await self.bot.helper.unlock_channel(_channel, _channel.guild.get_role(scrim.open_role or 582005))
     
     await self.log(
@@ -221,8 +199,6 @@ async def handle_scrim_start(self : ScrimCog, scrim:ScrimModel):
         f"Scrim <#{_channel.id}> has been opened for registration. Available slots: {available_slots}/{scrim.total_slots}.",
         self.bot.color.green
     )
-
-
 
 
 async def handle_scrim_end(self : ScrimCog, scrim:ScrimModel):
@@ -235,7 +211,7 @@ async def handle_scrim_end(self : ScrimCog, scrim:ScrimModel):
         return
     
     scrim.next_close_time()
-    team_count = len(scrim.teams) + len(scrim.reserved)
+    team_count = len(scrim.get_teams())
     scrim.status = False
     scrim.cleared = False
     await scrim.save()
@@ -246,3 +222,27 @@ async def handle_scrim_end(self : ScrimCog, scrim:ScrimModel):
     self.debug(f"Scrim group setup completed for {scrim.name} in {_channel.guild.name}. locking registration channel.")
     await self.bot.helper.lock_channel(_channel, _channel.guild.get_role(scrim.open_role or 582005))
 
+
+async def handle_scrim_clear(self: ScrimCog, scrim: ScrimModel):
+    """Listener for when a scrim clean time is hit."""
+
+    if scrim.cleared:
+        return
+    
+    _reg_channel = self.bot.get_channel(scrim.reg_channel)
+    if not _reg_channel:
+        return
+
+    idp_role = await _reg_channel.guild.fetch_role(scrim.idp_role)
+    if not idp_role:
+        return
+    old_players = [await self.get_member(idp_role.guild, _id) for _id in scrim.captain_ids()]
+
+    for member in old_players:
+        await member.remove_roles(idp_role)
+
+    await _reg_channel.purge(reason="Clearing old scrim participants")
+    scrim.cleared = True
+    scrim.clear_teams()
+    await scrim.save()
+    await self.log(idp_role.guild, f"Scrim <#{scrim.reg_channel}> has been cleaned up.", self.bot.color.yellow)

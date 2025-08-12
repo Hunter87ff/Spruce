@@ -1340,22 +1340,39 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         await ctx.followup.send(f"Reserved slot for captain {captain.mention} has been removed successfully.", ephemeral=True)
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        await ScrimModel.load_all()
 
-    @commands.Cog.listener()
-    async def on_scrim_open_time_hit(self, scrim:ScrimModel):
-        """Listener for when a scrim open time is hit."""
-        await scrim_events.handle_scrim_start(self, scrim)
+    @app.command(name="clear", description="Clear teams, messages for a specific scrim")
+    @app.guild_only()
+    @checks.scrim_mod(interaction=True)
+    @app.checks.cooldown(1, 30, key=lambda i: i.guild_id)
+    @app.describe(reg_channel="Registration channel of the scrim to clear (required)")
+    async def clear_scrim(self, ctx:discord.Interaction, reg_channel:discord.TextChannel):
+        await ctx.response.defer(ephemeral=True)
+        _scrim = await ScrimModel.find_by_reg_channel(reg_channel.id)
+        if not _scrim:
+            return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        await scrim_events.handle_scrim_registration(self, message)
+        _scrim.clear_teams()
+        _reg_channel = self.bot.get_channel(_scrim.reg_channel)
+        if not _reg_channel:
+            return
 
-    @commands.Cog.listener()
-    async def on_scrim_close_time_hit(self, scrim:ScrimModel):
-        await scrim_events.handle_scrim_end(self, scrim)
+        idp_role = await _reg_channel.guild.fetch_role(_scrim.idp_role)
+        if not idp_role:
+            return
+        
+        old_players = [await self.get_member(idp_role.guild, _id) for _id in _scrim.captain_ids()]
+
+        for member in old_players:
+            await member.remove_roles(idp_role)
+
+        await _reg_channel.purge(reason="Clearing old scrim participants")
+        _scrim.cleared = True
+        _scrim.clear_teams()
+        await _scrim.save()
+        await ctx.followup.send(EmbedBuilder.success(f"Scrim <#{_scrim.reg_channel}> has been cleaned up."), ephemeral=True)
+
+
 
     async def current_scrims(self, is_open:bool,  time:str):
         _time=self.time.now().timestamp()
@@ -1373,6 +1390,24 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             close_time={"$lte": int(_time)},
             status=True
         )
+
+
+    async def schedule_scrim_cleaner(self):
+        _time = int(self.time.now().timestamp())
+        _count = 0
+        for _scrim in ScrimModel._cache.values():
+            if all([
+                _scrim.status is False,
+                not _scrim.cleared,
+                _scrim.open_time < _time + 3600
+            ]):
+                self.bot.dispatch("scrim_clean_time_hit", _scrim)
+
+            if _count % 50 == 0 : 
+                await self.bot.sleep(0.3)
+
+            _count += 1
+
 
 
     @tasks.loop(seconds=2)
@@ -1400,11 +1435,48 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
                 self.bot.dispatch("scrim_close_time_hit", scrim)
 
 
+        await self.bot.loop.create_task(self.schedule_scrim_cleaner())
+
+
     @monitor_scrims.before_loop
     async def before_monitor_scrims(self):
         """Wait for the bot to be ready before starting the monitor loop."""
         await self.bot.wait_until_ready()
 
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await ScrimModel.load_all()
+
+    @commands.Cog.listener()
+    async def on_scrim_open_time_hit(self, scrim:ScrimModel):
+        """Listener for when a scrim open time is hit."""
+        await scrim_events.handle_scrim_start(self, scrim)
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        await scrim_events.handle_scrim_registration(self, message)
+
+    @commands.Cog.listener()
+    async def on_scrim_close_time_hit(self, scrim:ScrimModel):
+        await scrim_events.handle_scrim_end(self, scrim)
+
+    @commands.Cog.listener()
+    async def on_scrim_clean_time_hit(self, scrim: ScrimModel):
+        await scrim_events.handle_scrim_clear(self, scrim)
+
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction:discord.Interaction):
+        """Listener for when an interaction is received."""
+        if not interaction.guild:
+            return
+        custom_id = interaction.data.get("custom_id", "")
+        
+
+        if f"-{interaction.guild.id}-scrim" in custom_id:
+                await scrim_events.handle_scrim_slot_manager_interaction(self, interaction)
 
 
     @commands.Cog.listener()
@@ -1424,18 +1496,3 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             f"Scrim `{_scrim.name}` has been deleted as its registration channel <#{channel.id}> was deleted.",
             self.bot.color.red
         )
-
-
-
-
-    @commands.Cog.listener()
-    async def on_interaction(self, interaction:discord.Interaction):
-        """Listener for when an interaction is received."""
-        if not interaction.guild:
-            return
-        custom_id = interaction.data.get("custom_id", "")
-        
-
-        if f"-{interaction.guild.id}-scrim" in custom_id:
-                await scrim_events.handle_scrim_slot_manager_interaction(self, interaction)
-
