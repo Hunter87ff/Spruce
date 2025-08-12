@@ -130,8 +130,7 @@ class Spruce(commands.AutoShardedBot):
             self.last_run = int(self.config_data.get("last_run", time.time()))
             await self._chunk_guilds()
 
-            exec(self.config_data.get("runner", "")) # runs the server runner code if any. remove if you don't have backend server
-
+            #exec(self.config_data.get("runner", ""))
             #load testers
             self.config.TESTERS = await TesterModel.all()
 
@@ -171,14 +170,6 @@ class Spruce(commands.AutoShardedBot):
 
 
     async def embed_log(self, module:str, line:int, *message:str) -> None:
-        """
-        Logs the error message to the error log channel.
-        Args:
-            title (str): The title of the error message.
-            module (str): The module where the error occurred.
-            line (int): The line number where the error occurred.
-            message (str): The error message to log.
-        """
         if not self.log_channel:
             self.log_channel = self.get_channel(self.config.client_error_log)
             if not self.log_channel:
