@@ -943,7 +943,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         mentions="Number of mentions required to register a team (required)",
     )
     @checks.scrim_mod(interaction=True)
-    async def set_mentions(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, mentions:app.Range[int, 0, 11):
+    async def set_mentions(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, mentions:app.Range[int, 0, 11]):
         """Set or update the number of mentions required to register a team for a scrim."""
         await ctx.response.defer(ephemeral=True)
 
@@ -966,7 +966,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         total_slots="Total number of slots for the scrim (required)",
     )
     @checks.scrim_mod(interaction=True)
-    async def set_total_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, total_slots:app.Range[int, 2, 25):
+    async def set_total_slots(self, ctx:discord.Interaction, reg_channel:discord.TextChannel, total_slots:app.Range[int, 2, 25]):
         """Set or update the total number of slots for a scrim."""
         await ctx.response.defer(ephemeral=True)
 
