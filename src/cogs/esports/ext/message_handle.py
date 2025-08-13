@@ -145,7 +145,7 @@ async def tourney_registration(self : "TourneyCog", message: Message):
     tournament.reged += 1
 
     team_name = self.bot.helper.parse_team_name(message)
-    embed = Embed(color=self.bot.color.cyan, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(str(m) for m in message.mentions)) if message.mentions else message.author.mention} ")
+    embed = Embed(color=self.bot.color.cyan, description=f"**{team_count}) TEAM NAME: [{team_name.upper()}]({message.jump_url})**\n**Players** : {(', '.join(m.mention for m in message.mentions)) if message.mentions else message.author.mention} ")
     embed.set_author(name=message.guild.name, icon_url=message.guild.icon if message.guild.icon else None)
     embed.timestamp = message.created_at
     embed.set_thumbnail(url=message.author.display_avatar or message.guild.icon or self.bot.user.display_avatar)
