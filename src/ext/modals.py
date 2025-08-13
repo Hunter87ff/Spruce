@@ -22,12 +22,13 @@ class Tourney:
     
     def __init__(self, obj: dict):
         self.obj = obj 
+        self.name: str = obj.get("tname", obj.get("t_name", "Tournament"))
         self.guild_id: int = obj.get("guild_id", 0)
-        self.registration_channel: int = obj.get("rch", 0)
-        self.confirmation_channel: int = obj.get("cch", 0)
-        self.confirmation_role: int = obj.get("crole", 0)
-        self.group_channel: int = obj.get("gch", 0)
-
+        self.registration_channel: int = obj.get("rch")
+        self.confirmation_channel: int = obj.get("cch")
+        self.confirmation_role: int = obj.get("crole")
+        self.group_channel: int = obj.get("gch")
+        self.slot_manager : int = obj.get("mch")
         self.total_slots:int = obj.get("tslot", 0)
         self.registered:int = obj.get("reged", 0)
         self.auto_group:str = obj.get("auto_grp", None)
@@ -37,6 +38,24 @@ class Tourney:
         self.created_at:datetime = obj.get("created_at", datetime.now())
 
 
+    def to_dict(self):
+        return {
+            "tname": self.name,
+            "guild": self.guild_id,
+            "status": self.status,
+            "rch": self.registration_channel,
+            "cch": self.confirmation_channel,
+            "crole": self.confirmation_role,
+            "gch": self.group_channel,
+            "mch": self.slot_manager,
+            "tslot": self.total_slots,
+            "reged": self.registered,
+            "auto_grp": self.auto_group,
+            "pub": self.published,
+            "spg": self.slot_per_group,
+            "cgp": self.current_group,
+            "created_at": self.created_at,
+        }
 
     def __str__(self):
         return f"Tourney({str(self.obj)})"
@@ -88,7 +107,7 @@ class Tourney:
     @property
     def tname(self) -> str:
         """Returns the name of the tournament"""
-        return self.obj.get("tname", "")
+        return self.obj.get("tname", self.obj.get("t_name", "Tournament"))
 
     @tname.setter
     def tname(self, value: str):
@@ -187,7 +206,7 @@ class Tourney:
     @property
     def faketag(self) -> str:
         """Returns the fake tag for the tournament"""
-        return self.obj.get("faketag", "")
+        return self.obj.get("faketag", "yes")
 
     @faketag.setter
     def faketag(self, value: str):

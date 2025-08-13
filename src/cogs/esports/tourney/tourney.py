@@ -5,21 +5,23 @@ A module for managing esports tournaments in a Discord server.
     :license: GPL-3, see LICENSE for more details.
 """
 
+import re
+import config
 import datetime
 import asyncio
-from cogs.esports.ext import checker
-from asyncio import sleep
-from random import shuffle as random_shuffle
 from typing import TYPE_CHECKING
 from discord.ext import commands
-from discord import app_commands
 from core.abstract import GroupCog
+from models import TeamModel, TourneyModel
+from cogs.esports.ext import checker
+from random import shuffle as random_shuffle
 from cogs.esports.ext.message_handle import tourney_registration
 from ext import constants, checks, Tourney, emoji, color, files, EmbedBuilder
 from discord import (
     ui,
     utils, 
     Role, 
+    app_commands,
     TextChannel, 
     CategoryChannel, 
     PermissionOverwrite,
@@ -29,6 +31,7 @@ from discord import (
     Embed, 
     Interaction, 
     File, 
+    Object,
     Forbidden, 
     ButtonStyle, 
     SelectOption, 
@@ -122,6 +125,88 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 content=f"@{self.bot.config.TOURNEY_MOD_ROLE}" if mention else None,
                 embed=_embed
             )
+
+
+    @app_commands.command(name="migrate", description="(Dev Only) Migrate a tournament to the new format")
+    @checks.dev_only(interaction=True)
+    @app_commands.guild_only()
+    @app_commands.guilds(*[Object(id) for id in config.TESTING_GUILDS])
+    @app_commands.checks.cooldown(1, 60, key=lambda i: i.guild.id)
+    async def migrate_tourney(self, ctx:Interaction, reg_channel: TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney : Tourney =  Tourney.findOne(reg_channel.id)
+        if not _tourney:
+            return await ctx.followup.send("No tournament found in this channel")
+
+
+        slot_channel: TextChannel = ctx.guild.get_channel(_tourney.cch)
+        _status = bool(_tourney.status == "started")
+        _ftch = bool(_tourney.faketag == "no")
+        _cat = _tourney.created_at.timestamp() if isinstance(
+            _tourney.created_at, datetime.datetime
+            ) else self.bot.now().timestamp()
+        
+        _existing = await TourneyModel.get(reg_channel.id)
+        if _existing:
+            await ctx.followup.send(f"Tournament already exists ({_existing}) in the database, skipping migration.")
+            return
+
+        _new_tourney = TourneyModel(
+            status=_status,
+            name=_tourney.tname,
+            guild=ctx.guild.id,
+            mentions=1,
+            rch=_tourney.registration_channel,
+            cch=_tourney.confirmation_channel,
+            crole=_tourney.confirmation_role,
+            gch=_tourney.group_channel,
+            mch=_tourney.slot_manager,
+            tslot=_tourney.total_slots,
+            reged=0,
+            spg=_tourney.slot_per_group,
+            ftch=False,
+            cat=int(_cat),
+        )
+        await _new_tourney.save()
+
+
+
+        def parse_team(tourney : TourneyModel, message : Message):
+            _embed_content = str(message.embeds[0].description).lower()
+
+            _parsed_content = re.search(r"^(.+?)\s*<@(\d+)>", message.content)
+            _team_name: str = _parsed_content.group(1) if _parsed_content else None
+            _captain: int = message.mentions[0].id if message.mentions else None
+            _players: list[int] = [int(pid) for pid in re.findall(r"<@(\d+)>", _embed_content)] or [_captain]
+            if not _captain:
+                return
+            
+            _team = tourney.create_team(
+                _id=message.id,
+                name=_team_name,
+                capt=_captain,
+                members=set(_players or [_captain]),
+            )
+            return _team
+
+
+        confirmed_messages = slot_channel.history(limit=_tourney.reged+50, oldest_first=True)
+        async for message in confirmed_messages:
+            if message.author.id != self.bot.user.id or not message.embeds:
+                continue
+            try:
+                _team = parse_team(_new_tourney, message)
+                if _team:
+                    await _new_tourney.add_team(_team)
+                    await self.bot.sleep(0)
+
+            except Exception as e:
+                self.bot.logger.error(f"Error parsing team from message {message.id}: {e}")
+
+        _new_tourney.mentions = _tourney.mentions
+        _new_tourney.tag_filter = _ftch
+        await _new_tourney.save()
 
 
 
@@ -269,20 +354,20 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 category = await ctx.guild.create_category(name, reason=f"{ctx.user.name} created")
                 await category.set_permissions(ctx.guild.me, overwrite=overwrite)
                 await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
-                await sleep(1)  #sleep
+                await self.bot.sleep(1)  #sleep
                 await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"schedule", category=category,reason=reason)
                 roadmap = await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
                 rdmm = await roadmap.send(constants.PROCESSING)
                 await ctx.guild.create_text_channel(str(front)+"point-system", category=category,reason=reason)
-                await sleep(1) #sleep
+                await self.bot.sleep(1) #sleep
                 htrc = await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
                 r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    
 
                 await self.bot.helper.unlock_channel(channel=r_ch) # unlocks the registration channel
                 c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)  
-                await sleep(1)  #sleep
+                await self.bot.sleep(1)  #sleep
                 g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
                 quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
 
@@ -304,7 +389,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 ) if rdmm else None
                 await htrm.add_reaction(emoji.tick)
                 await rchm.add_reaction(emoji.tick)
-                await sleep(1)  #sleep
+                await self.bot.sleep(1)  #sleep
                 tour = {
                     "guild" : int(ctx.guild.id), 
                     "t_name" : str(name), 
@@ -415,7 +500,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         amt = vc_amount + 1
         for i in range(1, amt):
             await cat.create_voice_channel(name=f"SLOT {i}", user_limit=6)
-            await sleep(1)
+            await self.bot.sleep(1)
         if snd:
             await snd.edit(
                 content=f"{emoji.tick} | {vc_amount} vc created access role is {crl.mention}"

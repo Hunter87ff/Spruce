@@ -21,7 +21,7 @@ class TeamModel:
         self.tid : int = kwargs.get("tid") # tournament registration channel id
         self.name: str = kwargs.get("name", "New Team")
         self.captain: int = kwargs.get("capt") # captain's user id
-        self.members: set[int] = set(kwargs.get("members", [])) # set of member user ids
+        self.members: set[int] = set(kwargs.get("members", [self.captain])) # set of member user ids
 
         if kwargs.get("_col"):
             TeamModel._col = kwargs.get("_col", None)
@@ -46,12 +46,12 @@ class TeamModel:
             "members": list(self.members)
         }
     
-    def validate(self) -> None:
+    def validate(self, save=False) -> None:
         """Validates the team data."""
         if not self.tid:
             raise ValueError("Team must have a tournament ID (tid).")
         
-        if not self._id:
+        if save and not self._id:
             raise ValueError("Team must have a message ID (_id).")
 
         if not self.name:
@@ -73,7 +73,7 @@ class TeamModel:
 
     async def save(self) -> None:
         """Saves the team to the database."""
-        self.validate()
+        self.validate(True)
         query = [{"_id": self._id}, {"$set": self.to_dict()}]
         if isinstance(TeamModel._col, AsyncCollection):
             await TeamModel._col.update_one(query[0], query[1], upsert=True)

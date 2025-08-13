@@ -46,10 +46,10 @@ class TourneyModel:
 
 
     def __repr__(self) -> str:
-        return f"<Tournament guild={self.guild_id} status={self.status} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} spg={self.slot_per_group} cgp={self.current_group} cat={self.created_at}>"
+        return f"<Tournament name={self.name} guild={self.guild_id} status={self.status} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} spg={self.slot_per_group} cat={self.created_at}>"
 
     def __str__(self) -> str:
-        return f"Tournament(guild={self.guild_id}, status={self.status}, rch={self.reg_channel}, cch={self.slot_channel}, crole={self.confirm_role}, gch={self.group_channel}, tslot={self.total_slots}, reged={self.team_count}, spg={self.slot_per_group}, cgp={self.current_group}, cat={self.created_at})"
+        return f"Tournament(name={self.name}, guild={self.guild_id}, status={self.status}, rch={self.reg_channel}, cch={self.slot_channel}, crole={self.confirm_role}, gch={self.group_channel}, tslot={self.total_slots}, reged={self.team_count}, spg={self.slot_per_group}, cat={self.created_at})"
 
 
     def __eq__(self, value):
@@ -59,7 +59,7 @@ class TourneyModel:
         elif isinstance(value, TourneyModel):
             return any([
                 self.reg_channel == value.reg_channel,
-                self.slot_manager == value.slot_manager,
+                self.slot_manager and self.slot_manager == value.slot_manager,
             ])
         return False
 
@@ -79,8 +79,8 @@ class TourneyModel:
         if not isinstance(self.status, bool):
             raise ValueError("status must be a boolean")
 
-        if not isinstance(self.mentions, int) or self.mentions <= 0:
-            raise ValueError("mentions must be a positive integer")
+        if not isinstance(self.mentions, int) or self.mentions < 0:
+            raise ValueError("mentions must be a non-negative integer")
 
         if not isinstance(self.tag_filter, bool):
             raise ValueError("tag_filter must be a boolean")
@@ -123,18 +123,20 @@ class TourneyModel:
         """
         return {
             "name": self.name,
-            "guild": self.guild_id,
             "status": self.status,
+            "guild": self.guild_id,
             "rch": self.reg_channel,
             "cch": self.slot_channel,
-            "mentions": self.mentions,
-            "ftch": self.tag_filter,
-            "crole": self.confirm_role,
             "gch": self.group_channel,
+            "mch": self.slot_manager,
+            "crole": self.confirm_role,
+            
             "tslot": self.total_slots,
             "reged": self.team_count,
+            "mentions": self.mentions,
+
+            "ftch": self.tag_filter,
             "spg": self.slot_per_group,
-            "mch": self.slot_manager,
             "cat": self.created_at,
             "_v": 1,  # Versioning for future changes
         }

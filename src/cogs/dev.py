@@ -154,15 +154,34 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command(hidden=True)
     @checks.dev_only()
-    async def get_guild(self, ctx:commands.Context, guild:discord.Guild):
+    async def get_guild(self, ctx:commands.Context, guild_id: int):
         if ctx.author.bot: return
         await ctx.defer()
-        if  guild:
-            try:
-                invites = await guild.channels[0].create_invite(reason=None, max_age=360, max_uses=2, temporary=True, unique=False, target_type=None, target_user=None, target_application_id=None)
-                return await ctx.send(invites)
-            except Exception: return await ctx.send(f"i dont have permission to get links in {guild.name}")
-        else: return await ctx.send("guild not found")						  
+        guild = self.bot.get_guild(guild_id)
+
+        if  not guild:
+            await ctx.send("Guild not found")
+ 
+        channel = guild.system_channel or guild.text_channels[0] if guild.text_channels else None
+
+        try:
+            _invites = await guild.invites() if guild.me.guild_permissions.manage_guild else []
+            if _invites:
+                await ctx.send(_invites[0])
+                return
+
+            invites = await channel.create_invite(
+                max_uses=2, 
+                unique=False, 
+            ) if channel else "not able to create invite"
+
+            await ctx.send(invites)
+            return
+
+        except Exception:
+            await ctx.send(f"i dont have permission to get links in {guild.name}")
+            return
+
 
 
     @commands.command(hidden=True)

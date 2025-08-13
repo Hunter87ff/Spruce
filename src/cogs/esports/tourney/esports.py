@@ -18,7 +18,7 @@ from models.tourney import TourneyModel
 
 from ext import ( checks, EmbedBuilder)
 from events.esports import handle_tourney_registration
-from discord import Interaction, Member, TextChannel, app_commands
+from discord import Enum, Interaction, Member, TextChannel, app_commands
 
 
 if TYPE_CHECKING:
@@ -356,6 +356,29 @@ class Esports(GroupCog, name="esports", group_name="esports"):
 
         paginator = EmbedPaginator(pages=_embeds, author=ctx.user, delete_on_timeout=True)
         await paginator.start(await self.bot.get_context(ctx))
+
+
+    class TourneyStatus(Enum):
+        OPEN = 1
+        CLOSED = 0
+
+
+    @app_set.command(name="status", description="set status for a specific tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
+    @app_commands.describe(
+        reg_channel="registration channel for the tournament",
+        status="current status for the tournament")
+    async def change_status(self, ctx: Interaction, reg_channel: TextChannel, status: TourneyStatus):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await TourneyModel.get(reg_channel.id)
+        if not _tourney:
+            return await ctx.followup.send("No tournament found in this channel")
+
+        _tourney.status = bool(status.value)
+        await _tourney.save()
+        await ctx.followup.send(embed=EmbedBuilder.success(f"Tournament status updated to {status.name}"))
 
 
     @app_set.command(name="total_slots", description="Set the total number of slots for the tournament")
