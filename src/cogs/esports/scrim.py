@@ -68,6 +68,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         if _webhook:
             await _webhook.send(
+                avatar_url=self.bot.user.display_avatar,
                 content="@scrim-mod" if mention else None,
                 embed=self.log_embed(message=message, color=color or self.bot.color.green)
             )
@@ -140,7 +141,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
         _view = discord.ui.View(timeout=None)
         _buttons = [
-            discord.ui.Button(emoji=self.bot.emoji.refresh, style=discord.ButtonStyle.secondary, custom_id=f"{scrim.reg_channel}-{scrim.guild_id}-scrim-slot-refresh"),
+            discord.ui.Button(emoji=self.bot.emoji.refresh, label="Refresh", style=discord.ButtonStyle.green, custom_id=f"{scrim.reg_channel}-{scrim.guild_id}-scrim-slot-refresh"),
         ]
         for _button in _buttons:
             _view.add_item(_button)

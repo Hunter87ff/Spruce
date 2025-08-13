@@ -79,7 +79,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         if message.author.bot:
             return
         
-        await tourney_registration(message, self.bot)
+        await tourney_registration(self, message)
 
 
 
@@ -102,14 +102,27 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         ])
     
 
-    async def log(self, guild:Guild, message:str, color:int=color.cyan):
-        channel = utils.get(guild.text_channels, name=self.TOURNEY_LOG_CHANNEL_NAME)
-        if not channel:
-            return 
-        
-        embed =  Embed(description=message, color=color)
-        embed.set_author(name=guild.me.name, icon_url=guild.me.avatar)
-        await channel.send(embed=embed)
+    async def log(self, guild:Guild, message:str, color=None, **kwargs):
+        """Log scrim related messages to the scrim log channel."""
+        if not guild:
+            return
+        mention = kwargs.get("mention", None)
+        scrim_log_channel = utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}-scrim-log")
+        if not scrim_log_channel:
+            return
+        _webhook = await self.webhook(scrim_log_channel)
+
+        if _webhook:
+            _embed = EmbedBuilder(
+                description=message,
+                color=color or self.bot.base_color
+            )
+            await _webhook.send(
+                avatar_url=self.bot.user.display_avatar,
+                content=f"@{self.bot.config.TOURNEY_MOD_ROLE}" if mention else None,
+                embed=_embed
+            )
+
 
 
     @app_set.command(name="log", description="Setup Tourney Log Channel")
