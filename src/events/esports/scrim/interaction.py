@@ -173,6 +173,8 @@ async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interac
             embed=EmbedBuilder.warning("You do not have permission to refresh the scrim slots."),
             ephemeral=True
         )
+        return
+    
     if len(scrim.get_teams()) < 1:
         await interaction.followup.send(
             embed=EmbedBuilder.warning("No teams registered for this scrim."),
