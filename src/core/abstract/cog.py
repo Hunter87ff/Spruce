@@ -1,7 +1,14 @@
-import traceback
+from __future__ import annotations
+
+
 from discord import Guild
 import discord
 from discord.ext import commands
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.bot import Spruce
+
 
 __all__ = ("Cog", "GroupCog")
 
@@ -13,7 +20,9 @@ class BaseCog(commands.Cog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.emoji: str = kwargs.pop("emoji", None)
-    
+        self.bot: "Spruce" = kwargs.pop("bot", None)
+
+        
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # Ensure emoji attribute exists on all subclasses
@@ -38,7 +47,17 @@ class BaseCog(commands.Cog):
             return None
         
         return _member
-    
+
+
+    async def fetch_message(self, channel_id: int, message_id: int):
+            try:
+                channel = self.bot.get_channel(channel_id)
+                return await channel.fetch_message(message_id)
+            
+            except Exception:
+                return None
+            
+
 
     async def members(self, guild: Guild):
         """Gets members from cache or fetch them if not cached."""

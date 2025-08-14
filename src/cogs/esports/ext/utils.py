@@ -3,13 +3,14 @@ from __future__ import annotations
 
 
 import re
+from discord import ui as dui
 from typing import TYPE_CHECKING, Literal
 from ext import EmbedBuilder, constants
-from discord import  Message, utils, PermissionOverwrite, SelectOption
-from discord.ui import View, Select
+from discord import  Message, utils, PermissionOverwrite, SelectOption, ButtonStyle
 
 if TYPE_CHECKING:
     from core.bot import Spruce
+    from cogs.esports import Esports
     from models import TourneyModel
     from models import TeamModel
     from discord import Guild, TextChannel
@@ -144,10 +145,40 @@ class TourneyUtils(BaseEsportsUtils):
         return embed
     
 
+
     @classmethod
-    async def slot_manager_team_select(cls, tourney : "TourneyModel"):
-        _teams = await tourney.get_teams()
+    def slot_manager_components(cls, cog: "Esports",  tourney : "TourneyModel"):
+
+        _view = dui.View(timeout=None) 
+        _buttons = [
+            dui.Button(label="Cancel Slot", style=ButtonStyle.red, custom_id=cog.INTERACTION_IDS.CANCEL_SLOT),
+            dui.Button(label="Check Slot", style=ButtonStyle.blurple, custom_id=cog.INTERACTION_IDS.CHECK_SLOT),
+            dui.Button(label="Rename Slot", style=ButtonStyle.green, custom_id=cog.INTERACTION_IDS.RENAME_SLOT),
+            dui.Button(label="Transfer Slot", style=ButtonStyle.grey, custom_id=cog.INTERACTION_IDS.TRANSFER_SLOT),
+        ]
+        for button in _buttons:
+            _view.add_item(button)
+        
+        _embed = EmbedBuilder(
+            title=tourney.name.upper(),
+            description=f"{cog.bot.emoji.arow} **Cancel Slot** : to cancel your slot\n"
+                        f"{cog.bot.emoji.arow} **Check Slot** : to check your slot\n"
+                        f"{cog.bot.emoji.arow} **Rename Slot** : to rename your slot\n"
+                        f"{cog.bot.emoji.arow} **Transfer Slot** : to transfer your slot",
+            color=cog.bot.base_color
+        )
+
+        return (_view, _embed)
+
+
+
+    @classmethod
+    async def slot_manager_team_select(cls, captain: int, tourney: "TourneyModel"):
+        _teams = await tourney.get_teams_by_captain(captain)
+        if not _teams:
+            return None
+        
         _options = [SelectOption(label=team.name.upper(), value=str(team._id)) for team in _teams[0:24]]
-        _select = Select(placeholder="Select a team...", options=_options)
+        _select = dui.Select(placeholder="Select a team...", options=_options)
         return _select
     

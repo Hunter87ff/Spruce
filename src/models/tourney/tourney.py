@@ -32,7 +32,7 @@ class TourneyModel:
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
         self.name: str = str(kwargs.get("name", "New Tournament"))
         self.tag_filter: bool = kwargs.get('ftch', False)  # duplicate tag filter
-        self.reg_channel: int = int(kwargs.get("rch"))
+        self.reg_channel: int = kwargs.get("rch")
         self.slot_channel: int = kwargs.get("cch")
         self.group_channel: int = kwargs.get("gch")
         self.slot_manager: int = kwargs.get("mch") #slot manager channel id
@@ -279,7 +279,7 @@ class TourneyModel:
         return self.__teams
     
     
-    async def get_team_by_player_id(self, player_id:int):
+    async def get_teams_by_player_id(self, player_id:int):
         """Fetches a team by a player's ID.""" 
         _teams : list[TeamModel] = []
 
@@ -289,6 +289,19 @@ class TourneyModel:
 
         return _teams 
     
+
+    async def get_teams_by_captain(self, captain_id : int):
+        return [team for team in await self.get_teams() if team.captain == captain_id]
+
+
+    async def get_team_by_captain(self, captain_id):
+        for _team in await self.get_teams():
+            if _team.captain == captain_id:
+                return _team
+            
+        return None
+
+
     async def get_team_by_id(self, team_id:int) -> TeamModel | None:
         """Fetches a team by its ID."""
         for team in await self.get_teams():
@@ -338,6 +351,7 @@ class TourneyModel:
         """Removes a team from the tournament."""
         if team not in self.__teams:
             raise ValueError("Team not found in the tournament.")
+        
         await team.delete()
         self.__teams.remove(team)
         self.team_count -= 1

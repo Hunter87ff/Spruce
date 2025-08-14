@@ -38,12 +38,12 @@ class InteractionIds:
     RENAME_SLOT = "v1_tourney_slot_rename"
     TRANSFER_SLOT = "v1_tourney_slot_transfer"
 
-    ALL = {
+    ALL = (
         CANCEL_SLOT,
         CHECK_SLOT,
         RENAME_SLOT,
         TRANSFER_SLOT
-    }
+    )
 
 class Esports(GroupCog, name="esports", group_name="esports"):
     """
@@ -58,7 +58,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     MAX_EVENT_NAME_LENGTH = 30
 
     INTERACTION_IDS = InteractionIds
-    MANAGER_PREFIXES = {"Cslot", "Mslot", "Tname", "Cancel"}
+    MANAGER_PREFIXES = ("Cslot", "Mslot", "Tname", "Cancel")
     model : TourneyModel = TourneyModel
     
     def __init__(self, bot: 'Spruce'):
@@ -600,10 +600,10 @@ class Esports(GroupCog, name="esports", group_name="esports"):
 
 
     class DuplicateTagFilter(Enum):
-        ENABLE=1
-        DISABLE=0
+        ALLOW=0
+        NOT_ALLOW=1
 
-    @app_set.command(name="duplicate_tag_filter", description="Toggle duplicate tag filter")
+    @app_set.command(name="duplicate_tag", description="Toggle duplicate tag filter")
     @app_commands.guild_only()
     @checks.tourney_mod(True)
     @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
@@ -631,7 +631,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         await _tourney.save()
 
         await ctx.followup.send(
-            embed=EmbedBuilder.success(f"Successfully updated duplicate tag filter to {filter.name} for tournament **{_tourney.name}**."),
+            embed=EmbedBuilder.success(f"Successfully updated duplicate tag to {filter.name} for tournament **{_tourney.name}**."),
             ephemeral=True
         )
 
@@ -710,6 +710,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             ephemeral=True
         )
 
+
     @app_set.command(name="slot_channel", description="Set the slot manager channel for the tournament")
     @app_commands.guild_only()
     @checks.tourney_mod(True)
@@ -746,6 +747,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             embed=EmbedBuilder.success(f"Successfully set slot channel to {slot_channel.mention} for tournament **{_tourney.name}**."),
             ephemeral=True
         )
+
 
     @app_add.command(name="team", description="Add a team to the tournament")
     @app_commands.guild_only()
@@ -836,7 +838,7 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             return
         
 
-        _teams = await _tourney.get_team_by_player_id(captain.id)
+        _teams = await _tourney.get_teams_by_player_id(captain.id)
         if not _teams:
             await ctx.followup.send(
                 embed=EmbedBuilder.warning(f"No teams found for {captain.mention} in tournament **{_tourney.name}**."),
@@ -913,6 +915,41 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             embed=EmbedBuilder.warning(f"Not Implemented Yet !! "),
             ephemeral=True
         )
+
+    @app_commands.command(name="teams", description="list of registered teams")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.describe(reg_channel="The registration channel for the tournament")
+    async def teams(self, ctx: Interaction, reg_channel: TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        _embeds: list[EmbedBuilder] = []
+        _count = 0
+        _filled_groups = (_tourney.team_count - 1) // _tourney.slot_per_group + 1
+
+        for _group in range(1, _filled_groups + 1):
+            embed = EmbedBuilder(
+                    title=f"Team: {team.name}",
+                    description=f"Captain: <@{team.captain}>\nMembers: {', '.join([f'<@{member}>' for member in team.members])}",
+                    color=self.bot.base_color
+                )
+            _description = f"**Group: {_group}**\n"
+            current_group = (_count // _tourney.slot_per_group) + 1
+
+            for team in await _tourney.get_teams():
+                _count += 1
+
+            _embeds.append(embed)
+
+
 
 
     @Cog.listener()
