@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import discord
 from models.scrim import ScrimModel, Team
 from typing import TYPE_CHECKING
@@ -84,7 +85,7 @@ async def handle_teamname_change_callback(self : ScrimCog, interaction:discord.I
             # Callback for the modal submission
             async def modal_callback(modal_interaction:discord.Interaction):
                 new_team_name = team_name_input.value.strip()
-
+                _past_team_name = team.name
                 if not new_team_name:
                     return await modal_interaction.response.send_message(embed=EmbedBuilder.warning("Team name cannot be empty."), ephemeral=True)
 
@@ -93,6 +94,7 @@ async def handle_teamname_change_callback(self : ScrimCog, interaction:discord.I
                     await scrim.save()
 
                     await modal_interaction.response.send_message(embed=EmbedBuilder.success(f"Your team name has been changed to `{new_team_name}`."), ephemeral=True)
+                    await self.log(select_interaction.guild, f"Team name changed from `{_past_team_name}` to `{new_team_name}` in scrim {scrim.name}.", color=self.bot.color.blue)
 
                 except Exception as e:
                     await modal_interaction.response.send_message(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
@@ -143,6 +145,7 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
                 await scrim.save()
 
                 await member_interaction.response.send_message(embed=EmbedBuilder.success(f"Your slot has been transferred to {new_member.mention}."), ephemeral=True)
+                await self.log(select_interaction.guild, f"Slot transferred from <@{team.captain}> to {new_member.mention} in scrim {scrim.name}.", color=self.bot.color.blue)
 
             except Exception as e:
                 await member_interaction.response.send_message(embed=EmbedBuilder.warning(str(e)), ephemeral=True)
@@ -218,6 +221,7 @@ async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Inter
                     embed=EmbedBuilder.success(f"Your slot for team `{team.name}` has been removed successfully."),
                     ephemeral=True
                 )
+                await self.log(select_interaction.guild, f"Slot for team `{team.name}` removed by {select_interaction.user}.", color=self.bot.color.blue)
             except Exception as e:
                 await select_interaction.response.send_message(
                     embed=EmbedBuilder.warning(f"Failed to remove your slot: {str(e)}"),
@@ -229,8 +233,6 @@ async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Inter
         view = discord.ui.View()
         view.add_item(select)
         return await interaction.response.send_message(view=view, ephemeral=True)
-
-
 
 
 

@@ -199,7 +199,6 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 _team = parse_team(_new_tourney, message)
                 if _team:
                     await _new_tourney.add_team(_team)
-                    await self.bot.sleep(0)
 
             except Exception as e:
                 self.bot.logger.error(f"Error parsing team from message {message.id}: {e}")
@@ -207,8 +206,11 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         _new_tourney.mentions = _tourney.mentions
         _new_tourney.tag_filter = _ftch
         await _new_tourney.save()
-
-
+        _content = f"Tournament migrated to new format. with {_new_tourney.team_count} teams"
+        await self.log(ctx.guild, _content, color=self.bot.color.blue)
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(_content)
+        )
 
     @app_set.command(name="log", description="Setup Tourney Log Channel")
     @checks.tourney_mod(interaction=True)
@@ -1268,7 +1270,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
             await ctx.send(embed=EmbedBuilder.warning("No Team Found"))
             return
 
-        ask = await ctx.send(EmbedBuilder.alert("Enter New Team Name + Mention"))
+        ask = await ctx.send(embed=EmbedBuilder.alert("Enter New Team Name + Mention"))
         new_slot = await self.get_input(ctx)
 
         if not new_slot: 

@@ -77,7 +77,8 @@ async def handle_tourney_registration(self : Esports, message: Message):
         await _tourney.validate_team(_team)
         await message.add_reaction(self.bot.emoji.tick)
         _embed = self.utils.confirm_message_embed(_team, _tourney)
-        _confirm_message = await _slot_channel.send(embed=_embed)
+        _embed.set_thumbnail(url=message.author.avatar)
+        _confirm_message = await _slot_channel.send(content=f"{_team.name.upper()} {message.author.mention}", embed=_embed)
         _team._id = _confirm_message.id  # Set the message ID for the team
         await _tourney.add_team(_team)
 
@@ -90,7 +91,7 @@ async def handle_tourney_registration(self : Esports, message: Message):
             embed=EmbedBuilder.warning(f"Failed to register team: {str(e)}"),
             allowed_mentions=AllowedMentions.none()
         )
-        self.bot.debug(traceback.format_exc(), True)
+        # self.bot.debug(traceback.format_exc(), True)
         await self.bot.sleep(0.5)
         await message.delete()
 

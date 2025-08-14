@@ -7,7 +7,10 @@ A comprehensive module for managing esports tournaments in Discord servers.
 :license: GPL-3, see LICENSE for more details.
 """
 
+
+import os
 import logging
+import aiofiles
 import discord
 import traceback
 from typing import TYPE_CHECKING
@@ -18,7 +21,7 @@ from models.tourney import TourneyModel
 
 from ext import ( checks, EmbedBuilder)
 from events.esports import handle_tourney_registration
-from discord import Enum, Interaction, Member, TextChannel, app_commands
+from discord import Enum, File, Interaction, Member, TextChannel, app_commands
 
 
 if TYPE_CHECKING:
@@ -55,9 +58,10 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     app_set = app_commands.Group(name="set", description="Tournament configuration commands")
     app_add = app_commands.Group(name="add", description="Tournament management commands")
     app_remove = app_commands.Group(name="remove", description="Tournament removal commands")
+    app_setup = app_commands.Group(name="setup", description="Tournament setup commands")
 
 
-    @app_commands.command(name="setup", description="Setup a new tournament")
+    @app_commands.command(name="create", description="Setup a new tournament")
     @checks.testers_only(True)
     @checks.tourney_mod(True)
     @app_commands.guild_only()
@@ -358,6 +362,48 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         await paginator.start(await self.bot.get_context(ctx))
 
 
+
+    @app_commands.command(name="export", description="Export the entire tournament in CSV")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel="The registration channel of the tournament to export"
+    )
+    async def export_tournament(self, ctx: Interaction, reg_channel: TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        # Generate CSV data
+        event_csv_data = "name, slots, registered, slot per group, reg channel, slot channel, confirm role, duplicate tag filter\n"
+        event_csv_data += f"{_tourney.name}, {_tourney.total_slots}, {_tourney.team_count}, {_tourney.slot_per_group}, {reg_channel.id}, {str(_tourney.slot_channel)}, {str(_tourney.confirm_role)}, {str(_tourney.tag_filter)}\n"
+
+        event_csv_data += "Teams:\n"
+        event_csv_data += "name, captain, members\n"
+
+        for team in await _tourney.get_teams():
+            event_csv_data += f"{team.name}, {str(team.captain)}, {team.members}\n"
+
+        _fp = f"exports/tournament_{_tourney.reg_channel}.csv"
+        async with aiofiles.open(_fp, "w") as f:
+            await f.write(event_csv_data)
+
+        # Send CSV file
+        await ctx.followup.send(
+            file=File(fp=_fp, filename=f"tournament_{_tourney.reg_channel}.csv"),
+            embed=EmbedBuilder.success(f"Successfully exported tournament **{_tourney.name}**.")
+        )
+        os.remove(_fp)
+
+
     class TourneyStatus(Enum):
         OPEN = 1
         CLOSED = 0
@@ -508,6 +554,42 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         )
 
 
+    class DuplicateTagFilter(Enum):
+        ENABLE=1
+        DISABLE=0
+
+    @app_set.command(name="duplicate_tag_filter", description="Toggle duplicate tag filter")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(rate=2, per=60.0, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel="The registration channel of the tournament",
+        filter="Whether to enable or disable the duplicate tag filter"
+    )
+    async def set_duplicate_tag_filter(
+        self,
+        ctx: Interaction,
+        reg_channel: TextChannel,
+        filter: DuplicateTagFilter
+    ):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        _tourney.tag_filter = bool(filter.value)
+        await _tourney.save()
+
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(f"Successfully updated duplicate tag filter to {filter.name} for tournament **{_tourney.name}**."),
+            ephemeral=True
+        )
+
     @app_set.command(name="confirm_role", description="Set the confirmation role for the tournament")
     @app_commands.guild_only()
     @checks.tourney_mod(True)
@@ -523,12 +605,14 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     ):
         await ctx.response.defer(ephemeral=True)
         _tourney = await self.model.get(reg_channel.id)
+
         if not _tourney:
             await ctx.followup.send(
                 embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
                 ephemeral=True
             )
             return
+        
         if role.position >= ctx.guild.me.top_role.position:
             await ctx.followup.send(
                 embed=EmbedBuilder.warning(self.HIGHER_ROLE_POSITION),
@@ -763,6 +847,28 @@ class Esports(GroupCog, name="esports", group_name="esports"):
             view=_view,
             ephemeral=True
         )
+
+
+    @app_setup.command(name="group", description="Set up a tournament group")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    async def setup_group(self, ctx: Interaction, reg_channel: TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+
+        # implement Create the group
+        await ctx.followup.send(
+            embed=EmbedBuilder.warning(f"Not Implemented Yet !! "),
+            ephemeral=True
+        )
+
 
     @Cog.listener()
     async def on_ready(self):
