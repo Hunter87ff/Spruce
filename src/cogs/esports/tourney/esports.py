@@ -11,10 +11,10 @@ A comprehensive module for managing esports tournaments in Discord servers.
 import os
 import logging
 import aiofiles
-from click import INT
 import discord
 import traceback
 from typing import TYPE_CHECKING
+
 from cogs.esports.ext.utils import TourneyUtils
 from core.abstract import EmbedPaginator, GroupCog, Cog
 from models import TeamModel
@@ -935,20 +935,59 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         _count = 0
         _filled_groups = (_tourney.team_count - 1) // _tourney.slot_per_group + 1
 
-        for _group in range(1, _filled_groups + 1):
-            embed = EmbedBuilder(
-                    title=f"Team: {team.name}",
-                    description=f"Captain: <@{team.captain}>\nMembers: {', '.join([f'<@{member}>' for member in team.members])}",
-                    color=self.bot.base_color
-                )
-            _description = f"**Group: {_group}**\n"
-            current_group = (_count // _tourney.slot_per_group) + 1
+        await ctx.followup.send(
+            embed=EmbedBuilder.warning("Not Implemented Yet !!")
+        )
+        return
 
-            for team in await _tourney.get_teams():
-                _count += 1
 
-            _embeds.append(embed)
+    @app_commands.command(name="team_info", description="Get information about a specific team in the tournament")
+    @app_commands.guild_only()
+    @checks.tourney_mod(True)
+    @app_commands.checks.cooldown(1, 15, key=lambda i: i.user.id)
+    @app_commands.describe(
+        reg_channel="The registration channel for the tournament",
+        captain="The captain of the team"
+    )
+    async def team_info(self, ctx : Interaction, reg_channel : TextChannel, captain : discord.Member):
+        await ctx.response.defer(ephemeral=True)
 
+        _tourney = await self.model.get(reg_channel.id)
+        if not _tourney:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(self.utils.constants.Messages.NO_ACTIVE_TOURNAMENT),
+                ephemeral=True
+            )
+            return
+        
+
+        _team_select = await self.utils.slot_manager_team_select(captain.id, _tourney)
+        if not _team_select:
+            await ctx.followup.send(
+                embed=EmbedBuilder.warning(f"No teams found for {captain.mention} in tournament **{_tourney.name}**."),
+                ephemeral=True
+            )
+            return
+        
+        _view = discord.ui.View()
+        _view.add_item(_team_select)
+
+        async def _team_select_callback(tint : Interaction):
+            await tint.response.defer(ephemeral=True)
+
+            _team_id = int(_team_select.values[0])
+            _team = await _tourney.get_team_by_id(_team_id)
+
+            _embed = EmbedBuilder(
+                title=f"{_tourney.name}".upper(),
+                description=f"**Team Name : {_team.name}**\n"
+                f'Players : {", ".join(f"<@{id}>" for id in _team.members)}'
+            )
+            await tint.followup.send(embed=_embed, ephemeral=True)
+
+
+        _team_select.callback = _team_select_callback
+        await ctx.followup.send(view=_view, ephemeral=True)
 
 
 
