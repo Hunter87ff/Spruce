@@ -186,7 +186,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 _id=message.id,
                 name=_team_name,
                 capt=_captain,
-                members=set(_players or [_captain]),
+                members=set(_players),
             )
             return _team
 

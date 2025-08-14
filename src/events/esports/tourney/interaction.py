@@ -58,9 +58,9 @@ async def cancel_slot_handler(self : Esports, tourney : TourneyModel, interactio
             )
             return
         slot_channel = interaction.guild.get_channel(tourney.slot_channel)
-        _name = _team.name if _team else ""
+        _name = _team.name or  ""
         await tourney.remove_team(_team)
-        _confirm_message = await slot_channel.fetch_message(_team_id or 8787)
+        _confirm_message = await slot_channel.fetch_message(_team_id)
         if _confirm_message:
             await self.bot.sleep()
             await _confirm_message.delete()
