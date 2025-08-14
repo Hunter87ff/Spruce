@@ -14,7 +14,7 @@ DEVELOPERS = [ OWNER_ID ]
 
 SHARDS = int(getenv("SHARDS", 1))
 PREFIX = getenv("PREFIX", "&")
-VERSION = getenv("VERSION", "2.1.0")
+VERSION = getenv("VERSION", "2.1.1")
 IS_DEV_ENV = getenv("MODE") == "development"
 
 TRANSLATE_KEY = getenv("TRANSLATE_KEY", None)

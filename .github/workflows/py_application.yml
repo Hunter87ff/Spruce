@@ -15,6 +15,7 @@ env:
   VERSION : "2.1.1"
   LOCAL_LAVA : false
   MONGO_URI  : ${{ secrets.MONGO_URL }}
+  MONGO_TEAMS : ${{ secrets.MONGO_TEAMS }}
   SHARDS : ${{ secrets.SHARDS }}
   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
   TRANSLATE_KEY : ${{ secrets.TRANSLATE_KEY }}
