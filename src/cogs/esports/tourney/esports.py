@@ -11,6 +11,7 @@ A comprehensive module for managing esports tournaments in Discord servers.
 import os
 import logging
 import aiofiles
+from click import INT
 import discord
 import traceback
 from typing import TYPE_CHECKING
@@ -21,6 +22,7 @@ from models.tourney import TourneyModel
 
 from ext import ( checks, EmbedBuilder)
 from events.esports import handle_tourney_registration
+from events.esports.tourney.interaction import slot_manager_interaction
 from discord import Enum, File, Interaction, Member, TextChannel, app_commands
 
 
@@ -29,6 +31,19 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
+class InteractionIds:
+    CANCEL_SLOT = "v1_tourney_slot_remove"
+    CHECK_SLOT = "v1_tourney_slot_check"
+    RENAME_SLOT = "v1_tourney_slot_rename"
+    TRANSFER_SLOT = "v1_tourney_slot_transfer"
+
+    ALL = {
+        CANCEL_SLOT,
+        CHECK_SLOT,
+        RENAME_SLOT,
+        TRANSFER_SLOT
+    }
 
 class Esports(GroupCog, name="esports", group_name="esports"):
     """
@@ -42,8 +57,8 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     MAX_MENTIONS_COUNT = 11
     MAX_EVENT_NAME_LENGTH = 30
 
-
-    MANAGER_PREFIXES = ["Cslot", "Mslot", "Tname", "Cancel"]
+    INTERACTION_IDS = InteractionIds
+    MANAGER_PREFIXES = {"Cslot", "Mslot", "Tname", "Cancel"}
     model : TourneyModel = TourneyModel
     
     def __init__(self, bot: 'Spruce'):
@@ -59,6 +74,36 @@ class Esports(GroupCog, name="esports", group_name="esports"):
     app_add = app_commands.Group(name="add", description="Tournament management commands")
     app_remove = app_commands.Group(name="remove", description="Tournament removal commands")
     app_setup = app_commands.Group(name="setup", description="Tournament setup commands")
+
+    
+
+    async def migrate_slot_manager(self, ctx: Interaction):
+        _tourney: TourneyModel = await self.model.find_one(mch=ctx.channel.id)
+
+        if not _tourney:
+            return
+        
+        _view = discord.ui.View(timeout=None) 
+        _buttons = [
+            discord.ui.Button(label="Cancel Slot", style=discord.ButtonStyle.red, custom_id=self.INTERACTION_IDS.CANCEL_SLOT),
+            discord.ui.Button(label="Check Slot", style=discord.ButtonStyle.blurple, custom_id=self.INTERACTION_IDS.CHECK_SLOT),
+            discord.ui.Button(label="Rename Slot", style=discord.ButtonStyle.green, custom_id=self.INTERACTION_IDS.RENAME_SLOT),
+            discord.ui.Button(label="Transfer Slot", style=discord.ButtonStyle.grey, custom_id=self.INTERACTION_IDS.TRANSFER_SLOT),
+        ]
+        for button in _buttons:
+            _view.add_item(button)
+        
+        _embed = EmbedBuilder(
+            title=_tourney.name.upper(),
+            description=f"{self.bot.emoji.arow} **Cancel Slot** : to cancel your slot\n"
+                        f"{self.bot.emoji.arow} **Check Slot** : to check your slot\n"
+                        f"{self.bot.emoji.arow} **Rename Slot** : to rename your slot\n"
+                        f"{self.bot.emoji.arow} **Transfer Slot** : to transfer your slot",
+            color=self.bot.base_color
+        )
+        _embed.set_footer(text=ctx.guild.name, icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+        await ctx.message.edit(embed=_embed, view=_view)
+
 
 
     @app_commands.command(name="create", description="Setup a new tournament")
@@ -880,3 +925,8 @@ class Esports(GroupCog, name="esports", group_name="esports"):
         if message.author.bot or not message.guild:
             return
         await handle_tourney_registration(self, message)
+
+
+    @Cog.listener()
+    async def on_interaction(self, interaction: Interaction):
+            await slot_manager_interaction(self, interaction)

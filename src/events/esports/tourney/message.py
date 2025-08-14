@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-
-import traceback
-
-from discord import Interaction
 from ext import EmbedBuilder
-from ext.constants import Messages
 from discord.mentions import AllowedMentions
 
 
@@ -101,27 +96,4 @@ async def handle_tourney_registration(self : Esports, message: Message):
             level="warning"
         )
         return
-    
-
-
-async def slot_manager_interaction(self: Esports, interaction: Interaction):
-    _custom_ids = set([
-        f"{self.bot.user.id}_tourney_slot_remove",
-        f"{self.bot.user.id}_tourney_slot_check",
-        f"{self.bot.user.id}_tourney_slot_rename",
-        f"{self.bot.user.id}_tourney_slot_transfer",
-    ])
-    if interaction.data.get("custom_id") not in _custom_ids:
-        return
-    
-    await interaction.response.defer(ephemeral=True)
-    _event = await self.model.get_by_slot_manager(interaction.channel_id)
-    if not _event:
-        await interaction.followup.send(
-            embed=EmbedBuilder.warning(Messages.NO_ACTIVE_TOURNAMENT),
-            ephemeral=True
-        )
-        return
-    
-
     

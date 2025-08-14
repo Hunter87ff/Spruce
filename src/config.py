@@ -69,6 +69,8 @@ TOURNEY_MOD_ROLE = "tourney-mod"
 SCRIM_MOD_ROLE = "scrim-mod"
 SPRUCE_MOD_ROLE = "spruce-mod"
 LOG_CHANNEL_NAME = "spruce-logs"
+SCRIM_LOG_CHANNEL_NAME = "scrim-logs"
+TOURNEY_LOG_CHANNEL_NAME = "tourney-logs"
 
 LAVA_PLUGINS = {
     "lava_search.jar" : "https://github.com/topi314/LavaSearch/releases/download/1.0.0/lavasearch-plugin-1.0.0.jar",

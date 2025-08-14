@@ -27,6 +27,7 @@ class TourneyModel:
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
         # print("Initializing TourneyModel with kwargs:", kwargs)
+        self._version: int = kwargs.get("_v", 1)  # Versioning for future changes
         self.guild_id: int = kwargs.get("guild")
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
         self.name: str = str(kwargs.get("name", "New Tournament"))
@@ -269,7 +270,7 @@ class TourneyModel:
         team.tid = self.reg_channel
         return team
 
-    async def get_teams(self) -> set[TeamModel]:
+    async def get_teams(self):
         """Fetches all teams registered in the tournament."""
         if self.__teams:
             return self.__teams
