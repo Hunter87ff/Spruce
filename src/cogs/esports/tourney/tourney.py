@@ -110,7 +110,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         if not guild:
             return
         mention = kwargs.get("mention", None)
-        scrim_log_channel = utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}-scrim-log")
+        scrim_log_channel = utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}-tourney-log")
         if not scrim_log_channel:
             return
         _webhook = await self.webhook(scrim_log_channel)
