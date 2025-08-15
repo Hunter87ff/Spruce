@@ -252,7 +252,7 @@ async def handle_scrim_clear(self: ScrimCog, scrim: ScrimModel):
             await member.remove_roles(idp_role)
 
     except Exception as e:
-        self.log(_reg_channel.guild, f"Unable to clear scrim role <@&{idp_role.id}>\nReason : {e}", self.bot.color.red)
+        await self.log(_reg_channel.guild, f"Unable to clear scrim role <@&{idp_role.id}>\nReason : {e}", self.bot.color.red)
 
 
     await _reg_channel.purge(reason="Clearing old scrim participants")
