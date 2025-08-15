@@ -129,6 +129,14 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
     async def select_callback(select_interaction:discord.Interaction):
         selected_slot = int(select.values[0])
         team = teams[selected_slot]
+        _previous_captain = await self.get_member(select_interaction.guild, team.captain)
+        _idp_role = select_interaction.guild.get_role(scrim.idp_role)
+
+        if not _idp_role:
+            return await select_interaction.response.send_message(
+                embed=EmbedBuilder.warning("IDP role not found. please try again later!!"), 
+                ephemeral=True
+            )
 
         view = discord.ui.View()
         member_input = discord.ui.UserSelect( placeholder="Select the member to transfer the slot to", min_values=1, max_values=1 )
@@ -141,9 +149,10 @@ async def handle_transfer_slot_callback(self : ScrimCog, interaction:discord.Int
                 return await member_interaction.response.send_message(embed=EmbedBuilder.warning("Invalid member."), ephemeral=True)
 
             try:
+                await _previous_captain and _previous_captain.remove_roles(_idp_role)
+                await new_member.add_roles(_idp_role)
                 team.captain = new_member.id
                 await scrim.save()
-
                 await member_interaction.response.send_message(embed=EmbedBuilder.success(f"Your slot has been transferred to {new_member.mention}."), ephemeral=True)
                 await self.log(select_interaction.guild, f"Slot transferred from <@{team.captain}> to {new_member.mention} in scrim {scrim.name}.", color=self.bot.color.blue)
 
@@ -188,7 +197,6 @@ async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interac
     await self.setup_group(scrim, end_time=interaction.message.created_at.timestamp(), message=interaction.message)
 
 
-
 async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Interaction, scrim:ScrimModel, teams:list[Team]):
         if not teams:
             return await interaction.response.send_message(embed=EmbedBuilder.warning(self.YOU_ARE_NOT_REGISTERED), ephemeral=True)
@@ -210,18 +218,22 @@ async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Inter
         async def select_callback(select_interaction:discord.Interaction):
             selected_slot = int(select.values[0])
             team = teams[selected_slot]
+
             try:
                 _idp_role = select_interaction.guild.get_role(scrim.idp_role)
                 _captain = await self.get_member(select_interaction.guild, team.captain)
                 await scrim.remove_team(team)
-                if _captain:
+
+                if _captain and _idp_role:
                     await _captain.remove_roles(_idp_role)
+
                 await scrim.save()
                 await select_interaction.response.send_message(
                     embed=EmbedBuilder.success(f"Your slot for team `{team.name}` has been removed successfully."),
                     ephemeral=True
                 )
                 await self.log(select_interaction.guild, f"Slot for team `{team.name}` removed by {select_interaction.user}.", color=self.bot.color.blue)
+            
             except Exception as e:
                 await select_interaction.response.send_message(
                     embed=EmbedBuilder.warning(f"Failed to remove your slot: {str(e)}"),
