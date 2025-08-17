@@ -129,8 +129,7 @@ class Spruce(commands.AutoShardedBot):
             self.blocked_words = self.config_data.get("bws", [])
             self.last_run = int(self.config_data.get("last_run", time.time()))
             await self._chunk_guilds()
-
-            #exec(self.config_data.get("runner", ""))
+            
             #load testers
             self.config.TESTERS = await TesterModel.all()
 

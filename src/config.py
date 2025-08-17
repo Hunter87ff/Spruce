@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 if TYPE_CHECKING:
-    from models import Tester
+    from models import TesterModel
 
 
 OWNER_ID = 885193210455011369
@@ -34,7 +34,7 @@ INVITE_URL = f"https://dsc.gg/sprucebot"
 SUPPORT_SERVER = "https://discord.gg/vMnhpAyFZm"
 SUPPORT_SERVER_ID = 947443790053015623
 
-TESTERS :list["Tester"] = []
+TESTERS :list["TesterModel"] = []
 TESTING_GUILDS = [
     1380276604852502528,
     937038620756426832

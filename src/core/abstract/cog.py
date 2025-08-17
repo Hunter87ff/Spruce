@@ -16,7 +16,7 @@ __all__ = ("Cog", "GroupCog")
 class BaseCog(commands.Cog):
     """A base class for custom Cog implementations."""
     _CACHE_HOOKS : dict[int, discord.Webhook] = {}
-
+    hidden : bool = False
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.emoji: str = kwargs.pop("emoji", None)

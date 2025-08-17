@@ -42,8 +42,8 @@ class DevCog(Cog):
     """
 
     def __init__(self, bot):
-        self.bot:'Spruce' = bot
-
+        self.bot: "Spruce" = bot
+        self.hidden: bool = True  # Hide this cog from the help command
 
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @checks.dev_only()

@@ -46,6 +46,7 @@ if IS_DEV_ENV:
     from .esports import Esports
     _cogs.append(TestingCog)
     _cogs.append(Esports)
+    _cogs.remove(HelperCog)
 
 
 

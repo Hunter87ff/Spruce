@@ -25,7 +25,7 @@ class HelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping: Mapping[Cog, List[commands.Command]]):
             ctx = self.context
 
-            hidden = ("HelpCog", "DevCog")
+            hidden = ("HelpCog", "DevCog", "TaskCog")
 
             embeds: list[EmbedBuilder] = [ ]
 
@@ -43,6 +43,8 @@ class HelpCommand(commands.HelpCommand):
             cog : "Cog"
 
             for cog, commands in mapping.items():
+                if cog.qualified_name in hidden or getattr(cog, 'hidden', None):
+                     continue
                 
                 cog_emoji = getattr(cog, 'emoji', None) or ""
                 cog_name = cog.qualified_name.title().replace("Cog", "") if cog else "General Commands"
@@ -52,22 +54,21 @@ class HelpCommand(commands.HelpCommand):
                     title=cog.qualified_name.title().replace("Cog", "") if cog else "General Commands"
                 )
 
-                if cog and cog.qualified_name not in hidden:
-                    _app_commands = cog.get_app_commands()
+                _app_commands = cog.get_app_commands()
 
-                    if _app_commands:
-                        embed.add_field(
-                            name="Application Commands",
-                            value=", ".join(map(lambda x: f"`{x}`", _app_commands)),
-                            inline=False,
-                        )
-
+                if _app_commands:
                     embed.add_field(
+                        name="Application Commands",
+                        value=", ".join(map(lambda x: f"`{x.name}`", _app_commands)),
                         inline=False,
-                        name=cog.qualified_name.title(),
-                        value=", ".join(map(lambda x: f"`{x}`", commands or []))
                     )
-                    embeds.append(embed)
+
+                embed.add_field(
+                    inline=False,
+                    name="Commands",
+                    value=", ".join(map(lambda x: f"`{x}`", commands or []))
+                ) if commands else None
+                embeds.append(embed)
 
             _paginator = EmbedPaginator(pages=embeds, author=ctx.author, delete_on_timeout=True)
             await _paginator.start(ctx)

@@ -13,6 +13,7 @@ from discord.ext import commands
 from ext.checks import dev_only
 import wavelink.websocket
 from ext import _setup
+from core.abstract import Cog
 from discord import utils, ButtonStyle, Interaction, Embed, Message, TextChannel, Member
 from discord.ui import Button, View
 
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 
 
 
-class MusicCog(commands.Cog):
+class MusicCog(Cog):
     """
     Music commands for the bot.
     

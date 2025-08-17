@@ -1,14 +1,17 @@
 import datetime
 import discord
+from core.abstract import Cog
+
 from typing import TYPE_CHECKING
 from discord.ext import tasks, commands
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
-class TaskCog(commands.Cog):
+class TaskCog(Cog):
     def __init__(self, bot: "Spruce"):
-        self.bot = bot
+        self.bot: "Spruce" = bot
+        self.hidden: bool = True
         self.update_prime.start()
         self.paylog:discord.TextChannel = self.bot.get_channel(self.bot.config.paylog)
 

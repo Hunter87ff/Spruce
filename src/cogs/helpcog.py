@@ -14,6 +14,8 @@ from discord.ui import Button, View
 from config import PREFIX, INVITE_URL
 from ext import emoji, EmbedBuilder
 from typing import TYPE_CHECKING
+from core.abstract import Cog
+
 
 if TYPE_CHECKING:
     from core.bot import Spruce
@@ -91,7 +93,7 @@ class DropdownView(discord.ui.View):
         super().__init__()
         self.add_item(Dropdown())
 
-class HelperCog(commands.Cog):
+class HelperCog(Cog):
     def __init__(self, bot:"Spruce"):
         self.bot= bot
         self.bot.remove_command("help")
