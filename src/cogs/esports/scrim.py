@@ -24,7 +24,7 @@ _resolved_scrims: dict[str, bool] = {}
 
 class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
     """Cog for managing scrims in the server."""
-
+    IS_READY = False
     CUSTOM_ID_SLOT_REFRESH = "scrim-slot-refresh"
     CUSTOM_ID_MY_SLOT = "scrim-my-slot"
     CUSTOM_ID_TEAM_NAME = "scrim-team-name"
@@ -1451,8 +1451,12 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await ScrimModel.load_all()
-        self.monitor_scrims.start()
+        """Listener for when the bot is ready."""
+        if not ScrimCog.IS_READY:
+            await ScrimModel.load_all()
+            self.monitor_scrims.start()
+            ScrimCog.IS_READY = True
+
 
     @commands.Cog.listener()
     async def on_scrim_open_time_hit(self, scrim:ScrimModel):
@@ -1488,6 +1492,9 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
     async def on_guild_channel_delete(self, channel:discord.abc.GuildChannel):
         """Listener for when a scrim registration channel is deleted."""
         if not isinstance(channel, discord.TextChannel):
+            return
+
+        if channel.id not in ScrimModel._REGISTER_CHANNEL_CACHE:
             return
 
         _scrim = await ScrimModel.find_by_reg_channel(channel.id)
