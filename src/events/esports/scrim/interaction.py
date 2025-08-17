@@ -194,7 +194,7 @@ async def handle_scrim_slot_refresh(self: ScrimCog, interaction: discord.Interac
         )
         return
     
-    await self.setup_group(scrim, end_time=interaction.message.created_at.timestamp(), message=interaction.message)
+    await self.utils.setup_group(self, scrim, interaction.message.created_at.timestamp(), interaction.message)
 
 
 async def handle_remove_slot_callback(self : ScrimCog, interaction:discord.Interaction, scrim:ScrimModel, teams:list[Team]):

@@ -25,7 +25,7 @@ class HelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping: Mapping[Cog, List[commands.Command]]):
             ctx = self.context
 
-            hidden = ("HelpCog", "DevCog", "TaskCog")
+            hidden = ("HelpCog", "DevCog", "TaskCog", "TestingCog")
 
             embeds: list[EmbedBuilder] = [ ]
 

@@ -227,7 +227,7 @@ async def handle_scrim_end(self : ScrimCog, scrim:ScrimModel):
 
     await self.log(_channel.guild, f"Scrim {_channel.mention} has ended. Team registered : {team_count}.", color=self.bot.color.green)
     self.debug(f"Setting up scrim group for {scrim.name} in {_channel.guild.name}.")
-    await self.setup_group(scrim)
+    await self.utils.setup_group(self, scrim)
     self.debug(f"Scrim group setup completed for {scrim.name} in {_channel.guild.name}. locking registration channel.")
     await self.bot.helper.lock_channel(_channel, _channel.guild.get_role(scrim.open_role or 582005))
 

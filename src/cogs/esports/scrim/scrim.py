@@ -6,15 +6,14 @@ A module for managing scrims in a Discord server.
 """
 
 import discord
-from enum import Enum
+from . import utils
 from typing import TYPE_CHECKING
 from ext import EmbedBuilder, constants, checks
 from discord.ext import commands, tasks
-from datetime import datetime, timedelta
-from models.scrim import ScrimModel, Team
+from models.scrim import ScrimModel
 from core.abstract import GroupCog
 from events.esports import scrim as scrim_events
-from discord import Embed, TextChannel,  Interaction,   app_commands as app
+from discord import Embed, Enum, TextChannel,  Interaction,   app_commands as app
 
 
 if TYPE_CHECKING:
@@ -24,6 +23,7 @@ _resolved_scrims: dict[str, bool] = {}
 
 class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help":"Manage scrims for the server."}):
     """Cog for managing scrims in the server."""
+    utils = utils
     IS_READY = False
     CUSTOM_ID_SLOT_REFRESH = "scrim-slot-refresh"
     CUSTOM_ID_MY_SLOT = "scrim-my-slot"
@@ -85,79 +85,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         return embed
     
 
-    async def setup_group(self, scrim:ScrimModel, slot_per_group:int = None, end_time:int=None, message:discord.Message = None):
-        """Setup the scrim group with the provided scrim model."""
-
-        if not scrim._id:
-            return None
-        
-        if not slot_per_group:
-            slot_per_group = scrim.total_slots
-        
-        reg_channel = self.bot.get_channel(scrim.reg_channel)
-
-        if not reg_channel:
-            raise ValueError("Registration channel not found in the scrim. Please update it.")
-
-        end_time = int(end_time or discord.utils.utcnow().timestamp())
-
-        if not reg_channel.permissions_for(reg_channel.guild.me).send_messages:
-            raise commands.BotMissingPermissions(
-                missing_permissions= [
-                    "send_messages",
-                    "manage_messages",
-                ]
-            )
-        
-        if not reg_channel.permissions_for(reg_channel.guild.me).read_message_history:
-            raise commands.BotMissingPermissions(
-                missing_permissions= [
-                    "read_message_history",
-                ]
-            )
-
-        slot_channel = self.bot.get_channel(scrim.slot_channel)
-
-        def format_slot(number:int, team_name:str):
-            """Format the slot number and team name."""
-            return f"Slot {number:02d} -> Team {team_name.upper()}"
-        
-        time_taken = end_time - (scrim.open_time - self.scrim_interval)  # Interval is now configurable
-        group_embed = discord.Embed(
-            title=f"**{self.bot.emoji.cup} | {scrim.name.upper()} SLOT LIST | {self.bot.emoji.cup}**",
-            color=self.bot.color.random()
-        )
-        group_embed.set_footer(text=f"Registration Took : {self.time.by_seconds(time_taken)}")
-        _description = "```\n"
-
-        for i, team in enumerate(scrim.get_teams(), start=1):
-            _description += format_slot(i, team.name) + "\n"
-        _description += "```"
-
-        if len(scrim.get_teams()) == 0:
-            _description = "No teams registered yet."
-
-        group_embed.description = _description
-
-        _view = discord.ui.View(timeout=None)
-        _buttons = [
-            discord.ui.Button(emoji=self.bot.emoji.refresh, label="Refresh", style=discord.ButtonStyle.green, custom_id=f"{scrim.reg_channel}-{scrim.guild_id}-scrim-slot-refresh"),
-        ]
-        for _button in _buttons:
-            _view.add_item(_button)
-
-        if not message:
-            await slot_channel.send(embed=group_embed, view=_view)
-
-        if message:
-            await message.edit(embed=group_embed, view=_view)
-
-        await self.log(
-            guild=reg_channel.guild,
-            message=f"Scrim group setup completed for `{scrim.name}` in {reg_channel.mention}.\nGroup of {slot_per_group} slots",
-        )
-
-
     @staticmethod
     def scrim_info_embed(scrim:ScrimModel):
         embed = Embed(
@@ -201,7 +128,6 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         open_time="examples: 10am, 10:00, 22:00, 7:00 PM (default: 10:00 AM)",
         close_time="examples: 10am, 10:00, 22:00, 7:00 PM (default: 4:00 PM)",
         timezone="Timezone of the scrim (default: Asia/Kolkata)",
-        reg_channel="Registration channel for the scrim (default: create's new channel)",
         ping_role="Role to ping when the scrim starts (optional)",
     )
     @commands.cooldown(1, 15, commands.BucketType.guild)
@@ -211,13 +137,13 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
         ctx: Interaction,
         open_time: str = "10:00 AM",
         close_time: str = "4:00 PM",
-        scrim_name: str = "Scrim",
+        scrim_name: str = "T3 Scrim",
         total_slots: app.Range[int, 1, 30] = 12,
         timezone: constants.TimeZone = constants.TimeZone.Asia_Kolkata,
         mentions: app.Range[int, 1, 5] = 4,
         idp_role: discord.Role | None = None,
         ping_role: discord.Role | None = None,
-        reg_channel: TextChannel | None = None,
+        reg_channel: TextChannel | None = None
     ):
         """Create a new scrim
         """
@@ -240,27 +166,14 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             ), ephemeral=True)
 
         _event_prefix = self.bot.helper.get_event_prefix(scrim_name)
-        _scrim_category: discord.CategoryChannel
-        _registration_channel: TextChannel
-        
-        # if registration channel is provided, use it, otherwise create a new one
-        # 
-        if reg_channel:
-            if await ScrimModel.find_by_reg_channel(reg_channel.id):
-                return await ctx.followup.send("A scrim with this registration channel already exists.", ephemeral=True)
-            
+    
+        reg_channel: TextChannel = reg_channel or await ctx.guild.create_text_channel(name=f"{_event_prefix}register-here")
 
-            _registration_channel = reg_channel
-            if _registration_channel.category is not None:
-                _scrim_category = _registration_channel.category
+        await reg_channel.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
 
-        else:
-            _scrim_category = await ctx.guild.create_category(name=str(scrim_name))
-            _registration_channel = await _scrim_category.create_text_channel(name=f"{_event_prefix}register-here")
+        await reg_channel.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
 
-        await _scrim_category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
-
-        _self_override = _scrim_category.overwrites_for(ctx.guild.me)
+        _self_override = reg_channel.overwrites_for(ctx.guild.me)
         _self_override.update(
             send_messages=True, 
             manage_messages=True, 
@@ -270,14 +183,14 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             external_emojis=True, 
             view_channel=True
         )
-        await _scrim_category.set_permissions(ctx.guild.me, overwrite=_self_override)
+        await reg_channel.set_permissions(ctx.guild.me, overwrite=_self_override)
         idp_role = idp_role or await ctx.guild.create_role(name=f"{_event_prefix}IDP", mentionable=True, color=self.bot.color.random())
 
         try:
             _scrim = ScrimModel(
                 name=scrim_name,
                 mentions=mentions,
-                reg_channel=_registration_channel.id,
+                reg_channel=reg_channel.id,
                 idp_role=idp_role.id,
                 guild_id=ctx.guild.id,
                 scrim_name=scrim_name,
@@ -291,7 +204,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
 
             await ctx.followup.send(embed=self.scrim_info_embed(scrim=_scrim), ephemeral=True)
 
-            await _registration_channel.send(embed=Embed(
+            await reg_channel.send(embed=Embed(
                 description=f"Scrim will start at <t:{_parsed_open_time}:t>(<t:{_parsed_open_time}:R>)",
                 color=self.bot.color.random()
             ))
@@ -1226,7 +1139,7 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
             return await ctx.followup.send(self.DEFAULT_NO_SCRIM_MSG, ephemeral=True)
 
         try:
-            await self.setup_group(scrim=_scrim)
+            await utils.setup_group(self, scrim=_scrim)
             await ctx.followup.send("Scrim group setup successfully.", ephemeral=True)
 
         except Exception as e:
