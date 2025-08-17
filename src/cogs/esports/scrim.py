@@ -1399,7 +1399,8 @@ class ScrimCog(GroupCog, name="scrim", group_name="scrim", command_attrs={"help"
     async def schedule_scrim_cleaner(self):
         _time = int(self.time.now().timestamp())
         _count = 0
-        for _scrim in ScrimModel._cache.values():
+        _scrims = ScrimModel._cache.values()
+        for _scrim in _scrims:
             if all([
                 _scrim.status is False,
                 not _scrim.cleared,
