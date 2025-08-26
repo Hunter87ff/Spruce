@@ -6,6 +6,8 @@ A module for managing esports tournaments in a Discord server.
 """
 
 import re
+
+import discord
 import config
 import datetime
 import asyncio
@@ -49,6 +51,7 @@ def get_front(name:str):
 
 class GroupConfig:
     def __init__(self, current_group:int, messages:list[Message], total_messages:int, event:Tourney, group_channel:TextChannel, group_category:CategoryChannel=None):
+        self.status = True #continue creating groups
         self.current_group = current_group
         self.messages = messages
         self.total_messages = total_messages
@@ -1292,6 +1295,10 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
 
     
     async def generate_groups(self, group_config:GroupConfig):
+
+        if not group_config.status:
+            return
+        
         base_index = (group_config.current_group * group_config.event.spg) - group_config.event.spg # starting index of a group message in all the messages
         to_index = base_index + group_config.event.spg #ending index of a group message in all the messages
         team_count = 1 # serial number for teams
@@ -1312,6 +1319,9 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         await msg.add_reaction("✅")
 
         if isinstance(group_config.group_category, CategoryChannel):
+            if len(group_config.group_category.channels) >= 50:
+                raise ValueError("Maximum number of channels reached!! Can't create more groups.")
+            
             channel = await group_config.group_category.guild.create_text_channel(
                 name=f"{group_config.event.prefix}-group-{group_config.current_group}", 
                 category=group_config.group_category
@@ -1366,7 +1376,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         limit = _event.reged - (base_index + _event.spg)
         messages: list[Message] = []
         
-        async for message in confirm_channel.history(limit=limit+_event.spg, oldest_first=True):
+        async for message in confirm_channel.history(limit=_event.reged + _event.spg, oldest_first=True):
             if all([message.author == ctx.guild.me, message.mentions]):
                 messages.append(message)
 
@@ -1381,12 +1391,29 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
             return await ctx.followup.send(embed=EmbedBuilder.warning("No team found for the specified group range."))
 
         _group_config = GroupConfig(from_group, messages, total_messages, _event, group_channel, group_category)
-        await self.generate_groups(_group_config)
-        await ctx.followup.send(
-            embed=EmbedBuilder.success(
-                f"Groups generated from {from_group} to {_group_config.current_group - 1} in {group_channel.mention}")
-            )
 
+        class CancelProcessView(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+
+            @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+            async def cancel_button(self,  interaction: discord.Interaction, button: discord.ui.Button):
+                _group_config.status = False
+                await interaction.response.edit_message(embed=EmbedBuilder.success("Group generation cancelled."), view=None)
+
+        try:
+            await ctx.followup.send(
+                embed=EmbedBuilder.success(f"Generating groups from {from_group}... This may take a while depending on the number of teams."),
+                view=CancelProcessView()
+                )
+            
+            await self.generate_groups(_group_config)
+            await ctx.followup.send(
+                embed=EmbedBuilder.success(
+                    f"Groups generated from {from_group} to {_group_config.current_group - 1} in {group_channel.mention}")
+                )
+        except Exception as e:
+            await ctx.followup.send(embed=EmbedBuilder.warning(f"{e}"))
 
 
     @commands.hybrid_command(description="Set the manager for the tournament")
