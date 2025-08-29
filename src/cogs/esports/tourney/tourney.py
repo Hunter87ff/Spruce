@@ -392,8 +392,10 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 await rdmm.edit(
                     content="https://tenor.com/view/coming-soon-coming-soon-its-coming-shortly-gif-21517225"
                 ) if rdmm else None
-                await htrm.add_reaction(emoji.tick)
-                await rchm.add_reaction(emoji.tick)
+
+                await self.add_reaction(rdmm, emoji.tick)
+                await self.add_reaction(rchm, emoji.tick)
+                
                 await self.bot.sleep(1)  #sleep
                 tour = {
                     "guild" : int(ctx.guild.id), 

@@ -8,11 +8,11 @@ class EmbedBuilder(Embed):
     Base class for all embeds used in the bot.
     Provides a consistent look and feel across different embeds.
     """
-    
-    def __init__(self, title: str = None, description: str = None, color: int = color.cyan, emoji: str = None, short_desc: str = None):
+
+    def __init__(self, title: str = None, description: str = None, color: int = color.cyan, emoji: str = None, short_desc: str = None, timestamp=utils.utcnow()):
         super().__init__(title=title, description=description, color=color)
         # self.set_footer(text="Spruce | Born to host battles")
-        self.timestamp = utils.utcnow()
+        self.timestamp = timestamp
         self.emoji = emoji
         self.short_desc = short_desc
 

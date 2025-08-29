@@ -6,9 +6,10 @@ A module for moderation commands in Spruce.
 """
 from __future__ import annotations
 
+from datetime import timedelta
 import typing
 import discord
-from discord import app_commands
+from discord import Interaction, app_commands
 from discord.ext import commands
 from core.abstract import Cog
 
@@ -98,9 +99,12 @@ class ModerationCog(Cog):
             await self.bot.sleep(0.5)
 
         if ms:
-            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is locked for {role.name}')
-
-
+            await ms.edit(
+                content=None, 
+                embed=self.EmbedBuilder.success(
+                    message=f'{category.name} is locked for {role.name}'
+                )
+            )
 
     @commands.hybrid_group(name="unlock", description="Unlock a channel for a specific role", invoke_without_command=True)
     @app_commands.guild_only()
@@ -158,9 +162,13 @@ class ModerationCog(Cog):
             await self.bot.sleep(0.5)
 
         if ms:
-            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is unlocked for {role.name}')
-
-
+            await ms.edit(
+                content=None, 
+                embed=self.EmbedBuilder.success(
+                    f'{category.name} is unlocked for {role.name}'
+                )
+            )
+            
 
     @commands.hybrid_group(name="hide", description="Hide a channel from a specific role", invoke_without_command=True)
     @app_commands.guild_only()
@@ -179,8 +187,10 @@ class ModerationCog(Cog):
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(view_channel=False)
         await channel.set_permissions(role, overwrite=overwrite)
-        return await ctx.send(embed=discord.Embed(description=f'{self.bot.emoji.tick} | This channel is now hidden to {role.mention}'), delete_after=30)
-    
+        return await ctx.send(embed=self.EmbedBuilder.success(
+            f'This channel is now hidden to {role.mention}'
+        ), delete_after=30)
+
 
     @hide.command(name="channel", description="Hide a channel from a specific role")
     @app_commands.guild_only()
@@ -215,9 +225,10 @@ class ModerationCog(Cog):
             await self.bot.sleep(0.5)
 
         if ms:
-            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is hidden from {role.name}')
-
-
+            await ms.edit(
+                content=None,
+                embed=self.EmbedBuilder.success(f'{category.name} is hidden from {role.name}')
+            )
 
     @commands.hybrid_group(name="unhide", description="Unhide a channel from a specific role", invoke_without_command=True)
     @app_commands.guild_only()
@@ -241,7 +252,9 @@ class ModerationCog(Cog):
         
         if channel.permissions_for(ctx.guild.me).send_messages:
             await ctx.send(
-                embed=discord.Embed(description=f'{self.bot.emoji.tick} | This channel is now visible to {role.mention}'), 
+                embed=self.EmbedBuilder.success(
+                    f'This channel is now visible to {role.mention}'
+                ),
                 delete_after=30
             )
 
@@ -276,9 +289,11 @@ class ModerationCog(Cog):
             await self.bot.sleep(0.5)
         
         if ctx.channel.permissions_for(ctx.guild.me).send_messages and _processing:
-            await _processing.edit(content=f"**{self.bot.emoji.tick} | {category.name} is now visible to {role.name}**")
-
-
+            await _processing.edit(
+                embed=self.EmbedBuilder.success(
+                    f'{category.name} is now visible to {role.name}'
+                )
+            )
 
     @commands.hybrid_command(description="clear message within a limit and target filter", aliases=['purge'], )
     @commands.guild_only()
@@ -357,6 +372,46 @@ class ModerationCog(Cog):
             emb = self.Embed.success(f'All Permissions Removed from {role.mention}')
             await ms.edit(content=None, embed=emb)
             return
+        
+
+    @app_commands.command(name="timeout", description="timeout a member in the server")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(moderate_members=True)
+    @app_commands.checks.bot_has_permissions(moderate_members=True, send_messages=True)
+    @app_commands.checks.cooldown(1, 10, key=lambda i: i.user.id)
+    @app_commands.describe(
+        member="The member to timeout", 
+        time="The duration of the timeout",
+        reason="The reason for timing out the member")
+    async def timeout(self, ctx:Interaction, member: discord.Member, time : typing.Literal["1m", "5m", "10m", "30m", "1h", "1d", "1w"], reason:str=None):
+        await ctx.response.defer(ephemeral=True)
+
+        _time_dict = {
+            "1m": 60,
+            "5m": 300,
+            "10m": 600,
+            "30m": 1800,
+            "1h": 3600,
+            "1d": 86400,
+            "1w": 604800,
+        }
+
+        if member.guild_permissions.moderate_members:
+            await ctx.followup.send(
+                embed=self.EmbedBuilder.warning(
+                    "Member having higher moderation permissions cannot be timed out."
+                )
+            )
+            return
+
+        timeout_duration = _time_dict.get(time, 60)
+        time_delta = self.bot.now() + timedelta(seconds=timeout_duration)
+
+        await member.timeout(time_delta, reason=reason or f"Timed out by {ctx.user}")
+        await ctx.followup.send(
+            embed=self.EmbedBuilder.success(f"**{member} has been timed out for {time}**"),
+        )
+    
 
 
     @commands.hybrid_command(name="kick", description="Kick a member from the server")

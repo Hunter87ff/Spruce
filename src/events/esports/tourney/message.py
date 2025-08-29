@@ -53,13 +53,22 @@ async def handle_tourney_registration(self : Esports, message: Message):
     
     _slot_channel = message.guild.get_channel(_tourney.slot_channel)
     if not _slot_channel:
-        await message.delete()
+        await self.delete_message(message)
         await message.channel.send(
             embed=EmbedBuilder.warning("Slot channel not found. Please check the tournament configuration."),
             allowed_mentions=AllowedMentions.none()
         )
         return
     
+    if await _tourney.get_team_by_captain(message.author.id):
+        await self.delete_message(message)
+        await message.channel.send(
+            embed=EmbedBuilder.warning("You are already registered in a team."),
+            allowed_mentions=AllowedMentions.none()
+        )
+        return
+
+
     _teamname = self.utils.parse_team_name(message)
     _team: TeamModel = _tourney.create_team(
         tid=_tourney.reg_channel,
@@ -70,25 +79,25 @@ async def handle_tourney_registration(self : Esports, message: Message):
 
     try:
         await _tourney.validate_team(_team)
-        await message.add_reaction(self.bot.emoji.tick)
+        await self.add_reaction(message, self.bot.emoji.tick)
         _embed = self.utils.confirm_message_embed(_team, _tourney)
         _embed.set_thumbnail(url=message.author.avatar)
         _confirm_message = await _slot_channel.send(content=f"{_team.name.upper()} {message.author.mention}", embed=_embed)
         _team._id = _confirm_message.id  # Set the message ID for the team
         await _tourney.add_team(_team)
 
-        await _confirm_message.add_reaction(self.bot.emoji.tick)
         await self.bot.sleep(0.5)  # Avoid rate limits
-        await _confirm_message.add_reaction(self.bot.emoji.tick)
+        await self.add_reaction(_confirm_message, self.bot.emoji.tick)
 
     except Exception as e:
         await message.channel.send(
             embed=EmbedBuilder.warning(f"Failed to register team: {str(e)}"),
+            delete_after=5,
             allowed_mentions=AllowedMentions.none()
         )
         # self.bot.debug(traceback.format_exc(), True)
         await self.bot.sleep(0.5)
-        await message.delete()
+        await self.delete_message(message)
 
         await self.utils.log(
             guild=message.guild,

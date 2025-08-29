@@ -49,10 +49,13 @@ async def cancel_slot_handler(self : Esports, tourney : TourneyModel, interactio
     
 
     async def cancellation_confirmation(con_int: Interaction):
+        # Defer the response immediately to prevent timeout
+        await con_int.response.defer(ephemeral=True)
+        
         _team_id = int(_select.values[0]) if _select.values else None
         _team = await tourney.get_team_by_id(_team_id) if _team_id else None
         if not _team:
-            await con_int.response.send_message(
+            await con_int.followup.send(
                 embed=EmbedBuilder.warning("Team not found."),
                 ephemeral=True
             )
@@ -65,7 +68,8 @@ async def cancel_slot_handler(self : Esports, tourney : TourneyModel, interactio
             await self.bot.sleep()
             await _confirm_message.delete()
 
-        await con_int.response.send_message(
+        # Use followup instead of response since we deferred
+        await con_int.followup.send(
             embed=EmbedBuilder.success(f"Successfully removed Team {_name} from the tournament."),
             ephemeral=True
         )

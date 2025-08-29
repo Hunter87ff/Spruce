@@ -28,6 +28,7 @@ donate_btn = Button(label="Donate", url="https://discord.gg/x4sUyxttnf")
 
 hel_p = f"• Prefix - `{PREFIX}`\n• Total Commands - `88` | Usable - `79`\n• Type `{PREFIX}help <command | category>` for more info\n\n"
 helpemb  = EmbedBuilder(
+    
     title="Spruce Help Menu",
     description=f"{hel_p}**__Categories__\n\n{emoji.mod} Moderation\n\n{emoji.setting} Utility\n\n{emoji.cup} Tourney\n\n{emoji.cup} Scrims\n\n{emoji.role} Role\n\n{emoji.music_disk} Music**",
 )

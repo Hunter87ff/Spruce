@@ -4,6 +4,7 @@ from __future__ import annotations
 from discord import Guild
 import discord
 from discord.ext import commands
+from ext import EmbedBuilder
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -17,6 +18,8 @@ class BaseCog(commands.Cog):
     """A base class for custom Cog implementations."""
     _CACHE_HOOKS : dict[int, discord.Webhook] = {}
     hidden : bool = False
+    EmbedBuilder = EmbedBuilder
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.emoji: str = kwargs.pop("emoji", None)
@@ -56,7 +59,34 @@ class BaseCog(commands.Cog):
             
             except Exception:
                 return None
-            
+
+
+    async def send_message(self, channel: discord.TextChannel, content: str, embed: discord.Embed = None):
+        try:
+            return await channel.send(content=content, embed=embed)
+        except Exception as e:
+            self.bot.logger.error(f"Failed to send message: {e}")
+            return None
+        
+
+    async def delete_message(self, message: discord.Message, delay: int = 0):
+        try:
+            await message.delete(delay=delay)
+            return True
+        
+        except Exception as e:
+            self.bot.logger.error(f"Failed to delete message: {e}")
+            return False
+
+    async def add_reaction(self, message: discord.Message, emoji: str):
+        try:
+            await message.add_reaction(emoji)
+            return True
+        
+        except Exception as e:
+            self.bot.logger.error(f"Failed to add reaction: {e}")
+            return False
+
 
 
     async def members(self, guild: Guild):

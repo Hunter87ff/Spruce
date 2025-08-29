@@ -131,7 +131,10 @@ class Logger:
     @staticmethod
     def error(*message):
         log_file("\n".join(str(m) for m in message))
-        formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}] {Logger.colors('ERROR')}[%(levelname)s]: {Logger.colors('none')}%(message)s")
+        frame = inspect.currentframe().f_back
+        line_number = inspect.getframeinfo(frame).lineno
+        module_name = frame.f_globals["__name__"]
+        formatter = logging.Formatter(f"{Logger.colors('magenta')}[{Logger.get_time()}] {Logger.colors('ERROR')}[%(levelname)s]: {Logger.colors('none')} {module_name}:{line_number}: %(message)s")
         Logger.console_handler.setFormatter(formatter)
         Logger._logger.error("\n".join(message))
 

@@ -9,7 +9,7 @@ of this license document, but changing it is not allowed.
 from typing import TYPE_CHECKING
 from ext import EmbedBuilder
 from ext.modals import Tourney
-from discord import utils, Embed, Message
+from discord import TextChannel, utils, Embed, Message
 from ext import Logger
 
 
@@ -59,13 +59,13 @@ async def tourney_registration(self : "TourneyCog", message: Message):
 
 
     if tournament.status == "paused":
-        await message.channel.send(embed=Embed(description=f"{self.bot.emoji.cross} | Registration Paused", color=self.bot.color.red))
+        await message.channel.send(embed=self.EmbedBuilder.warning(f"Registration Paused"))
         await self.log(message.guild, f"{message.author} tried to register in {message.channel.mention} but the tournament is paused.", color=self.bot.color.red)
         return
         
     crole = message.guild.get_role(tournament.crole)
-    cch = message.guild.get_channel(tournament.cch)
-    rch = message.guild.get_channel(tournament.rch)
+    cch: TextChannel = message.guild.get_channel(tournament.cch)
+    rch = message.channel
 
     if not cch:
         await self.log(message.guild, f"{self.bot.emoji.cross} | Slot  Channel Not Found", color=self.bot.color.red)
@@ -105,7 +105,7 @@ async def tourney_registration(self : "TourneyCog", message: Message):
     if len(valid_member_mentions) < tournament.mentions:
         await self.log(message.guild, f"{message.author} tried to register in {rch.mention} but failed due to insufficient mentions.", color=self.bot.color.red)
         meb = EmbedBuilder.warning(f"**Minimum {tournament.mentions} Mentions Required For Successfull Registration**")
-        await message.delete()
+        await self.delete_message(message)
         await message.channel.send(content=message.author.mention, embed=meb, delete_after=5)
         return
 
