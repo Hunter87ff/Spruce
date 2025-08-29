@@ -16,7 +16,6 @@
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=alert_status)](#)
 
 
-<!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
 
 Spruce is a multi-functional Discord app designed to streamline the management of Discord esports and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
 
