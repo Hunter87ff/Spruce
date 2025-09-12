@@ -3,7 +3,7 @@
 <!-- [![Tests](https://github.com/Hunter87ff/Spruce/actions/workflows/testing.yml/badge.svg)](#) -->
 [![Language](https://img.shields.io/badge/lang-Python%203.11+-blue)](#)
 [![Commands](https://img.shields.io/badge/90+-Commands-violet)](#)
-[![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.5.2-skyblue)](#)
+[![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.6.3-skyblue)](#)
 [![Database](https://img.shields.io/badge/database-MongoDB-green)](#)
 ![License](https://img.shields.io/github/license/hunter87ff/spruce)
 [![Lavalink](https://img.shields.io/badge/Lavalink%20-4.0.11-skyblue)](#)
