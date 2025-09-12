@@ -12,7 +12,6 @@ from config import IS_DEV_ENV
 from typing import TYPE_CHECKING
 
 from .dev import DevCog
-from .role import RoleCog
 from .tasks import TaskCog
 
 from .helpcog import HelperCog
@@ -31,7 +30,6 @@ if TYPE_CHECKING:
 _cogs : list["Cog"] = [
     DevCog,
     HelperCog,
-    RoleCog,
     AutoRoleCog,
     TourneyCog,
     UtilityCog,
