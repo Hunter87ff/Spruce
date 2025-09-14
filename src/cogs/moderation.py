@@ -697,7 +697,7 @@ class ModerationCog(Cog):
 
 
             await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
-            await self.bot.sleep(* 2)  # sleep a bit more to avoid rate limits
+            await self.bot.sleep(2)  # sleep a bit more to avoid rate limits
 
         await msg.edit(content=None, embed=self.EmbedBuilder(color=self.bot.color.green, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted")) if msg else None
 
