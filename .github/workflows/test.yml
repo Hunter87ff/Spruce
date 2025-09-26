@@ -15,6 +15,7 @@ env:
   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
   TRANSLATE_KEY : ${{ secrets.TRANSLATE_KEY }}
   GEMINI_KEY : ${{ secrets.GEMINI_KEY }}
+  GH_TOKEN : ${{ secrets.GH_TOKEN }}
   PREFIX : ${{ secrets.PREFIX }}
   
 jobs:
