@@ -1,12 +1,16 @@
 from __future__ import annotations
+
+
+
 import re
+from discord import ui as dui
 from typing import TYPE_CHECKING, Literal
 from ext import EmbedBuilder, constants
-from discord import  Message, utils, PermissionOverwrite
-
+from discord import  Message, utils, PermissionOverwrite, SelectOption, ButtonStyle
 
 if TYPE_CHECKING:
     from core.bot import Spruce
+    from cogs.esports import Esports
     from models import TourneyModel
     from models import TeamModel
     from discord import Guild, TextChannel
@@ -70,7 +74,7 @@ class TourneyUtils(BaseEsportsUtils):
 
     def __init__(self, bot: "Spruce") -> None:
         super().__init__(bot)
-        self.bot = bot
+        TourneyUtils.bot = bot
 
 
     @classmethod
@@ -87,7 +91,7 @@ class TourneyUtils(BaseEsportsUtils):
         log_channel: "TextChannel" = guild.get_channel(cls.log_channel_cache.get(guild.id)) 
 
         if not log_channel:
-            log_channel = utils.get(guild.text_channels, name=cls.bot.config.LOG_CHANNEL_NAME)
+            log_channel = utils.get(guild.text_channels, name=cls.bot.config.TOURNEY_LOG_CHANNEL_NAME)
 
         if log_channel is None:
             return
@@ -118,6 +122,7 @@ class TourneyUtils(BaseEsportsUtils):
         embed.add_field(name="Total Slots", value=tournament.total_slots)
         embed.add_field(name="Mentions Required", value=tournament.mentions)
         embed.add_field(name="Slots per Group", value=tournament.slot_per_group)
+        embed.add_field(name="Duplicate Tag", value=("Allowed", "Not Allowed")[tournament.tag_filter])
         embed.add_field(name="Registration Channel", value=f"<#{tournament.reg_channel}>")
         embed.add_field(name="Confirm Channel", value=f"<#{tournament.slot_channel or 45245245}>")
         embed.add_field(name="Group Channel", value=f"<#{tournament.group_channel or 45245245}>")
@@ -138,3 +143,42 @@ class TourneyUtils(BaseEsportsUtils):
         embed.set_author(name=_guild.name, icon_url=_guild.icon if _guild.icon else None)
         embed.timestamp = utils.utcnow()
         return embed
+    
+
+
+    @classmethod
+    def slot_manager_components(cls, cog: "Esports",  tourney : "TourneyModel"):
+
+        _view = dui.View(timeout=None) 
+        _buttons = [
+            dui.Button(label="Cancel Slot", style=ButtonStyle.red, custom_id=cog.INTERACTION_IDS.CANCEL_SLOT),
+            dui.Button(label="Check Slot", style=ButtonStyle.blurple, custom_id=cog.INTERACTION_IDS.CHECK_SLOT),
+            dui.Button(label="Rename Slot", style=ButtonStyle.green, custom_id=cog.INTERACTION_IDS.RENAME_SLOT),
+            dui.Button(label="Transfer Slot", style=ButtonStyle.grey, custom_id=cog.INTERACTION_IDS.TRANSFER_SLOT),
+        ]
+        for button in _buttons:
+            _view.add_item(button)
+        
+        _embed = EmbedBuilder(
+            title=tourney.name.upper(),
+            description=f"{cog.bot.emoji.arow} **Cancel Slot** : to cancel your slot\n"
+                        f"{cog.bot.emoji.arow} **Check Slot** : to check your slot\n"
+                        f"{cog.bot.emoji.arow} **Rename Slot** : to rename your slot\n"
+                        f"{cog.bot.emoji.arow} **Transfer Slot** : to transfer your slot",
+            color=cog.bot.base_color
+        )
+
+        return (_view, _embed)
+
+
+
+    @classmethod
+    async def slot_manager_team_select(cls, captain: int, tourney: "TourneyModel"):
+        _teams = await tourney.get_teams_by_captain(captain)
+        if not _teams:
+            return None
+        
+        _options = [SelectOption(label=team.name.upper(), value=str(team._id)) for team in _teams[0:24]]
+        _select = dui.Select(placeholder="Select a team...", options=_options)
+        return _select
+    

@@ -3,12 +3,13 @@
 from discord.ext import commands
 from typing import TYPE_CHECKING
 from discord import Embed
+from core.abstract import Cog
 
 if TYPE_CHECKING:
     from core.bot import Spruce
 
 
-class TourneyMigrateCog(commands.Cog):
+class TourneyMigrateCog(Cog):
     """Helps to identify the latest migrated commands for the tourney module"""
 
     def __init__(self, bot: "Spruce"):

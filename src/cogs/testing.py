@@ -59,3 +59,14 @@ class TestingCog(Cog):
         
         await ctx.send(f"Members found: {', '.join(member.mention for member in members)}")
         
+
+    @commands.command()
+    async def react(self, ctx : commands.Context, message_id : str, emoji : str):
+        message = await ctx.fetch_message(int(message_id))
+        if not message:
+            return await ctx.send("Message not found.")
+
+        if await self.add_reaction(message, emoji):
+            await ctx.send(f"Added reaction {emoji} to the message.")
+        else:
+            await ctx.send(f"Failed to add reaction.")

@@ -3,10 +3,10 @@
 <!-- [![Tests](https://github.com/Hunter87ff/Spruce/actions/workflows/testing.yml/badge.svg)](#) -->
 [![Language](https://img.shields.io/badge/lang-Python%203.11+-blue)](#)
 [![Commands](https://img.shields.io/badge/90+-Commands-violet)](#)
-[![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.5.2-skyblue)](#)
+[![discord.py Version](https://img.shields.io/badge/lib-discord.py%202.6.3-skyblue)](#)
 [![Database](https://img.shields.io/badge/database-MongoDB-green)](#)
 ![License](https://img.shields.io/github/license/hunter87ff/spruce)
-[![Lavalink](https://img.shields.io/badge/Lavalink%20-4.0.7-skyblue)](#)
+[![Lavalink](https://img.shields.io/badge/Lavalink%20-4.0.11-skyblue)](#)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=ncloc)](#)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=reliability_rating)](#)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=sqale_rating)](#)
@@ -16,7 +16,6 @@
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=Hunter87ff_Spruce&metric=alert_status)](#)
 
 
-<!--<img align="right" style="border-radius:6px;" src="https://avatars.githubusercontent.com/u/105124146?s=200&v=4" alt="Spruce">-->
 
 Spruce is a multi-functional Discord app designed to streamline the management of Discord esports and servers. Our mission is to provide a comprehensive solution for tournament organizers and server administrators, ensuring a seamless and enjoyable experience for all participants.
 
@@ -39,7 +38,7 @@ Spruce is a multi-purpose discord app that provides various kind of features lik
 > [!NOTE]
 > If you decide to edit, compile or use this code in any way. Kindly respect the [`LICENSE`](https://github.com/Hunter87ff/spruce/blob/main/LICENSE)
 
-## 🐳 Deployment
+## 🐳 Prebuilt Images
 ```sh
 docker-compose up -d # if wanna build from source
 ```
@@ -51,7 +50,7 @@ docker pull ghcr.io/hunter87ff/spruce:latest # if you want to use the prebuilt i
 
 
 ## Support Server
-> If you're facing any kind of issues with spruce, feel free to join our discord support server<br> 
+> If you're facing any kind of issues with spruce, feel free to join our discord server<br> 
 [![DiscordBanner](https://invidget.switchblade.xyz/vMnhpAyFZm)](https://discord.gg/vMnhpAyFZm)
 
 
@@ -71,7 +70,7 @@ __**Scrim**__
 
 __**Moderation**__
 
-`clear`, `clear_perms`, `channel_del`, `channel_make`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`
+`clear`, `clear_perms`, `channel_del`, `create_channel`, `delete_category`, `mute`, `unmute`, `kick`, `ban`, `hide`, `unhide`, `lock`, `unlock`, `hide_category`, `unhide_category`, `lock_category`, `unlock_category`, `setup`
 
 ---------------------------------
 

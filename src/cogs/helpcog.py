@@ -14,6 +14,8 @@ from discord.ui import Button, View
 from config import PREFIX, INVITE_URL
 from ext import emoji, EmbedBuilder
 from typing import TYPE_CHECKING
+from core.abstract import Cog
+
 
 if TYPE_CHECKING:
     from core.bot import Spruce
@@ -26,6 +28,7 @@ donate_btn = Button(label="Donate", url="https://discord.gg/x4sUyxttnf")
 
 hel_p = f"• Prefix - `{PREFIX}`\n• Total Commands - `88` | Usable - `79`\n• Type `{PREFIX}help <command | category>` for more info\n\n"
 helpemb  = EmbedBuilder(
+    
     title="Spruce Help Menu",
     description=f"{hel_p}**__Categories__\n\n{emoji.mod} Moderation\n\n{emoji.setting} Utility\n\n{emoji.cup} Tourney\n\n{emoji.cup} Scrims\n\n{emoji.role} Role\n\n{emoji.music_disk} Music**",
 )
@@ -37,7 +40,7 @@ modemb   = EmbedBuilder(
 )
 
 espemb   = EmbedBuilder(
-    description=f"{hel_p}__**Tourney**__\n`setup`, `add_slot`, `cancel_slot`, `ignore_me`,`change_slot`, `pause`, `start`, `config`, `faketag`, `girls_lobby`, `publish`, `tourneys`, `auto_group`, `tconfig`, `export`, `set log`"
+    description=f"{hel_p}__**Tourney**__\n`setup`, `add_slot`, `cancel_slot`, `ignore_me`,`change_slot`, `pause`, `start`, `config`, `faketag`, `girls_lobby`, `auto_group`, `tconfig`, `export`, `set log`"
 )
 
 scrimemb = EmbedBuilder(
@@ -91,7 +94,7 @@ class DropdownView(discord.ui.View):
         super().__init__()
         self.add_item(Dropdown())
 
-class HelperCog(commands.Cog):
+class HelperCog(Cog):
     def __init__(self, bot:"Spruce"):
         self.bot= bot
         self.bot.remove_command("help")

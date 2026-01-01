@@ -500,10 +500,11 @@ class UtilityCog(Cog):
         if len(roles) > 20:
             roles += "..."
 
-        emb = Embed(
+        _description = f"**__Description__**\n{ctx.guild.description}" if ctx.guild.description else ""
+
+        emb = self.EmbedBuilder(
             title=f"{ctx.guild.name}'s Information",
-            description=f"**__About__**\n**Name** : {ctx.guild.name}\n**Id** : {ctx.guild.id}\n**Owner** : <@{ctx.guild.owner_id}>\n**Members** : {ctx.guild.member_count}\n**Verification Level** : {ctx.guild.verification_level}\n**Upload Limit** : {(ctx.guild.filesize_limit)/1024/1024} MB\n**Created At** : {ctx.guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(ctx.guild.categories)}\n**Voice Channels** : {len(ctx.guild.voice_channels)}\n**Text Channels** : {len(ctx.guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {ctx.guild.premium_tier}\n**Emojis** : {len(ctx.guild.emojis)}/{ctx.guild.emoji_limit}\n**Stickers** : {len(ctx.guild.stickers)}/{ctx.guild.sticker_limit}\n\n**__Server Roles__ [{len(ctx.guild.roles)}]** :\n{roles}\n\n**__Description__**\n{ctx.guild.description}",
-            color=0xf1c40f
+            description=f"**__About__**\n**Name** : {ctx.guild.name}\n**Id** : {ctx.guild.id}\n**Owner** : <@{ctx.guild.owner_id}>\n**Members** : {ctx.guild.member_count}\n**Verification Level** : {ctx.guild.verification_level}\n**Upload Limit** : {(ctx.guild.filesize_limit)/1024/1024} MB\n**Created At** : {ctx.guild.created_at.strftime('%a, %#d %B %Y, %I:%M %p')}\n\n**__Channels__**\n**Category Channels** : {len(ctx.guild.categories)}\n**Voice Channels** : {len(ctx.guild.voice_channels)}\n**Text Channels** : {len(ctx.guild.text_channels)}\n\n**__Extras__**\n**Boost Lv.** : {ctx.guild.premium_tier}\n**Emojis** : {len(ctx.guild.emojis)}/{ctx.guild.emoji_limit}\n**Stickers** : {len(ctx.guild.stickers)}/{ctx.guild.sticker_limit}\n\n**__Server Roles__ [{len(ctx.guild.roles)}]** :\n{roles}\n\n{_description}"
         )
 
         emb.set_thumbnail(url=ctx.guild.icon)

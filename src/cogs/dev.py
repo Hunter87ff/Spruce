@@ -11,7 +11,7 @@ import config
 from core import payment
 from discord.ext import commands
 from ext import checks
-from models import TesterModel
+from models import TesterModel, ScrimModel
 from core.abstract import Cog
 from typing import Any, TYPE_CHECKING
 import psutil, enum
@@ -42,8 +42,8 @@ class DevCog(Cog):
     """
 
     def __init__(self, bot):
-        self.bot:'Spruce' = bot
-
+        self.bot: "Spruce" = bot
+        self.hidden: bool = True  # Hide this cog from the help command
 
     @discord.app_commands.command(description="Use coupon code SP10 to get Discount.")
     @checks.dev_only()
@@ -154,15 +154,34 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
     @commands.command(hidden=True)
     @checks.dev_only()
-    async def get_guild(self, ctx:commands.Context, guild:discord.Guild):
+    async def get_guild(self, ctx:commands.Context, guild_id: int):
         if ctx.author.bot: return
         await ctx.defer()
-        if  guild:
-            try:
-                invites = await guild.channels[0].create_invite(reason=None, max_age=360, max_uses=2, temporary=True, unique=False, target_type=None, target_user=None, target_application_id=None)
-                return await ctx.send(invites)
-            except Exception: return await ctx.send(f"i dont have permission to get links in {guild.name}")
-        else: return await ctx.send("guild not found")						  
+        guild = self.bot.get_guild(guild_id)
+
+        if  not guild:
+            await ctx.send("Guild not found")
+ 
+        channel = guild.system_channel or guild.text_channels[0] if guild.text_channels else None
+
+        try:
+            _invites = await guild.invites() if guild.me.guild_permissions.manage_guild else []
+            if _invites:
+                await ctx.send(_invites[0])
+                return
+
+            invites = await channel.create_invite(
+                max_uses=2, 
+                unique=False, 
+            ) if channel else "not able to create invite"
+
+            await ctx.send(invites)
+            return
+
+        except Exception:
+            await ctx.send(f"i dont have permission to get links in {guild.name}")
+            return
+
 
 
     @commands.command(hidden=True)
@@ -302,11 +321,32 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
         except Exception as e:
             await ctx.response.send_message(f"Failed to load cog `{cog_name.value}`: {e}", ephemeral=True)
 
-    
+
+    @discord.app_commands.command(name="load_events", description="Load all the events (Dev only)")
+    @checks.dev_only(interaction=True)
+    @discord.app_commands.guild_only()
+    @discord.app_commands.checks.cooldown(1, 60, key=lambda i: i.user.id)
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
+    async def load_events(self, ctx: discord.Interaction):
+        await ctx.response.defer(ephemeral=True)
+        try:
+            _loaded_scrims = await ScrimModel.load_all()
+            await ctx.followup.send(f"{len(_loaded_scrims)} scrim events loaded successfully.", ephemeral=True)
+
+            # implementation for tourney (later on)
+            # _loaded_tourneys = await TourneyModel.load_all()
+            # await ctx.followup.send(f"{len(_loaded_tourneys)} tourney events loaded successfully.", ephemeral=True)
+
+        except Exception as e:
+            await ctx.followup.send(f"Failed to load events: {e}", ephemeral=True)
+
+
+
     @commands.hybrid_command(name="add_role", description="(Dev only): Add a role to a member in a specific guild")
+    @checks.dev_only()
     @commands.guild_only()
     @discord.app_commands.guild_only()
-    @checks.dev_only()
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
     @discord.app_commands.describe(
         guild_id="ID of the guild where the member is located",
         member_id="ID of the member to whom the role will be added",
@@ -337,3 +377,42 @@ Disk Usage: {disk.used//10**9} GB({disk.percent}%)
 
         else:
             await ctx.send(f"{member.name} already has the role {role.name}.")
+
+
+    @discord.app_commands.command(name="remove_role", description="(Dev only): Remove a role from a member in a specific guild")
+    @checks.dev_only()
+    @commands.guild_only()
+    @discord.app_commands.guild_only()
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
+    @discord.app_commands.describe(
+        guild_id="ID of the guild where the member is located",
+        member_id="ID of the member from whom the role will be removed",
+        role_id="ID of the role to be removed"
+    )
+    async def remove_role(self, ctx: commands.Context, guild_id: int, member_id: int, role_id: int):
+        guild = self.bot.get_guild(guild_id)
+        if not guild:
+            return await ctx.send("Guild not found.")
+
+        member = guild.get_member(member_id)
+        if not member:
+            return await ctx.send("Member not found in the specified guild.")
+
+        role = guild.get_role(role_id)
+        if not role:
+            return await ctx.send("Role not found in the specified guild.")
+
+        if role not in member.roles:
+            return await ctx.send(f"{member.name} does not have the role {role.name}.")
+
+        await member.remove_roles(role)
+        await ctx.send(f"Removed role {role.name} from {member.name}.")
+
+
+    @discord.app_commands.command(name="migrate_tourney", description="Migrate legacy tourney data into the new format")
+    @checks.dev_only()
+    @discord.app_commands.guild_only()
+    @discord.app_commands.guilds(discord.Object(id=config.SUPPORT_SERVER_ID))
+    async def migrate_tourney(self, ctx: discord.Interaction):
+        # not implemented yet
+        await ctx.response.send_message("Migration not implemented yet.", ephemeral=True)

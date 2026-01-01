@@ -5,6 +5,7 @@ import asyncio
 from typing import TYPE_CHECKING, Self
 from typing import Unpack
 
+from ext import Logger
 from pymongo.collection import Collection
 from pymongo.asynchronous.collection import AsyncCollection
 from ext.types import TournamentPayload, TourneyTeamPayload
@@ -26,11 +27,12 @@ class TourneyModel:
 
     def __init__(self, **kwargs: Unpack[TournamentPayload]) -> None:
         # print("Initializing TourneyModel with kwargs:", kwargs)
+        self._version: int = kwargs.get("_v", 1)  # Versioning for future changes
         self.guild_id: int = kwargs.get("guild")
         self.status: bool = kwargs.get("status", True) # True if the tournament is active, False otherwise
         self.name: str = str(kwargs.get("name", "New Tournament"))
         self.tag_filter: bool = kwargs.get('ftch', False)  # duplicate tag filter
-        self.reg_channel: int = int(kwargs.get("rch"))
+        self.reg_channel: int = kwargs.get("rch")
         self.slot_channel: int = kwargs.get("cch")
         self.group_channel: int = kwargs.get("gch")
         self.slot_manager: int = kwargs.get("mch") #slot manager channel id
@@ -45,10 +47,10 @@ class TourneyModel:
 
 
     def __repr__(self) -> str:
-        return f"<Tournament guild={self.guild_id} status={self.status} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} spg={self.slot_per_group} cgp={self.current_group} cat={self.created_at}>"
+        return f"<Tournament name={self.name} guild={self.guild_id} status={self.status} rch={self.reg_channel} cch={self.slot_channel} crole={self.confirm_role} gch={self.group_channel} tslot={self.total_slots} reged={self.team_count} spg={self.slot_per_group} cat={self.created_at}>"
 
     def __str__(self) -> str:
-        return f"Tournament(guild={self.guild_id}, status={self.status}, rch={self.reg_channel}, cch={self.slot_channel}, crole={self.confirm_role}, gch={self.group_channel}, tslot={self.total_slots}, reged={self.team_count}, spg={self.slot_per_group}, cgp={self.current_group}, cat={self.created_at})"
+        return f"Tournament(name={self.name}, guild={self.guild_id}, status={self.status}, rch={self.reg_channel}, cch={self.slot_channel}, crole={self.confirm_role}, gch={self.group_channel}, tslot={self.total_slots}, reged={self.team_count}, spg={self.slot_per_group}, cat={self.created_at})"
 
 
     def __eq__(self, value):
@@ -58,7 +60,7 @@ class TourneyModel:
         elif isinstance(value, TourneyModel):
             return any([
                 self.reg_channel == value.reg_channel,
-                self.slot_manager == value.slot_manager,
+                self.slot_manager and self.slot_manager == value.slot_manager,
             ])
         return False
 
@@ -78,8 +80,8 @@ class TourneyModel:
         if not isinstance(self.status, bool):
             raise ValueError("status must be a boolean")
 
-        if not isinstance(self.mentions, int) or self.mentions <= 0:
-            raise ValueError("mentions must be a positive integer")
+        if not isinstance(self.mentions, int) or self.mentions < 0:
+            raise ValueError("mentions must be a non-negative integer")
 
         if not isinstance(self.tag_filter, bool):
             raise ValueError("tag_filter must be a boolean")
@@ -122,18 +124,20 @@ class TourneyModel:
         """
         return {
             "name": self.name,
-            "guild": self.guild_id,
             "status": self.status,
+            "guild": self.guild_id,
             "rch": self.reg_channel,
             "cch": self.slot_channel,
-            "mentions": self.mentions,
-            "ftch": self.tag_filter,
-            "crole": self.confirm_role,
             "gch": self.group_channel,
+            "mch": self.slot_manager,
+            "crole": self.confirm_role,
+            
             "tslot": self.total_slots,
             "reged": self.team_count,
+            "mentions": self.mentions,
+
+            "ftch": self.tag_filter,
             "spg": self.slot_per_group,
-            "mch": self.slot_manager,
             "cat": self.created_at,
             "_v": 1,  # Versioning for future changes
         }
@@ -266,7 +270,7 @@ class TourneyModel:
         team.tid = self.reg_channel
         return team
 
-    async def get_teams(self) -> set[TeamModel]:
+    async def get_teams(self):
         """Fetches all teams registered in the tournament."""
         if self.__teams:
             return self.__teams
@@ -275,7 +279,7 @@ class TourneyModel:
         return self.__teams
     
     
-    async def get_team_by_player_id(self, player_id:int):
+    async def get_teams_by_player_id(self, player_id:int):
         """Fetches a team by a player's ID.""" 
         _teams : list[TeamModel] = []
 
@@ -285,6 +289,19 @@ class TourneyModel:
 
         return _teams 
     
+
+    async def get_teams_by_captain(self, captain_id : int):
+        return [team for team in await self.get_teams() if team.captain == captain_id]
+
+
+    async def get_team_by_captain(self, captain_id):
+        for _team in await self.get_teams():
+            if _team.captain == captain_id:
+                return _team
+            
+        return None
+
+
     async def get_team_by_id(self, team_id:int) -> TeamModel | None:
         """Fetches a team by its ID."""
         for team in await self.get_teams():
@@ -334,6 +351,7 @@ class TourneyModel:
         """Removes a team from the tournament."""
         if team not in self.__teams:
             raise ValueError("Team not found in the tournament.")
+        
         await team.delete()
         self.__teams.remove(team)
         self.team_count -= 1
@@ -359,7 +377,7 @@ class TourneyModel:
             _tourney = cls(**doc)
             cls._cache[_tourney.reg_channel] = _tourney
             cls._REGISTER_CHANNEL_CACHE.add(_tourney.reg_channel)
-
+        Logger.info(f"Loaded {len(cls._cache)} tournaments from the database.")
         return cls._cache.values()
 
 

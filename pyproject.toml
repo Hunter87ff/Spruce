@@ -10,7 +10,7 @@ dependencies = [
     "cachetools>=5.5.2",
     "cashfree-pg>=4.0.0",
     "dateparser>=1.2.1",
-    "discord-py==2.5.2",
+    "discord-py==2.6.3",
     "google-generativeai>=0.8.5",
     "gtts>=2.3.2",
     "html5lib>=1.1",

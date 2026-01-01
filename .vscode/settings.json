@@ -1,6 +1,37 @@
 {
-    "sonarlint.connectedMode.project": {
-        "connectionId": "Sonar Cloud",
-        "projectKey": "Hunter87ff_Spruce"
-    }
+  "files.exclude": {
+    "**/.git": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/venv": true,
+    "**/.venv": true,
+    "**/.idea": true
+  },
+  "search.exclude": {
+    "**/venv": true,
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true
+  },
+
+  "python.analysis.indexing": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.memory.keepLibraryAst": false,
+  "python.analysis.openFilesOnly": false,
+
+  "python.linting.enabled": true,
+  "python.linting.lintOnSave": true,
+  "python.linting.lintOnChange": false,  
+
+  "python.defaultInterpreterPath": ".venv/bin/python",  
+
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": false
+  }
 }

@@ -4,17 +4,32 @@ A module for moderation commands in Spruce.
     :copyright: (c) 2022-present hunter87.dev@gmail.com
     :license: GPL-3, see LICENSE for more details.
 """
+from __future__ import annotations
 
+from datetime import timedelta
+import typing
 import discord
-from discord import app_commands
-from asyncio import sleep
-from ext import EmbedBuilder
+from ext import constants
+from discord.ui import Button, View
+from discord import Interaction, app_commands, Role, Member, ButtonStyle
 from discord.ext import commands
 from core.abstract import Cog
-import typing
 
 if typing.TYPE_CHECKING:
     from core.bot import Spruce
+
+
+
+class RoleCogException(Exception):
+    """
+    Custom exception for RoleCog.
+    """
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+
 
 class ModerationCog(Cog):
     """
@@ -27,6 +42,12 @@ class ModerationCog(Cog):
         self.bot = bot
         self.emoji = self.bot.emoji.mod
         self.debug_mode = False
+        self.description = "Commands to manage and moderate your server"
+        self.short_description = "Moderation commands"
+        self.Embed = self.bot.ext.EmbedBuilder
+        self.ROLE_HIGHER_THAN_YOU = "{role.mention} Is Higher or Equal To Your Top Role. So I Can't Manage It"
+        self.ROLE_HIGHER_THAN_ME = "{role.mention} Is Higher or Equal To My Top Role. So I Can't Manage It"
+
 
     def _declear(self,target:discord.TextChannel, role:discord.Role, action:str):
         return "{channel} is now {action} for {role}".format(
@@ -58,7 +79,7 @@ class ModerationCog(Cog):
 
         if ctx.channel.permissions_for(ctx.guild.me).send_messages:
             await ctx.send(
-                embed=EmbedBuilder.success(
+                embed=self.Embed.success(
                     self._declear(channel, role, "locked")
                     ), 
                 delete_after=5
@@ -71,8 +92,8 @@ class ModerationCog(Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
     @app_commands.describe(role="The role to lock the channel for", channel="The channel to lock")
-    async def lock_channel(self, ctx:commands.Context, channel: discord.TextChannel, role:discord.Role=None):
-        await self.lock(ctx, role=role, channel=channel)
+    async def lock_channel(self, ctx:commands.Context, channel: discord.TextChannel=None, role:discord.Role=None):
+        await self.lock(ctx, role=role, channel=channel or ctx.channel)
 
 
 
@@ -92,12 +113,15 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(send_messages=False, add_reactions=False)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
 
         if ms:
-            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is locked for {role.name}')
-
-
+            await ms.edit(
+                content=None, 
+                embed=self.EmbedBuilder.success(
+                    message=f'{category.name} is locked for {role.name}'
+                )
+            )
 
     @commands.hybrid_group(name="unlock", description="Unlock a channel for a specific role", invoke_without_command=True)
     @app_commands.guild_only()
@@ -118,7 +142,7 @@ class ModerationCog(Cog):
         overwrite.update(send_messages=True)
         await channel.set_permissions(role, overwrite=overwrite)
         await ctx.send(
-            embed=EmbedBuilder.success(f'{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`'),
+            embed=self.Embed.success(f'{self.bot.emoji.tick} | {channel.mention} has been unlocked from `{role.name}`'),
             delete_after=5
         )
 
@@ -152,12 +176,16 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(send_messages=True, add_reactions=True)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
 
         if ms:
-            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is unlocked for {role.name}')
-
-
+            await ms.edit(
+                content=None, 
+                embed=self.EmbedBuilder.success(
+                    f'{category.name} is unlocked for {role.name}'
+                )
+            )
+            
 
     @commands.hybrid_group(name="hide", description="Hide a channel from a specific role", invoke_without_command=True)
     @app_commands.guild_only()
@@ -176,8 +204,10 @@ class ModerationCog(Cog):
         overwrite = ctx.channel.overwrites_for(role)
         overwrite.update(view_channel=False)
         await channel.set_permissions(role, overwrite=overwrite)
-        return await ctx.send(embed=discord.Embed(description=f'{self.bot.emoji.tick} | This channel is now hidden to {role.mention}'), delete_after=30)
-    
+        return await ctx.send(embed=self.EmbedBuilder.success(
+            f'This channel is now hidden to {role.mention}'
+        ), delete_after=30)
+
 
     @hide.command(name="channel", description="Hide a channel from a specific role")
     @app_commands.guild_only()
@@ -191,7 +221,7 @@ class ModerationCog(Cog):
 
 
 
-    @hide.command(name="category", description="Hide a category from a specific role", aliases=["hide_category"])
+    @hide.command(name="category", description="Hide a category from a specific role", aliases=["hide_category", "hc"])
     @commands.guild_only()
     @app_commands.guild_only()
     @commands.has_permissions(manage_roles=True)
@@ -209,12 +239,13 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(view_channel=False)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
 
         if ms:
-            await ms.edit(content=f'{self.bot.emoji.tick} | {category.name} is hidden from {role.name}')
-
-
+            await ms.edit(
+                content=None,
+                embed=self.EmbedBuilder.success(f'{category.name} is hidden from {role.name}')
+            )
 
     @commands.hybrid_group(name="unhide", description="Unhide a channel from a specific role", invoke_without_command=True)
     @app_commands.guild_only()
@@ -238,7 +269,9 @@ class ModerationCog(Cog):
         
         if channel.permissions_for(ctx.guild.me).send_messages:
             await ctx.send(
-                embed=discord.Embed(description=f'{self.bot.emoji.tick} | This channel is now visible to {role.mention}'), 
+                embed=self.EmbedBuilder.success(
+                    f'This channel is now visible to {role.mention}'
+                ),
                 delete_after=30
             )
 
@@ -270,12 +303,14 @@ class ModerationCog(Cog):
             overwrite = channel.overwrites_for(role)
             overwrite.update(view_channel=True)
             await channel.set_permissions(role, overwrite=overwrite)
-            await sleep(0.5)
+            await self.bot.sleep(0.5)
         
         if ctx.channel.permissions_for(ctx.guild.me).send_messages and _processing:
-            await _processing.edit(content=f"**{self.bot.emoji.tick} | {category.name} is now visible to {role.name}**")
-
-
+            await _processing.edit(
+                embed=self.EmbedBuilder.success(
+                    f'{category.name} is now visible to {role.name}'
+                )
+            )
 
     @commands.hybrid_command(description="clear message within a limit and target filter", aliases=['purge'], )
     @commands.guild_only()
@@ -283,7 +318,8 @@ class ModerationCog(Cog):
     @commands.cooldown(2, 30, commands.BucketType.user)
     @app_commands.describe(amount="The number of messages to delete", target="The user to filter messages by")
     @commands.bot_has_guild_permissions(manage_messages=True)
-    async def clear(self, ctx:commands.Context, amount:int=10, target:discord.Member=None):
+    async def clear(self, ctx:commands.Context, amount:int=10, target:discord.User=None):
+        _debug = False
         await ctx.defer()
         if ctx.author.bot:
             return
@@ -295,13 +331,9 @@ class ModerationCog(Cog):
                     delete_after=5
                 )
         _limit= min(amount, max(amount, 50))
-        _processing = await ctx.send(f"**{self.bot.emoji.loading} | Deleting {amount} messages...**")
 
         def filter(m:discord.Message):
-            if any([
-                m.id == _processing.id,
-                self.bot.is_ws_ratelimited()
-            ]):
+            if any([self.bot.is_ws_ratelimited()]):
                 return False
 
             if not target:
@@ -315,15 +347,16 @@ class ModerationCog(Cog):
             
         try:
             await ctx.channel.purge(limit=_limit, check=filter, bulk=True)
-            if _processing:
-                await _processing.edit(
-                    content=f"**{self.bot.emoji.tick} | Successfully deleted {amount} messages!**",
-                    delete_after=5
-                )
+            await self.bot.sleep(1)  # To avoid hitting rate limits
+            await ctx.send(
+                embed=self.Embed.success(
+                    f"Cleared {amount} messages"
+                ),
+                delete_after=5
+            )
 
         except Exception as e:
-            self.bot.debug(f"Error while clearing messages: {e}", is_debug=True)
-            #await self.bot.error_log(f"Guild: {ctx.guild.name}\nChannel: {ctx.channel.name}\nCommand : clear\nError: {e}")
+            self.bot.debug(f"Error while clearing messages: {e}", is_debug=_debug)
 
 
     @commands.hybrid_command(name="clear_perms", description="Clear all permissions from a role")
@@ -336,22 +369,66 @@ class ModerationCog(Cog):
     async def clear_perms(self, ctx:commands.Context, role: discord.Role=None):
         await ctx.defer()
         if ctx.author.bot:return
-        bt = ctx.guild.get_member(self.bot.user.id)
-       
+
         ms:discord.Message = await ctx.send(f"**{self.bot.emoji.loading} Processing...**")
-        if role:
-            if role.position < bt.top_role.position:
-                await role.edit(permissions=discord.Permissions(permissions=0))
-                emb = discord.Embed(description=f'{self.bot.emoji.tick} | All Permissions Removed from {role.mention}')
-                return await ms.edit(content=None, embed=emb)
-            
-        elif not role:
-            for role in ctx.guild.roles:
-                if role.position < bt.top_role.position:
-                    await role.edit(permissions=discord.Permissions(permissions=0))
-                    await sleep(1)
-            emb = discord.Embed(descriptio=f'{self.bot.emoji.tick} | All permissions removed from all role below {bt.top_role.mention}')
-            return await ms.edit(content=None, embed=emb)
+        if not role:
+            for _role in ctx.guild.roles:
+                if _role.position >= ctx.guild.me.top_role.position:
+                    continue
+
+                await _role.edit(permissions=discord.Permissions(permissions=0))
+                await self.bot.sleep()
+                continue
+
+            emb = self.Embed.success(f'All permissions removed from all role below {ctx.guild.me.top_role.mention}')
+            await ms.edit(content=None, embed=emb)
+            return
+
+        if role.position < ctx.guild.me.top_role.position:
+            await role.edit(permissions=discord.Permissions(permissions=0))
+            emb = self.Embed.success(f'All Permissions Removed from {role.mention}')
+            await ms.edit(content=None, embed=emb)
+            return
+        
+
+    @app_commands.command(name="timeout", description="timeout a member in the server")
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(moderate_members=True)
+    @app_commands.checks.bot_has_permissions(moderate_members=True, send_messages=True)
+    @app_commands.checks.cooldown(1, 10, key=lambda i: i.user.id)
+    @app_commands.describe(
+        member="The member to timeout", 
+        time="The duration of the timeout",
+        reason="The reason for timing out the member")
+    async def timeout(self, ctx:Interaction, member: discord.Member, time : typing.Literal["1m", "5m", "10m", "30m", "1h", "1d", "1w"], reason:str=None):
+        await ctx.response.defer(ephemeral=True)
+
+        _time_dict = {
+            "1m": 60,
+            "5m": 300,
+            "10m": 600,
+            "30m": 1800,
+            "1h": 3600,
+            "1d": 86400,
+            "1w": 604800,
+        }
+
+        if member.guild_permissions.moderate_members:
+            await ctx.followup.send(
+                embed=self.EmbedBuilder.warning(
+                    "Member having higher moderation permissions cannot be timed out."
+                )
+            )
+            return
+
+        timeout_duration = _time_dict.get(time, 60)
+        time_delta = self.bot.now() + timedelta(seconds=timeout_duration)
+
+        await member.timeout(time_delta, reason=reason or f"Timed out by {ctx.user}")
+        await ctx.followup.send(
+            embed=self.EmbedBuilder.success(f"**{member} has been timed out for {time}**"),
+        )
+    
 
 
     @commands.hybrid_command(name="kick", description="Kick a member from the server")
@@ -377,34 +454,35 @@ class ModerationCog(Cog):
 
 
     @commands.hybrid_command(name="ban", description="Ban a member from the server")
-    @commands.bot_has_guild_permissions(ban_members=True, send_messages=True)
-    @commands.has_permissions(ban_members=True)
-    @commands.cooldown(2, 15, commands.BucketType.user)
     @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_guild_permissions(ban_members=True, send_messages=True)
+    @commands.cooldown(2, 30, commands.BucketType.user)
     @app_commands.describe(member="The member to ban", reason="The reason for banning the member")
     async def ban(self, ctx:commands.Context, member: discord.Member, reason=None):
         await ctx.defer()
         if ctx.author.bot: return
         
         if ctx.author.top_role.position < member.top_role.position:
-            await ctx.send(f"{member}'s role is higher than yours", delete_after=5)
+            await ctx.send(embed=self.Embed.warning(f"{member}'s role is higher than yours"), delete_after=5)
 
         elif member == ctx.author:
-            await ctx.send("**You can't ban your self**", delete_after=5)
+            await ctx.send(embed=self.Embed.warning("**You can't ban your self**"), delete_after=5)
 
         elif ctx.guild.me.top_role.position < member.top_role.position:
-            await ctx.send("**I can't ban him**", delete_after=5)
+            await ctx.send(embed=self.Embed.warning("**I can't ban him**"), delete_after=5)
             
         else:
             await ctx.guild.ban(member, reason=reason or f"{member} banned by {ctx.author}")
-            await ctx.send(f"{member} banned", delete_after=5)
+            await ctx.send(embed=self.Embed.success(f"{member} banned"), delete_after=5)
 
 
     @app_commands.command(name="unban", description="Unban a member from the server, Note: process might disrupt from discord's side!!")
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(ban_members=True)
     @app_commands.checks.bot_has_permissions(ban_members=True, send_messages=True)
-    @commands.cooldown(2, 15, commands.BucketType.user)
+    @app_commands.checks.cooldown(1, 60, key=lambda i: i.guild.id)
     @app_commands.describe(user="user id or username", unban_all="Whether to unban all (200 at a time) users", reason="The reason for unbanning the member")
     async def unban(self, ctx:discord.Interaction, user: discord.User=None, unban_all:bool=False, reason:str=None):
         await ctx.response.defer()
@@ -478,14 +556,14 @@ class ModerationCog(Cog):
 
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(
-                    embed=EmbedBuilder.warning(f"{self.bot.emoji.cross} | You are not allowed to do this"),
+                    embed=self.Embed.warning(f"{self.bot.emoji.cross} | You are not allowed to do this"),
                     ephemeral=True
                 )
                 return
             
             if not ctx.guild.me.guild_permissions.manage_channels:
                 await interaction.response.send_message(
-                    embed=EmbedBuilder.warning(f"I don't have permission to manage channels"),
+                    embed=self.Embed.warning(f"I don't have permission to manage channels"),
                     ephemeral=True
                 )
                 return
@@ -501,7 +579,7 @@ class ModerationCog(Cog):
                     if len(category.channels) == 0:
                         await category.delete()
                         return await del_t_con.edit(
-                            embed=EmbedBuilder.success(message=f"**Successfully Deleted ~~{category.name}~~ Category**")
+                            embed=self.Embed.success(message=f"**Successfully Deleted ~~{category.name}~~ Category**")
                         ) if del_t_con else None
                     
                 except Exception as e:
@@ -509,7 +587,7 @@ class ModerationCog(Cog):
 
                     await del_t_con.edit(
                         content=None,
-                        embed=EmbedBuilder.alert(f"**Failed to Delete `{channel.name}` Channel\nReason : maybe i don't have `permission`**"
+                        embed=self.Embed.alert(f"**Failed to Delete `{channel.name}` Channel\nReason : maybe i don't have `permission`**"
                         ),
                         view=None
                     )
@@ -520,3 +598,403 @@ class ModerationCog(Cog):
             
         bt11.callback = dc_confirmed
         bt12.callback = del_msg
+
+
+    
+    @commands.hybrid_command(name="slowmode", description="Set slowmode for a channel")
+    @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_guild_permissions(manage_channels=True, send_messages=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    @app_commands.describe(seconds="The number of seconds to set slowmode for", channel="The channel to set slowmode for")
+    async def slowmode(self, ctx:commands.Context, seconds:int=5, channel:discord.TextChannel=None):
+        await ctx.defer()
+        if ctx.author.bot:
+            return
+        
+        channel = channel or ctx.channel
+        if seconds < 0:
+            return await ctx.send(embed=self.Embed.warning("**Slowmode can't be negative**"), delete_after=5)
+        
+        if seconds > 21600:
+            return await ctx.send(embed=self.Embed.warning("**Slowmode can't be more than 6 hours**"), delete_after=5)
+
+        await channel.edit(slowmode_delay=seconds)
+        await ctx.send(embed=self.Embed.success(f"**{channel.mention} slowmode set to {seconds} seconds**"), delete_after=5)
+
+
+    def check_access(self, user:Member, role:Role):
+        """
+        Raise an exception if the user does not have permission to manage the role.
+        """
+
+        if not isinstance(user, Member) or not isinstance(role, Role):
+            raise RoleCogException("**Invalid user or role**")
+
+        # if suddenly someone remove manage_roles permission from the bot, this will be helpful
+        if not user.guild.me.guild_permissions.manage_roles:
+            raise RoleCogException(
+                "**I don't have permission to manage roles in this server**"
+            )
+        
+        if role.is_default():
+            raise RoleCogException(
+                "**This is a default role and cannot be managed**"
+            )
+
+        if user.id != user.guild.owner_id and user.top_role.position < role.position:
+            raise RoleCogException(
+                self.ROLE_HIGHER_THAN_YOU.format(role=role)
+            )
+
+        if user.guild.me.top_role.position < role.position:
+            raise RoleCogException(
+                self.ROLE_HIGHER_THAN_ME.format(role=role)
+            )
+        
+
+    @commands.command(aliases=["croles"])
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    async def create_roles(self, ctx:commands.Context, *names:str):
+        if ctx.author.bot:
+            return
+        
+        msg = await ctx.send(
+            embed=self.EmbedBuilder(
+                description=f"{self.bot.emoji.loading} | Creating {len(names)} roles...",
+                color=self.bot.color.yellow
+            )
+        )
+        
+        for role in names:
+            await ctx.guild.create_role(name=role, reason=f"Created by {ctx.author}", color=self.bot.color.random())
+            await self.bot.sleep()
+
+        await self.edit_message(msg, 
+                                embed=self.EmbedBuilder.success(
+                                    f"{self.bot.emoji.tick} | Successfully created {len(names)} roles"
+                                )
+    )
+
+    @commands.command(aliases=["droles"])
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
+    async def del_roles(self, ctx:commands.Context, *roles : Role):
+        if ctx.author.bot:return
+        msg = await ctx.send(f"{self.bot.emoji.loading} {constants.PROCESSING}")
+
+        for role in roles:
+            try:
+                self.check_access(ctx.author, role)
+            except Exception as e:
+                await ctx.send(embed=self.EmbedBuilder(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
+
+
+            await role.delete(reason=f"Role {role.name} has been deleted by {ctx.author}")
+            await self.bot.sleep(2)  # sleep a bit more to avoid rate limits
+
+        await msg.edit(content=None, embed=self.EmbedBuilder(color=self.bot.color.green, description=f"{self.bot.emoji.tick} | Roles Successfully Deleted")) if msg else None
+
+
+
+    @commands.command(aliases=["role"])
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
+    async def give_role(self, ctx:commands.Context, role: Role, *members: Member):
+        if ctx.author.bot:
+            return
+        given = []
+
+        try:
+            self.check_access(ctx.author, role)
+
+        except Exception as e:
+            return await ctx.send(embed=self.EmbedBuilder(
+                description=str(e),
+                color=self.bot.color.red
+            ))
+        
+        if role.permissions.administrator and not ctx.author.guild_permissions.administrator:
+            return await ctx.send(embed=self.EmbedBuilder(
+                description="**Non admin users cannot give admin roles**",
+                color=self.bot.color.red
+            ))
+
+        if all([
+            not members,
+            not ctx.message.reference
+        ]):
+            return await ctx.send(embed=self.EmbedBuilder(
+                description="**Please mention users or reply to a message with users to give them a role**",
+                color=self.bot.color.red
+            ))
+        
+        if all([
+            not members,
+            ctx.message.reference
+        ]):
+            members = ctx.message.reference.resolved.mentions
+
+        if len(members) > 1 and role.permissions.administrator:
+            return await ctx.send(embed=self.EmbedBuilder(
+                description="**I can't give admin role to more than 1 person. at a time**",
+                color=self.bot.color.red
+            ))
+
+        for user in members:
+            user = await self.get_member(ctx.guild, user.id)
+
+            if any([not user, not isinstance(user, Member)]):
+                continue
+
+            await user.add_roles(role)
+            given.append(user)
+            await self.bot.sleep()
+
+        base_message:discord.Message
+
+        async def take_back_roles(int_ctx:Interaction):
+            await int_ctx.response.defer(ephemeral=True)
+            
+            if int_ctx.user != ctx.author:
+                await int_ctx.followup.send(embed=self.EmbedBuilder.warning(f"Hey.. Hey... you're not {ctx.author} to use it.."))
+                return
+            try:
+                self.check_access(int_ctx.user, role)
+
+            except Exception as e:
+                return await int_ctx.followup.send(
+                    embed=self.EmbedBuilder(
+                        description=str(e),
+                        color=self.bot.color.red
+                    ),
+                    ephemeral=True
+                )
+            
+            if not members:
+                return await int_ctx.followup.send(
+                    embed=self.EmbedBuilder(
+                        description="No members to remove role from.",
+                        color=self.bot.color.red
+                    )
+                )
+            
+            for member in members:
+                await member.remove_roles(role, reason=f"Role reversed by {int_ctx.user}")
+                await self.bot.sleep(1)
+
+            if base_message:
+                await base_message.delete()
+
+            await int_ctx.followup.send(
+                embed=self.EmbedBuilder(
+                    description=f"Role {role.mention} removed from {len(members)} members.",
+                    color=self.bot.base_color
+                )
+            )
+        
+        view = discord.ui.View(timeout=20)
+        reverse_btn = Button(
+            # emoji=self.bot.emoji.remove,
+            label="Reverse Role",
+            style=ButtonStyle.green,
+            custom_id="reverse_role"
+        )
+        reverse_btn.callback = take_back_roles
+        view.add_item(reverse_btn)
+
+        embed = self.EmbedBuilder(
+            title="Role Given",
+            description=f"Role {role.mention} given to {len(given)} members.",
+            color=self.bot.base_color
+        )
+
+        base_message = await ctx.send(embed=embed, view=view, delete_after=20)
+
+
+
+    @commands.command()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    @commands.guild_only()
+    async def remove_role(self, ctx:commands.Context, role:Role, *users: Member):
+        if ctx.author.bot:return
+
+        try:
+            self.check_access(ctx.author, role)
+        except Exception as e:
+            return await ctx.send(embed=self.EmbedBuilder(
+                description=str(e),
+                color=self.bot.color.red
+            ), delete_after=10)
+
+
+        for user in users:
+            await user.remove_roles(role, reason=f"Role removed by {ctx.author}")
+            await self.bot.sleep()
+
+        return await ctx.send(f"**{role.name} removed from these members**")
+
+
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    async def add_roles(self, ctx:commands.Context, user:Member, *roles:Role):
+        if ctx.author.bot:
+            return
+
+
+        for role in roles:
+            try:
+                self.check_access(ctx.author, role)
+            except Exception as e:
+                await ctx.send(embed=self.EmbedBuilder(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
+
+            await user.add_roles(role)
+
+        return await ctx.message.add_reaction("✅")
+
+
+    @commands.hybrid_command(with_app_command = True)
+    @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    @app_commands.describe(role="The role to give to all humans")
+    async def role_all_human(self, ctx:commands.Context, role: Role):
+        if ctx.author.bot:return
+        await ctx.defer()
+
+        if not ctx.guild.chunked:
+            await ctx.send(
+                embed=self.EmbedBuilder.warning(
+                    "this command isn't available right now !!"
+                )
+            )
+
+        if role.permissions.administrator:
+            await ctx.send(
+                embed=self.EmbedBuilder.warning("**This role has admin permissions and not secure to add to all members !!**")
+            )
+            return
+        
+        try:
+            self.check_access(ctx.author, role)
+
+        except Exception as e:
+            await ctx.send(
+                embed= self.EmbedBuilder.warning(
+                    str(e)
+                )
+            )
+
+        for member in ctx.guild.members:
+            if not member.bot:
+                await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+                await self.bot.sleep()
+
+        await ctx.send(content=None, embed=self.EmbedBuilder(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Given To All These Humans**"))
+
+
+    @commands.hybrid_command(description="Give a role to all bots in the server")
+    @commands.guild_only()
+    @app_commands.guild_only()
+    @app_commands.describe(role="The role to give to all bots")
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    async def role_all_bot(self, ctx:commands.Context, role: Role):
+        if ctx.author.bot:return
+        await ctx.defer()
+        
+        if not ctx.guild.chunked:
+                    await ctx.send(
+                        embed=self.EmbedBuilder.warning(
+                            "this command isn't available right now !!"
+                        )
+                    )
+        if role.permissions.administrator:
+            return await ctx.send(embed=self.EmbedBuilder(description="**This role has admin permissions and not secure to add to all bots !!**"))
+        
+        try:
+            self.check_access(ctx.author, role)
+
+        except Exception as e:
+            return await ctx.send(embed=self.EmbedBuilder.warning(str(e)))
+
+        for member in ctx.guild.members:
+            if not member.bot:
+                continue
+
+            await member.add_roles(role, reason=f"role all command used by {ctx.author}")
+            await self.bot.sleep()
+
+        await ctx.send(content=None, embed=self.EmbedBuilder(color=self.bot.color.green, description=f"**{self.bot.emoji.tick} | {role.mention} Added To All The Bots**"))
+
+
+    @commands.hybrid_command(description="Hide all roles from the member list")
+    @commands.guild_only()
+    @app_commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    async def hide_roles(self, ctx:commands.Context):
+        await ctx.defer()
+        if ctx.author.bot:return
+        msg = await ctx.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**')
+
+        for role in ctx.guild.roles:
+            try:
+                self.check_access(ctx.author, role)
+                if role.is_default():
+                    continue
+                await role.edit(hoist=False)
+
+            except Exception as e:
+                await ctx.send(embed=self.EmbedBuilder(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
+
+            await self.bot.sleep()
+
+
+        await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10)
+
+
+    @commands.command(aliases=["hoist"])
+    @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True, send_messages=True)
+    async def unhide_roles(self, ctx:commands.Context, *roles : Role):
+        if ctx.author.bot:
+            return
+        
+        msg = await ctx.channel.send(f'{self.bot.emoji.loading}** {constants.PROCESSING}**') if ctx.channel.permissions_for(ctx.me).send_messages else None
+
+        for role in roles:
+            try:
+                self.check_access(ctx.author, role)
+                await role.edit(hoist=True)
+                await self.bot.sleep()
+
+            except Exception as e:
+                await ctx.send(embed=self.EmbedBuilder(
+                    description=str(e),
+                    color=self.bot.color.red
+                ), delete_after=10)
+                continue
+
+
+        await msg.edit(content=f"{self.bot.emoji.tick} Done", delete_after=10) if msg else None

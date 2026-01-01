@@ -3,6 +3,7 @@ from .tester import TesterModel
 
 from .autorole import GuildAutoRoleModel
 from .tourney import TourneyModel, TeamModel, TourneyRoundModel
+from ext.modals import Tourney
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -33,3 +34,5 @@ def init(db:"Database"):
     TesterModel._col = db.testers
     TourneyModel._col = db.tournaments
     TeamModel._col = db.teams
+
+    Tourney._col = db.dbc

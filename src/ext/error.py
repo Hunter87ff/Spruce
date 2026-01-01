@@ -24,21 +24,6 @@ ERROR_LOG_FP = "error.log"
 ERROR_FP = "error.txt"
 
 def update_error_log(error_message: str):
-    """
-    Appends an error message with a timestamp to the error log file.
-    
-    The function adds the current date and time in the Asia/Kolkata timezone
-    to the error message and writes it to the 'error.log' file.
-    
-    Args:
-        error_message (str): The error message to be logged.
-        
-    Returns:
-        None
-        
-    Example:
-        >>> update_error_log("Database connection failed")
-    """
     text = f"{datetime.datetime.now(pytz.timezone(TimeZone.Asia_Kolkata.value))} : {error_message}"
     with open("error.log", "a") as log_file:
         Logger.error(error_message)
@@ -46,27 +31,9 @@ def update_error_log(error_message: str):
 
 
 async def manage_backend_error(error: Exception, bot: "Spruce"):
-    """
-    Manages backend errors by sending error details to a designated error log channel.
-    
-    This function handles different types of discord.py errors by formatting them
-    appropriately and sending them to the error log channel defined in the config.
-    
-    Args:
-        error (Exception): The exception that was raised
-        bot (commands.Bot): The bot instance to get the error log channel
-        
-    Supported error types:
-        - discord.errors.HTTPException: Sends status code and error text
-        - discord.errors.ConnectionClosed: Sends the error message
-        - discord.errors.GatewayNotFound: Sends the error message
-        - discord.errors.RateLimited: Sends the error message
-    
-    Returns:
-        None
-    """
     if not hasattr(bot, "log_channel") or not bot.log_channel:
         Logger.warning("Log channel is not set. Cannot send error message.")
+        bot.logger.error(traceback.format_exc())
         return
     
     if isinstance(error, errors.HTTPException):
@@ -169,21 +136,6 @@ async def manage_context(ctx:commands.Context, error:commands.errors.DiscordExce
 
 
 async def handle_interaction_error(interaction: Interaction, error: app_commands.AppCommandError, bot: "Spruce"):
-    """
-    Manages errors that occur during interaction commands.
-    
-    This function handles various types of errors that can occur during interaction commands
-    and sends appropriate error messages to the user.
-    
-    Args:
-        interaction (types.Interaction): The interaction object containing user and guild information.
-        error (app_errors.AppCommandError): The error that occurred during the interaction command.
-        bot (Spruce): The bot instance to send error messages.
-        
-    Returns:
-        None
-    """
-    
     if isinstance(error, app_commands.MissingPermissions):
         await interaction.response.send_message(embed=Embed(color=0xff0000, description=str(error).replace("and", "").replace("comm.", "command.").replace("(s)", "")), ephemeral=True)
     elif isinstance(error, app_commands.CommandOnCooldown):
@@ -208,12 +160,16 @@ async def handle_interaction_error(interaction: Interaction, error: app_commands
                 ephemeral=True
             )
         else:
-            await interaction.response.send_message(
-                embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
-                ephemeral=True
-            )
+            try:
+                await interaction.response.send_message(
+                    embed=Embed(color=0xff0000, description="I'm sorry, but currently I'm facing some issues. Please try again later."),
+                    ephemeral=True
+                )
+            except Exception as e:
+                bot.logger.error(f"Failed to send error response: {e}")
+
         async with aiofiles.open(ERROR_FP, "w", encoding="utf-8") as file: 
             await file.write("\n".join(traceback.format_exception(error)))
  
         if bot.log_channel.permissions_for(bot.log_channel.guild.me).attach_files:
-            await bot.log_channel.send(content=f"<{bot.owner_id}>",  file=File(ERROR_FP)  )
+            await bot.log_channel.send(content=f"<{bot.owner_id}>", file=File(ERROR_FP))

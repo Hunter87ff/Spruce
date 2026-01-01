@@ -1,4 +1,4 @@
-from .scrim import ScrimCog
+from .scrim.scrim import ScrimCog
 from .tourney import TourneyCog, Esports
 
 

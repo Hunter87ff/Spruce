@@ -17,23 +17,6 @@ from typing import Callable
 
 
 def export_to_csv(data:str, filename:str, on_error:Callable[[str, int, tuple[str]], None]) -> tuple[str, Callable[[], None]]:
-    """
-    Exports data as a CSV file to the 'exports' directory.
-    This function creates an 'exports' directory if it doesn't exist,
-    then writes the given data to a CSV file with the specified filename.
-    Args:
-        data (str): The content to write to the CSV file.
-        filename (str): The name of the file without the extension.
-        onError (Callable[[str, int, tuple[str]], None]): A function to call when an error occurs,
-                                                    takes module name, line number, and error details.
-    Returns:
-        str: The path to the created CSV file if successful, None otherwise.
-
-        callback: A callback function to call when the file operation is complete. Takes a boolean indicating success or failure.
-
-    Raises:
-        Exception: Any exception during file operation will be caught and passed to the onError callback.
-    """
     _filepath = f"exports/{filename}.csv"
 
     try:

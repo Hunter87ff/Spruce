@@ -5,21 +5,25 @@ A module for managing esports tournaments in a Discord server.
     :license: GPL-3, see LICENSE for more details.
 """
 
+import re
+
+import discord
+import config
 import datetime
 import asyncio
-from cogs.esports.ext import checker
-from asyncio import sleep
-from random import shuffle as random_shuffle
 from typing import TYPE_CHECKING
 from discord.ext import commands
-from discord import app_commands
 from core.abstract import GroupCog
+from models import TeamModel, TourneyModel
+from cogs.esports.ext import checker
+from random import shuffle as random_shuffle
 from cogs.esports.ext.message_handle import tourney_registration
 from ext import constants, checks, Tourney, emoji, color, files, EmbedBuilder
 from discord import (
     ui,
     utils, 
     Role, 
+    app_commands,
     TextChannel, 
     CategoryChannel, 
     PermissionOverwrite,
@@ -29,6 +33,7 @@ from discord import (
     Embed, 
     Interaction, 
     File, 
+    Object,
     Forbidden, 
     ButtonStyle, 
     SelectOption, 
@@ -46,6 +51,7 @@ def get_front(name:str):
 
 class GroupConfig:
     def __init__(self, current_group:int, messages:list[Message], total_messages:int, event:Tourney, group_channel:TextChannel, group_category:CategoryChannel=None):
+        self.status = True #continue creating groups
         self.current_group = current_group
         self.messages = messages
         self.total_messages = total_messages
@@ -79,7 +85,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         if message.author.bot:
             return
         
-        await tourney_registration(message, self.bot)
+        await tourney_registration(self, message)
 
 
 
@@ -102,15 +108,112 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         ])
     
 
-    async def log(self, guild:Guild, message:str, color:int=color.cyan):
-        channel = utils.get(guild.text_channels, name=self.TOURNEY_LOG_CHANNEL_NAME)
-        if not channel:
-            return 
-        
-        embed =  Embed(description=message, color=color)
-        embed.set_author(name=guild.me.name, icon_url=guild.me.avatar)
-        await channel.send(embed=embed)
+    async def log(self, guild:Guild, message:str, color=None, **kwargs):
+        """Log scrim related messages to the scrim log channel."""
+        if not guild:
+            return
+        mention = kwargs.get("mention", None)
+        scrim_log_channel = utils.get(guild.text_channels, name=f"{self.bot.user.name.lower()}-tourney-log")
+        if not scrim_log_channel:
+            return
+        _webhook = await self.webhook(scrim_log_channel)
 
+        if _webhook:
+            _embed = EmbedBuilder(
+                description=message,
+                color=color or self.bot.base_color
+            )
+            await _webhook.send(
+                avatar_url=self.bot.user.display_avatar,
+                content=f"@{self.bot.config.TOURNEY_MOD_ROLE}" if mention else None,
+                embed=_embed
+            )
+
+
+    @app_commands.command(name="migrate", description="(Dev Only) Migrate a tournament to the new format")
+    @checks.dev_only(interaction=True)
+    @app_commands.guild_only()
+    @app_commands.guilds(*[Object(id) for id in config.TESTING_GUILDS])
+    @app_commands.checks.cooldown(1, 60, key=lambda i: i.guild.id)
+    async def migrate_tourney(self, ctx:Interaction, reg_channel: TextChannel):
+        await ctx.response.defer(ephemeral=True)
+
+        _tourney : Tourney =  Tourney.findOne(reg_channel.id)
+        if not _tourney:
+            return await ctx.followup.send("No tournament found in this channel")
+
+
+        slot_channel: TextChannel = ctx.guild.get_channel(_tourney.cch)
+        _status = bool(_tourney.status == "started")
+        _ftch = bool(_tourney.faketag == "no")
+        _cat = _tourney.created_at.timestamp() if isinstance(
+            _tourney.created_at, datetime.datetime
+            ) else self.bot.now().timestamp()
+        
+        _existing = await TourneyModel.get(reg_channel.id)
+        if _existing:
+            await ctx.followup.send(f"Tournament already exists ({_existing}) in the database, skipping migration.")
+            return
+
+        _new_tourney = TourneyModel(
+            status=_status,
+            name=_tourney.tname,
+            guild=ctx.guild.id,
+            mentions=1,
+            rch=_tourney.registration_channel,
+            cch=_tourney.confirmation_channel,
+            crole=_tourney.confirmation_role,
+            gch=_tourney.group_channel,
+            mch=_tourney.slot_manager,
+            tslot=_tourney.total_slots,
+            reged=0,
+            spg=_tourney.slot_per_group,
+            ftch=False,
+            cat=int(_cat),
+        )
+        await _new_tourney.save()
+
+
+
+        def parse_team(tourney : TourneyModel, message : Message):
+            _embed_content = str(message.embeds[0].description).lower()
+
+            _parsed_content = re.search(r"^(.+?)\s*<@(\d+)>", message.content)
+            _team_name: str = _parsed_content.group(1) if _parsed_content else None
+            _captain: int = message.mentions[0].id if message.mentions else None
+            _players: list[int] = [int(pid) for pid in re.findall(r"<@(\d+)>", _embed_content)] or [_captain]
+            if not _captain:
+                return
+            
+            _team = tourney.create_team(
+                _id=message.id,
+                name=_team_name,
+                capt=_captain,
+                members=set(_players),
+            )
+            return _team
+
+
+        confirmed_messages = slot_channel.history(limit=_tourney.reged+50, oldest_first=True)
+        async for message in confirmed_messages:
+            if message.author.id != self.bot.user.id or not message.embeds:
+                continue
+            try:
+                _team = parse_team(_new_tourney, message)
+                if _team:
+                    await _new_tourney.add_team(_team)
+
+            except Exception as e:
+                self.bot.logger.error(f"Error parsing team from message {message.id}: {e}")
+
+        _new_tourney.mentions = _tourney.mentions
+        _new_tourney.tag_filter = _ftch
+        await _new_tourney.save()
+        _content = f"Tournament migrated to new format. with {_new_tourney.team_count} teams"
+        await self.log(ctx.guild, _content, color=self.bot.color.blue)
+        await ctx.followup.send(
+            embed=EmbedBuilder.success(_content)
+        )
 
     @app_set.command(name="log", description="Setup Tourney Log Channel")
     @checks.tourney_mod(interaction=True)
@@ -256,20 +359,20 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 category = await ctx.guild.create_category(name, reason=f"{ctx.user.name} created")
                 await category.set_permissions(ctx.guild.me, overwrite=overwrite)
                 await category.set_permissions(ctx.guild.default_role, send_messages=False, add_reactions=False)
-                await sleep(1)  #sleep
+                await self.bot.sleep(1)  #sleep
                 await ctx.guild.create_text_channel(str(front)+"info", category=category, reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"updates", category=category,reason=reason)
                 await ctx.guild.create_text_channel(str(front)+"schedule", category=category,reason=reason)
                 roadmap = await ctx.guild.create_text_channel(str(front)+"roadmap", category=category,reason=reason)
                 rdmm = await roadmap.send(constants.PROCESSING)
                 await ctx.guild.create_text_channel(str(front)+"point-system", category=category,reason=reason)
-                await sleep(1) #sleep
+                await self.bot.sleep(1) #sleep
                 htrc = await ctx.guild.create_text_channel(str(front)+"how-to-register", category=category, reason=reason)
                 r_ch = await ctx.guild.create_text_channel(str(front)+"register-here", category=category, reason=reason)    
 
                 await self.bot.helper.unlock_channel(channel=r_ch) # unlocks the registration channel
                 c_ch = await ctx.guild.create_text_channel(str(front)+"confirmed-teams", category=category, reason=reason)  
-                await sleep(1)  #sleep
+                await self.bot.sleep(1)  #sleep
                 g_ch = await ctx.guild.create_text_channel(str(front)+"groups", category=category, reason=reason)
                 quer = await ctx.guild.create_text_channel(str(front)+"queries", category=category, reason=reason)
 
@@ -289,9 +392,11 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
                 await rdmm.edit(
                     content="https://tenor.com/view/coming-soon-coming-soon-its-coming-shortly-gif-21517225"
                 ) if rdmm else None
-                await htrm.add_reaction(emoji.tick)
-                await rchm.add_reaction(emoji.tick)
-                await sleep(1)  #sleep
+
+                await self.add_reaction(rdmm, emoji.tick)
+                await self.add_reaction(rchm, emoji.tick)
+                
+                await self.bot.sleep(1)  #sleep
                 tour = {
                     "guild" : int(ctx.guild.id), 
                     "t_name" : str(name), 
@@ -402,7 +507,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         amt = vc_amount + 1
         for i in range(1, amt):
             await cat.create_voice_channel(name=f"SLOT {i}", user_limit=6)
-            await sleep(1)
+            await self.bot.sleep(1)
         if snd:
             await snd.edit(
                 content=f"{emoji.tick} | {vc_amount} vc created access role is {crl.mention}"
@@ -451,50 +556,48 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
 
         
 
-    @commands.hybrid_command(description="Cancel a slot for a team")
-    @commands.guild_only()
-    @checks.tourney_mod()
+    @app_commands.command(name="cancel_slot", description="Cancel a slot for a team")
+    @app_commands.guild_only()
+    @checks.tourney_mod(interaction=True)
     @app_commands.describe(
         registration_channel="The channel where the tournament is registered, usually the registration channel.",
         member="The member whose slot you want to cancel",
         reason="The reason for canceling the slot"
     )
-    async def cancel_slot(self, ctx:commands.Context, registration_channel :  TextChannel, member :  Member, reason:str="Not Provided"):
-        await ctx.defer(ephemeral=True)
-        if ctx.author.bot:return
+    async def cancel_slot(self, ctx:Interaction, registration_channel: TextChannel, member: Member, reason:str="Not Provided"):
+        await ctx.response.defer(ephemeral=True)
+        if ctx.user.bot:
+            return
 
         tourney = Tourney.findOne(registration_channel.id)
 
         if not tourney:
-            return await ctx.send(embed= Embed(description=f"**{self._tnotfound}**", color=self.bot.color.red), delete_after=10)
+            return await ctx.followup.send(embed= Embed(description=f"**{self._tnotfound}**", color=self.bot.color.red), ephemeral=True)
 
         crole = ctx.guild.get_role(tourney.crole)
 
         cch = self.bot.get_channel(int(tourney.cch))
 
         if not cch:
-            return await ctx.send(embed= Embed(description="**Confirm Channel Not Found**", color=self.bot.color.red), delete_after=10)
+            return await ctx.followup.send(embed= EmbedBuilder.warning("Confirm Channel Not Found"), ephemeral=True)
 
-        if ctx.channel == cch:
-            return await ctx.message.delete()
-        
         if crole not in member.roles:
-            return await ctx.send(embed= Embed(title="Player Not Registered `or` Don't have Confirmed Role", color=self.bot.color.red), delete_after=60)
+            return await ctx.followup.send(embed= EmbedBuilder.warning("Player Not Registered `or` Don't have Confirmed Role"), ephemeral=True)
 
-        if crole in member.roles:
-            await member.remove_roles(crole)
-            self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : tourney.reged - 1}})
 
-            async for message in cch.history(limit=tourney.reged+50, oldest_first=True):
-                if member.mention in message.content and message.author.id == self.bot.user.id:
-                    await message.delete() 
-                    await ctx.send(
-                        embed= Embed(
-                            title=f"{member}'s Slot Canceled with reason of {reason}", 
-                            color=color.green
-                        )
+        await member.remove_roles(crole)
+        self.dbc.update_one({"rch" : registration_channel.id}, {"$set" : {"reged" : tourney.reged - 1}})
+
+        async for message in cch.history(limit=tourney.reged+50, oldest_first=True):
+            if member.mention in message.content and message.author.id == self.bot.user.id:
+                await message.delete() 
+                await ctx.followup.send(
+                    embed= Embed(
+                        title=f"{member}'s Slot Canceled with reason of {reason}", 
+                        color=color.green
                     )
-
+                )
+                break
 
 
     @commands.hybrid_command(description="Add a slot for a team")
@@ -598,33 +701,6 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
             if ms:
                 await ms.edit(content="Please Check Your DM") 
         
-
-
-    @commands.hybrid_command(description="Publish a tournament", aliases=["pub"])
-    @commands.guild_only()
-    @commands.cooldown(2, 20, commands.BucketType.user)
-    @checks.tourney_mod()
-    @app_commands.describe(
-        reg_channel="The channel where the tournament is registered",
-        prize="The prize for the tournament"
-    )
-    async def publish(self, ctx:commands.Context, reg_channel:  TextChannel, *, prize: str):
-        await ctx.defer(ephemeral=True)
-
-        if ctx.author.bot:
-            return
-
-        if len(prize) > 30:
-            return await ctx.reply("Only 30 Letters Allowed ")
-        try:
-            dbcd = self.dbc.find_one({"rch" : reg_channel.id})
-            if dbcd["reged"] < dbcd["tslot"]*0.1:
-                return await ctx.send("You need To Fill 10% Of Total Slot. To Publish This Tournament")
-        except Exception:
-            return await ctx.send(self._tnotfound)
-        self.dbc.update_one({"rch" : reg_channel.id}, {"$set" : {"pub" : "yes", "prize" : prize}})
-        await ctx.send(f"**{reg_channel.category.name} is now public**")
-
 
 
     @commands.hybrid_command(description="Toggle the fake tag filter for a tournament")
@@ -1199,7 +1275,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
             await ctx.send(embed=EmbedBuilder.warning("No Team Found"))
             return
 
-        ask = await ctx.send(EmbedBuilder.alert("Enter New Team Name + Mention"))
+        ask = await ctx.send(embed=EmbedBuilder.alert("Enter New Team Name + Mention"))
         new_slot = await self.get_input(ctx)
 
         if not new_slot: 
@@ -1221,6 +1297,10 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
 
     
     async def generate_groups(self, group_config:GroupConfig):
+
+        if not group_config.status:
+            return
+        
         base_index = (group_config.current_group * group_config.event.spg) - group_config.event.spg # starting index of a group message in all the messages
         to_index = base_index + group_config.event.spg #ending index of a group message in all the messages
         team_count = 1 # serial number for teams
@@ -1241,6 +1321,9 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         await msg.add_reaction("✅")
 
         if isinstance(group_config.group_category, CategoryChannel):
+            if len(group_config.group_category.channels) >= 50:
+                raise ValueError("Maximum number of channels reached!! Can't create more groups.")
+            
             channel = await group_config.group_category.guild.create_text_channel(
                 name=f"{group_config.event.prefix}-group-{group_config.current_group}", 
                 category=group_config.group_category
@@ -1295,7 +1378,7 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
         limit = _event.reged - (base_index + _event.spg)
         messages: list[Message] = []
         
-        async for message in confirm_channel.history(limit=limit+_event.spg, oldest_first=True):
+        async for message in confirm_channel.history(limit=_event.reged + _event.spg, oldest_first=True):
             if all([message.author == ctx.guild.me, message.mentions]):
                 messages.append(message)
 
@@ -1310,12 +1393,29 @@ class TourneyCog(GroupCog, name="tourney", group_name="tourney"):
             return await ctx.followup.send(embed=EmbedBuilder.warning("No team found for the specified group range."))
 
         _group_config = GroupConfig(from_group, messages, total_messages, _event, group_channel, group_category)
-        await self.generate_groups(_group_config)
-        await ctx.followup.send(
-            embed=EmbedBuilder.success(
-                f"Groups generated from {from_group} to {_group_config.current_group - 1} in {group_channel.mention}")
-            )
 
+        class CancelProcessView(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=None)
+
+            @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+            async def cancel_button(self,  interaction: discord.Interaction, button: discord.ui.Button):
+                _group_config.status = False
+                await interaction.response.edit_message(embed=EmbedBuilder.success("Group generation cancelled."), view=None)
+
+        try:
+            await ctx.followup.send(
+                embed=EmbedBuilder.success(f"Generating groups from {from_group}... This may take a while depending on the number of teams."),
+                view=CancelProcessView()
+                )
+            
+            await self.generate_groups(_group_config)
+            await ctx.followup.send(
+                embed=EmbedBuilder.success(
+                    f"Groups generated from {from_group} to {_group_config.current_group - 1} in {group_channel.mention}")
+                )
+        except Exception as e:
+            await ctx.followup.send(embed=EmbedBuilder.warning(f"{e}"))
 
 
     @commands.hybrid_command(description="Set the manager for the tournament")

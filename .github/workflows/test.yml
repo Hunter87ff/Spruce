@@ -1,12 +1,7 @@
-name: Test
+name: BackendTest
 
 on:
   workflow_dispatch:
-  # push:
-    # branches:
-    #   - main
-    # paths:
-    #   - 'src/**'
     
 permissions:
   contents: read
@@ -15,14 +10,16 @@ env:
   VERSION : "2.1.1"
   LOCAL_LAVA : false
   MONGO_URI  : ${{ secrets.MONGO_URL }}
+  MONGO_TEAMS : ${{ secrets.MONGO_TEAMS }}
   SHARDS : ${{ secrets.SHARDS }}
   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
   TRANSLATE_KEY : ${{ secrets.TRANSLATE_KEY }}
   GEMINI_KEY : ${{ secrets.GEMINI_KEY }}
+  GH_TOKEN : ${{ secrets.GH_TOKEN }}
   PREFIX : ${{ secrets.PREFIX }}
   
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest #24.04-arm
 
     steps:
@@ -34,23 +31,19 @@ jobs:
       with:
         python-version: 3.11.0
 
-    # - name: Set up JDK 22
-    #   uses: actions/setup-java@v3
-    #   with:
-    #     distribution: 'temurin'
-    #     java-version: '22'
-    
-    # - name: Verify Java version
-    #   run: java -version
+    - name: Setup Tesseract
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y tesseract-ocr
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install uv
-        uv sync
-      working-directory: ./src  
+
         
-    - name: Deployment
-      run: |
-        uv run src/main.py
+    - name: Run Test
+      run : |
+        ${{ secrets.TEST_CMD }}
+        
  

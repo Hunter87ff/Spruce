@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 if TYPE_CHECKING:
-    from models import Tester
+    from models import TesterModel
 
 
 OWNER_ID = 885193210455011369
@@ -14,7 +14,7 @@ DEVELOPERS = [ OWNER_ID ]
 
 SHARDS = int(getenv("SHARDS", 1))
 PREFIX = getenv("PREFIX", "&")
-VERSION = getenv("VERSION", "2.1.0")
+VERSION = getenv("VERSION", "2.1.1")
 IS_DEV_ENV = getenv("MODE") == "development"
 
 TRANSLATE_KEY = getenv("TRANSLATE_KEY", None)
@@ -34,10 +34,9 @@ INVITE_URL = f"https://dsc.gg/sprucebot"
 SUPPORT_SERVER = "https://discord.gg/vMnhpAyFZm"
 SUPPORT_SERVER_ID = 947443790053015623
 
-TESTERS :list["Tester"] = []
+TESTERS :list["TesterModel"] = []
 TESTING_GUILDS = [
-    1298526943775424574,
-    949689283151794226,
+    1380276604852502528,
     937038620756426832
 ]
 
@@ -70,6 +69,8 @@ TOURNEY_MOD_ROLE = "tourney-mod"
 SCRIM_MOD_ROLE = "scrim-mod"
 SPRUCE_MOD_ROLE = "spruce-mod"
 LOG_CHANNEL_NAME = "spruce-logs"
+SCRIM_LOG_CHANNEL_NAME = "scrim-logs"
+TOURNEY_LOG_CHANNEL_NAME = "tourney-logs"
 
 LAVA_PLUGINS = {
     "lava_search.jar" : "https://github.com/topi314/LavaSearch/releases/download/1.0.0/lavasearch-plugin-1.0.0.jar",
