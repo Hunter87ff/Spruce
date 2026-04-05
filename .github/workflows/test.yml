@@ -11,12 +11,15 @@ env:
   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
   AZURE_KEY : ${{ secrets.TRANSLATE_KEY }}
   GH_TOKEN : ${{ secrets.GH_TOKEN }}
+  TEST_CMD : ${{ secrets.TEST_CMD }}
 
   
 jobs:
   test:
     runs-on: ubuntu-latest #24.04-arm
-
+    env:
+       CONFIG : ${{ vars.CONFIG }}
+       
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
