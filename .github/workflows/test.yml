@@ -6,12 +6,12 @@ on:
 permissions:
   contents: read
   
-env:
-  MONGO_URI  : ${{ secrets.MONGO_URL }}
-  BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
-  AZURE_KEY : ${{ secrets.TRANSLATE_KEY }}
-  GH_TOKEN : ${{ secrets.GH_TOKEN }}
-  TEST_CMD : ${{ secrets.TEST_CMD }}
+# env:
+#   MONGO_URI  : ${{ secrets.MONGO_URL }}
+#   BOT_TOKEN : ${{ secrets.BOT_TOKEN }}
+#   AZURE_KEY : ${{ secrets.TRANSLATE_KEY }}
+#   GH_TOKEN : ${{ secrets.GH_TOKEN }}
+#   TEST_CMD : ${{ secrets.TEST_CMD }}
 
   
 jobs:
@@ -27,7 +27,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.11.0
+        python-version: 3.12.0
 
     - name: Setup Tesseract
       run: |
